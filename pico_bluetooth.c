@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "<bt/uni_bt.h>
+#include <bt/uni_bt.h>
 #include <btstack.h>
 #include <controller/uni_gamepad.h>
 #include <pico/cyw43_arch.h>
