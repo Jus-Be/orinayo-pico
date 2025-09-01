@@ -1,0 +1,25 @@
+name: Pico Build Action
+on: [push]
+jobs:
+  test_build:
+      name: Build example blink program
+      runs-on: ubuntu-latest
+      permissions:
+          contents: read
+
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+
+          - name: Build Blink Example
+            id: build
+            uses: samyarsadat/Pico-Build-Action@v1
+            with:
+                source_dir: "."
+
+          - name: Upload Build Artifacts
+            uses: actions/upload-artifact@v4
+            with:
+                name: workspace_artifacts
+                path: ${{steps.build.outputs.output_dir}}
+            
