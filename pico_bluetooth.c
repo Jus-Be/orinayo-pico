@@ -142,6 +142,7 @@ static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* da
 
     default:
       //logi("my_platform_on_oob_event: unsupported event: 0x%04x\n", event);
+	  break;
   }
 }
 
