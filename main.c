@@ -72,10 +72,12 @@ void bluetooth_thread_run() {
 }
 
 int main() {
+	stdio_init_all();	
+	sleep_ms (100);
+	
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	tusb_init();
-	//sleep_ms (10);
 	
 	//multicore_launch_core1(bluetooth_thread_run);	
 	
