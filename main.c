@@ -13,7 +13,6 @@
 #include "bsp/board.h"
 #include "tusb.h"
 #include "pico_bluetooth.h"
-#include "debug.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -61,23 +60,31 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 void led_blinking_task(void);
 void midi_task(void);
 
+void bluetooth_thread_run() {
+  // initialize CYW43 driver architecture
+  if (cyw43_arch_init()) {
+    PICO_ERROR("failed to initialise cyw43_arch\n");
+    return;
+  }
+
+  pico_set_led(true);
+  bluetooth_init();
+  bluetooth_run();
+}
+
 int main() {
-	stdio_init_all();	
-	sleep_ms (100);
-	
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
-	tusb_init();
+	//tusb_init();
+	multicore_launch_core1(bluetooth_thread_run);	
 	
-	if (!cyw43_arch_init()) {
-		bluetooth_init();
-	}
-	
+	/*
     while (true) {
 		tud_task(); // tinyusb device task
 		led_blinking_task();				
 		midi_task();		
     }
+	*/
 }
 
 //--------------------------------------------------------------------+

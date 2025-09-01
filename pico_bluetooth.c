@@ -180,5 +180,5 @@ void bluetooth_init(void) {
 }
 
 void bluetooth_run(void) {
-  //btstack_run_loop_execute();
+  btstack_run_loop_execute();
 }
