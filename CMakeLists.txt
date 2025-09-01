@@ -1,4 +1,4 @@
-#  Pico Build Action - Simple blink test program CMake config.
+#  Pico Build Action - Orinayo CMake config.
 #  Copyright 2024 Samyar Sadat Akhavi
 #  Written by Samyar Sadat Akhavi, 2024.
 #
@@ -28,7 +28,7 @@ include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 # Set project name and C/C++ standards
 string(TIMESTAMP DATEVER "%Y.%m.%d" UTC)
-project(Blink VERSION ${DATEVER} LANGUAGES C CXX ASM)
+project(Orinayo VERSION ${DATEVER} LANGUAGES C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -36,7 +36,12 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 # Add source files
-add_executable(${PROJECT_NAME} blink.c)
+add_executable(${PROJECT_NAME} main.c usb_descriptors.c)
+
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(${PROJECT_NAME})
@@ -45,13 +50,13 @@ pico_add_extra_outputs(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} pico_stdlib)
 
 if (PICO_CYW43_SUPPORTED)
-    target_link_libraries(${PROJECT_NAME} pico_cyw43_arch_none)
+    target_link_libraries(${PROJECT_NAME} pico_cyw43_arch_none tinyusb_device tinyusb_board)
 endif()
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
 pico_set_program_version(${PROJECT_NAME} ${PROJECT_VERSION})
-pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Simple blink test program")
+pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Orinayo")
 
 # CMake flags
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
