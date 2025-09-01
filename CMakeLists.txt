@@ -36,8 +36,7 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 # Add source files
-add_executable(${PROJECT_NAME} main.c usb_descriptors.c)
-add_library(${PROJECT_NAME} STATIC pico_bluetooth.c)
+add_executable(${PROJECT_NAME} main.c usb_descriptors.c pico_bluetooth.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
@@ -59,5 +58,5 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Orinayo")
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
 
-set(BLUEPAD32_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/bluepad32)
-add_subdirectory(${BLUEPAD32_ROOT}/src/components/bluepad32 libbluepad32)
+#set(BLUEPAD32_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/bluepad32)
+#add_subdirectory(${BLUEPAD32_ROOT}/src/components/bluepad32 libbluepad32)
