@@ -63,7 +63,6 @@ void midi_task(void);
 void bluetooth_thread_run() {
   // initialize CYW43 driver architecture
   if (cyw43_arch_init()) {
-    PICO_ERROR("failed to initialise cyw43_arch\n");
     return;
   }
 
