@@ -37,6 +37,7 @@ pico_sdk_init()
 
 # Add source files
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c)
+add_library(${PROJECT_NAME} STATIC pico_bluetooth.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
@@ -47,11 +48,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to libraries
-target_link_libraries(${PROJECT_NAME} pico_stdlib)
-
-if (PICO_CYW43_SUPPORTED)
-    target_link_libraries(${PROJECT_NAME} pico_cyw43_arch_none tinyusb_device tinyusb_board)
-endif()
+target_link_libraries(${PROJECT_NAME} pico_stdlib pico_cyw43_arch_none tinyusb_device tinyusb_board pico_btstack_classic pico_btstack_classic pico_btstack_cyw43 bluepad32)
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
@@ -61,3 +58,6 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Orinayo")
 # CMake flags
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
+
+set(BLUEPAD32_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/bluepad32)
+add_subdirectory(${BLUEPAD32_ROOT}/src/components/bluepad32 libbluepad32)
