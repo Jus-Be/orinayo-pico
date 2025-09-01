@@ -47,7 +47,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CM
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to libraries
-target_link_libraries(${PROJECT_NAME} pico_stdlib pico_cyw43_arch_none tinyusb_device tinyusb_board pico_btstack_classic pico_btstack_classic pico_btstack_cyw43 bluepad32)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_board pico_btstack_classic pico_btstack_ble pico_btstack_cyw43 bluepad32)
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
