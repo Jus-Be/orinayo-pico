@@ -2,7 +2,7 @@ name: Pico Build Action
 on: [push]
 jobs:
   test_build:
-      name: Build example blink program
+      name: Build Orinayo
       runs-on: ubuntu-latest
       permissions:
           contents: read
