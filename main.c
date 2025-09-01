@@ -8,6 +8,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
+#include "bsp/board.h"
 #include "tusb.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
@@ -52,7 +53,6 @@ enum  {
 };
 
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
-const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
 void led_blinking_task(void);
 void midi_task(void);
