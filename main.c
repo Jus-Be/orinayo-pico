@@ -75,9 +75,9 @@ int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	tusb_init();
-	sleep_ms (10);
+	//sleep_ms (10);
 	
-	multicore_launch_core1(bluetooth_thread_run);	
+	//multicore_launch_core1(bluetooth_thread_run);	
 	
     while (true) {
 		tud_task(); // tinyusb device task
