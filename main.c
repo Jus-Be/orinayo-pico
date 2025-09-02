@@ -63,17 +63,15 @@ void midi_task(void);
 int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
-	//tusb_init();
-	//multicore_launch_core1(bluetooth_thread_run);	
 	
+	tusb_init();
 	bluetooth_init();
 		
     while (true) {
-		//tud_task(); // tinyusb device task
+		tud_task(); // tinyusb device task
 		led_blinking_task();				
-		//midi_task();		
+		midi_task();		
     }
-	
 }
 
 //--------------------------------------------------------------------+
