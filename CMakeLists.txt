@@ -63,4 +63,4 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Orinayo")
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
 
-add_subdirectory( ${BLUEPAD32_ROOT}${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
