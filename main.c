@@ -68,7 +68,6 @@ int main() {
     tusb_init();
 	sleep_ms(1000);	
 	
-    stdio_init_all();
 	bluetooth_init();
 		
     while (true) {
