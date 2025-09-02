@@ -61,13 +61,6 @@ void led_blinking_task(void);
 void midi_task(void);
 
 void bluetooth_thread_run() {
-  // initialize CYW43 driver architecture
-  pico_set_led(false);
-  
-  if (cyw43_arch_init()) {
-    return;
-  }
-
   blink_interval_ms = BLINK_MOUNTED;
   led_blinking_task();
   
@@ -83,6 +76,7 @@ int main() {
     hard_assert(rc == PICO_OK);
 	//tusb_init();
 	//multicore_launch_core1(bluetooth_thread_run);	
+	bluetooth_thread_run();
 		
     while (true) {
 		//tud_task(); // tinyusb device task
