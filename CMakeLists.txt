@@ -44,7 +44,7 @@ add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
-pico_enable_stdio_uart(${PROJECT_NAME} 1)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src)
 
