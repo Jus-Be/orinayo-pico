@@ -61,14 +61,8 @@ void led_blinking_task(void);
 void midi_task(void);
 
 void bluetooth_thread_run() {
-  blink_interval_ms = BLINK_MOUNTED;
-  led_blinking_task();
-  
   bluetooth_init();
-  bluetooth_run();
-  
-  blink_interval_ms = BLINK_SUSPENDED;  
-  led_blinking_task();  
+  bluetooth_run();  
 }
 
 int main() {
@@ -76,7 +70,14 @@ int main() {
     hard_assert(rc == PICO_OK);
 	//tusb_init();
 	//multicore_launch_core1(bluetooth_thread_run);	
-	bluetooth_thread_run();
+	
+    blink_interval_ms = BLINK_MOUNTED;
+    led_blinking_task();	
+	
+	bluetooth_init();
+	
+    blink_interval_ms = BLINK_SUSPENDED;  
+    led_blinking_task();  
 		
     while (true) {
 		//tud_task(); // tinyusb device task
