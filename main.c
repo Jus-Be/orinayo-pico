@@ -68,25 +68,29 @@ void bluetooth_thread_run() {
     return;
   }
 
-  pico_set_led(true);
+  blink_interval_ms = BLINK_MOUNTED;
+  led_blinking_task();
+  
   bluetooth_init();
   bluetooth_run();
+  
+  blink_interval_ms = BLINK_SUSPENDED;  
+  led_blinking_task();  
 }
 
 int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	//tusb_init();
-	pico_set_led(true);	
+	led_blinking_task();
 	multicore_launch_core1(bluetooth_thread_run);	
-	
-	/*
+		
     while (true) {
-		tud_task(); // tinyusb device task
+		//tud_task(); // tinyusb device task
 		led_blinking_task();				
-		midi_task();		
+		//midi_task();		
     }
-	*/
+	
 }
 
 //--------------------------------------------------------------------+
