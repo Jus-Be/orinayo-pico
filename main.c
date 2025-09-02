@@ -62,6 +62,8 @@ void midi_task(void);
 
 void bluetooth_thread_run() {
   // initialize CYW43 driver architecture
+  pico_set_led(false);
+  
   if (cyw43_arch_init()) {
     return;
   }
@@ -75,6 +77,7 @@ int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	//tusb_init();
+	pico_set_led(true);	
 	multicore_launch_core1(bluetooth_thread_run);	
 	
 	/*
