@@ -37,6 +37,7 @@ static void pico_bluetooth_on_init_complete(void) {
   // PICO_INFO("Started Bluetooth scanning for new devices.\n");
 
   uni_property_dump_all();
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const char* name, uint16_t cod, uint8_t rssi) {
@@ -52,6 +53,7 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   // Check if it's a Gamepad controller
   if (name && (strstr(name, "STANDARD GAMEPAD"))) {
     // PICO_INFO("Gamepad controller detected! Attempting connection...\n");
+	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
   }
 
   // As an example, if you want to filter out keyboards, do:
@@ -110,6 +112,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
@@ -177,8 +180,4 @@ void bluetooth_init(void) {
   // Initialize BP32
   uni_init(0, NULL);
   // PICO_INFO("Bluepad32 initialized\n");
-}
-
-void bluetooth_run(void) {
-  btstack_run_loop_execute();
 }
