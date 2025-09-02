@@ -64,7 +64,11 @@ int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	
-	tusb_init();
+    board_init();
+    tusb_init();
+	sleep_ms(1000);	
+	
+    stdio_init_all();
 	bluetooth_init();
 		
     while (true) {
