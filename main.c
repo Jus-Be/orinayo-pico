@@ -83,7 +83,8 @@ int main() {
     hard_assert(rc == PICO_OK);
 	//tusb_init();
 	led_blinking_task();
-	multicore_launch_core1(bluetooth_thread_run);	
+	//multicore_launch_core1(bluetooth_thread_run);	
+	bluetooth_thread_run();
 		
     while (true) {
 		//tud_task(); // tinyusb device task
