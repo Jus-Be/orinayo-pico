@@ -116,11 +116,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		uint16_t buttons = ctl->gamepad.buttons;
 		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
-		
-		if (buttons) midi_send_note(0x80,  buttons, 0);		
-		if (buttons) midi_send_note(0x82,  misc_buttons, 0);	
-		
-		/*
+				
 		uint8_t but0 = (buttons >> 0) & 0x01;
 		uint8_t but1 = (buttons >> 1) & 0x01;
 		uint8_t but2 = (buttons >> 2) & 0x01;
@@ -136,7 +132,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		uint8_t butC = (buttons >> 12) & 0x01;
 		uint8_t butD = (buttons >> 13) & 0x01;	
 		uint8_t butE = (buttons >> 14) & 0x01;
-		uint8_t butF = (buttons >> 15) & 0x01;			
+		uint8_t butF = (buttons >> 15) & 0x01;	
+
+		uint8_t dpad_left = ctl->gamepad.dpad & 0x08;	
+		uint8_t dpad_right = ctl->gamepad.dpad & 0x04;
+		uint8_t dpad_up = ctl->gamepad.dpad & 0x01;
+		uint8_t dpad_down = ctl->gamepad.dpad & 0x08;
 		
 		if (but0) midi_send_note(0x80,  but0, 0);
 		if (but1) midi_send_note(0x81,  but1, 0);		
@@ -149,30 +150,57 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (but8) midi_send_note(0x88,  but8, 0);
 		if (but9) midi_send_note(0x89,  but9, 0);
 		if (butA) midi_send_note(0x8A,  butA, 0);
-		if (butB) midi_send_note(0x8B,  butB, 0);			
-		if (butC) midi_send_note(0x8C,  butC, 0);
-		if (butD) midi_send_note(0x8D,  butD, 0);
-		if (butE) midi_send_note(0x8E,  butE, 0);
-		if (butF) midi_send_note(0x8F,  butF, 0);
+		if (butB) midi_send_note(0x8B,  butB, 0);	
+		
+		if (dpad_left) midi_send_note(0x8C,  dpad_left, 0);
+		if (dpad_right) midi_send_note(0x8D,  dpad_right, 0);
+		if (dpad_up) midi_send_note(0x8E,  dpad_up, 0);
+		if (dpad_down) midi_send_note(0x8F,  dpad_down, 0);
 
 		uint8_t mbut0 = 16 +(misc_buttons >> 0) & 0x01;
 		uint8_t mbut1 = 16 + (misc_buttons >> 1) & 0x01;
-		uint8_t mbut2 = 16 + (misc_buttons >> 2) & 0x01;		
+		uint8_t mbut2 = 16 + (misc_buttons >> 2) & 0x01;
+		uint8_t mbut3 = 16 + (misc_buttons >> 3) & 0x01;
+		uint8_t mbut4 = 16 + (misc_buttons >> 4) & 0x01;
+		uint8_t mbut5 = 16 + (misc_buttons >> 5) & 0x01;
+		uint8_t mbut6 = 16 + (misc_buttons >> 6) & 0x01;
+		uint8_t mbut7 = 16 + (misc_buttons >> 7) & 0x01;
+		uint8_t mbut8 = 16 + (misc_buttons >> 8) & 0x01;
+		uint8_t mbut9 = 16 + (misc_buttons >> 9) & 0x01;
+		uint8_t mbutA = 16 + (misc_buttons >> 10) & 0x01;
+		uint8_t mbutB = 16 + (misc_buttons >> 11) & 0x01;	
+		uint8_t mbutC = 16 + (misc_buttons >> 12) & 0x01;
+		uint8_t mbutD = 16 + (misc_buttons >> 13) & 0x01;	
+		uint8_t mbutE = 16 + (misc_buttons >> 14) & 0x01;
+		uint8_t mbutF = 16 + (misc_buttons >> 15) & 0x01;			
 
 		if (mbut0) midi_send_note(0x90, mbut0, 0);
 		if (mbut1) midi_send_note(0x91, mbut1, 0);		
 		if (mbut2) midi_send_note(0x92, mbut2, 0);	
-		*/
+		if (mbut3) midi_send_note(0x93,  mbut3, 0);
+		if (mbut4) midi_send_note(0x94,  mbut4, 0);
+		if (mbut5) midi_send_note(0x95,  mbut5, 0);	
+		if (mbut6) midi_send_note(0x96,  mbut6, 0);
+		if (mbut7) midi_send_note(0x97,  mbut7, 0);		
+		if (mbut8) midi_send_note(0x98,  mbut8, 0);
+		if (mbut9) midi_send_note(0x99,  mbut9, 0);
+		if (mbutA) midi_send_note(0x9A,  mbutA, 0);
+		if (mbutB) midi_send_note(0x9B,  mbutB, 0);			
+		if (mbutC) midi_send_note(0x9C,  mbutC, 0);
+		if (mbutD) midi_send_note(0x9D,  mbutD, 0);
+		if (mbutE) midi_send_note(0x9E,  mbutE, 0);
+		if (mbutF) midi_send_note(0x9F,  mbutF, 0);		
+
 		
 		uint8_t axis_x = ctl->gamepad.axis_x / 4;
 		uint8_t axis_y = ctl->gamepad.axis_y / 4;
 		uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
 		uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	
 
-		if (axis_x) midi_send_note(0x91,  axis_x, 0);	
-		if (axis_y) midi_send_note(0x92,  axis_y, 0);	
-		if (axis_rx) midi_send_note(0x93,  axis_rx, 0);	
-		if (axis_ry) midi_send_note(0x94,  axis_ry, 0);		
+		if (axis_x) midi_send_note(0x8F,  axis_x, 0);	
+		if (axis_y) midi_send_note(0x8F,  axis_y, 0);	
+		if (axis_rx) midi_send_note(0x8F,  axis_rx, 0);	
+		if (axis_ry) midi_send_note(0x8F,  axis_ry, 0);		
 	
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
