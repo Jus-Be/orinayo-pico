@@ -59,6 +59,8 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void led_blinking_task(void);
 void midi_task(void);
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+
 
 int main() {
     int rc = pico_led_init();
