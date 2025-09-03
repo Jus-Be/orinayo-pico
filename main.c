@@ -140,22 +140,27 @@ void midi_task(void)
   if (previous < 0) previous = sizeof(note_sequence) - 1;
 
   // Send Note On for current position at full velocity (127) on channel 1.
-  msg[0] = 0x90;                    // Note On - Channel 1
-  msg[1] = note_sequence[note_pos]; // Note Number
-  msg[2] = 127;                     // Velocity
-  tud_midi_n_stream_write(0, 0, msg, 3);
+  midi_send_note(0x90,  note_sequence[note_pos], 127);
 
   // Send Note Off for previous note.
-  msg[0] = 0x80;                    // Note Off - Channel 1
-  msg[1] = note_sequence[previous]; // Note Number
-  msg[2] = 0;                       // Velocity
-  tud_midi_n_stream_write(0, 0, msg, 3);
+  midi_send_note(0x80,  note_sequence[previous], 0);
 
   // Increment position
   note_pos++;
 
   // If we are at the end of the sequence, start over.
   if (note_pos >= sizeof(note_sequence)) note_pos = 0;
+}
+
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
+{
+	uint8_t msg[3];	
+	
+	msg[0] = command;
+	msg[1] = note;
+	msg[2] = velocity;   
+	
+	tud_midi_n_stream_write(0, 0, msg, 3);	
 }
 
 
