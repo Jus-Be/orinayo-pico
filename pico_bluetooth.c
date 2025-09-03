@@ -113,7 +113,29 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-
+		
+		uint16_t buttons = ctl->gamepad.buttons;
+		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
+		
+		midi_send_note(0x80,  (buttons >> 0) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 1) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 2) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 3) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 4) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 5) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 6) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 7) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 8) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 9) & 0x01, 0);
+		
+		midi_send_note(0x80,  (buttons >> 10) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 11) & 0x01, 0);
+		midi_send_note(0x80,  (buttons >> 12) & 0x01, 0);
+		
+		midi_send_note(0x80,  (misc_buttons >> 0) & 0x01, 0);
+		midi_send_note(0x80,  (misc_buttons >> 1) & 0x01, 0);
+		midi_send_note(0x80,  (misc_buttons >> 2) & 0x01, 0);		
+		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
       // DO NOTHING
