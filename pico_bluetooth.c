@@ -117,6 +117,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		uint16_t buttons = ctl->gamepad.buttons;
 		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
 		
+		if (buttons) midi_send_note(0x80,  buttons, 0);		
+		if (buttons) midi_send_note(0x82,  misc_buttons, 0);	
+		
+		/*
 		uint8_t but0 = (buttons >> 0) & 0x01;
 		uint8_t but1 = (buttons >> 1) & 0x01;
 		uint8_t but2 = (buttons >> 2) & 0x01;
@@ -150,15 +154,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (butD) midi_send_note(0x8D,  butD, 0);
 		if (butE) midi_send_note(0x8E,  butE, 0);
 		if (butF) midi_send_note(0x8F,  butF, 0);
-		
+
 		uint8_t mbut0 = 16 +(misc_buttons >> 0) & 0x01;
 		uint8_t mbut1 = 16 + (misc_buttons >> 1) & 0x01;
 		uint8_t mbut2 = 16 + (misc_buttons >> 2) & 0x01;		
 
-		if (mbut0) midi_send_note(0x80, mbut0, 0);
-		if (mbut1) midi_send_note(0x81, mbut1, 0);		
-		if (mbut2) midi_send_note(0x82, mbut2, 0);	
-
+		if (mbut0) midi_send_note(0x90, mbut0, 0);
+		if (mbut1) midi_send_note(0x91, mbut1, 0);		
+		if (mbut2) midi_send_note(0x92, mbut2, 0);	
+		*/
+		
 		uint8_t axis_x = ctl->gamepad.axis_x / 4;
 		uint8_t axis_y = ctl->gamepad.axis_y / 4;
 		uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
