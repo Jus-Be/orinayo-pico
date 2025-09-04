@@ -18,11 +18,6 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
-enum {
-	BASE = 48,
-};
-
-
 // Platform Overrides
 static void pico_bluetooth_init(int argc, const char** argv) {
   ARG_UNUSED(argc);
@@ -167,7 +162,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
   
-  static uint8_t base = BASE + transpose;
+  static uint8_t base = 48 + transpose;
   
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
