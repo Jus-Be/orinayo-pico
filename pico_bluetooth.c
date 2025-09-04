@@ -258,7 +258,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (knob_down != logo_knob_down) {
 			midi_send_note(knob_down ? 0x90 : 0x80,  19, 19);
 			logo_knob_down = knob_down;
-		}		
+		}
+
+		if ((ctl->gamepad.buttons >> 5) & 0x01) 	midi_send_note(0x8F,  5, 5);
+		if ((ctl->gamepad.buttons >> 6) & 0x01) 	midi_send_note(0x8F,  6, 6);
+		if ((ctl->gamepad.buttons >> 7) & 0x01) 	midi_send_note(0x8F,  7, 7);
+		if ((ctl->gamepad.buttons >> 8) & 0x01) 	midi_send_note(0x8F,  8, 8);
+		if ((ctl->gamepad.buttons >> 10) & 0x01) 	midi_send_note(0x8F,  10, 10);
+		if ((ctl->gamepad.buttons >> 11) & 0x01) 	midi_send_note(0x8F,  11, 11);
+		if ((ctl->gamepad.buttons >> 12) & 0x01) 	midi_send_note(0x8F,  12, 12);
+		
+		
 		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
