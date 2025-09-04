@@ -124,23 +124,35 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t start = 0;
   static uint8_t menu = 0;
   static uint8_t logo = 0;
-  static uint8_t config = 0;		
+  static uint8_t config = 0;	
+		
+  uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
+  uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
+  uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
+  uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
+  uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01;
+  uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
+
+  uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
+  uint8_t dpad_right = ctl->gamepad.dpad & 0x01;
+  uint8_t dpad_up = ctl->gamepad.dpad & 0x04;
+  uint8_t dpad_down = ctl->gamepad.dpad & 0x08;
+
+  uint8_t mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
+  uint8_t mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
+  uint8_t mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
+  uint8_t mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
+
+  uint8_t axis_x = ctl->gamepad.axis_x / 4;
+  uint8_t axis_y = ctl->gamepad.axis_y / 4;
+  uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
+  uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	  
 
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
-		//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+	  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 				
-		uint16_t buttons = ctl->gamepad.buttons;
-		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
-				
-		uint8_t but0 = (buttons >> 0) & 0x01;
-		uint8_t but1 = (buttons >> 1) & 0x01;
-		uint8_t but2 = (buttons >> 2) & 0x01;
-		uint8_t but3 = (buttons >> 3) & 0x01;
-		uint8_t but4 = (buttons >> 4) & 0x01;
-		uint8_t but9 = (buttons >> 9) & 0x01;
-
 		if (but1 != green) {
 			midi_send_note(0x81,  but1, 1);
 			green = but1;
@@ -170,11 +182,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(0x89,  but9, 9);
 			starpower = but9;
 		}				
-
-		uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
-		uint8_t dpad_right = ctl->gamepad.dpad & 0x01;
-		uint8_t dpad_up = ctl->gamepad.dpad & 0x04;
-		uint8_t dpad_down = ctl->gamepad.dpad & 0x08;
 		
 		if (dpad_left != left) {
 			midi_send_note(0x91,  dpad_left, 1);
@@ -195,11 +202,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(0x94,  dpad_down, 4);
 			down = dpad_down;
 		}		
-
-		uint8_t mbut0 = (misc_buttons >> 0) & 0x01;
-		uint8_t mbut1 = (misc_buttons >> 1) & 0x01;
-		uint8_t mbut2 = (misc_buttons >> 2) & 0x01;
-		uint8_t mbut3 = (misc_buttons >> 3) & 0x01;
 		
 		if (mbut0 != logo) {
 			midi_send_note(0x95,  mbut0, 0);
@@ -221,11 +223,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			config = mbut3;
 		}
 		
-		uint8_t axis_x = ctl->gamepad.axis_x / 4;
-		uint8_t axis_y = ctl->gamepad.axis_y / 4;
-		uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
-		uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	
-
 		if (axis_x) midi_send_note(0x8C,  1, 1);	
 		if (axis_y) midi_send_note(0x8D,  2, 2);	
 		if (axis_rx) midi_send_note(0x8E,  3, 3);	
