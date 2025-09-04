@@ -126,7 +126,6 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 	
 	tud_midi_n_stream_write(0, 0, msg, 3);	
-    pico_set_led(true);	
 }
 
 void midi_ketron_arr(uint8_t code, bool on)
@@ -142,7 +141,6 @@ void midi_ketron_arr(uint8_t code, bool on)
 	msg[7] = 0xF7;
 	
 	tud_midi_n_stream_write(0, 0, msg, 8);	
-    pico_set_led(true);	
 }
 
 void midi_ketron_footsw(uint8_t code, bool on)
@@ -158,7 +156,6 @@ void midi_ketron_footsw(uint8_t code, bool on)
 	msg[7] = 0xF7;
 	
 	tud_midi_n_stream_write(0, 0, msg, 8);	
-    pico_set_led(true);	
 }
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 {
