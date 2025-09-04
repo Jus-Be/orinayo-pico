@@ -60,7 +60,10 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 void led_blinking_task(void);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
-
+void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3);
+void midi_play_slash_chord((uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_ketron_arr(uint8_t code, bool on);
+void midi_ketron_footsw(uint8_t code, bool on);
 
 int main() {
     int rc = pico_led_init();
@@ -166,6 +169,78 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
     pico_set_led(true);	
 }
 
+void midi_ketron_arr(uint8_t code, bool on)
+{
+	uint8_t msg[8];	
+	msg[0] = 0xF0;
+	msg[1] = 0x26;
+	msg[2] = 0x79;   
+	msg[3] = 0x05;
+	msg[4] = 0x00;
+	msg[5] = code; 
+	msg[6] = on ? 0x7F : 0x00;
+	msg[7] = 0xF7;
+	
+	tud_midi_n_stream_write(0, 0, msg, 8);	
+    pico_set_led(true);	
+}
+
+void midi_ketron_footsw(uint8_t code, bool on)
+{
+	uint8_t msg[8];		
+	msg[0] = 0xF0;
+	msg[1] = 0x26;
+	msg[2] = 0x7C;   
+	msg[3] = 0x05;
+	msg[4] = 0x01;
+	msg[5] = 0x55 + code; 
+	msg[6] = on ? 0x7F : 0x00;
+	msg[7] = 0xF7;
+	
+	tud_midi_n_stream_write(0, 0, msg, 8);	
+    pico_set_led(true);	
+}
+void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3)
+{
+	static uint32_t old_p1 = 0;
+	static uint32_t old_p2 = 0;
+	static uint32_t old_p3 = 0;  
+
+	if (old_p1) midi_send_note(0x80, old_p1, 0);
+	if (old_p2) midi_send_note(0x80, old_p2, 0);
+	if (old_p3) midi_send_note(0x80, old_p3, 0);	
+	
+	midi_send_note(0x90, p1, 127);
+	midi_send_note(0x90, p2, 127);
+	midi_send_note(0x90, p3, 127);
+	
+	old_p1 = p1;
+	old_p2 = p2;
+	old_p3 = p3;
+}
+
+void midi_play_slash_chord((uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)
+{
+	static uint32_t old_p1 = 0;
+	static uint32_t old_p2 = 0;
+	static uint32_t old_p3 = 0;  
+	static uint32_t old_p4 = 0;  
+	
+	if (old_p1) midi_send_note(0x80, old_p1, 0);
+	if (old_p2) midi_send_note(0x80, old_p2, 0);
+	if (old_p3) midi_send_note(0x80, old_p3, 0);	
+	if (old_p4) midi_send_note(0x80, old_p4, 0);
+	
+	midi_send_note(0x90, p1, 127);
+	midi_send_note(0x90, p2, 127);
+	midi_send_note(0x90, p3, 127);
+	midi_send_note(0x90, p4, 127);
+	
+	old_p1 = p1;
+	old_p2 = p2;
+	old_p3 = p3;	
+	old_p3 = p4;	
+}
 
 //--------------------------------------------------------------------+
 // BLINKING TASK

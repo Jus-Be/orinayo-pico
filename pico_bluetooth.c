@@ -132,6 +132,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t logo_knob_up = 0;  
   static uint8_t logo_knob_down = 0; 
   
+  static uint8_t style_section = 0; 
+  static uint8_t transpose = 0; 
+  
   uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
   uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
   uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
@@ -159,6 +162,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool joy_down = axis_x > axis_y;  
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
+  
+  uint8_t BASE = 48;
+  static uint8_t base = BASE + transpose;
   
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
@@ -195,39 +201,93 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			pitch = but6;
 		}
 		
-		if (but9 != starpower) {
-			midi_send_note(but9 ? 0x90 : 0x80,  but9, 7);
-			starpower = but9;
+		if (but9 != start) {	// Prev style section		
+			style_section--;
+			if (style_section < 0) style_section = 3;	
+			
+			midi_ketron_arr(3 + style_section, mbut9 ? true : false);	
+			start = but9;	
+			break;			
 		}				
 		
-		if (dpad_left != left) {
+		if (dpad_left != left) { 	// Strum up
 			midi_send_note(dpad_left ? 0x90 : 0x80,  dpad_left, 8);
 			left = dpad_left;
 		}		
 
-		if (dpad_right != right) {
+		if (dpad_right != right) {	// strum down
 			midi_send_note(dpad_right ? 0x90 : 0x80,  dpad_right, 9);
-			right = dpad_right;
+			right = dpad_right;		
 		}
 
-		if (dpad_up != up) {
-			midi_send_note(dpad_up ? 0x90 : 0x80,  dpad_up, 10);
+		if (dpad_up != up) {	// transpose down
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			up = dpad_up;
+
+			transpose--;
+			if (transpose < 0) transpose = 11;
+			base = BASE + transpose;			
 		}
 
-		if (dpad_down != down) {
-			midi_send_note(dpad_down ? 0x90 : 0x80,  dpad_down, 11);
+		if (dpad_down != down) {	// transpose up
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			down = dpad_down;
+			
+			transpose++;
+			if (transpose > 11) transpose = 0;	
+			base = BASE + transpose;			
 		}		
+		
+		uint8_t code = 0x12;	// default start/stop
 		
 		if (mbut0 != logo) {
-			midi_send_note(mbut0 ? 0x90 : 0x80,  mbut0, 12);
-			logo = mbut0;
+			logo = mbut0;	
+			
+			if (yellow) code = 0x0F;	// INTRO/END-1
+			if (red) code = 0x10;		// INTRO/END-2
+			if (green) code = 0x11;		// INTRO/END-3		
+			if (blue) code = 0x17;		// TO END
+			if (orange) code = 0x35;	// FADE		
+			
+			midi_ketron_arr(code, mbut0 ? true : false);
+			break;
 		}		
 		
-		if (mbut1 != start) {
-			midi_send_note(mbut1 ? 0x90 : 0x80,  mbut1, 13);
-			start = mbut1;
+		if (mbut1 != starpower) // next style/section
+		{
+			if (green) {	
+				style_section = 0;
+				midi_ketron_arr(0x12, mbut1 ? true : false);	// Start/stop	
+				break;
+			}
+			else
+				
+			if (yellow) {
+				style_section = 0;
+			}
+			else
+
+			if (blue) {
+				style_section = 1;
+			}				
+			else
+
+			if (red) {
+				style_section = 2;
+			}
+			else
+
+			if (orange) {
+				style_section = 3;
+			}
+			else {
+				style_section++;
+				if (style_section > 3) style_section = 0;				
+			}
+			
+			midi_ketron_arr(3 + style_section, mbut1 ? true : false);	
+			starpower = mbut1;
+			break;			
 		}
 		
 		if (mbut2 != menu) {
@@ -241,24 +301,176 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 
 		if (joy_up != joystick_up) {
-			midi_send_note(joy_up ? 0x90 : 0x80,  16, 16);
+			midi_ketron_arr(0x0B + style_section, joy_up ? true : false);	// 	break
 			joystick_up = joy_up;
+			break;
 		}
 		
 		if (joy_down != joystick_down) {
-			midi_send_note(joy_down ? 0x90 : 0x80,  17, 17);
+			midi_ketron_arr(0x07 + style_section, joy_down ? true : false);	// 	Fill		
 			joystick_down = joy_down;
+			break;			
 		}
 
 		if (knob_up != logo_knob_up) {
-			midi_send_note(knob_up ? 0x90 : 0x80,  18, 18);
+			midi_ketron_footsw(8, knob_up ? true : false);	// 	Mute Bass				
 			logo_knob_up = knob_up;
+			break;			
 		}
 		
 		if (knob_down != logo_knob_down) {
-			midi_send_note(knob_down ? 0x90 : 0x80,  19, 19);
+			midi_ketron_footsw(9, knob_up ? true : false);	// 	Mute Chords	
 			logo_knob_down = knob_down;
+			break;			
 		}
+		
+		if (!left && !right) {	// play chord only when strum bar moved
+			break;
+		}
+				
+		// --- F/C
+
+		if (yellow && blue && yellow && red) 
+		{
+			midi_play_slash_chord(base - 12, base + 5, base + 9, base + 12);
+		}
+		else
+
+		// --- G/C
+
+		if (yellow && blue && yellow && pad.buttons[GREEN]) 
+		{
+			midi_play_slash_chord(base - 12, base + 7, base + 11, base + 14);		
+		}
+		else
+
+		// -- B
+
+		if (red && yellow && blue && pad.buttons[GREEN]) 
+		{
+			midi_play_chord(base - 1, base + 3, base + 6);			
+		}
+		else
+
+		if (red && yellow && pad.buttons[GREEN])     // Ab
+		{
+			midi_play_chord(base - 4, base, base + 3);
+		}
+		else
+
+		if (red && yellow && blue)     // A
+		{
+			midi_play_chord(base - 3, base + 13, base + 16);
+		}
+		else
+
+		if (blue && yellow && pad.buttons[GREEN])     // E
+		{
+			midi_play_chord(base - 8, base + 8, base + 11);
+		}
+		else
+
+
+		if (blue && red && yellow)     // Eb
+		{
+			midi_play_chord(base - 9, base + 7, base + 10);
+		}
+		else
+
+		if (yellow && blue && yellow)    // F/G
+		{
+			midi_play_slash_chord(base - 17, base + 5, base + 9, base + 12);
+		}
+		else
+
+		if (red && yellow)     // Bb
+		{
+			midi_play_chord(base - 2, base + 2, base + 5);
+		}
+		else
+
+		if (pad.buttons[GREEN] && yellow)     // Gsus
+		{
+			midi_play_chord(base - 5, base + 12, base + 14);
+		}
+		else
+
+		if (yellow && yellow)     // Csus
+		{
+			midi_play_chord(base, base + 5, base + 7);
+		}
+		else
+
+		if (yellow && blue)    // C/E
+		{
+			midi_play_slash_chord(base - 20, base, base + 4, base + 7);
+		}
+		else
+
+		if (pad.buttons[GREEN] && red)     // G/B
+		{
+			midi_play_slash_chord(base - 13, base + 7, base + 11, base + 14);
+		}
+		else
+
+		if (blue && yellow)     // F/A
+		{
+			midi_play_slash_chord(base - 15, base + 5, base + 9, base + 12);
+		}
+		else
+
+		if (pad.buttons[GREEN] && blue)     // Em
+		{
+			midi_play_chord(base - 8, base + 7, base + 11);
+		}
+		else
+
+		if (yellow && red)   // Fm
+		{
+			midi_play_chord(base - 7, base + 8, base + 12);
+		}
+		else
+
+		if (pad.buttons[GREEN] && yellow)     // Gm
+		{
+			midi_play_chord(base - 5, base + 10, base + 14);
+		}
+		else
+
+		if (red && blue)     // D
+		{
+			midi_play_chord(base + 2, base + 6, base + 9);
+		}
+		else
+
+		if (yellow)    // C
+		{
+			midi_play_chord(base, base + 4, base + 7);
+		}
+		else
+
+		if (blue)      // Dm
+		{
+			midi_play_chord(base + 2, base + 5, base + 9);
+		}
+		else
+
+		if (yellow)   // F
+		{
+			midi_play_chord(base - 7, base + 9, base + 12);
+		}
+		else
+
+		if (pad.buttons[GREEN])     // G
+		{
+			midi_play_chord(base - 5, base + 11, base + 14);
+		}
+		else
+
+		if (red)     // Am
+		{
+			midi_play_chord(base - 3, base + 12, base + 16);
+		}		
 		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
