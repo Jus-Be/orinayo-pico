@@ -137,6 +137,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
   uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
   uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
+  uint8_t but6 = (ctl->gamepad.buttons >> 6) & 0x01;   
   uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
 
   uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
@@ -148,7 +149,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   uint8_t mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
   uint8_t mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
   uint8_t mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
-  uint8_t mbut6 = (ctl->gamepad.misc_buttons >> 6) & 0x01;
   
   uint8_t axis_x = ctl->gamepad.axis_x / 4;
   uint8_t axis_y = ctl->gamepad.axis_y / 4;
@@ -184,10 +184,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(but3 ? 0x90 : 0x80,  but3, 4);
 			blue = but3;
 		}
-		
+
 		if (but4 != orange) {
 			midi_send_note(but4 ? 0x90 : 0x80,  but4, 5);
 			orange = but4;
+		}
+		
+		if (but6 != pitch) {
+			midi_send_note(but6 ? 0x90 : 0x80,  but6, 6);
+			pitch = but6;
 		}
 		
 		if (but9 != starpower) {
@@ -234,11 +239,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(mbut3 ? 0x90 : 0x80,  mbut3, 15);
 			config = mbut3;
 		}
-		
-		if (mbut6 != pitch) {
-			midi_send_note(mbut6 ? 0x90 : 0x80,  mbut6, 6);
-			pitch = mbut6;
-		}
 
 		if (joy_up != joystick_up) {
 			midi_send_note(joy_up ? 0x90 : 0x80,  16, 16);
@@ -259,16 +259,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(knob_down ? 0x90 : 0x80,  19, 19);
 			logo_knob_down = knob_down;
 		}
-
-		if ((ctl->gamepad.buttons >> 5) & 0x01) 	midi_send_note(0x8F,  5, 5);
-		if ((ctl->gamepad.buttons >> 6) & 0x01) 	midi_send_note(0x8F,  6, 6);
-		if ((ctl->gamepad.buttons >> 7) & 0x01) 	midi_send_note(0x8F,  7, 7);
-		if ((ctl->gamepad.buttons >> 8) & 0x01) 	midi_send_note(0x8F,  8, 8);
-		if ((ctl->gamepad.buttons >> 10) & 0x01) 	midi_send_note(0x8F,  10, 10);
-		if ((ctl->gamepad.buttons >> 11) & 0x01) 	midi_send_note(0x8F,  11, 11);
-		if ((ctl->gamepad.buttons >> 12) & 0x01) 	midi_send_note(0x8F,  12, 12);
-		
-		
 		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
