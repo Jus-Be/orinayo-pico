@@ -220,7 +220,7 @@ void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3)
 	old_p3 = p3;
 }
 
-void midi_play_slash_chord((uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)
+void midi_play_slash_chord(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)
 {
 	static uint32_t old_p1 = 0;
 	static uint32_t old_p2 = 0;
