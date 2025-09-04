@@ -20,7 +20,7 @@
 
 enum {
 	BASE = 48,
-}
+};
 
 
 // Platform Overrides
