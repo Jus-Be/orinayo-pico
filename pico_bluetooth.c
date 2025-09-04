@@ -18,6 +18,14 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+void led_blinking_task(void);
+void midi_task(void);
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3);
+void midi_play_slash_chord((uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_ketron_arr(uint8_t code, bool on);
+void midi_ketron_footsw(uint8_t code, bool on);
+
 // Platform Overrides
 static void pico_bluetooth_init(int argc, const char** argv) {
   ARG_UNUSED(argc);
@@ -162,7 +170,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
   
-  static uint8_t base = 48 + transpose;
+  static uint8_t base = 48;
   
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
@@ -224,7 +232,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 			transpose--;
 			if (transpose < 0) transpose = 11;
-			base = BASE + transpose;			
+			base = 48 + transpose;			
 		}
 
 		if (dpad_down != down) {	// transpose up
@@ -233,7 +241,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			transpose++;
 			if (transpose > 11) transpose = 0;	
-			base = BASE + transpose;			
+			base = 48 + transpose;			
 		}		
 		
 		uint8_t code = 0x12;	// default start/stop
