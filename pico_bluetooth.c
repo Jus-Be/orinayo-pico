@@ -115,7 +115,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t blue = 0;
   static uint8_t orange = 0;
   static uint8_t starpower = 0;
-
+  static uint8_t pitch = 0;
+  
   static uint8_t up = 0;
   static uint8_t down = 0;
   static uint8_t left = 0;
@@ -131,6 +132,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
   uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
   uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01;
+  uint8_t but7 = (ctl->gamepad.buttons >> 7) & 0x01;  
   uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
 
   uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
@@ -178,54 +180,61 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			orange = but4;
 		}
 		
+		if (but7 != pitch) {
+			midi_send_note(but7 ? 0x90 : 0x80,  but7, 6);
+			pitch = but7;
+		}
+		
 		if (but9 != starpower) {
-			midi_send_note(but9 ? 0x90 : 0x80,  but9, 9);
+			midi_send_note(but9 ? 0x90 : 0x80,  but9, 7);
 			starpower = but9;
 		}				
 		
 		if (dpad_left != left) {
-			midi_send_note(dpad_left ? 0x90 : 0x80,  dpad_left, 1);
+			midi_send_note(dpad_left ? 0x90 : 0x80,  dpad_left, 8);
 			left = dpad_left;
 		}		
 
 		if (dpad_right != right) {
-			midi_send_note(dpad_right ? 0x90 : 0x80,  dpad_right, 2);
+			midi_send_note(dpad_right ? 0x90 : 0x80,  dpad_right, 9);
 			right = dpad_right;
 		}
 
 		if (dpad_up != up) {
-			midi_send_note(dpad_up ? 0x90 : 0x80,  dpad_up, 3);
+			midi_send_note(dpad_up ? 0x90 : 0x80,  dpad_up, 10);
 			up = dpad_up;
 		}
 
 		if (dpad_down != down) {
-			midi_send_note(dpad_down ? 0x90 : 0x80,  dpad_down, 4);
+			midi_send_note(dpad_down ? 0x90 : 0x80,  dpad_down, 11);
 			down = dpad_down;
 		}		
 		
 		if (mbut0 != logo) {
-			midi_send_note(mbut0 ? 0x90 : 0x80,  mbut0, 0);
+			midi_send_note(mbut0 ? 0x90 : 0x80,  mbut0, 12);
 			logo = mbut0;
 		}		
 		
 		if (mbut1 != start) {
-			midi_send_note(mbut1 ? 0x90 : 0x80,  mbut1, 1);
+			midi_send_note(mbut1 ? 0x90 : 0x80,  mbut1, 13);
 			start = mbut1;
 		}
 		
 		if (mbut2 != menu) {
-			midi_send_note(mbut2 ? 0x90 : 0x80,  mbut2, 2);
+			midi_send_note(mbut2 ? 0x90 : 0x80,  mbut2, 14);
 			menu = mbut2;
 		}		
 		
 		if (mbut3 != config) {
-			midi_send_note(mbut3 ? 0x90 : 0x80,  mbut3, 3);
+			midi_send_note(mbut3 ? 0x90 : 0x80,  mbut3, 15);
 			config = mbut3;
 		}
 		
-		if (axis_x || axis_y) midi_send_note(0x8E,  axis_x, axis_y);	
-		if (axis_rx || axis_ry) midi_send_note(0x8F,  axis_rx, axis_ry);			
-	
+		if (axis_x > axis_y) midi_send_note(0x8A,  1, 1);	
+		if (axis_y > axis_x) midi_send_note(0x8B,  2, 2);		
+		if (axis_rx > axis_ry) midi_send_note(0x8A,  3, 3);	
+		if (axis_ry > axis_rx) midi_send_note(0x8B,  4, 4);		
+		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
       // DO NOTHING
