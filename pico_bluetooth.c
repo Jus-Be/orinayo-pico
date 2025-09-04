@@ -18,6 +18,10 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+enum {
+	BASE = 48;
+}
+
 
 // Platform Overrides
 static void pico_bluetooth_init(int argc, const char** argv) {
@@ -163,7 +167,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
   
-  uint8_t BASE = 48;
   static uint8_t base = BASE + transpose;
   
   switch (ctl->klass) {
@@ -205,7 +208,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			style_section--;
 			if (style_section < 0) style_section = 3;	
 			
-			midi_ketron_arr(3 + style_section, mbut9 ? true : false);	
+			midi_ketron_arr(3 + style_section, but9 ? true : false);	
 			start = but9;	
 			break;			
 		}				
@@ -338,7 +341,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		// --- G/C
 
-		if (yellow && blue && yellow && pad.buttons[GREEN]) 
+		if (yellow && blue && yellow && green) 
 		{
 			midi_play_slash_chord(base - 12, base + 7, base + 11, base + 14);		
 		}
@@ -346,13 +349,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		// -- B
 
-		if (red && yellow && blue && pad.buttons[GREEN]) 
+		if (red && yellow && blue && green) 
 		{
 			midi_play_chord(base - 1, base + 3, base + 6);			
 		}
 		else
 
-		if (red && yellow && pad.buttons[GREEN])     // Ab
+		if (red && yellow && green)     // Ab
 		{
 			midi_play_chord(base - 4, base, base + 3);
 		}
@@ -364,7 +367,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (blue && yellow && pad.buttons[GREEN])     // E
+		if (blue && yellow && green)     // E
 		{
 			midi_play_chord(base - 8, base + 8, base + 11);
 		}
@@ -389,7 +392,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (pad.buttons[GREEN] && yellow)     // Gsus
+		if (green && yellow)     // Gsus
 		{
 			midi_play_chord(base - 5, base + 12, base + 14);
 		}
@@ -407,7 +410,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (pad.buttons[GREEN] && red)     // G/B
+		if (green && red)     // G/B
 		{
 			midi_play_slash_chord(base - 13, base + 7, base + 11, base + 14);
 		}
@@ -419,7 +422,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (pad.buttons[GREEN] && blue)     // Em
+		if (green && blue)     // Em
 		{
 			midi_play_chord(base - 8, base + 7, base + 11);
 		}
@@ -431,7 +434,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (pad.buttons[GREEN] && yellow)     // Gm
+		if (green && yellow)     // Gm
 		{
 			midi_play_chord(base - 5, base + 10, base + 14);
 		}
@@ -461,7 +464,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		else
 
-		if (pad.buttons[GREEN])     // G
+		if (green)     // G
 		{
 			midi_play_chord(base - 5, base + 11, base + 14);
 		}
