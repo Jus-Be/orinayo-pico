@@ -109,18 +109,28 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }
 #endif
 
+  static uint8_t green = 0;
+  static uint8_t red = 0;
+  static uint8_t yellow = 0;
+  static uint8_t blue = 0;
+  static uint8_t orange = 0;
+  static uint8_t starpower = 0;
+
+  static uint8_t up = 0;
+  static uint8_t down = 0;
+  static uint8_t left = 0;
+  static uint8_t right = 0;	
+
+  static uint8_t start = 0;
+  static uint8_t menu = 0;
+  static uint8_t logo = 0;
+  static uint8_t config = 0;		
+
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
 		//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-		
-		static uint8_t green = 0;
-		static uint8_t red = 0;
-		static uint8_t yellow = 0;
-		static uint8_t blue = 0;
-		static uint8_t orange = 0;
-		static uint8_t starpower = 0;
-		
+				
 		uint16_t buttons = ctl->gamepad.buttons;
 		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
 				
@@ -159,12 +169,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (but9 != starpower) {
 			midi_send_note(0x89,  but9, 9);
 			starpower = but9;
-		}		
-		
-		static uint8_t up = 0;
-		static uint8_t down = 0;
-		static uint8_t left = 0;
-		static uint8_t right = 0;		
+		}				
 
 		uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
 		uint8_t dpad_right = ctl->gamepad.dpad & 0x01;
@@ -190,11 +195,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_send_note(0x94,  dpad_down, 4);
 			down = dpad_down;
 		}		
-
-		static uint8_t start = 0;
-		static uint8_t menu = 0;
-		static uint8_t logo = 0;
-		static uint8_t config = 0;
 
 		uint8_t mbut0 = (misc_buttons >> 0) & 0x01;
 		uint8_t mbut1 = (misc_buttons >> 1) & 0x01;

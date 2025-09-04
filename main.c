@@ -163,6 +163,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 	
 	tud_midi_n_stream_write(0, 0, msg, 3);	
+    pico_set_led(true);	
 }
 
 
