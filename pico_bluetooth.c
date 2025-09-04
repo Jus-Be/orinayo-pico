@@ -172,42 +172,42 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
-      // Print device Id and dump gamepad.
-	  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+	  
+		// first get button state
 				
 		if (but1 != green) {
-			midi_send_note(but1 ? 0x90 : 0x80,  but1, 1);
 			green = but1;
 		}
 		
 		if (but0 != red) {
-			midi_send_note(but0 ? 0x90 : 0x80,  but0, 2);
 			red = but0;
 		}
 		
 		if (but2 != yellow) {
-			midi_send_note(but2 ? 0x90 : 0x80,  but2, 3);
 			yellow = but2;
 		}
 		
 		if (but3 != blue) {
-			midi_send_note(but3 ? 0x90 : 0x80,  but3, 4);
 			blue = but3;
 		}
 
 		if (but4 != orange) {
-			midi_send_note(but4 ? 0x90 : 0x80,  but4, 5);
 			orange = but4;
 		}
 		
 		if (but6 != pitch) {
-			midi_send_note(but6 ? 0x90 : 0x80,  but6, 6);
 			pitch = but6;
 		}
 		
-		if (but9 != start) {	// Prev style section		
-			style_section--;
-			if (style_section < 0) style_section = 3;	
+		// next handle actions
+		
+		if (but9 != start)  	// Prev style section	
+		{	
+			if (but9) {
+				style_section--;
+				if (style_section < 0) style_section = 3;	
+			}
 			
 			midi_ketron_arr(3 + style_section, but9 ? true : false);	
 			start = but9;	
@@ -215,31 +215,39 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}				
 		
 		if (dpad_left != left) { 	// Strum up
-			midi_send_note(dpad_left ? 0x90 : 0x80,  dpad_left, 8);
 			left = dpad_left;
+			play_chord(base, green, red, yellow, blue, orange);
+			break;
 		}		
 
 		if (dpad_right != right) {	// strum down
-			midi_send_note(dpad_right ? 0x90 : 0x80,  dpad_right, 9);
 			right = dpad_right;		
+			play_chord(base, green, red, yellow, blue, orange);
+			break;
 		}
 
 		if (dpad_up != up) {	// transpose down
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			up = dpad_up;
 
-			transpose--;
-			if (transpose < 0) transpose = 11;
-			base = 48 + transpose;			
+			if (dpad_up) {
+				transpose--;
+				if (transpose < 0) transpose = 11;
+				base = 48 + transpose;	
+			}
+			break;			
 		}
 
 		if (dpad_down != down) {	// transpose up
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			down = dpad_down;
 			
-			transpose++;
-			if (transpose > 11) transpose = 0;	
-			base = 48 + transpose;			
+			if (dpad_down) {
+				transpose++;
+				if (transpose > 11) transpose = 0;	
+				base = 48 + transpose;	
+			}
+			break;
 		}		
 		
 		uint8_t code = 0x12;	// default start/stop
@@ -284,7 +292,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) {
 				style_section = 3;
 			}
-			else {
+			else 
+			
+			if (mbut1) {
 				style_section++;
 				if (style_section > 3) style_section = 0;				
 			}
@@ -327,155 +337,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			logo_knob_down = knob_down;
 			break;			
 		}
-		
-		if (!left && !right) {	// play chord only when strum bar moved
-			break;
-		}
 				
-		// --- F/C
-
-		if (yellow && blue && yellow && red) 
-		{
-			midi_play_slash_chord(base - 12, base + 5, base + 9, base + 12);
-		}
-		else
-
-		// --- G/C
-
-		if (yellow && blue && yellow && green) 
-		{
-			midi_play_slash_chord(base - 12, base + 7, base + 11, base + 14);		
-		}
-		else
-
-		// -- B
-
-		if (red && yellow && blue && green) 
-		{
-			midi_play_chord(base - 1, base + 3, base + 6);			
-		}
-		else
-
-		if (red && yellow && green)     // Ab
-		{
-			midi_play_chord(base - 4, base, base + 3);
-		}
-		else
-
-		if (red && yellow && blue)     // A
-		{
-			midi_play_chord(base - 3, base + 13, base + 16);
-		}
-		else
-
-		if (blue && yellow && green)     // E
-		{
-			midi_play_chord(base - 8, base + 8, base + 11);
-		}
-		else
-
-
-		if (blue && red && yellow)     // Eb
-		{
-			midi_play_chord(base - 9, base + 7, base + 10);
-		}
-		else
-
-		if (yellow && blue && yellow)    // F/G
-		{
-			midi_play_slash_chord(base - 17, base + 5, base + 9, base + 12);
-		}
-		else
-
-		if (red && yellow)     // Bb
-		{
-			midi_play_chord(base - 2, base + 2, base + 5);
-		}
-		else
-
-		if (green && yellow)     // Gsus
-		{
-			midi_play_chord(base - 5, base + 12, base + 14);
-		}
-		else
-
-		if (yellow && yellow)     // Csus
-		{
-			midi_play_chord(base, base + 5, base + 7);
-		}
-		else
-
-		if (yellow && blue)    // C/E
-		{
-			midi_play_slash_chord(base - 20, base, base + 4, base + 7);
-		}
-		else
-
-		if (green && red)     // G/B
-		{
-			midi_play_slash_chord(base - 13, base + 7, base + 11, base + 14);
-		}
-		else
-
-		if (blue && yellow)     // F/A
-		{
-			midi_play_slash_chord(base - 15, base + 5, base + 9, base + 12);
-		}
-		else
-
-		if (green && blue)     // Em
-		{
-			midi_play_chord(base - 8, base + 7, base + 11);
-		}
-		else
-
-		if (yellow && red)   // Fm
-		{
-			midi_play_chord(base - 7, base + 8, base + 12);
-		}
-		else
-
-		if (green && yellow)     // Gm
-		{
-			midi_play_chord(base - 5, base + 10, base + 14);
-		}
-		else
-
-		if (red && blue)     // D
-		{
-			midi_play_chord(base + 2, base + 6, base + 9);
-		}
-		else
-
-		if (yellow)    // C
-		{
-			midi_play_chord(base, base + 4, base + 7);
-		}
-		else
-
-		if (blue)      // Dm
-		{
-			midi_play_chord(base + 2, base + 5, base + 9);
-		}
-		else
-
-		if (yellow)   // F
-		{
-			midi_play_chord(base - 7, base + 9, base + 12);
-		}
-		else
-
-		if (green)     // G
-		{
-			midi_play_chord(base - 5, base + 11, base + 14);
-		}
-		else
-
-		if (red)     // Am
-		{
-			midi_play_chord(base - 3, base + 12, base + 16);
-		}		
-		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
       // DO NOTHING
@@ -490,6 +352,153 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
       //loge("Unsupported controller class: %d\n", ctl->klass);
       break;
   }
+}
+
+static void play_chord(uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+	// --- F/C
+
+	if (yellow && blue && yellow && red) 
+	{
+		midi_play_slash_chord(base - 12, base + 5, base + 9, base + 12);
+	}
+	else
+
+	// --- G/C
+
+	if (yellow && blue && yellow && green) 
+	{
+		midi_play_slash_chord(base - 12, base + 7, base + 11, base + 14);		
+	}
+	else
+
+	// -- B
+
+	if (red && yellow && blue && green) 
+	{
+		midi_play_chord(base - 1, base + 3, base + 6);			
+	}
+	else
+
+	if (red && yellow && green)     // Ab
+	{
+		midi_play_chord(base - 4, base, base + 3);
+	}
+	else
+
+	if (red && yellow && blue)     // A
+	{
+		midi_play_chord(base - 3, base + 13, base + 16);
+	}
+	else
+
+	if (blue && yellow && green)     // E
+	{
+		midi_play_chord(base - 8, base + 8, base + 11);
+	}
+	else
+
+
+	if (blue && red && yellow)     // Eb
+	{
+		midi_play_chord(base - 9, base + 7, base + 10);
+	}
+	else
+
+	if (yellow && blue && yellow)    // F/G
+	{
+		midi_play_slash_chord(base - 17, base + 5, base + 9, base + 12);
+	}
+	else
+
+	if (red && yellow)     // Bb
+	{
+		midi_play_chord(base - 2, base + 2, base + 5);
+	}
+	else
+
+	if (green && yellow)     // Gsus
+	{
+		midi_play_chord(base - 5, base + 12, base + 14);
+	}
+	else
+
+	if (yellow && yellow)     // Csus
+	{
+		midi_play_chord(base, base + 5, base + 7);
+	}
+	else
+
+	if (yellow && blue)    // C/E
+	{
+		midi_play_slash_chord(base - 20, base, base + 4, base + 7);
+	}
+	else
+
+	if (green && red)     // G/B
+	{
+		midi_play_slash_chord(base - 13, base + 7, base + 11, base + 14);
+	}
+	else
+
+	if (blue && yellow)     // F/A
+	{
+		midi_play_slash_chord(base - 15, base + 5, base + 9, base + 12);
+	}
+	else
+
+	if (green && blue)     // Em
+	{
+		midi_play_chord(base - 8, base + 7, base + 11);
+	}
+	else
+
+	if (yellow && red)   // Fm
+	{
+		midi_play_chord(base - 7, base + 8, base + 12);
+	}
+	else
+
+	if (green && yellow)     // Gm
+	{
+		midi_play_chord(base - 5, base + 10, base + 14);
+	}
+	else
+
+	if (red && blue)     // D
+	{
+		midi_play_chord(base + 2, base + 6, base + 9);
+	}
+	else
+
+	if (yellow)    // C
+	{
+		midi_play_chord(base, base + 4, base + 7);
+	}
+	else
+
+	if (blue)      // Dm
+	{
+		midi_play_chord(base + 2, base + 5, base + 9);
+	}
+	else
+
+	if (yellow)   // F
+	{
+		midi_play_chord(base - 7, base + 9, base + 12);
+	}
+	else
+
+	if (green)     // G
+	{
+		midi_play_chord(base - 5, base + 11, base + 14);
+	}
+	else
+
+	if (red)     // Am
+	{
+		midi_play_chord(base - 3, base + 12, base + 16);
+	}		
+	
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
