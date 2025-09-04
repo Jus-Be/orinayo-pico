@@ -126,13 +126,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t menu = 0;
   static uint8_t logo = 0;
   static uint8_t config = 0;	
-		
+  
+  static uint8_t joystick_up = 0;
+  static uint8_t joystick_down = 0;  
+  static uint8_t logo_knob_up = 0;  
+  static uint8_t logo_knob_down = 0; 
+  
   uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
   uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
   uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
   uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
-  uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01;
-  uint8_t but7 = (ctl->gamepad.buttons >> 7) & 0x01;  
+  uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
   uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
 
   uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
@@ -144,12 +148,18 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   uint8_t mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
   uint8_t mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
   uint8_t mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
-
+  uint8_t mbut6 = (ctl->gamepad.misc_buttons >> 6) & 0x01;
+  
   uint8_t axis_x = ctl->gamepad.axis_x / 4;
   uint8_t axis_y = ctl->gamepad.axis_y / 4;
   uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
-  uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	  
+  uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	
 
+  bool joy_up = axis_y > axis_x;  
+  bool joy_down = axis_x > axis_y;  
+  bool knob_up = axis_ry > axis_rx; 
+  bool knob_down = axis_rx > axis_ry; 
+  
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
@@ -178,11 +188,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (but4 != orange) {
 			midi_send_note(but4 ? 0x90 : 0x80,  but4, 5);
 			orange = but4;
-		}
-		
-		if (but7 != pitch) {
-			midi_send_note(but7 ? 0x90 : 0x80,  but7, 6);
-			pitch = but7;
 		}
 		
 		if (but9 != starpower) {
@@ -230,10 +235,30 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			config = mbut3;
 		}
 		
-		if (axis_x > axis_y) midi_send_note(0x8A,  1, 1);	
-		if (axis_y > axis_x) midi_send_note(0x8B,  2, 2);		
-		if (axis_rx > axis_ry) midi_send_note(0x8A,  3, 3);	
-		if (axis_ry > axis_rx) midi_send_note(0x8B,  4, 4);		
+		if (mbut6 != pitch) {
+			midi_send_note(mbut6 ? 0x90 : 0x80,  mbut6, 6);
+			pitch = mbut6;
+		}
+
+		if (joy_up != joystick_up) {
+			midi_send_note(joy_up ? 0x90 : 0x80,  16, 16);
+			joystick_up = joy_up;
+		}
+		
+		if (joy_down != joystick_down) {
+			midi_send_note(joy_down ? 0x90 : 0x80,  17, 17);
+			joystick_down = joy_down;
+		}
+
+		if (knob_up != logo_knob_up) {
+			midi_send_note(knob_up ? 0x90 : 0x80,  18, 18);
+			logo_knob_up = knob_up;
+		}
+		
+		if (knob_down != logo_knob_down) {
+			midi_send_note(knob_down ? 0x90 : 0x80,  19, 19);
+			logo_knob_down = knob_down;
+		}		
 		
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
