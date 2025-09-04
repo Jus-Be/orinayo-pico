@@ -60,8 +60,8 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 void led_blinking_task(void);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
-void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3);
-void midi_play_slash_chord(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 
@@ -200,46 +200,32 @@ void midi_ketron_footsw(uint8_t code, bool on)
 	tud_midi_n_stream_write(0, 0, msg, 8);	
     pico_set_led(true);	
 }
-void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3)
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 {
-	static uint32_t old_p1 = 0;
-	static uint32_t old_p2 = 0;
-	static uint32_t old_p3 = 0;  
-
-	if (old_p1) midi_send_note(0x80, old_p1, 0);
-	if (old_p2) midi_send_note(0x80, old_p2, 0);
-	if (old_p3) midi_send_note(0x80, old_p3, 0);	
-	
-	midi_send_note(0x90, p1, 127);
-	midi_send_note(0x90, p2, 127);
-	midi_send_note(0x90, p3, 127);
-	
-	old_p1 = p1;
-	old_p2 = p2;
-	old_p3 = p3;
+	if (on) {
+		midi_send_note(0x90, p1, 127);
+		midi_send_note(0x90, p2, 127);
+		midi_send_note(0x90, p3, 127);
+	} else {
+		midi_send_note(0x80, p1, 0);
+		midi_send_note(0x80, p2, 0);
+		midi_send_note(0x80, p3, 0);		
+	}
 }
 
-void midi_play_slash_chord(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)
 {
-	static uint32_t old_p1 = 0;
-	static uint32_t old_p2 = 0;
-	static uint32_t old_p3 = 0;  
-	static uint32_t old_p4 = 0;  
-	
-	if (old_p1) midi_send_note(0x80, old_p1, 0);
-	if (old_p2) midi_send_note(0x80, old_p2, 0);
-	if (old_p3) midi_send_note(0x80, old_p3, 0);	
-	if (old_p4) midi_send_note(0x80, old_p4, 0);
-	
-	midi_send_note(0x90, p1, 127);
-	midi_send_note(0x90, p2, 127);
-	midi_send_note(0x90, p3, 127);
-	midi_send_note(0x90, p4, 127);
-	
-	old_p1 = p1;
-	old_p2 = p2;
-	old_p3 = p3;	
-	old_p3 = p4;	
+	if (on) {	
+		midi_send_note(0x90, p1, 127);
+		midi_send_note(0x90, p2, 127);
+		midi_send_note(0x90, p3, 127);
+		midi_send_note(0x90, p4, 127);	
+	} else {
+		midi_send_note(0x80, p1, 0);
+		midi_send_note(0x80, p2, 0);
+		midi_send_note(0x80, p3, 0);		
+		midi_send_note(0x80, p4, 0);			
+	}
 }
 
 //--------------------------------------------------------------------+

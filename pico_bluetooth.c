@@ -19,8 +19,8 @@
 #endif
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
-void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3);
-void midi_play_slash_chord(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void play_chord(uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
@@ -75,7 +75,8 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Disable scanning when a device is connected to save power
-  uni_bt_stop_scanning_safe();
+  // TODO
+  // uni_bt_stop_scanning_safe();
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
 }
 
@@ -217,13 +218,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (dpad_left != left) { 	// Strum up
 			left = dpad_left;
-			play_chord(base, green, red, yellow, blue, orange);
+			play_chord(!!dpad_left, base, green, red, yellow, blue, orange);
 			break;
 		}		
 
 		if (dpad_right != right) {	// strum down
 			right = dpad_right;		
-			play_chord(base, green, red, yellow, blue, orange);
+			play_chord(!!dpad_right, base, green, red, yellow, blue, orange);
 			break;
 		}
 
@@ -355,12 +356,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }
 }
 
-void play_chord(uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
 	// --- F/C
 
 	if (yellow && blue && yellow && red) 
 	{
-		midi_play_slash_chord(base - 12, base + 5, base + 9, base + 12);
+		midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);
 	}
 	else
 
@@ -368,7 +369,7 @@ void play_chord(uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_
 
 	if (yellow && blue && yellow && green) 
 	{
-		midi_play_slash_chord(base - 12, base + 7, base + 11, base + 14);		
+		midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);		
 	}
 	else
 
@@ -376,128 +377,128 @@ void play_chord(uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_
 
 	if (red && yellow && blue && green) 
 	{
-		midi_play_chord(base - 1, base + 3, base + 6);			
+		midi_play_chord(on, base - 1, base + 3, base + 6);			
 	}
 	else
 
 	if (red && yellow && green)     // Ab
 	{
-		midi_play_chord(base - 4, base, base + 3);
+		midi_play_chord(on, base - 4, base, base + 3);
 	}
 	else
 
 	if (red && yellow && blue)     // A
 	{
-		midi_play_chord(base - 3, base + 13, base + 16);
+		midi_play_chord(on, base - 3, base + 13, base + 16);
 	}
 	else
 
 	if (blue && yellow && green)     // E
 	{
-		midi_play_chord(base - 8, base + 8, base + 11);
+		midi_play_chord(on, base - 8, base + 8, base + 11);
 	}
 	else
 
 
 	if (blue && red && yellow)     // Eb
 	{
-		midi_play_chord(base - 9, base + 7, base + 10);
+		midi_play_chord(on, base - 9, base + 7, base + 10);
 	}
 	else
 
 	if (yellow && blue && yellow)    // F/G
 	{
-		midi_play_slash_chord(base - 17, base + 5, base + 9, base + 12);
+		midi_play_slash_chord(on, base - 17, base + 5, base + 9, base + 12);
 	}
 	else
 
 	if (red && yellow)     // Bb
 	{
-		midi_play_chord(base - 2, base + 2, base + 5);
+		midi_play_chord(on, base - 2, base + 2, base + 5);
 	}
 	else
 
 	if (green && yellow)     // Gsus
 	{
-		midi_play_chord(base - 5, base + 12, base + 14);
+		midi_play_chord(on, base - 5, base + 12, base + 14);
 	}
 	else
 
 	if (yellow && yellow)     // Csus
 	{
-		midi_play_chord(base, base + 5, base + 7);
+		midi_play_chord(on, base, base + 5, base + 7);
 	}
 	else
 
 	if (yellow && blue)    // C/E
 	{
-		midi_play_slash_chord(base - 20, base, base + 4, base + 7);
+		midi_play_slash_chord(on, base - 20, base, base + 4, base + 7);
 	}
 	else
 
 	if (green && red)     // G/B
 	{
-		midi_play_slash_chord(base - 13, base + 7, base + 11, base + 14);
+		midi_play_slash_chord(on, base - 13, base + 7, base + 11, base + 14);
 	}
 	else
 
 	if (blue && yellow)     // F/A
 	{
-		midi_play_slash_chord(base - 15, base + 5, base + 9, base + 12);
+		midi_play_slash_chord(on, base - 15, base + 5, base + 9, base + 12);
 	}
 	else
 
 	if (green && blue)     // Em
 	{
-		midi_play_chord(base - 8, base + 7, base + 11);
+		midi_play_chord(on, base - 8, base + 7, base + 11);
 	}
 	else
 
 	if (yellow && red)   // Fm
 	{
-		midi_play_chord(base - 7, base + 8, base + 12);
+		midi_play_chord(on, base - 7, base + 8, base + 12);
 	}
 	else
 
 	if (green && yellow)     // Gm
 	{
-		midi_play_chord(base - 5, base + 10, base + 14);
+		midi_play_chord(on, base - 5, base + 10, base + 14);
 	}
 	else
 
 	if (red && blue)     // D
 	{
-		midi_play_chord(base + 2, base + 6, base + 9);
+		midi_play_chord(on, base + 2, base + 6, base + 9);
 	}
 	else
 
 	if (yellow)    // C
 	{
-		midi_play_chord(base, base + 4, base + 7);
+		midi_play_chord(on, base, base + 4, base + 7);
 	}
 	else
 
 	if (blue)      // Dm
 	{
-		midi_play_chord(base + 2, base + 5, base + 9);
+		midi_play_chord(on, base + 2, base + 5, base + 9);
 	}
 	else
 
 	if (yellow)   // F
 	{
-		midi_play_chord(base - 7, base + 9, base + 12);
+		midi_play_chord(on, base - 7, base + 9, base + 12);
 	}
 	else
 
 	if (green)     // G
 	{
-		midi_play_chord(base - 5, base + 11, base + 14);
+		midi_play_chord(on, base - 5, base + 11, base + 14);
 	}
 	else
 
 	if (red)     // Am
 	{
-		midi_play_chord(base - 3, base + 12, base + 16);
+		midi_play_chord(on, base - 3, base + 12, base + 16);
 	}		
 	
 }
