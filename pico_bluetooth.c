@@ -309,12 +309,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_send_note(mbut2 ? 0x90 : 0x80,  mbut2, 14);
+			midi_send_note(mbut2 ? 0x93 : 0x83,  mbut2, 14);
 			menu = mbut2;
 		}		
 		
 		if (mbut3 != config) {
-			midi_send_note(mbut3 ? 0x90 : 0x80,  mbut3, 15);
+			midi_send_note(mbut3 ? 0x93 : 0x83,  mbut3, 15);
 			config = mbut3;
 		}
 
