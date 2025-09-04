@@ -22,7 +22,7 @@ void led_blinking_task(void);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(uint8_t p1, uint8_t p2, uint8_t p3);
-void midi_play_slash_chord((uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_play_slash_chord(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 
