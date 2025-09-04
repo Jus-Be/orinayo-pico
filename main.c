@@ -78,8 +78,7 @@ int main() {
     while (true) {
 		tud_task(); // tinyusb device task
 		led_blinking_task();				
-		//midi_task();
-		sleep_ms(100);			
+		//midi_task();			
     }
 }
 
