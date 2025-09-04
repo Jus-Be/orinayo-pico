@@ -19,7 +19,7 @@
 #endif
 
 enum {
-	BASE = 48;
+	BASE = 48,
 }
 
 
