@@ -204,15 +204,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		// next handle actions
 		
-		if (but9 != start)  	// Prev style section	
-		{	
+		if (but9 != start)  {	// Prev style section
+			start = but9;
+			
 			if (but9) {
 				style_section--;
 				if (style_section < 0) style_section = 3;	
 			}
 			
-			midi_ketron_arr(3 + style_section, but9 ? true : false);	
-			start = but9;	
+			midi_ketron_arr(3 + style_section, but9 ? true : false);		
 			break;			
 		}				
 		
@@ -267,11 +267,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}		
 		
-		if (mbut1 != starpower) // next style/section
-		{
-			if (green) {	
-				style_section = 0;
-				midi_ketron_arr(0x12, mbut1 ? true : false);	// Start/stop	
+		if (mbut1 != starpower) { // next style/section			
+			starpower = mbut1;
+			
+			if (green) {
+				if (mbut1) {
+					style_section = 0;
+					midi_ketron_arr(0x12, mbut1 ? true : false);	// Start/stop	
+				}
 				break;
 			}
 			else
@@ -302,7 +305,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			
 			midi_ketron_arr(3 + style_section, mbut1 ? true : false);	
-			starpower = mbut1;
 			break;			
 		}
 		
@@ -317,26 +319,26 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 
 		if (joy_up != joystick_up) {
+			joystick_up = joy_up;			
 			midi_ketron_arr(0x0B + style_section, joy_up ? true : false);	// 	break
-			joystick_up = joy_up;
 			break;
 		}
 		
 		if (joy_down != joystick_down) {
+			joystick_down = joy_down;			
 			midi_ketron_arr(0x07 + style_section, joy_down ? true : false);	// 	Fill		
-			joystick_down = joy_down;
 			break;			
 		}
 
 		if (knob_up != logo_knob_up) {
+			logo_knob_up = knob_up;			
 			midi_ketron_footsw(8, knob_up ? true : false);	// 	Mute Bass				
-			logo_knob_up = knob_up;
 			break;			
 		}
 		
 		if (knob_down != logo_knob_down) {
+			logo_knob_down = knob_down;			
 			midi_ketron_footsw(9, knob_up ? true : false);	// 	Mute Chords	
-			logo_knob_down = knob_down;
 			break;			
 		}
 				
@@ -359,7 +361,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
 	// --- F/C
 
-	if (yellow && blue && yellow && red) 
+	if (yellow && blue && orange && red) 
 	{
 		midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);
 	}
@@ -367,7 +369,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 
 	// --- G/C
 
-	if (yellow && blue && yellow && green) 
+	if (yellow && blue && orange && green) 
 	{
 		midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);		
 	}
@@ -400,13 +402,13 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	else
 
 
-	if (blue && red && yellow)     // Eb
+	if (blue && red && orange)     // Eb
 	{
 		midi_play_chord(on, base - 9, base + 7, base + 10);
 	}
 	else
 
-	if (yellow && blue && yellow)    // F/G
+	if (yellow && blue && orange)    // F/G
 	{
 		midi_play_slash_chord(on, base - 17, base + 5, base + 9, base + 12);
 	}
@@ -424,7 +426,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	}
 	else
 
-	if (yellow && yellow)     // Csus
+	if (orange && yellow)     // Csus
 	{
 		midi_play_chord(on, base, base + 5, base + 7);
 	}
@@ -442,7 +444,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	}
 	else
 
-	if (blue && yellow)     // F/A
+	if (blue && orange)     // F/A
 	{
 		midi_play_slash_chord(on, base - 15, base + 5, base + 9, base + 12);
 	}
@@ -454,13 +456,13 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	}
 	else
 
-	if (yellow && red)   // Fm
+	if (orange && red)   // Fm
 	{
 		midi_play_chord(on, base - 7, base + 8, base + 12);
 	}
 	else
 
-	if (green && yellow)     // Gm
+	if (green && orange)     // Gm
 	{
 		midi_play_chord(on, base - 5, base + 10, base + 14);
 	}
@@ -484,7 +486,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	}
 	else
 
-	if (yellow)   // F
+	if (orange)   // F
 	{
 		midi_play_chord(on, base - 7, base + 9, base + 12);
 	}
