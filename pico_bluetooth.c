@@ -112,7 +112,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
       // Print device Id and dump gamepad.
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+		//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+		
+		static uint8_t green = 0;
+		static uint8_t red = 0;
+		static uint8_t yellow = 0;
+		static uint8_t blue = 0;
+		static uint8_t orange = 0;
+		static uint8_t starpower = 0;
 		
 		uint16_t buttons = ctl->gamepad.buttons;
 		uint16_t misc_buttons = ctl->gamepad.misc_buttons;
@@ -122,90 +129,107 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		uint8_t but2 = (buttons >> 2) & 0x01;
 		uint8_t but3 = (buttons >> 3) & 0x01;
 		uint8_t but4 = (buttons >> 4) & 0x01;
-		uint8_t but5 = (buttons >> 5) & 0x01;
-		uint8_t but6 = (buttons >> 6) & 0x01;
-		uint8_t but7 = (buttons >> 7) & 0x01;
-		uint8_t but8 = (buttons >> 8) & 0x01;
 		uint8_t but9 = (buttons >> 9) & 0x01;
-		uint8_t butA = (buttons >> 10) & 0x01;
-		uint8_t butB = (buttons >> 11) & 0x01;	
-		uint8_t butC = (buttons >> 12) & 0x01;
-		uint8_t butD = (buttons >> 13) & 0x01;	
-		uint8_t butE = (buttons >> 14) & 0x01;
-		uint8_t butF = (buttons >> 15) & 0x01;	
 
-		uint8_t dpad_left = ctl->gamepad.dpad & 0x08;	
-		uint8_t dpad_right = ctl->gamepad.dpad & 0x04;
-		uint8_t dpad_up = ctl->gamepad.dpad & 0x01;
-		uint8_t dpad_down = ctl->gamepad.dpad & 0x02;
+		if (but1 != green) {
+			midi_send_note(0x81,  but1, 1);
+			green = but1;
+		}
 		
-		if (but0) midi_send_note(0x80,  but0, 0);
-		if (but1) midi_send_note(0x81,  but1, 1);		
-		if (but2) midi_send_note(0x82,  but2, 2);
-		if (but3) midi_send_note(0x83,  but3, 3);
-		if (but4) midi_send_note(0x84,  but4, 4);
-		if (but5) midi_send_note(0x85,  but5, 5);	
-		if (but6) midi_send_note(0x86,  but6, 6);
-		if (but7) midi_send_note(0x87,  but7, 7);		
-		if (but8) midi_send_note(0x88,  but8, 8);
-		if (but9) midi_send_note(0x89,  but9, 9);
-		if (butA) midi_send_note(0x8A,  butA, 10);
-		if (butB) midi_send_note(0x8B,  butB, 11);	
+		if (but0 != red) {
+			midi_send_note(0x82,  but0, 2);
+			red = but0;
+		}
 		
-		if (dpad_left) midi_send_note(0x8C,  dpad_left, 0);
-		if (dpad_right) midi_send_note(0x8D,  dpad_right, 0);
-		if (dpad_up) midi_send_note(0x8E,  dpad_up, 0);
-		if (dpad_down) midi_send_note(0x8F,  dpad_down, 0);
+		if (but2 != yellow) {
+			midi_send_note(0x83,  but2, 3);
+			yellow = but2;
+		}
+		
+		if (but3 != blue) {
+			midi_send_note(0x84,  but3, 4);
+			blue = but3;
+		}
+		
+		if (but4 != orange) {
+			midi_send_note(0x85,  but4, 5);
+			orange = but4;
+		}
+		
+		if (but9 != starpower) {
+			midi_send_note(0x89,  but9, 9);
+			starpower = but9;
+		}		
+		
+		static uint8_t up = 0;
+		static uint8_t down = 0;
+		static uint8_t left = 0;
+		static uint8_t right = 0;		
+
+		uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
+		uint8_t dpad_right = ctl->gamepad.dpad & 0x01;
+		uint8_t dpad_up = ctl->gamepad.dpad & 0x04;
+		uint8_t dpad_down = ctl->gamepad.dpad & 0x08;
+		
+		if (dpad_left != left) {
+			midi_send_note(0x91,  dpad_left, 1);
+			left = dpad_left;
+		}		
+
+		if (dpad_right != right) {
+			midi_send_note(0x92,  dpad_right, 2);
+			right = dpad_right;
+		}
+
+		if (dpad_up != up) {
+			midi_send_note(0x93,  dpad_up, 3);
+			up = dpad_up;
+		}
+
+		if (dpad_down != down) {
+			midi_send_note(0x94,  dpad_down, 4);
+			down = dpad_down;
+		}		
+
+		static uint8_t start = 0;
+		static uint8_t menu = 0;
+		static uint8_t logo = 0;
+		static uint8_t config = 0;
 
 		uint8_t mbut0 = (misc_buttons >> 0) & 0x01;
 		uint8_t mbut1 = (misc_buttons >> 1) & 0x01;
 		uint8_t mbut2 = (misc_buttons >> 2) & 0x01;
 		uint8_t mbut3 = (misc_buttons >> 3) & 0x01;
-		uint8_t mbut4 = (misc_buttons >> 4) & 0x01;
-		uint8_t mbut5 = (misc_buttons >> 5) & 0x01;
-		uint8_t mbut6 = (misc_buttons >> 6) & 0x01;
-		uint8_t mbut7 = (misc_buttons >> 7) & 0x01;
-		uint8_t mbut8 = (misc_buttons >> 8) & 0x01;
-		uint8_t mbut9 = (misc_buttons >> 9) & 0x01;
-		uint8_t mbutA = (misc_buttons >> 10) & 0x01;
-		uint8_t mbutB = (misc_buttons >> 11) & 0x01;	
-		uint8_t mbutC = (misc_buttons >> 12) & 0x01;
-		uint8_t mbutD = (misc_buttons >> 13) & 0x01;	
-		uint8_t mbutE = (misc_buttons >> 14) & 0x01;
-		uint8_t mbutF = (misc_buttons >> 15) & 0x01;			
-		uint8_t mbutG = (misc_buttons >> 16) & 0x01;	
-		uint8_t mbutH = (misc_buttons >> 17) & 0x01;			
-		uint8_t mbutI = (misc_buttons >> 18) & 0x01;
 		
-		if (mbut0) midi_send_note(0x90, mbut0, 0);
-		if (mbut1) midi_send_note(0x91, mbut1, 1);		
-		if (mbut2) midi_send_note(0x92, mbut2, 2);	
-		if (mbut3) midi_send_note(0x93,  mbut3, 3);
-		if (mbut4) midi_send_note(0x94,  mbut4, 4);
-		if (mbut5) midi_send_note(0x95,  mbut5, 5);	
-		if (mbut6) midi_send_note(0x96,  mbut6, 6);
-		if (mbut7) midi_send_note(0x97,  mbut7, 7);		
-		if (mbut8) midi_send_note(0x98,  mbut8, 8);
-		if (mbut9) midi_send_note(0x99,  mbut9, 9);
-		if (mbutA) midi_send_note(0x9A,  mbutA, 10);
-		if (mbutB) midi_send_note(0x9B,  mbutB, 11);			
-		if (mbutC) midi_send_note(0x9C,  mbutC, 12);
-		if (mbutD) midi_send_note(0x9D,  mbutD, 13);
-		if (mbutE) midi_send_note(0x9E,  mbutE, 14);
-		if (mbutF) midi_send_note(0x9F,  mbutF, 15);		
-		if (mbutG) midi_send_note(0x9F,  mbutG, 16);
-		if (mbutH) midi_send_note(0x9F,  mbutH, 17);		
-		if (mbutI) midi_send_note(0x9F,  mbutI, 18);
+		if (mbut0 != logo) {
+			midi_send_note(0x95,  mbut0, 0);
+			logo = mbut0;
+		}		
+		
+		if (mbut1 != start) {
+			midi_send_note(0x96,  mbut1, 1);
+			start = mbut1;
+		}
+		
+		if (mbut2 != menu) {
+			midi_send_note(0x97,  mbut2, 2);
+			menu = mbut2;
+		}		
+		
+		if (mbut3 != config) {
+			midi_send_note(0x98,  mbut3, 3);
+			config = mbut3;
+		}
 		
 		uint8_t axis_x = ctl->gamepad.axis_x / 4;
 		uint8_t axis_y = ctl->gamepad.axis_y / 4;
 		uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
 		uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	
 
-		if (axis_x) midi_send_note(0x8F,  axis_x, 0);	
-		if (axis_y) midi_send_note(0x8F,  axis_y, 0);	
-		if (axis_rx) midi_send_note(0x8F,  axis_rx, 0);	
-		if (axis_ry) midi_send_note(0x8F,  axis_ry, 0);		
+		if (axis_x) midi_send_note(0x8C,  1, 1);	
+		if (axis_y) midi_send_note(0x8D,  2, 2);	
+		if (axis_rx) midi_send_note(0x8E,  3, 3);	
+		if (axis_ry) midi_send_note(0x8F,  4, 4);		
 	
       break;
     case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
