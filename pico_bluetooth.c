@@ -625,13 +625,13 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 		
 		for (int i=0; i<6; i++)
 		{
-			if (strum_pattern[pattern][seq_index][i] > 0 ) {
-				int z = 6 - strum_pattern[pattern][seq_index][i];
+			if (strum_pattern[pattern][seq_index][i] > 0 ) {		// ignore empty pattern steps
+				int string = 6 - strum_pattern[pattern][seq_index][i];
 				
-				if (z > -1 && z < 6) 
+				if (string > -1 && string < 6) 
 				{
-					if (chord_chat[chord_note][chord_type][z] > -1) {
-						chord_midinotes[notes_count] = string_frets[z] + chord_chat[chord_note][chord_type][z];
+					if (chord_chat[chord_note][chord_type][string] > -1) {	// ignore unused strings
+						chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note][chord_type][string];
 						notes_count++;						
 					}
 				}
@@ -645,7 +645,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 			for (int n=0; n<notes_count; n++) {
 				uint8_t note = chord_midinotes[n];
 				old_midinotes[n] = note;
-				velocity = (uint8_t) (velocity * 0.9);
+				if (velocity > 40) velocity = velocity - 10;
 				midi_send_note(0x90, note, velocity);			
 			}	
 		}			
