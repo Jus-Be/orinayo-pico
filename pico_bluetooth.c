@@ -75,8 +75,7 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Disable scanning when a device is connected to save power
-  // TODO
-  // uni_bt_stop_scanning_safe();
+  uni_bt_stop_scanning_safe();  
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
 }
 
@@ -85,11 +84,13 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 
   // Re-enable scanning when a device is disconnected
   uni_bt_start_scanning_and_autoconnect_safe();
+	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
   // PICO_DEBUG("[BT] Restarted scanning (device disconnected)\n");
 }
 
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
   return UNI_ERROR_SUCCESS;
 }
 
@@ -218,14 +219,26 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (dpad_left != left) { 	// Strum up
 			left = dpad_left;
-			play_chord(!!dpad_left, base, green, red, yellow, blue, orange);
+			
+			if (dpad_left) {
+				play_chord(true, base, green, red, yellow, blue, orange);
+			} else {			
+				midi_play_chord(false, 0, 0, 0);	
+			}
+			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
 			break;
 		}		
 
 		if (dpad_right != right) {	// strum down
-			right = dpad_right;		
-			play_chord(!!dpad_right, base, green, red, yellow, blue, orange);
+			right = dpad_right;	
+
+			if (dpad_right) {
+				play_chord(true, base, green, red, yellow, blue, orange);
+			} else {			
+				midi_play_chord(false, 0, 0, 0);	
+			}
+	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
 			break;
 		}

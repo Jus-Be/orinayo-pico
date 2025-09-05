@@ -57,6 +57,11 @@ enum  {
 
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
+static uint32_t old_p1 = 0;
+static uint32_t old_p2 = 0;
+static uint32_t old_p3 = 0;
+static uint32_t old_p4 = 0;
+
 void led_blinking_task(void);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
@@ -157,11 +162,8 @@ void midi_ketron_footsw(uint8_t code, bool on)
 	
 	tud_midi_n_stream_write(0, 0, msg, 8);	
 }
-void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
-	static uint32_t old_p1 = 0;
-	static uint32_t old_p2 = 0;
-	static uint32_t old_p3 = 0;
-	
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) 
+{
 	if (on) {
 		midi_send_note(0x93, p1, 127);
 		midi_send_note(0x93, p2, 127);
@@ -173,16 +175,13 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 	} else {
 		midi_send_note(0x83, old_p1, 0);
 		midi_send_note(0x83, old_p2, 0);
-		midi_send_note(0x83, old_p3, 0);		
+		midi_send_note(0x83, old_p3, 0);
+		midi_send_note(0x83, old_p4, 0);		
 	}
 }
 
-void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  {
-	static uint32_t old_p1 = 0;
-	static uint32_t old_p2 = 0;
-	static uint32_t old_p3 = 0;
-	static uint32_t old_p4 = 0;
-	
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  
+{
 	if (on) {	
 		midi_send_note(0x93, p1, 127);
 		midi_send_note(0x93, p2, 127);
