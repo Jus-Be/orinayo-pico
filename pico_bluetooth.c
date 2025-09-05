@@ -199,21 +199,22 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			orange = but4;
 		}
 		
-		if (but6 != pitch) {
+		if (but6 != pitch) {		// prev section/style
 			pitch = but6;
-		}
-		
-		// next handle actions
-		
-		if (but9 != start)  {	// Prev style section
-			start = but9;
 			
-			if (but9) {
+			if (but6) {
 				style_section--;
 				if (style_section < 0) style_section = 3;	
 			}
 			
-			midi_ketron_arr(3 + style_section, but9 ? true : false);		
+			midi_ketron_arr(3 + style_section, but6 ? true : false);
+			break
+		}
+		
+		// next handle actions
+		
+		if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
+			start = but9;		
 			break;			
 		}				
 		
@@ -322,12 +323,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_send_note(mbut2 ? 0x93 : 0x83,  mbut2, 14);
+			midi_ketron_footsw(8, knob_up ? true : false);	// 	Mute Bass. Requires device config	
 			menu = mbut2;
 		}		
 		
 		if (mbut3 != config) {
-			midi_send_note(mbut3 ? 0x93 : 0x83,  mbut3, 15);
+			midi_ketron_footsw(9, knob_up ? true : false);	// 	Mute Chords. Requires device config	
 			config = mbut3;
 		}
 
@@ -339,19 +340,19 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (joy_down != joystick_down) {
 			joystick_down = joy_down;			
-			midi_ketron_arr(0x07 + style_section, joy_down ? true : false);	// 	Fill		
+			midi_ketron_arr(0x0B + style_section, joy_down ? true : false);	// 	break	
 			break;			
 		}
 
 		if (knob_up != logo_knob_up) {
-			logo_knob_up = knob_up;			
-			midi_ketron_footsw(8, knob_up ? true : false);	// 	Mute Bass				
+			logo_knob_up = knob_up;	
+			midi_ketron_arr(0x07 + style_section, knob_up ? true : false);	// 	Fill				
 			break;			
 		}
 		
 		if (knob_down != logo_knob_down) {
-			logo_knob_down = knob_down;			
-			midi_ketron_footsw(9, knob_up ? true : false);	// 	Mute Chords	
+			logo_knob_down = knob_down;		
+			midi_ketron_arr(0x07 + style_section, knob_down ? true : false);	// 	Fill				
 			break;			
 		}
 				

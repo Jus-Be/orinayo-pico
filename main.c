@@ -49,20 +49,11 @@ void pico_set_led(bool led_on) {
 #endif
 }
 
-enum  {
-  BLINK_NOT_MOUNTED = 250,
-  BLINK_MOUNTED = 1000,
-  BLINK_SUSPENDED = 2500,
-};
-
-static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
-
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
-void led_blinking_task(void);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
@@ -81,9 +72,7 @@ int main() {
 	bluetooth_init();
 		
     while (true) {
-		tud_task(); // tinyusb device task
-		//led_blinking_task();				
-		//midi_task();			
+		tud_task(); // tinyusb device task			
     }
 }
 
@@ -94,13 +83,13 @@ int main() {
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
-  blink_interval_ms = BLINK_MOUNTED;
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-  blink_interval_ms = BLINK_NOT_MOUNTED;
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
 // Invoked when usb bus is suspended
@@ -109,13 +98,13 @@ void tud_umount_cb(void)
 void tud_suspend_cb(bool remote_wakeup_en)
 {
   (void) remote_wakeup_en;
-  blink_interval_ms = BLINK_SUSPENDED;
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void)
 {
-  blink_interval_ms = BLINK_MOUNTED;
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 //--------------------------------------------------------------------+
@@ -198,20 +187,4 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 		midi_send_note(0x83, old_p3, 0);		
 		midi_send_note(0x83, old_p4, 0);			
 	}
-}
-
-//--------------------------------------------------------------------+
-// BLINKING TASK
-//--------------------------------------------------------------------+
-void led_blinking_task(void)
-{
-  static uint32_t start_ms = 0;
-  static bool led_state = false;
-
-  // Blink every interval ms
-  if ( board_millis() - start_ms < blink_interval_ms) return; // not enough time
-  start_ms += blink_interval_ms;
-
-  pico_set_led(led_state);
-  led_state = 1 - led_state; // toggle
 }
