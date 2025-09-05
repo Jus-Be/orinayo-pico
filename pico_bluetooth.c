@@ -19,7 +19,8 @@
 #endif
 
 static uint8_t old_midinotes[6] = {0};
-static uint8_t pattern = 0;	
+static int pattern = 0;	
+static int pos = 2;
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
@@ -45,10 +46,10 @@ int chord_chat[12][3][6] = {
 
 uint8_t strum_pattern[5][12][6] = {
 	{{6,5,4,3,2,1}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
-	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {1,0,0,0,0,0}, {2,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
+	{{2,1,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}},	
 	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {1,0,0,0,0,0}, {4,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}},	
-	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}	
+	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {1,0,0,0,0,0}, {2,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 };
 
 // Platform Overrides
@@ -227,7 +228,28 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (but6 != pitch) {		// prev section/style
 			pitch = but6;
-			
+
+
+			if (yellow && blue) {
+				pos = 3;
+			}
+			else
+
+			if (yellow && red) {
+				pos = 2;
+			}
+			else
+				
+			if (green && red) {
+				pos = 1;
+			}
+			else
+				
+			if (blue && orange) {
+				pattern = -1;
+			}
+			else			
+							
 			if (green) {
 				pattern = 0;
 			}
@@ -342,7 +364,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (mbut1 != starpower) { // next style/section			
 			starpower = mbut1;
-			
+
 			if (green) {
 				if (mbut1) {
 					style_section = 0;
@@ -631,7 +653,6 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 		handled = true;			
 	}	
 	
-	int pos = 2;
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(pos+2), __5th = A +O*(pos+2), __4th = D +O*(pos+2), __3rd = G +O*(pos+2), __2nd = B +O*(pos+2), __1st = E +O*(pos+3);	
@@ -654,38 +675,42 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	int velocity = 100;	
 	uint8_t note = 0;
 	
-	if (handled) 
-	{		
-		while (strum_pattern[pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
-			seq_index++;
-			if (seq_index > 11) seq_index = 0;
-		}
+	if (handled && pattern > -1) 
+	{	
+		if (up || pattern == 0) {
+			while (strum_pattern[pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+				seq_index++;
+				if (seq_index > 11) seq_index = 0;
+			}
 
-		for (int i=0; i<6; i++) {
-			string = 6 - strum_pattern[pattern][seq_index][i];
-			
-			if (string > -1 && string < 6) 
-			{
-				if (chord_chat[chord_note][chord_type][string] > -1) {	// ignore unused strings
-					chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note][chord_type][string];
-					notes_count++;						
+			for (int i=0; i<6; i++) {
+				string = 6 - strum_pattern[pattern][seq_index][i];
+				
+				if (string > -1 && string < 6) 
+				{
+					if (chord_chat[chord_note][chord_type][string] > -1) {	// ignore unused strings
+						chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note][chord_type][string];
+						notes_count++;						
+					}
 				}
 			}
-		}
 
-		velocity = 100;
-	
-		for (int n=0; n<notes_count; n++) {
-			note = chord_midinotes[n];
-			old_midinotes[n] = note;
-			
-			velocity = velocity - 10;
-			midi_send_note(0x90, note, velocity);
-			sleep_ms(10);			
-		}	
+			velocity = 100;
+		
+			for (int n=0; n<notes_count; n++) {
+				note = chord_midinotes[n];
+				old_midinotes[n] = note;
+				
+				velocity = velocity - 10;
+				midi_send_note(0x90, note, velocity);
+				sleep_ms(10);			
+			}	
 
-		seq_index++;	
-		if (seq_index > 11) seq_index = 0;		
+			seq_index++;	
+			if (seq_index > 11) seq_index = 0;	
+		} else {
+			midi_send_note(0x90, chord_note, velocity);
+		}			
 	} 
 }
 
