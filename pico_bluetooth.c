@@ -208,7 +208,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			
 			midi_ketron_arr(3 + style_section, but6 ? true : false);
-			break
+			break;
 		}
 		
 		// next handle actions
