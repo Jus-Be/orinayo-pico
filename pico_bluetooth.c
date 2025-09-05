@@ -716,7 +716,9 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 			seq_index++;	
 			if (seq_index > 11) seq_index = 0;	
 		} else {
-			midi_send_note(0x90, bass_note ? bass_note : chord_note, velocity);
+			note = bass_note ? bass_note : chord_note;
+			old_midinotes[0] = note;
+			midi_send_note(0x90, note, velocity);
 		}			
 	} 
 }
