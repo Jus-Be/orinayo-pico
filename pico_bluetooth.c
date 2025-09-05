@@ -323,18 +323,18 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_ketron_footsw(8, knob_up ? true : false);	// 	Mute Bass. Requires device config	
+			midi_ketron_footsw(8, mbut2 ? true : false);	// 	Mute Bass. Requires device config	
 			menu = mbut2;
 		}		
 		
 		if (mbut3 != config) {
-			midi_ketron_footsw(9, knob_up ? true : false);	// 	Mute Chords. Requires device config	
+			midi_ketron_footsw(9, mbut3 ? true : false);	// 	Mute Chords. Requires device config	
 			config = mbut3;
 		}
 
 		if (joy_up != joystick_up) {
-			joystick_up = joy_up;			
-			midi_ketron_arr(0x0B + style_section, joy_up ? true : false);	// 	break
+			joystick_up = joy_up;		
+			midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill				
 			break;
 		}
 		
@@ -345,7 +345,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
-			midi_ketron_arr(0x07 + style_section, knob_up ? true : false);	// 	Fill				
+			midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break			
 			break;			
 		}
 		
