@@ -40,7 +40,7 @@ int chord_chat[12][3][6] = {
 	{{-1,  2, 4, 4, 4, 2}, {-1,  2, 4, 4, 3, 2}, {-1, -1, 4, 4, 5, 2}}
 };
 
-uint8_t strum_pattern[3][12][6] = {
+uint8_t strum_pattern[4][12][6] = {
 	{{6,5,4,3,2,1}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {1,0,0,0,0,0}, {2,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
@@ -611,33 +611,27 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	
 	uint8_t pattern = 0;		// default strum pattern	
 	
-	uint8_t chord_frets[6] = {0};
-	uint8_t chord_seqlist[12] = {0};	
-	uint8_t chord_seqnotes[6] = {0};
+	int chord_frets[6] = {0};	
 	uint8_t chord_midinotes[6] = {0};
 	
 	static int seq_index = -1;
 	static uint8_t old_midinotes[6] = {0};
 	
 	if (handled) {
-		chord_frets = chord_chat[chord_note][chord_type];
-		chord_seqlist = strum_pattern[pattern];	
-
 		seq_index++;
 		if (seq_index > 11) seq_index = 0;
 		
-		chord_seqnotes = chord_seqlist[seq_index];
 		int notes_count = 0;
 		
 		for (int i=0; i<6; i++)
 		{
-			if (chord_seqnotes[i] > 0 ) {
-				int z = 6 - chord_seqnotes[i];
+			if (strum_pattern[pattern][seq_index][i] > 0 ) {
+				int z = 6 - strum_pattern[pattern][seq_index][i];
 				
 				if (z > -1 && z < 6) 
 				{
-					if (chord_frets[z] > -1) {
-						chord_midinotes[notes_count] = string_frets[z] + chord_frets[z];
+					if (chord_chat[chord_note][chord_type][z] > -1) {
+						chord_midinotes[notes_count] = string_frets[z] + chord_chat[chord_note][chord_type][z];
 						notes_count++;						
 					}
 				}
@@ -657,7 +651,7 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 		}			
 	}
 	
-	for (int n=0; n<old_midinotes; n++) {
+	for (int n=0; n<6; n++) {
 		midi_send_note(0x80, old_midinotes[n], 0);			
 	}	
 }
