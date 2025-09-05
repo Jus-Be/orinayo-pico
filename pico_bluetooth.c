@@ -18,6 +18,8 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+static uint8_t old_midinotes[6] = {0};
+
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -247,6 +249,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				play_chord(true, true, base, green, red, yellow, blue, orange);
 			} else {			
 				midi_play_chord(false, 0, 0, 0);	
+				
+				for (int n=0; n<6; n++) {
+					midi_send_note(0x80, old_midinotes[n], 0);			
+				}						
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
@@ -260,6 +266,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				play_chord(true, false, base, green, red, yellow, blue, orange);
 			} else {			
 				midi_play_chord(false, 0, 0, 0);	
+				
+				for (int n=0; n<6; n++) {
+					midi_send_note(0x80, old_midinotes[n], 0);			
+				}				
 			}
 	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
@@ -615,17 +625,15 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	uint8_t chord_midinotes[6] = {0};
 	
 	static int seq_index = -1;
-	static uint8_t old_midinotes[6] = {0};
 	
 	if (handled) {
 		seq_index++;
 		if (seq_index > 11) seq_index = 0;
 		
-		int notes_count = 0;
-		
-		for (int i=0; i<6; i++)
-		{
-			if (strum_pattern[pattern][seq_index][i] > 0 ) {		// ignore empty pattern steps
+		if (strum_pattern[pattern][seq_index][0] > 0 ) {		// ignore empty pattern steps				
+			int notes_count = 0;
+			
+			for (int i=0; i<6; i++) {
 				int string = 6 - strum_pattern[pattern][seq_index][i];
 				
 				if (string > -1 && string < 6) 
@@ -636,24 +644,18 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 					}
 				}
 			}
-		}
 
-		int velocity = 100;
-
-		if (on) 
-		{
+			int velocity = 100;
+		
 			for (int n=0; n<notes_count; n++) {
 				uint8_t note = chord_midinotes[n];
 				old_midinotes[n] = note;
+				
 				if (velocity > 40) velocity = velocity - 10;
 				midi_send_note(0x90, note, velocity);			
-			}	
-		}			
-	}
-	
-	for (int n=0; n<6; n++) {
-		midi_send_note(0x80, old_midinotes[n], 0);			
-	}	
+			}		
+		}
+	} 
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
