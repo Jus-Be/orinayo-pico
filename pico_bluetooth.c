@@ -40,10 +40,11 @@ int chord_chat[12][3][6] = {
 	{{-1,  2, 4, 4, 4, 2}, {-1,  2, 4, 4, 3, 2}, {-1, -1, 4, 4, 5, 2}}
 };
 
-uint8_t strum_pattern[3][12][3] = {
-	{{3,0,0}, {2,0,0}, {1,0,0}, {2,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}, 
-	{{3,2,1}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}, 
-	{{3,0,0}, {2,0,0}, {4,0,0}, {1,0,0}, {4,0,0}, {2,0,0}, {4,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}	
+uint8_t strum_pattern[3][12][6] = {
+	{{6,5,4,3,2,1}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
+	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {1,0,0,0,0,0}, {2,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
+	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
+	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {1,0,0,0,0,0}, {4,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}	
 };
 
 // Platform Overrides
@@ -392,16 +393,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 }
 
 void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
-	int pos = 2;
-	int O = 12;
-	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
-	int __6th = E +O*(pos+2), __5th = A +O*(pos+2), __4th = D +O*(pos+2), __3rd = G +O*(pos+2), __2nd = B +O*(pos+2), __1st = E +O*(pos+3);	
+	bool handled = false;
+	uint8_t chord_note = 0;
+	uint8_t chord_type = 0;
 	
 	// --- F/C
 
 	if (yellow && blue && orange && red) 
 	{
 		midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);
+		chord_note = (base + 5) % 12;		
+		handled = true;		
 	}
 	else
 
@@ -409,7 +411,9 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 
 	if (yellow && blue && orange && green) 
 	{
-		midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);		
+		midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);
+		chord_note = (base + 7) % 12;		
+		handled = true;			
 	}
 	else
 
@@ -417,25 +421,33 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 
 	if (red && yellow && blue && green) 
 	{
-		midi_play_chord(on, base - 1, base + 3, base + 6);			
+		midi_play_chord(on, base - 1, base + 3, base + 6);	
+		chord_note = (base - 1) % 12;		
+		handled = true;			
 	}
 	else
 
 	if (red && yellow && green)     // Ab
 	{
 		midi_play_chord(on, base - 4, base, base + 3);
+		chord_note = (base - 4) % 12;		
+		handled = true;		
 	}
 	else
 
 	if (red && yellow && blue)     // A
 	{
 		midi_play_chord(on, base - 3, base + 13, base + 16);
+		chord_note = (base - 3) % 12;		
+		handled = true;		
 	}
 	else
 
 	if (blue && yellow && green)     // E
 	{
 		midi_play_chord(on, base - 8, base + 8, base + 11);
+		chord_note = (base - 8) % 12;		
+		handled = true;		
 	}
 	else
 
@@ -443,104 +455,211 @@ void play_chord(bool on, uint8_t base, uint8_t green, uint8_t red, uint8_t yello
 	if (blue && red && orange)     // Eb
 	{
 		midi_play_chord(on, base - 9, base + 7, base + 10);
+		chord_note = (base - 9) % 12;		
+		handled = true;		
 	}
 	else
 
 	if (yellow && blue && orange)    // F/G
 	{
 		midi_play_slash_chord(on, base - 17, base + 5, base + 9, base + 12);
+		chord_note = (base + 5) % 12;		
+		handled = true;		
 	}
 	else
 
 	if (red && yellow)     // Bb
 	{
 		midi_play_chord(on, base - 2, base + 2, base + 5);
+		chord_note = (base - 2) % 12;		
+		handled = true;		
 	}
 	else
 
 	if (green && yellow)     // Gsus
 	{
 		midi_play_chord(on, base - 5, base + 12, base + 14);
+		chord_note = (base - 5) % 12;	
+		chord_type = 2;
+		handled = true;		
 	}
 	else
 
 	if (orange && yellow)     // Csus
 	{
 		midi_play_chord(on, base, base + 5, base + 7);
+		chord_note = (base) % 12;	
+		chord_type = 2;
+		handled = true;			
 	}
 	else
 
 	if (yellow && blue)    // C/E
 	{
 		midi_play_slash_chord(on, base - 20, base, base + 4, base + 7);
+		chord_note = (base) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (green && red)     // G/B
 	{
 		midi_play_slash_chord(on, base - 13, base + 7, base + 11, base + 14);
+		chord_note = (base + 7) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (blue && orange)     // F/A
 	{
 		midi_play_slash_chord(on, base - 15, base + 5, base + 9, base + 12);
+		chord_note = (base + 5) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (green && blue)     // Em
 	{
 		midi_play_chord(on, base - 8, base + 7, base + 11);
+		chord_note = (base - 8) % 12;	
+		chord_type = 1;
+		handled = true;			
 	}
 	else
 
 	if (orange && red)   // Fm
 	{
 		midi_play_chord(on, base - 7, base + 8, base + 12);
+		chord_note = (base - 7) % 12;	
+		chord_type = 1;
+		handled = true;			
 	}
 	else
 
 	if (green && orange)     // Gm
 	{
 		midi_play_chord(on, base - 5, base + 10, base + 14);
+		chord_note = (base - 5) % 12;	
+		chord_type = 1;
+		handled = true;			
 	}
 	else
 
 	if (red && blue)     // D
 	{
 		midi_play_chord(on, base + 2, base + 6, base + 9);
+		chord_note = (base + 2) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (yellow)    // C
 	{
 		midi_play_chord(on, base, base + 4, base + 7);
+		chord_note = (base) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (blue)      // Dm
 	{
 		midi_play_chord(on, base + 2, base + 5, base + 9);
+		chord_note = (base + 2) % 12;	
+		chord_type = 1;
+		handled = true;			
 	}
 	else
 
 	if (orange)   // F
 	{
 		midi_play_chord(on, base - 7, base + 9, base + 12);
+		chord_note = (base - 7) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (green)     // G
 	{
 		midi_play_chord(on, base - 5, base + 11, base + 14);
+		chord_note = (base - 5) % 12;	
+		handled = true;			
 	}
 	else
 
 	if (red)     // Am
 	{
 		midi_play_chord(on, base - 3, base + 12, base + 16);
-	}		
+		chord_note = (base - 3) % 12;	
+		chord_type = 1;
+		handled = true;			
+	}	
 	
+	
+	
+	int pos = 2;
+	int O = 12;
+	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
+	int __6th = E +O*(pos+2), __5th = A +O*(pos+2), __4th = D +O*(pos+2), __3rd = G +O*(pos+2), __2nd = B +O*(pos+2), __1st = E +O*(pos+3);	
+	
+	int string_frets[6];
+	string_frets[0] = __6th;
+	string_frets[1] = __5th;
+	string_frets[2] = __4th;
+	string_frets[3] = __3rd;
+	string_frets[4] = __2nd;
+	string_frets[5] = __1st;
+	
+	uint8_t pattern = 0;		// default strum pattern	
+	
+	uint8_t chord_frets[6] = {0};
+	uint8_t chord_seqlist[12] = {0};	
+	uint8_t chord_seqnotes[6] = {0};
+	uint8_t chord_midinotes[6] = {0};
+	
+	static int seq_index = -1;
+	static uint8_t old_midinotes[6] = {0};
+	
+	if (handled) {
+		chord_frets = chord_chat[chord_note][chord_type];
+		chord_seqlist = strum_pattern[pattern];	
+
+		seq_index++;
+		if (seq_index > 11) seq_index = 0;
+		
+		chord_seqnotes = chord_seqlist[seq_index];
+		int notes_count = 0;
+		
+		for (int i=0; i<6; i++)
+		{
+			if (chord_seqnotes[i] > 0 ) {
+				int z = 6 - chord_seqnotes[i];
+				
+				if (z > -1 && z < 6) 
+				{
+					if (chord_frets[z] > -1) {
+						chord_midinotes[notes_count] = string_frets[z] + chord_frets[z];
+						notes_count++;						
+					}
+				}
+			}
+		}
+
+		uint8_t velocity = 100;
+
+		if (on) 
+		{
+			for (int n=0; n<notes_count; n++) {
+				uint8_t note = chord_midinotes[n];
+				old_midinotes[n] = note;
+				velocity = (uint8_t) (velocity * 0.9);
+				midi_send_note(0x90, note, velocity);			
+			}	
+		}			
+	}
+	
+	for (int n=0; n<old_midinotes; n++) {
+		midi_send_note(0x80, old_midinotes[n], 0);			
+	}	
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
