@@ -140,8 +140,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t logo_knob_up = 0;  
   static uint8_t logo_knob_down = 0; 
   
-  static uint8_t style_section = 0; 
-  static uint8_t transpose = 0; 
+  static int style_section = 0; 
+  static int transpose = 0; 
   
   uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
   uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
@@ -338,9 +338,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}
 		
-		if (joy_down != joystick_down) {
+		if (joy_down != joystick_down) {	// unused
 			joystick_down = joy_down;			
-			midi_ketron_arr(0x0B + style_section, joy_down ? true : false);	// 	break	
 			break;			
 		}
 
@@ -350,9 +349,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;			
 		}
 		
-		if (knob_down != logo_knob_down) {
-			logo_knob_down = knob_down;		
-			midi_ketron_arr(0x07 + style_section, knob_down ? true : false);	// 	Fill				
+		if (knob_down != logo_knob_down) {	// unused
+			logo_knob_down = knob_down;					
 			break;			
 		}
 				
