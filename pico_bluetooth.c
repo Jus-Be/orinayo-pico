@@ -19,6 +19,7 @@
 #endif
 
 static uint8_t old_midinotes[6] = {0};
+static uint8_t pattern = 0;	
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
@@ -42,11 +43,12 @@ int chord_chat[12][3][6] = {
 	{{-1,  2, 4, 4, 4, 2}, {-1,  2, 4, 4, 3, 2}, {-1, -1, 4, 4, 5, 2}}
 };
 
-uint8_t strum_pattern[4][12][6] = {
+uint8_t strum_pattern[5][12][6] = {
 	{{6,5,4,3,2,1}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {1,0,0,0,0,0}, {2,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}, 
 	{{3,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {1,0,0,0,0,0}, {4,0,0,0,0,0}, {2,0,0,0,0,0}, {4,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}	
+	{{3,2,1,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}, {0,0,0,0,0,0}}	
 };
 
 // Platform Overrides
@@ -226,12 +228,37 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (but6 != pitch) {		// prev section/style
 			pitch = but6;
 			
+			if (green) {
+				pattern = 0;
+			}
+			else
+				
+			if (yellow) {
+				pattern = 1;
+			}
+			else
+
+			if (blue) {
+				pattern = 2;
+			}				
+			else
+
+			if (red) {
+				pattern = 3;
+			}
+			else
+
+			if (orange) {
+				pattern = 4;
+			}
+			else 			
+			
 			if (but6) {
 				style_section--;
-				if (style_section < 0) style_section = 3;	
+				if (style_section < 0) style_section = 3;
+				midi_ketron_arr(3 + style_section, but6 ? true : false);				
 			}
-			
-			midi_ketron_arr(3 + style_section, but6 ? true : false);
+	
 			break;
 		}
 		
@@ -604,8 +631,6 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 		handled = true;			
 	}	
 	
-	
-	
 	int pos = 2;
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
@@ -618,9 +643,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	string_frets[3] = __3rd;
 	string_frets[4] = __2nd;
 	string_frets[5] = __1st;
-	
-	uint8_t pattern = 0;		// default strum pattern	
-	
+		
 	int chord_frets[6] = {0};	
 	uint8_t chord_midinotes[6] = {0};
 	
@@ -656,8 +679,9 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 			note = chord_midinotes[n];
 			old_midinotes[n] = note;
 			
-			if (velocity > 40) velocity = velocity - 10;
-			midi_send_note(0x90, note, velocity);			
+			velocity = velocity - 10;
+			midi_send_note(0x90, note, velocity);
+			sleep_ms(10);			
 		}	
 
 		seq_index++;	
