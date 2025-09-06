@@ -299,8 +299,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<6; n++) {
-					if (old_midinotes[n] > 0) midi_send_note(0x80, old_midinotes[n], 0);			
+				for (int n=0; n<6; n++) 
+				{
+					if (old_midinotes[n] > 0) {
+						midi_send_note(0x80, old_midinotes[n], 0);	
+						old_midinotes[n] = 0;
+					}
 				}						
 			}
 			
@@ -316,8 +320,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<6; n++) {
-					if (old_midinotes[n] > 0) midi_send_note(0x80, old_midinotes[n], 0);			
+				for (int n=0; n<6; n++) 
+				{
+					if (old_midinotes[n] > 0) {
+						midi_send_note(0x80, old_midinotes[n], 0);	
+						old_midinotes[n] = 0;						
+					}						
 				}				
 			}
 	
@@ -709,8 +717,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
-				midi_send_note(0x90, note, velocity);
-				sleep_ms(10);			
+				midi_send_note(0x90, note, velocity);		
 			}	
 
 			seq_index++;	
