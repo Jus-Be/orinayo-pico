@@ -69,7 +69,16 @@ int main() {
     tusb_init();
 	sleep_ms(1000);	
 	
-	bluetooth_init();
+	// Initialize Bluetooth with error handling
+	if (!bluetooth_init()) {
+		// If Bluetooth initialization fails, blink LED rapidly
+		while (true) {
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+			sleep_ms(100);
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			sleep_ms(100);
+		}
+	}
 		
     while (true) {
 		tud_task(); // tinyusb device task			

@@ -22,6 +22,11 @@ static uint8_t old_midinotes[6] = {0};
 static int pattern = 0;	
 static int pos = 2;
 
+// BLE client state tracking
+static bool bt_scanning_active = false;
+static uint8_t bt_connected_device_count = 0;
+static bool bt_initialization_complete = false;
+
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -62,11 +67,14 @@ static void pico_bluetooth_on_init_complete(void) {
   // Safe to call "unsafe" functions since they are called
   // PICO_INFO("Bluetooth initialization complete.\n");
 
+  bt_initialization_complete = true;
+
   // Delete stored BT keys for fresh pairing (helpful for initial connection)
   uni_bt_del_keys_unsafe();
 
   // Start scanning and autoconnect to supported controllers.
   uni_bt_start_scanning_and_autoconnect_safe();
+  bt_scanning_active = true;
   // PICO_INFO("Started Bluetooth scanning for new devices.\n");
 
   uni_property_dump_all();
@@ -101,17 +109,25 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
 static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
+  bt_connected_device_count++;
+
   // Disable scanning when a device is connected to save power
   uni_bt_stop_scanning_safe();  
+  bt_scanning_active = false;
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
 }
 
 static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
   // PICO_INFO("Device disconnected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
+  if (bt_connected_device_count > 0) {
+    bt_connected_device_count--;
+  }
+
   // Re-enable scanning when a device is disconnected
   uni_bt_start_scanning_and_autoconnect_safe();
-	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
+  bt_scanning_active = true;
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
   // PICO_DEBUG("[BT] Restarted scanning (device disconnected)\n");
 }
 
@@ -766,7 +782,7 @@ struct uni_platform* get_my_platform(void) {
   return &plat;
 }
 
-void bluetooth_init(void) {
+bool bluetooth_init(void) {
   //PICO_DEBUG("[INIT] Starting Bluetooth initialization...\n");
 
   // Keep Wi-Fi off but don't fully disable to avoid interfering with Bluetooth
@@ -780,4 +796,41 @@ void bluetooth_init(void) {
   // Initialize BP32
   uni_init(0, NULL);
   // PICO_INFO("Bluepad32 initialized\n");
+  
+  return true; // bluepad32 doesn't return error codes, assume success
+}
+
+// Additional API functions for BLE client functionality
+
+bool bluetooth_is_connected(void) {
+  return bt_connected_device_count > 0;
+}
+
+uint8_t bluetooth_get_connected_device_count(void) {
+  return bt_connected_device_count;
+}
+
+void bluetooth_start_scanning(void) {
+  if (bt_initialization_complete && !bt_scanning_active) {
+    uni_bt_start_scanning_and_autoconnect_safe();
+    bt_scanning_active = true;
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+  }
+}
+
+void bluetooth_stop_scanning(void) {
+  if (bt_scanning_active) {
+    uni_bt_stop_scanning_safe();
+    bt_scanning_active = false;
+  }
+}
+
+bool bluetooth_is_scanning(void) {
+  return bt_scanning_active;
+}
+
+void bluetooth_clear_bonded_devices(void) {
+  if (bt_initialization_complete) {
+    uni_bt_del_keys_unsafe();
+  }
 }
