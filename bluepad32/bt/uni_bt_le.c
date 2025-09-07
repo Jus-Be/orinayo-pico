@@ -717,6 +717,15 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
             gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
             gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
 			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+			
+			uint32_t value_length = gatt_event_notification_get_value_length(packet);
+			uint8_t event_data[16] = gatt_event_notification_get_value(packet);	
+
+			if (event_data[5] == 12) {
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 				
+			}
+		
 			/*
             device = uni_hid_device_get_instance_for_address(event_addr);
             if (!device) {
