@@ -62,6 +62,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pico/cyw43_arch.h>
 
 #include "sdkconfig.h"
 
@@ -80,6 +81,7 @@ static bool ble_enabled;
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
 static btstack_packet_callback_registration_t sm_event_callback_registration;
+static gatt_client_notification_t notification_listener;
 
 /**
  * Connect to remote device but set timer for timeout
@@ -679,6 +681,22 @@ static void uni_sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
     }
 }
 
+// Callback function which manages GATT events. Implements a state machine.
+static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
+    UNUSED(packet_type);
+    UNUSED(channel);
+    UNUSED(size);
+
+    uint8_t type_of_packet ;
+    type_of_packet = hci_event_packet_get_type(packet) ;
+
+	
+    if (type_of_packet == GATT_EVENT_NOTIFICATION) {
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
+    }
+}
+
+
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
     uni_hid_device_t* device;
     hci_con_handle_t con_handle;
@@ -692,6 +710,14 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
     switch (subevent) {
         case HCI_SUBEVENT_LE_CONNECTION_COMPLETE:
             hci_subevent_le_connection_complete_get_peer_address(packet, event_addr);
+
+            con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+			
+			uint8_t service_name[16] = {0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
+            gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
+            gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
+			
+			/*
             device = uni_hid_device_get_instance_for_address(event_addr);
             if (!device) {
                 loge("uni_bt_le_on_connection_complete: Device not found for addr: %s\n", bd_addr_to_str(event_addr));
@@ -705,6 +731,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 
             // Resume scanning
             // gap_start_scan();
+			*/
             break;
 
         case HCI_SUBEVENT_LE_ADVERTISING_REPORT:
@@ -747,7 +774,7 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
     }
 }
 
-void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {
+void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
     uint16_t appearance;
@@ -761,12 +788,19 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     ARG_UNUSED(size);
 
     gap_event_advertising_report_get_address(packet, addr);
+    addr_type = gap_event_advertising_report_get_address_type(packet);
+    adv_event_get_data(packet, &appearance, name);	
+	
+    if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
+		hog_connect(addr, addr_type);		
+		return;	
+	}
+	
     if (uni_hid_device_get_instance_for_address(addr)) {
         // Ignore, address already found
         return;
     }
 
-    adv_event_get_data(packet, &appearance, name);
 
     if (appearance != UNI_BT_HID_APPEARANCE_GAMEPAD && appearance != UNI_BT_HID_APPEARANCE_JOYSTICK &&
         appearance != UNI_BT_HID_APPEARANCE_MOUSE && appearance != UNI_BT_HID_APPEARANCE_KEYBOARD) {
@@ -794,7 +828,6 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
             break;
     }
 
-    addr_type = gap_event_advertising_report_get_address_type(packet);
     rssi = gap_event_advertising_report_get_rssi(packet);
 
     logi("Device found: %s (%s)", bd_addr_to_str(addr), addr_type == 0 ? "public" : "random");
