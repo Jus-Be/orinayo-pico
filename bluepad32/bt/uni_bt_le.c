@@ -687,12 +687,19 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     UNUSED(channel);
     UNUSED(size);
 
+	uint32_t value_length = gatt_event_notification_get_value_length(packet);
+	uint8_t *value = gatt_event_notification_get_value(packet);	
+	
+	uint8_t event_data[16];
     uint8_t type_of_packet ;
     type_of_packet = hci_event_packet_get_type(packet) ;
 
-	
-    if (type_of_packet == GATT_EVENT_NOTIFICATION) {
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
+    if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
+		memcpy(event_data, value, value_length);			
+
+		if (event_data[5] == 12) {
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 				
+		}
     }
 }
 
@@ -718,15 +725,6 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
             gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
-			
-			uint32_t value_length = gatt_event_notification_get_value_length(packet);
-			uint8_t *value = gatt_event_notification_get_value(packet);	
-			uint8_t event_data[16];
-			memcpy(event_data, value, value_length);			
-
-			if (event_data[5] == 12) {
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 				
-			}
 		
 			/*
             device = uni_hid_device_get_instance_for_address(event_addr);
