@@ -707,9 +707,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	static int sysex_sent;
 	static bool chord_sent;
 	
-	static uint8_t base = 48;	
-	static uint8_t green, red, yellow, blue, orange;
-	static bool starpower, start, logo, strum_up, strum_down, fill_btn, break_btn;	
+	uint8_t base = 48;	
+	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
+	bool starpower = false, start = false, logo = false, strum_up = false, strum_down = false, fill_btn = false, break_btn = false;	
 
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
