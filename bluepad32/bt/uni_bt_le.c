@@ -93,7 +93,7 @@ extern int active_strum_pattern;
 extern int active_neck_pos;
 extern int style_section; 
 extern int transpose;
-extern uint8_t old_midinotes;
+extern uint8_t old_midinotes[6];
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
