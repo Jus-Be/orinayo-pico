@@ -708,7 +708,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	static bool chord_sent;
 	
 	static uint8_t base = 48;	
-	static bool green, red, yellow, blue, orange, starpower, start, logo, strum_up, fill_btn, break_btn;	
+	static bool green, red, yellow, blue, orange, starpower, start, logo, strum_up, strum_down, fill_btn, break_btn;	
 
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
@@ -720,7 +720,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
 		
-		/*
 		if (event_data[5] == 0) {	// paddle is neutral
 			int old_key = transpose;	
 			
@@ -946,7 +945,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				applied_velocity = event_data[9] / 50;
 				
 				if (chord_selected) {
-					strum_up = false; 
+					strum_down = true; 
 				} else {
 					starpower = true;	// next style
 					red = false;
@@ -969,7 +968,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_up = true;
 				} else {
-					strum_up = false;	// break
+					strum_up = true;	// break
 					break_btn = true;	
 					red = false;
 					yellow = false;
@@ -984,10 +983,10 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				applied_velocity = event_data[9] / 50;
 
 				if (chord_selected) {
-					strum_up = false;
+					strum_down = false;
 
 				} else {
-					strum_up = false;	// fill
+					strum_down = true;	// fill
 					fill_btn = true;	
 					red = false;
 					yellow = false;
@@ -1018,13 +1017,24 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[4] == 64) active_strum_pattern = -1;	// reset
 			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
 		}
-		
-		if (!ll_have_fired) {						
+
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !ll_have_fired); 
+			
+		if (!ll_have_fired) {	
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
 			if (paddle_moved) {
 				paddle_moved = false;
+				
+				if (strum_up || strum_down) {
+					play_chord(true, strum_up, base, green, red, yellow, blue, orange);
+					
+					chord_sent = true;
+					strum_up = false;
+					strum_down = false;					
+				}
+				else
 				
 				if (logo) {
 					logo = false;
@@ -1056,16 +1066,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					if (style_section > 3) style_section = 0;				
 					sysex_sent = 3 + style_section;
 					midi_ketron_arr(sysex_sent, true);							
-				}
-				else {
-					play_chord(true, strum_up, base, green, red, yellow, blue, orange);				
-				}	
-				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 				
+				}			
 			}				
-		}
-		*/
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, event_data[5] == 0); 	
+		}	
     }
 }
 
