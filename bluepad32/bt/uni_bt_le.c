@@ -967,7 +967,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				applied_velocity = event_data[10] / 50;
 
 				if (chord_selected) {
-					strum_down = false;
+					strum_down = true;
 
 				} else {
 					fill_btn = true;	// fill																										
@@ -998,7 +998,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 				chord_sent = true;
 				strum_up = false;
-				strum_down = false;	
+				strum_down = false;
+				
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			}
 			else
 			
@@ -1034,7 +1036,23 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 				sysex_sent = 3 + style_section;
 				midi_ketron_arr(sysex_sent, true);							
-			}							
+			}	
+			else
+				
+			if (fill_btn) {
+				fill_btn = false;
+			
+				sysex_sent = 0x07 + style_section;
+				midi_ketron_arr(sysex_sent, true);							
+			}	
+			else
+				
+			if (break_btn) {
+				break_btn = false;
+			
+				sysex_sent = 0x0B + style_section;
+				midi_ketron_arr(sysex_sent, true);							
+			}			
 		}	
     }
 }
