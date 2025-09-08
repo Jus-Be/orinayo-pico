@@ -89,6 +89,11 @@ void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
+extern int active_strum_pattern;	
+extern int active_neck_pos;
+extern int style_section; 
+extern int transpose;
+extern uint8_t old_midinotes;
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
@@ -706,7 +711,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	static bool green, red, yellow, blue, orange, starpower, start, logo, strum_up, fill_btn, break_btn;	
 
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
-	uint8_t *value = gatt_event_notification_get_value(packet);	
+	const uint8_t *value = gatt_event_notification_get_value(packet);	
 	
 	uint8_t event_data[16];
     uint8_t type_of_packet ;
