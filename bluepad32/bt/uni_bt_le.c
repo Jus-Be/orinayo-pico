@@ -1018,9 +1018,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
 		}
 
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !ll_have_fired); 
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, paddle_moved); 	
 			
 		if (!ll_have_fired) {	
+			midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
+		
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
