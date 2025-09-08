@@ -1023,10 +1023,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			ll_have_fired = 1;
 			ll_cannot_fire = true;
 			
+			midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, paddle_moved); 			
+			
 			if (paddle_moved) {
 				paddle_moved = false;
-				midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, logo); 
 		
 				if (strum_up || strum_down) {
 					play_chord(true, strum_up, base, green, red, yellow, blue, orange);
