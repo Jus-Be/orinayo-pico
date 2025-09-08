@@ -742,7 +742,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			}			
 		}
 		
-		//ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
+		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
 			ll_have_fired = false;
