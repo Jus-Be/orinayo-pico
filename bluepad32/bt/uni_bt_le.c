@@ -719,7 +719,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
-
+		
+		/*
 		if (event_data[5] == 0) {	// paddle is neutral
 			int old_key = transpose;	
 			
@@ -1062,7 +1063,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 				
 			}				
-		}				
+		}
+		*/
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, event_data[5] == 0); 	
     }
 }
 
