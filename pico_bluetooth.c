@@ -18,9 +18,12 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
-static uint8_t old_midinotes[6] = {0};
-static int pattern = 0;	
-static int pos = 2;
+int active_strum_pattern = 0;	
+int active_neck_pos = 2;
+int style_section = 0; 
+int transpose = 0; 
+
+uint8_t old_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
@@ -166,10 +169,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t joystick_down = 0;  
   static uint8_t logo_knob_up = 0;  
   static uint8_t logo_knob_down = 0; 
-  
-  static int style_section = 0; 
-  static int transpose = 0; 
-  
+    
   uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
   uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
   uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
@@ -231,47 +231,47 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 
 			if (yellow && blue) {
-				pos = 3;
+				active_neck_pos = 3;
 			}
 			else
 
 			if (yellow && red) {
-				pos = 2;
+				active_neck_pos = 2;
 			}
 			else
 				
 			if (green && red) {
-				pos = 1;
+				active_neck_pos = 1;
 			}
 			else
 				
 			if (blue && orange) {
-				pattern = -1;
+				active_strum_pattern = -1;
 			}
 			else			
 							
 			if (green) {
-				pattern = 0;
+				active_strum_pattern = 0;
 			}
 			else
 				
 			if (yellow) {
-				pattern = 1;
+				active_strum_pattern = 1;
 			}
 			else
 
 			if (blue) {
-				pattern = 2;
+				active_strum_pattern = 2;
 			}				
 			else
 
 			if (red) {
-				pattern = 3;
+				active_strum_pattern = 3;
 			}
 			else
 
 			if (orange) {
-				pattern = 4;
+				active_strum_pattern = 4;
 			}
 			else 			
 			
@@ -374,11 +374,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			starpower = mbut1;
 
 			if (green) {
-				if (mbut1) {
-					style_section = 0;
-					midi_ketron_arr(0x12, mbut1 ? true : false);	// Start/stop	
-				}
-				break;
+				// TODO mute chords
 			}
 			else
 				
@@ -670,7 +666,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
-	int __6th = E +O*(pos+2), __5th = A +O*(pos+2), __4th = D +O*(pos+2), __3rd = G +O*(pos+2), __2nd = B +O*(pos+2), __1st = E +O*(pos+3);	
+	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);	
 	
 	int string_frets[6];
 	string_frets[0] = __6th;
@@ -690,16 +686,16 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	int velocity = 100;	
 	uint8_t note = 0;
 	
-	if (handled && pattern > -1) 
+	if (handled && active_strum_pattern > -1) 
 	{	
-		if (up || pattern == 0) {
-			while (strum_pattern[pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+		if (up || active_strum_pattern == 0) {
+			while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 				seq_index++;
 				if (seq_index > 11) seq_index = 0;
 			}
 
 			for (int i=0; i<6; i++) {
-				string = 6 - strum_pattern[pattern][seq_index][i];
+				string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
 				
 				if (string > -1 && string < 6) 
 				{
@@ -723,7 +719,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 			seq_index++;	
 			if (seq_index > 11) seq_index = 0;	
 		} else {
-			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (pos + 2));
+			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
 			old_midinotes[0] = note;
 			midi_send_note(0x90, note, velocity);
 		}			

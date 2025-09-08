@@ -78,6 +78,18 @@
 static bool is_scanning;
 static bool ble_enabled;
 
+static bool liberlive_enabled;
+static bool ll_cannot_fire;
+static bool ll_have_fired;
+
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
+void midi_ketron_arr(uint8_t code, bool on);
+void midi_ketron_footsw(uint8_t code, bool on);
+void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+
+
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
 static btstack_packet_callback_registration_t sm_event_callback_registration;
@@ -687,6 +699,12 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     UNUSED(channel);
     UNUSED(size);
 
+	static int sysex_sent;
+	static bool chord_sent;
+	
+	static uint8_t base = 48;	
+	static bool green, red, yellow, blue, orange, starpower, start, logo, strum_up, fill_btn, break_btn;	
+
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	uint8_t *value = gatt_event_notification_get_value(packet);	
 	
@@ -697,9 +715,346 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
 
-		if (event_data[5] == 12) {
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 				
+		if (event_data[5] == 0) {	// paddle is neutral
+			int old_key = transpose;	
+			
+			if (event_data[1] == 0) transpose = 0;	// C
+			if (event_data[1] == 1) transpose = 2;	// D
+			if (event_data[1] == 2) transpose = 4;	// E
+			if (event_data[1] == 3) transpose = 5;	// F
+			if (event_data[1] == 4) transpose = 7;	// G
+			if (event_data[1] == 5) transpose = 9;	// A
+			if (event_data[1] == 6) transpose = 11;	// B	
+
+			if (old_key != transpose) {
+				//set_liberlive_chord_mappings();
+				base = 48 + transpose;	
+			}			
 		}
+		
+		bool chord_selected = false;
+		bool paddle_moved = false;	
+		int applied_velocity = 100;
+
+		ll_cannot_fire = event_data[5] == 0; // when paddle in neutral
+		
+		if (ll_have_fired && ll_cannot_fire) {
+			ll_have_fired = false;
+
+			if (sysex_sent) {			
+				midi_ketron_arr(sysex_sent, false);	
+				sysex_sent = 0;
+			}
+						
+			if (chord_sent) {
+				chord_sent = false;
+				midi_play_chord(false, 0, 0, 0);	
+				
+				for (int n=0; n<6; n++) 
+				{
+					if (old_midinotes[n] > 0) {
+						midi_send_note(0x80, old_midinotes[n], 0);	
+						old_midinotes[n] = 0;						
+					}						
+				}	
+			}				
+		}	
+
+		if (event_data[4] == 2) {
+			yellow = true;		// 7b			
+			red = true;								
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[2] == 8) {
+			green = true;		// 7							
+			red = true;								
+			yellow = true;				
+			blue = true;								
+			chord_selected = true;
+		}
+		else
+
+		if (event_data[3] == 4) {
+			yellow = true;		// 5b			
+			green = true;								
+			red = true;								
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[4] == 4) {
+			red = true;		// 6m
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[2] == 16 || event_data[3] == 8) {
+			red = true;		// 6
+			yellow = true;
+			blue = true;							
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[4] == 8) {
+			green = true;		// 5								
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[2] == 32) {
+			green = true;		// 5sus							
+			yellow = true;						
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[3] == 16) {
+			green = true;		// 5/7
+			red = true;							
+			chord_selected = true;
+		}													
+		else
+			
+		if (event_data[4] == 16) {
+			yellow = true;		// 1
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[2] == 64) {
+			yellow = true;		// 1sus
+			orange = true;							
+			chord_selected = true;
+		}
+		else
+
+		if (event_data[3] == 32) {
+			yellow = true;		// 1/3
+			blue = true;							
+			chord_selected = true;
+		}
+		else						
+			
+		if (event_data[4] == 32) {
+			orange = true;		// 4								
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[2] == 128) {
+			orange = true;		// 3b
+			blue = true;		
+			red = true;							
+			chord_selected = true;
+		}
+		else
+
+		if (event_data[3] == 64) {
+			orange = true;		// 4/6
+			blue = true;							
+			chord_selected = true;
+		}
+		else						
+			
+		if (event_data[4] == 64) {
+			blue = true;		// 2m
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[3] == 1) {
+			blue = true;		// 2
+			red = true;							
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[3] == 128) {
+			orange = true;		// 4m
+			red = true;							
+			chord_selected = true;
+		}	
+		else
+			
+		if (event_data[4] == 128) {
+			green = true;		// 3m
+			blue = true;								
+			chord_selected = true;
+		}
+		else
+			
+		if (event_data[3] == 2) {
+			green = true;		// 3
+			yellow = true;								
+			blue = true;								
+			chord_selected = true;
+		}						
+		else
+			
+		if (event_data[4] == 1) {
+			green = true;		// 5m
+			orange = true;															
+			chord_selected = true;
+		}						
+			
+			
+		if (event_data[5] == 15) {			// Paddle A+B
+			paddle_moved = true;	
+
+			if (event_data[10] < 48) { // UP
+				logo = true;
+			}
+			else
+				
+			if (event_data[10] > 58) { // DOWN
+				logo = true;
+			}							
+
+		}	
+		else							
+		
+		if (event_data[5] == 12) {			// Paddle A
+			paddle_moved = true;	
+			
+			if (event_data[9] < 48) { // UP
+				applied_velocity = (50 - event_data[9]) / 50;
+
+				if (chord_selected) {
+					strum_up = true; 
+				} else {
+					start = true;	// prev style
+					red = false;
+					yellow = false;
+					green = false;
+					orange = false;
+					blue = false;									
+				}								
+
+			}
+			else
+				
+			if (event_data[9] > 58) { // DOWN
+				applied_velocity = event_data[9] / 50;
+				
+				if (chord_selected) {
+					strum_up = false; 
+				} else {
+					starpower = true;	// next style
+					red = false;
+					yellow = false;
+					green = false;
+					orange = false;
+					blue = false;									
+				}								
+			}
+				
+		}
+		else
+			
+		if (event_data[5] == 3) {			// Paddle B
+			paddle_moved = true;	
+
+			if (event_data[10] < 48) { // UP
+				applied_velocity = (50 - event_data[10]) / 50;							
+			
+				if (chord_selected) {
+					strum_up = true;
+				} else {
+					strum_up = false;	// break
+					break_btn = true;	
+					red = false;
+					yellow = false;
+					green = false;
+					orange = false;
+					blue = false;																										
+				}								
+			}
+			else
+				
+			if (event_data[10] > 58) { // DOWN
+				applied_velocity = event_data[9] / 50;
+
+				if (chord_selected) {
+					strum_up = false;
+
+				} else {
+					strum_up = false;	// fill
+					fill_btn = true;	
+					red = false;
+					yellow = false;
+					green = false;
+					orange = false;
+					blue = false;																										
+				}								
+			}							
+
+		}
+		else
+
+		if (event_data[5] == 64 ) {			// change pads mode only when not paying, otherwise prev variation will trigger
+			paddle_moved = true;	
+			
+			start = true;		// set PadsMode/strum style	
+			red = false;
+			yellow = false;
+			green = false;
+			orange = false;
+			blue = false;	
+			
+			if (event_data[4] == 2) active_strum_pattern = 0;	// full chord up/down
+			if (event_data[4] == 4) active_strum_pattern = 1;	// chord up/root note down	
+			if (event_data[4] == 8) active_strum_pattern = 2;	// root note up/down
+			if (event_data[4] == 16) active_strum_pattern = 3;	// 3rd note up/root note down
+			if (event_data[4] == 32) active_strum_pattern = 4;	// 5th note up/root note down							
+			if (event_data[4] == 64) active_strum_pattern = -1;	// reset
+			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
+		}
+		
+		if (!ll_have_fired) {						
+			ll_have_fired = true;
+			ll_cannot_fire = true;
+			
+			if (paddle_moved) {
+				
+				if (logo) {
+					uint8_t code = 0x12;				// default start/stop									
+					if (yellow) code = 0x0F;	// INTRO/END-1
+					if (red) code = 0x10;		// INTRO/END-2
+					if (green) code = 0x11;		// INTRO/END-3		
+					if (blue) code = 0x17;		// TO END
+					if (orange) code = 0x35;	// FADE		
+					
+					sysex_sent = code;
+					midi_ketron_arr(sysex_sent, true);	
+				
+				} else {	
+	
+					if (start) {
+						style_section--;
+						if (style_section < 0) style_section = 3;
+						sysex_sent = 3 + style_section;
+						midi_ketron_arr(sysex_sent, true);								
+					}
+					else
+						
+					if (starpower) {
+						style_section++;
+						if (style_section > 3) style_section = 0;				
+						sysex_sent = 3 + style_section;
+						midi_ketron_arr(sysex_sent, true);							
+					}
+					else {
+						play_chord(true, strum_up, base, green, red, yellow, blue, orange);				
+					}	
+				}
+			}				
+		}		
+		
+		
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 		
     }
 }
 
@@ -720,27 +1075,31 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 
             con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
 			
-			uint8_t service_name[16] = {0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
-            gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
-            gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
-			
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
-		
-			/*
-            device = uni_hid_device_get_instance_for_address(event_addr);
-            if (!device) {
-                loge("uni_bt_le_on_connection_complete: Device not found for addr: %s\n", bd_addr_to_str(event_addr));
-                break;
-            }
-            con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-            logi("Using con_handle: %#x\n", con_handle);
+			if (liberlive_enabled) {
+				uint8_t service_name[16] = {0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
+				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
+				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
+				
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+				ll_cannot_fire = true;
+				ll_have_fired = false;
+				
+			} else {		
+				device = uni_hid_device_get_instance_for_address(event_addr);
+				
+				if (!device) {
+					loge("uni_bt_le_on_connection_complete: Device not found for addr: %s\n", bd_addr_to_str(event_addr));
+					break;
+				}
+				con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+				logi("Using con_handle: %#x\n", con_handle);
 
-            uni_hid_device_set_connection_handle(device, con_handle);
-            sm_request_pairing(con_handle);
+				uni_hid_device_set_connection_handle(device, con_handle);
+				sm_request_pairing(con_handle);
 
-            // Resume scanning
-            // gap_start_scan();
-			*/
+				// Resume scanning
+				// gap_start_scan();
+			}
             break;
 
         case HCI_SUBEVENT_LE_ADVERTISING_REPORT:
@@ -801,6 +1160,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     adv_event_get_data(packet, &appearance, name);	
 	
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
+		liberlive_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
 	}
