@@ -763,7 +763,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 						old_midinotes[n] = 0;						
 					}						
 				}	
-			}				
+			}
+			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 		}	
 
 		if (event_data[4] == 2) {
