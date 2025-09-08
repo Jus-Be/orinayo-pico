@@ -742,7 +742,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			}			
 		}
 		
-		ll_cannot_fire = event_data[5] == 0; // when paddle in neutral
+		//ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
 			ll_have_fired = false;
@@ -1018,63 +1018,56 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
 		}	
 			
-		if (!ll_have_fired) {			
+		if (paddle_moved && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
-			
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, paddle_moved); 
-			midi_send_note(0x80, event_data[5], event_data[4]);							
-			
-			//if (paddle_moved) {
-				paddle_moved = false;
-		
-				if (strum_up || strum_down) {
-					play_chord(true, strum_up, base, green, red, yellow, blue, orange);
-					
-					chord_sent = true;
-					strum_up = false;
-					strum_down = false;	
-
-					red = 0;
-					yellow = 0;
-					green = 0;
-					orange = 0;
-					blue = 0;
-				}
-				else
-				
-				if (logo) {
-					logo = false;
-					uint8_t code = 0x12;		// default start/stop									
-					if (yellow) code = 0x0F;	// INTRO/END-1
-					if (red) code = 0x10;		// INTRO/END-2
-					if (green) code = 0x11;		// INTRO/END-3		
-					if (blue) code = 0x17;		// TO END
-					if (orange) code = 0x35;	// FADE		
-					
-					sysex_sent = code;
-					midi_ketron_arr(sysex_sent, true);	
-				
-				}
-				else
 	
-				if (start) {
-					start = false;
-					style_section--;
-					if (style_section < 0) style_section = 3;
-					sysex_sent = 3 + style_section;
-					midi_ketron_arr(sysex_sent, true);								
-				}
-				else
-					
-				if (starpower) {
-					starpower = false;
-					style_section++;
-					if (style_section > 3) style_section = 0;				
-					sysex_sent = 3 + style_section;
-					midi_ketron_arr(sysex_sent, true);							
-				}			
-			//}				
+			if (strum_up || strum_down) {
+				play_chord(true, strum_up, base, green, red, yellow, blue, orange);
+				
+				chord_sent = true;
+				strum_up = false;
+				strum_down = false;	
+
+				red = 0;
+				yellow = 0;
+				green = 0;
+				orange = 0;
+				blue = 0;
+			}
+			else
+			
+			if (logo) {
+				logo = false;
+				uint8_t code = 0x12;		// default start/stop									
+				if (yellow) code = 0x0F;	// INTRO/END-1
+				if (red) code = 0x10;		// INTRO/END-2
+				if (green) code = 0x11;		// INTRO/END-3		
+				if (blue) code = 0x17;		// TO END
+				if (orange) code = 0x35;	// FADE		
+				
+				sysex_sent = code;
+				midi_ketron_arr(sysex_sent, true);	
+			
+			}
+			else
+
+			if (start) {
+				start = false;
+				style_section--;
+				if (style_section < 0) style_section = 3;
+				sysex_sent = 3 + style_section;
+				midi_ketron_arr(sysex_sent, true);								
+			}
+			else
+				
+			if (starpower) {
+				starpower = false;
+				style_section++;
+				if (style_section > 3) style_section = 0;				
+				sysex_sent = 3 + style_section;
+				midi_ketron_arr(sysex_sent, true);							
+			}							
 		}	
     }
 }
@@ -1103,7 +1096,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 				ll_cannot_fire = true;
-				ll_have_fired = 0;
+				ll_have_fired = false;
 				
 			} else {		
 				device = uni_hid_device_get_instance_for_address(event_addr);
