@@ -713,8 +713,12 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
-	
+
+	bool chord_selected = false;
+	bool paddle_moved = false;	
+	int applied_velocity = 100;
 	uint8_t event_data[16];
+	
     uint8_t type_of_packet ;
     type_of_packet = hci_event_packet_get_type(packet) ;
 
@@ -738,14 +742,10 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			}			
 		}
 		
-		bool chord_selected = false;
-		bool paddle_moved = false;	
-		int applied_velocity = 100;
-
 		ll_cannot_fire = event_data[5] == 0; // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
-			ll_have_fired = 0;
+			ll_have_fired = false;
 
 			if (sysex_sent) {			
 				midi_ketron_arr(sysex_sent, false);	
@@ -905,8 +905,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			orange = 1;															
 			chord_selected = true;
 		}						
-			
-			
+						
 		if (event_data[5] == 15) {			// Paddle A+B
 			paddle_moved = true;	
 
@@ -1020,13 +1019,13 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		}	
 			
 		if (!ll_have_fired) {			
-			ll_have_fired = 1;
+			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
-			midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, paddle_moved); 			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, chord_selected); 			
 			
-			if (paddle_moved) {
+			//if (paddle_moved) {
+				midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));				
 				paddle_moved = false;
 		
 				if (strum_up || strum_down) {
@@ -1034,7 +1033,13 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					
 					chord_sent = true;
 					strum_up = false;
-					strum_down = false;					
+					strum_down = false;	
+
+					red = 0;
+					yellow = 0;
+					green = 0;
+					orange = 0;
+					blue = 0;
 				}
 				else
 				
@@ -1069,7 +1074,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					sysex_sent = 3 + style_section;
 					midi_ketron_arr(sysex_sent, true);							
 				}			
-			}				
+			//}				
 		}	
     }
 }
