@@ -708,7 +708,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	static bool chord_sent;
 	
 	static uint8_t base = 48;	
-	static bool green, red, yellow, blue, orange, starpower, start, logo, strum_up, strum_down, fill_btn, break_btn;	
+	static uint8_t green, red, yellow, blue, orange;
+	static bool starpower, start, logo, strum_up, strum_down, fill_btn, break_btn;	
 
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
@@ -744,7 +745,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		ll_cannot_fire = event_data[5] == 0; // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
-			ll_have_fired = false;
+			ll_have_fired = 0;
 
 			if (sysex_sent) {			
 				midi_ketron_arr(sysex_sent, false);	
@@ -766,142 +767,142 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		}	
 
 		if (event_data[4] == 2) {
-			yellow = true;		// 7b			
-			red = true;								
+			yellow = 1;		// 7b			
+			red = 1;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 8) {
-			green = true;		// 7							
-			red = true;								
-			yellow = true;				
-			blue = true;								
+			green = 1;		// 7							
+			red = 1;								
+			yellow = 1;				
+			blue = 1;								
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 4) {
-			yellow = true;		// 5b			
-			green = true;								
-			red = true;								
+			yellow = 1;		// 5b			
+			green = 1;								
+			red = 1;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[4] == 4) {
-			red = true;		// 6m
+			red = 1;		// 6m
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 16 || event_data[3] == 8) {
-			red = true;		// 6
-			yellow = true;
-			blue = true;							
+			red = 1;		// 6
+			yellow = 1;
+			blue = 1;							
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[4] == 8) {
-			green = true;		// 5								
+			green = 1;		// 5								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 32) {
-			green = true;		// 5sus							
-			yellow = true;						
+			green = 1;		// 5sus							
+			yellow = 1;						
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 16) {
-			green = true;		// 5/7
-			red = true;							
+			green = 1;		// 5/7
+			red = 1;							
 			chord_selected = true;
 		}													
 		else
 			
 		if (event_data[4] == 16) {
-			yellow = true;		// 1
+			yellow = 1;		// 1
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 64) {
-			yellow = true;		// 1sus
-			orange = true;							
+			yellow = 1;		// 1sus
+			orange = 1;							
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 32) {
-			yellow = true;		// 1/3
-			blue = true;							
+			yellow = 1;		// 1/3
+			blue = 1;							
 			chord_selected = true;
 		}
 		else						
 			
 		if (event_data[4] == 32) {
-			orange = true;		// 4								
+			orange = 1;		// 4								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 128) {
-			orange = true;		// 3b
-			blue = true;		
-			red = true;							
+			orange = 1;		// 3b
+			blue = 1;		
+			red = 1;							
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 64) {
-			orange = true;		// 4/6
-			blue = true;							
+			orange = 1;		// 4/6
+			blue = 1;							
 			chord_selected = true;
 		}
 		else						
 			
 		if (event_data[4] == 64) {
-			blue = true;		// 2m
+			blue = 1;		// 2m
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 1) {
-			blue = true;		// 2
-			red = true;							
+			blue = 1;		// 2
+			red = 1;							
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 128) {
-			orange = true;		// 4m
-			red = true;							
+			orange = 1;		// 4m
+			red = 1;							
 			chord_selected = true;
 		}	
 		else
 			
 		if (event_data[4] == 128) {
-			green = true;		// 3m
-			blue = true;								
+			green = 1;		// 3m
+			blue = 1;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 2) {
-			green = true;		// 3
-			yellow = true;								
-			blue = true;								
+			green = 1;		// 3
+			yellow = 1;								
+			blue = 1;								
 			chord_selected = true;
 		}						
 		else
 			
 		if (event_data[4] == 1) {
-			green = true;		// 5m
-			orange = true;															
+			green = 1;		// 5m
+			orange = 1;															
 			chord_selected = true;
 		}						
 			
@@ -931,11 +932,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					strum_up = true; 
 				} else {
 					start = true;	// prev style
-					red = false;
-					yellow = false;
-					green = false;
-					orange = false;
-					blue = false;									
+					red = 0;
+					yellow = 0;
+					green = 0;
+					orange = 0;
+					blue = 0;									
 				}								
 
 			}
@@ -948,11 +949,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					strum_down = true; 
 				} else {
 					starpower = true;	// next style
-					red = false;
-					yellow = false;
-					green = false;
-					orange = false;
-					blue = false;									
+					red = 0;
+					yellow = 0;
+					green = 0;
+					orange = 0;
+					blue = 0;									
 				}								
 			}
 				
@@ -970,11 +971,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				} else {
 					strum_up = true;	// break
 					break_btn = true;	
-					red = false;
-					yellow = false;
-					green = false;
-					orange = false;
-					blue = false;																										
+					red = 0;
+					yellow = 0;
+					green = 0;
+					orange = 0;
+					blue = 0;																										
 				}								
 			}
 			else
@@ -988,11 +989,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				} else {
 					strum_down = true;	// fill
 					fill_btn = true;	
-					red = false;
-					yellow = false;
-					green = false;
-					orange = false;
-					blue = false;																										
+					red = 0;
+					yellow = 0;
+					green = 0;
+					orange = 0;
+					blue = 0;																										
 				}								
 			}							
 
@@ -1003,11 +1004,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			paddle_moved = true;	
 			
 			start = true;		// set PadsMode/strum style	
-			red = false;
-			yellow = false;
-			green = false;
-			orange = false;
-			blue = false;	
+			red = 0;
+			yellow = 0;
+			green = 0;
+			orange = 0;
+			blue = 0;	
 			
 			if (event_data[4] == 2) active_strum_pattern = 0;	// full chord up/down
 			if (event_data[4] == 4) active_strum_pattern = 1;	// chord up/root note down	
@@ -1016,19 +1017,17 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[4] == 32) active_strum_pattern = 4;	// 5th note up/root note down							
 			if (event_data[4] == 64) active_strum_pattern = -1;	// reset
 			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
-		}
-
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, paddle_moved); 	
+		}	
 			
-		if (!ll_have_fired) {	
-			midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
-		
-			ll_have_fired = true;
+		if (!ll_have_fired) {			
+			ll_have_fired = 1;
 			ll_cannot_fire = true;
 			
 			if (paddle_moved) {
 				paddle_moved = false;
-				
+				midi_send_note(0x80, green ? 1 : (red ? 2 : (yellow ? 3 : (blue ? 4 : 5))), strum_up ? 1 : (strum_down ? 2 : 0));
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, logo); 
+		
 				if (strum_up || strum_down) {
 					play_chord(true, strum_up, base, green, red, yellow, blue, orange);
 					
@@ -1098,7 +1097,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 				ll_cannot_fire = true;
-				ll_have_fired = false;
+				ll_have_fired = 0;
 				
 			} else {		
 				device = uni_hid_device_get_instance_for_address(event_addr);
