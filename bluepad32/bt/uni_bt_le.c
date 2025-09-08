@@ -930,12 +930,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_up = true; 
 				} else {
-					start = true;	// prev style
-					red = 0;
-					yellow = 0;
-					green = 0;
-					orange = 0;
-					blue = 0;									
+					start = true;	// prev style									
 				}								
 
 			}
@@ -947,12 +942,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_down = true; 
 				} else {
-					starpower = true;	// next style
-					red = 0;
-					yellow = 0;
-					green = 0;
-					orange = 0;
-					blue = 0;									
+					starpower = true;	// next style								
 				}								
 			}
 				
@@ -967,47 +957,28 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			
 				if (chord_selected) {
 					strum_up = true;
-				} else {
-					strum_up = true;	// break
-					break_btn = true;	
-					red = 0;
-					yellow = 0;
-					green = 0;
-					orange = 0;
-					blue = 0;																										
+				} else {	
+					break_btn = true;	// break																										
 				}								
 			}
 			else
 				
 			if (event_data[10] > 58) { // DOWN
-				applied_velocity = event_data[9] / 50;
+				applied_velocity = event_data[10] / 50;
 
 				if (chord_selected) {
 					strum_down = false;
 
 				} else {
-					strum_down = true;	// fill
-					fill_btn = true;	
-					red = 0;
-					yellow = 0;
-					green = 0;
-					orange = 0;
-					blue = 0;																										
+					fill_btn = true;	// fill																										
 				}								
 			}							
 
 		}
 		else
 
-		if (event_data[5] == 64 ) {			// change pads mode only when not paying, otherwise prev variation will trigger
+		if (event_data[5] == 64 ) {			// change style pattern
 			paddle_moved = true;	
-			
-			start = true;		// set PadsMode/strum style	
-			red = 0;
-			yellow = 0;
-			green = 0;
-			orange = 0;
-			blue = 0;	
 			
 			if (event_data[4] == 2) active_strum_pattern = 0;	// full chord up/down
 			if (event_data[4] == 4) active_strum_pattern = 1;	// chord up/root note down	
@@ -1028,12 +999,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				chord_sent = true;
 				strum_up = false;
 				strum_down = false;	
-
-				red = 0;
-				yellow = 0;
-				green = 0;
-				orange = 0;
-				blue = 0;
 			}
 			else
 			
@@ -1056,6 +1021,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				start = false;
 				style_section--;
 				if (style_section < 0) style_section = 3;
+				
 				sysex_sent = 3 + style_section;
 				midi_ketron_arr(sysex_sent, true);								
 			}
@@ -1064,7 +1030,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (starpower) {
 				starpower = false;
 				style_section++;
-				if (style_section > 3) style_section = 0;				
+				if (style_section > 3) style_section = 0;	
+				
 				sysex_sent = 3 + style_section;
 				midi_ketron_arr(sysex_sent, true);							
 			}							
