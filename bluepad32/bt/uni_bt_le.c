@@ -103,6 +103,7 @@ static btstack_packet_callback_registration_t sm_event_callback_registration;
 static gatt_client_characteristic_t server_characteristic;
 static gatt_client_notification_t notification_listener;
 static gatt_client_service_t server_service;
+static hci_con_handle_t connection_handle;
 
 /**
  * Connect to remote device but set timer for timeout
@@ -724,10 +725,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	
 	int applied_velocity = 100;
 	uint8_t event_data[16];
-	
-    hci_con_handle_t con_handle;	
-    con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-	
+			
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
 	
@@ -752,17 +750,17 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
 			//if (server_characteristic.properties & (1u<<2)) {		// Write Chord Key Mapping			
 				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, con_handle, server_characteristic.value_handle, 26, chord_mappings);
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
 				
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
 			//}
 			
 		} else {
 			midi_send_note(0x80, 1, 2);				
-			//gatt_client_discover_characteristics_for_service(handle_gatt_client_event, con_handle, &server_service);
+			//gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);
 			
 			uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
-			gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, con_handle, &server_service, characterstic_name);						
+			gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
 		}
 	}		
 	else
@@ -1112,7 +1110,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
     uni_hid_device_t* device;
-    hci_con_handle_t con_handle;
     bd_addr_t event_addr;
     uint8_t subevent;
 
@@ -1124,12 +1121,12 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
         case HCI_SUBEVENT_LE_CONNECTION_COMPLETE:
             hci_subevent_le_connection_complete_get_peer_address(packet, event_addr);
 
-            con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-			logi("Using con_handle: %#x\n", con_handle);
+            connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+			logi("Using con_handle: %#x\n", connection_handle);
 				
 			if (liberlive_enabled) {
 				uint8_t service_name[16] = {0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
-				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
+				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
 				
 				//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
@@ -1144,8 +1141,8 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 					break;
 				}
 
-				uni_hid_device_set_connection_handle(device, con_handle);
-				sm_request_pairing(con_handle);
+				uni_hid_device_set_connection_handle(device, connection_handle);
+				sm_request_pairing(connection_handle);
 
 				// Resume scanning
 				// gap_start_scan();
