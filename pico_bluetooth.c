@@ -303,7 +303,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				for (int n=0; n<6; n++) 
 				{
 					if (old_midinotes[n] > 0) {
-						midi_send_note(enable_style_play ? 0x80 : 0x81, old_midinotes[n], 0);	
+						midi_send_note(0x80, old_midinotes[n], 0);	
 						old_midinotes[n] = 0;
 					}
 				}						
@@ -324,7 +324,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				for (int n=0; n<6; n++) 
 				{
 					if (old_midinotes[n] > 0) {
-						midi_send_note(enable_style_play ? 0x80 : 0x81, old_midinotes[n], 0);	
+						midi_send_note(0x80, old_midinotes[n], 0);	
 						old_midinotes[n] = 0;						
 					}						
 				}				
@@ -718,7 +718,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
-				midi_send_note(enable_style_play ? 0x90 : 0x91, note, velocity);		
+				midi_send_note(0x90, note, velocity);		
 			}	
 
 			seq_index++;	
@@ -726,7 +726,7 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 		} else {
 			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
 			old_midinotes[0] = note;
-			midi_send_note(enable_style_play ? 0x90 : 0x91, note, velocity);
+			midi_send_note(0x90, note, velocity);
 		}			
 	} 
 }
