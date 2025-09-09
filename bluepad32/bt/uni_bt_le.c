@@ -89,6 +89,7 @@ void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
+extern bool enable_style_play;
 extern int active_strum_pattern;	
 extern int active_neck_pos;
 extern int style_section; 
@@ -982,13 +983,13 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		if (event_data[5] == 64 ) {			// change style pattern
 			paddle_moved = true;	
 			
-			if (event_data[4] == 2) active_strum_pattern = 0;	// full chord up/down
-			if (event_data[4] == 4) active_strum_pattern = 1;	// chord up/root note down	
-			if (event_data[4] == 8) active_strum_pattern = 2;	// root note up/down
-			if (event_data[4] == 16) active_strum_pattern = 3;	// 3rd note up/root note down
-			if (event_data[4] == 32) active_strum_pattern = 4;	// 5th note up/root note down							
-			if (event_data[4] == 64) active_strum_pattern = -1;	// reset
-			if (event_data[4] == 128) active_strum_pattern = -1;	// reset							
+			if (event_data[4] == 2) enable_style_play = !enable_style_play;	
+			if (event_data[4] == 4) active_strum_pattern = 0;		
+			if (event_data[4] == 8) active_strum_pattern = 1;	
+			if (event_data[4] == 16) active_strum_pattern = 2;	
+			if (event_data[4] == 32) active_strum_pattern = 3;								
+			if (event_data[4] == 64) active_strum_pattern = 4;	
+			if (event_data[4] == 128) active_strum_pattern = -1;							
 		}	
 			
 		if (paddle_moved && !ll_have_fired) {			
