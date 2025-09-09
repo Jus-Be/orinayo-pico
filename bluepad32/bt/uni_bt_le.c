@@ -732,19 +732,23 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     type_of_packet = hci_event_packet_get_type(packet);
 	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {	
-		gatt_event_service_query_result_get_service(packet, &server_service);					
+		gatt_event_service_query_result_get_service(packet, &server_service);
+		midi_send_note(0x80, 0, 0);	
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
+		midi_send_note(0x80, 0, 1);		
 		query_characteristic = true;
 		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
 	}
 	else
 					
-    if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) 
-	{
+    if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) {
+		midi_send_note(0x80, 1, 0);	
+		
 		if (query_characteristic) {
+			midi_send_note(0x80, 1, 1);	
 		
 			//if (server_characteristic.properties & (1u<<2)) {		// Write Chord Key Mapping			
 				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
@@ -754,6 +758,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			//}
 			
 		} else {
+			midi_send_note(0x80, 1, 2);				
 			//gatt_client_discover_characteristics_for_service(handle_gatt_client_event, con_handle, &server_service);
 			
 			uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
@@ -805,7 +810,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				}	
 			}
 			
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 		}	
 
 		if (event_data[4] == 2) {
@@ -1047,7 +1052,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				strum_up = false;
 				strum_down = false;
 				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+				//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			}
 			else
 			
@@ -1127,7 +1132,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
 				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+				//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 				ll_cannot_fire = true;
 				ll_have_fired = false;
 				
