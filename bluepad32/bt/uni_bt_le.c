@@ -99,7 +99,7 @@ extern uint8_t old_midinotes[6];
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
 static btstack_packet_callback_registration_t sm_event_callback_registration;
-static uint16_t value_handle;
+
 static gatt_client_characteristic_t server_characteristic;
 static gatt_client_notification_t notification_listener;
 static gatt_client_service_t server_service;
@@ -738,22 +738,26 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
 		query_characteristic = true;
-		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
-		
-		if (server_characteristic.properties & (1u<<2)) {		// Write Characteristic
-			value_handle = server_characteristic.value_handle;
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
-		}		
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
 	}
 	else
 					
     if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) 
 	{
-		if (!query_characteristic) {
+		if (query_characteristic) {
+		
+			if (server_characteristic.properties & (1u<<2)) {		// Write Chord Key Mapping			
+				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, con_handle, server_characteristic.value_handle, 26,  sizeof(chord_mappings), chord_mappings);
+				
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
+			}
+			
+		} else {
 			gatt_client_discover_characteristics_for_service(handle_gatt_client_event, con_handle, &server_service);
 			
 			//uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
-			//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, con_handle, &server_service, characterstic_name);			
+			//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, con_handle, &server_service, characterstic_name);						
 		}
 	}		
 	else
