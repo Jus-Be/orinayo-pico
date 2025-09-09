@@ -711,7 +711,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 	static int sysex_sent;
 	static bool chord_sent;
-	static int query_state = 0;
+	static int query_state;
 	
 	uint8_t base = 48;	
 	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
@@ -729,39 +729,31 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
 	
-    if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {	
+    if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
+		query_state = 0;
 		gatt_event_service_query_result_get_service(packet, &server_service);
-		midi_send_note(0x80, 0, 1);	
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
-		midi_send_note(0x80, 0, 2);		
 		query_state = 1;
 		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
 	}
 	else
 					
     if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) {
-		midi_send_note(0x80, 0, 3);	
+		// action query here
 		
 		if (query_state == 0) {
-			midi_send_note(0x80, 0, 4);				
-			//gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);
-			
 			uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
 			gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
 		}
 		else		
 		
 		if (query_state == 1) {
-			midi_send_note(0x80, 0, 5);	
-		
 			// Write Chord Key Mapping			
 			static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
 			gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
-			
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			query_state = 2;				
 		}
 	}		
@@ -782,7 +774,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[1] == 6) transpose = 11;	// B	
 
 			if (old_key != transpose) {
-				//set_liberlive_chord_mappings();
 				base = 48 + transpose;	
 			}			
 		}
@@ -810,7 +801,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				}	
 			}
 			
-			//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 		}	
 
 		if (event_data[4] == 2) {
@@ -1052,7 +1043,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				strum_up = false;
 				strum_down = false;
 				
-				//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 			}
 			else
 			
@@ -1131,7 +1122,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
 				
-				//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 				ll_cannot_fire = true;
 				ll_have_fired = false;
 				

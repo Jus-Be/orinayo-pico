@@ -45,7 +45,7 @@ void pico_set_led(bool led_on) {
     gpio_put(PICO_DEFAULT_LED_PIN, led_on);
 #elif defined(CYW43_WL_GPIO_LED_PIN)
     // Ask the wifi "driver" to set the GPIO on or off
-    // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
 #endif
 }
 
@@ -83,13 +83,13 @@ int main() {
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
-  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
 // Invoked when usb bus is suspended
@@ -98,13 +98,13 @@ void tud_umount_cb(void)
 void tud_suspend_cb(bool remote_wakeup_en)
 {
   (void) remote_wakeup_en;
-  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void)
 {
-  // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 //--------------------------------------------------------------------+
