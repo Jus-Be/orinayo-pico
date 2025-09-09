@@ -711,7 +711,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 	static int sysex_sent;
 	static bool chord_sent;
-	static bool query_characteristic;
+	static int query_state = 0;
 	
 	uint8_t base = 48;	
 	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
@@ -731,36 +731,38 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {	
 		gatt_event_service_query_result_get_service(packet, &server_service);
-		midi_send_note(0x80, 0, 0);	
+		midi_send_note(0x80, 0, 1);	
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
-		midi_send_note(0x80, 0, 1);		
-		query_characteristic = true;
+		midi_send_note(0x80, 0, 2);		
+		query_state = 1;
 		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
 	}
 	else
 					
     if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) {
-		midi_send_note(0x80, 1, 0);	
+		midi_send_note(0x80, 0, 3);	
 		
-		if (query_characteristic) {
-			midi_send_note(0x80, 1, 1);	
-		
-			//if (server_characteristic.properties & (1u<<2)) {		// Write Chord Key Mapping			
-				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
-				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
-			//}
-			
-		} else {
-			midi_send_note(0x80, 1, 2);				
+		if (query_state == 0) {
+			midi_send_note(0x80, 0, 4);				
 			//gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);
 			
 			uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
 			gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
+		}
+		else		
+		
+		if (query_state == 1) {
+			midi_send_note(0x80, 0, 5);	
+		
+			// Write Chord Key Mapping			
+			static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
+			gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
+			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+			query_state = 2;				
 		}
 	}		
 	else
