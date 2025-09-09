@@ -710,13 +710,14 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	
 	uint8_t base = 48;	
 	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
-	bool starpower = false, start = false, logo = false, strum_up = false, strum_down = false, fill_btn = false, break_btn = false;	
-
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
 
+	bool starpower = false, start = false, logo = false, strum_up = false, strum_down = false, fill_btn = false, break_btn = false;	
 	bool chord_selected = false;
 	bool paddle_moved = false;	
+	bool style_disable_toggle = false;
+	
 	int applied_velocity = 100;
 	uint8_t event_data[16];
 	
@@ -983,7 +984,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		if (event_data[5] == 64 ) {			// change style pattern
 			paddle_moved = true;	
 			
-			if (event_data[4] == 2) enable_style_play = !enable_style_play;	
+			if (event_data[4] == 2) style_disable_toggle = true;
 			if (event_data[4] == 4) active_strum_pattern = 0;		
 			if (event_data[4] == 8) active_strum_pattern = 1;	
 			if (event_data[4] == 16) active_strum_pattern = 2;	
@@ -995,6 +996,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		if (paddle_moved && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
+			
+			if (style_disable_toggle) {
+				enable_style_play = !enable_style_play;	
+			}
+			else
 	
 			if (strum_up || strum_down) {
 				play_chord(true, strum_up, base, green, red, yellow, blue, orange);

@@ -374,9 +374,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (mbut1 != starpower) { // next style/section			
 			starpower = mbut1;
 
-			if (green) {
-				enable_style_play = !enable_style_play;
-				style_section = 0;
+			if (green) 
+			{
+				if (mbut1) {
+					enable_style_play = !enable_style_play;
+					style_section = 0;
+				}
 			}
 			else
 				
