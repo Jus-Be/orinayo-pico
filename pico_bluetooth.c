@@ -19,15 +19,12 @@
 #endif
 
 bool enable_style_play = true;
-uint8_t chord_note = 0;
-uint8_t bass_note = 0;	
-uint8_t chord_type = 0;
-uint8_t old_midinotes[6] = {0};
-
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
 int transpose = 0; 
+
+uint8_t old_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
@@ -460,8 +457,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }
 }
 
-bool play_style_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
 	bool handled = false;
+	uint8_t chord_note = 0;
+	uint8_t bass_note = 0;	
+	uint8_t chord_type = 0;
 	
 	// --- F/C
 
@@ -665,11 +665,7 @@ bool play_style_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red
 		chord_type = 1;
 		handled = true;			
 	}
-
-	return handled;
-}
-
-void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+	
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);	
@@ -691,11 +687,8 @@ void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint
 	int notes_count = 0;
 	int velocity = 100;	
 	uint8_t note = 0;
-	bool play_guitar = false;	
-		
-	play_guitar = play_style_chord(on, up, base, green, red, yellow, blue, orange);		
-
-	if (play_guitar && active_strum_pattern > -1) 
+	
+	if (handled && active_strum_pattern > -1) 
 	{	
 		if (up || active_strum_pattern == 0) {
 			while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
