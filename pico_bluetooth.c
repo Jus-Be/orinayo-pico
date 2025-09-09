@@ -107,6 +107,7 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
 
   // Disable scanning when a device is connected to save power
   uni_bt_stop_scanning_safe();  
+  uni_bt_allow_incoming_connections(true);  
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
 }
 
