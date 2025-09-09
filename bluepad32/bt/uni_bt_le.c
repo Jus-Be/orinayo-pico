@@ -751,6 +751,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	{
 		if (!query_characteristic) {
 			gatt_client_discover_characteristics_for_service(handle_gatt_client_event, con_handle, &server_service);
+			
+			//uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
+			//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, con_handle, &server_service, characterstic_name);			
 		}
 	}		
 	else
@@ -1116,7 +1119,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 			logi("Using con_handle: %#x\n", con_handle);
 				
 			if (liberlive_enabled) {
-				uint8_t service_name[16] = {0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
+				uint8_t service_name[16] = {0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, con_handle, NULL);
 				
