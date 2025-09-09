@@ -99,7 +99,10 @@ extern uint8_t old_midinotes[6];
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
 static btstack_packet_callback_registration_t sm_event_callback_registration;
+static uint16_t value_handle;
+static gatt_client_characteristic_t server_characteristic;
 static gatt_client_notification_t notification_listener;
+static gatt_client_service_t server_service;
 
 /**
  * Connect to remote device but set timer for timeout
@@ -707,6 +710,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 	static int sysex_sent;
 	static bool chord_sent;
+	static bool query_characteristic;
 	
 	uint8_t base = 48;	
 	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
@@ -721,9 +725,36 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	int applied_velocity = 100;
 	uint8_t event_data[16];
 	
-    uint8_t type_of_packet ;
-    type_of_packet = hci_event_packet_get_type(packet) ;
-
+    hci_con_handle_t con_handle;	
+    con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+	
+    uint8_t type_of_packet;	
+    type_of_packet = hci_event_packet_get_type(packet);
+	
+    if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {	
+		gatt_event_service_query_result_get_service(packet, &server_service);					
+	}
+	else
+		
+    if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
+		query_characteristic = true;
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
+		
+		if (server_characteristic.properties & (1u<<2)) {		// Write Characteristic
+			value_handle = server_characteristic.value_handle;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 
+		}		
+	}
+	else
+					
+    if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) 
+	{
+		if (!query_characteristic) {
+			gatt_client_discover_characteristics_for_service(handle_gatt_client_event, con_handle, &server_service);
+		}
+	}		
+	else
+					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
 		
@@ -1082,7 +1113,8 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
             hci_subevent_le_connection_complete_get_peer_address(packet, event_addr);
 
             con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-			
+			logi("Using con_handle: %#x\n", con_handle);
+				
 			if (liberlive_enabled) {
 				uint8_t service_name[16] = {0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, con_handle, service_name);
@@ -1099,8 +1131,6 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 					loge("uni_bt_le_on_connection_complete: Device not found for addr: %s\n", bd_addr_to_str(event_addr));
 					break;
 				}
-				con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-				logi("Using con_handle: %#x\n", con_handle);
 
 				uni_hid_device_set_connection_handle(device, con_handle);
 				sm_request_pairing(con_handle);
