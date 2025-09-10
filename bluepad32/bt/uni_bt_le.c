@@ -1049,8 +1049,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
 				ketron_sysex_code = 0x12;		// default start/stop
 				yamaha_sysex_code = 127;		// default start/stop		
-			
-				logo = mbut0;	
 				
 				if (yellow) {				// INTRO/END-1
 					ketron_sysex_code = 0x0F;		
@@ -1081,7 +1079,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 				if (!style_started) {
 					if (yamaha_sysex_code != 127) midi_yamaha_arr(yamaha_sysex_code,true);	
-					yamaha_sysex_start = 07A;
+					yamaha_sysex_start = 0x7A;
 					midi_yamaha_start_stop(yamaha_sysex_start, true);
 					
 				} else {
@@ -1089,7 +1087,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 						yamaha_sysex_code = 0x20 + yamaha_sysex_code;						
 						midi_yamaha_arr(yamaha_sysex_code, true);	
 					} else {
-						yamaha_sysex_start = 07D;
+						yamaha_sysex_start = 0x7D;
 						midi_yamaha_start_stop(yamaha_sysex_start, true);
 					}					
 				}				
