@@ -277,15 +277,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) {
 				active_strum_pattern = 4;
 			}
-			else 			
-			
-			if (but6) {
-				style_section--;
-				if (style_section < 0) style_section = 3;
-			}
+			else {		
+				
+				if (but6) {
+					style_section--;
+					if (style_section < 0) style_section = 3;
+				}
 
-			midi_ketron_arr(3 + style_section, but6 ? true : false);
-			midi_yamaha_arr(0x10 + style_section, but6 ? true : false);				
+				midi_ketron_arr(3 + style_section, but6 ? true : false);
+				midi_yamaha_arr(0x10 + style_section, but6 ? true : false);			
+			}	
 	
 			break;
 		}
@@ -420,7 +421,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					enable_style_play = !enable_style_play;
-					style_section = 0;
+					break;
 				}
 			}
 			else
