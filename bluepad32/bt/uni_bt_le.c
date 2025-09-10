@@ -762,6 +762,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
 		
+		/* Disable transpose
 		if (event_data[5] == 0) {	// paddle is neutral
 			new_transpose = transpose;
 			
@@ -777,6 +778,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				transpose = new_transpose;
 			}
 		}
+		*/
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
