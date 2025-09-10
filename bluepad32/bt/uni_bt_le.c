@@ -762,14 +762,19 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		memcpy(event_data, value, value_length);			
 		
 		if (event_data[5] == 0) {	// paddle is neutral
+			int new_transpose;
 			
-			if (event_data[1] == 0) transpose = 0;	// C
-			if (event_data[1] == 1) transpose = 2;	// D
-			if (event_data[1] == 2) transpose = 4;	// E
-			if (event_data[1] == 3) transpose = 5;	// F
-			if (event_data[1] == 4) transpose = 7;	// G
-			if (event_data[1] == 5) transpose = 9;	// A
-			if (event_data[1] == 6) transpose = 11;	// B				
+			if (event_data[1] == 0) new_transpose = 0;	// C
+			if (event_data[1] == 1) new_transpose = 2;	// D
+			if (event_data[1] == 2) new_transpose = 4;	// E
+			if (event_data[1] == 3) new_transpose = 5;	// F
+			if (event_data[1] == 4) new_transpose = 7;	// G
+			if (event_data[1] == 5) new_transpose = 9;	// A
+			if (event_data[1] == 6) new_transpose = 11;	// B	
+
+			if (new_transpose != transpose) {
+				transpose = new_transpose;
+			}
 		}
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral

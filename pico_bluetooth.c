@@ -106,8 +106,7 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Disable scanning when a device is connected to save power
-  uni_bt_stop_scanning_safe();  
-  uni_bt_allow_incoming_connections(true);  
+  uni_bt_stop_scanning_safe();    
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
 }
 
@@ -116,7 +115,8 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 
   // Re-enable scanning when a device is disconnected
   uni_bt_start_scanning_and_autoconnect_safe();
-	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
+  
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
   // PICO_DEBUG("[BT] Restarted scanning (device disconnected)\n");
 }
 
