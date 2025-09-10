@@ -93,7 +93,6 @@ extern bool enable_style_play;
 extern int active_strum_pattern;	
 extern int active_neck_pos;
 extern int style_section; 
-extern int transpose;
 extern uint8_t old_midinotes[6];
 
 // Temporal space for SDP in BLE
@@ -709,7 +708,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     UNUSED(channel);
     UNUSED(size);
 
-	int new_transpose;
 	static int sysex_sent;
 	static bool chord_sent;
 	static int query_state;
@@ -761,24 +759,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
 		memcpy(event_data, value, value_length);			
-		
-		/* Disable transpose
-		if (event_data[5] == 0) {	// paddle is neutral
-			new_transpose = transpose;
-			
-			if (event_data[1] == 0) new_transpose = 0;	// C
-			if (event_data[1] == 1) new_transpose = 2;	// D
-			if (event_data[1] == 2) new_transpose = 4;	// E
-			if (event_data[1] == 3) new_transpose = 5;	// F
-			if (event_data[1] == 4) new_transpose = 7;	// G
-			if (event_data[1] == 5) new_transpose = 9;	// A
-			if (event_data[1] == 6) new_transpose = 11;	// B	
-
-			if (new_transpose != transpose) {
-				transpose = new_transpose;
-			}
-		}
-		*/
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
