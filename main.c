@@ -66,13 +66,16 @@ int main() {
     hard_assert(rc == PICO_OK);
 	
     board_init();
-    tusb_init();
+    tud_init();
+    tuh_init();
+	
 	sleep_ms(1000);	
 	
 	bluetooth_init();
 		
     while (true) {
 		tud_task(); // tinyusb device task			
+		tuh_task(); // tinyusb host task			
     }
 }
 
