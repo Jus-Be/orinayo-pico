@@ -66,9 +66,7 @@ int main() {
     hard_assert(rc == PICO_OK);
 	
     board_init();
-    tud_init();
-    tuh_init();
-	
+    tusb_init();
 	sleep_ms(1000);	
 	
 	bluetooth_init();
