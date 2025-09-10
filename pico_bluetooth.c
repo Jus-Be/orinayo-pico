@@ -282,9 +282,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (but6) {
 				style_section--;
 				if (style_section < 0) style_section = 3;
-				midi_ketron_arr(3 + style_section, but6 ? true : false);
-				midi_yamaha_arr(0x10 + style_section, but6 ? true : false);				
 			}
+
+			midi_ketron_arr(3 + style_section, but6 ? true : false);
+			midi_yamaha_arr(0x10 + style_section, but6 ? true : false);				
 	
 			break;
 		}
@@ -358,11 +359,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}		
 		
-		uint8_t ketron_code = 0x12;		// default start/stop
-		uint8_t yamaha_code = 127;		// default start/stop		
+		uint8_t ketron_code;
+		uint8_t yamaha_code;
 		
 		if (mbut0 != logo) {
-			logo = mbut0;	
+			logo = mbut0;
+			ketron_code = 0x12;		// default start/stop
+			yamaha_code = 127;					
 			
 			if (yellow) {				// INTRO/END-1
 				ketron_code = 0x0F;		
@@ -392,8 +395,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			midi_ketron_arr(ketron_code, mbut0 ? true : false);
 			
 			if (!style_started) {
-				if (yamaha_code != 127) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
-				midi_yamaha_start_stop(0x7A, mbut0 ? true : false);
+				if (yamaha_code != 127) {
+					midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
+				} else {
+					midi_yamaha_start_stop(0x7A, mbut0 ? true : false);
+				}
 				
 			} else {
 				if (yamaha_code != 127) {
@@ -505,9 +511,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t chord_note = 0;
 	uint8_t bass_note = 0;	
 	uint8_t chord_type = 0;	
-	uint8_t base = 48;
+	uint8_t base = 60;
 	
-	base = 48 + transpose;
+	base = 60 + transpose;
 	
 	// --- F/C
 
