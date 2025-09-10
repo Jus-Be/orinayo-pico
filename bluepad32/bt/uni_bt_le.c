@@ -709,6 +709,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     UNUSED(channel);
     UNUSED(size);
 
+	int new_transpose;
 	static int sysex_sent;
 	static bool chord_sent;
 	static int query_state;
@@ -762,7 +763,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		memcpy(event_data, value, value_length);			
 		
 		if (event_data[5] == 0) {	// paddle is neutral
-			int new_transpose;
+			new_transpose = transpose;
 			
 			if (event_data[1] == 0) new_transpose = 0;	// C
 			if (event_data[1] == 1) new_transpose = 2;	// D
