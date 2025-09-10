@@ -380,17 +380,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 				
-			if (yellow) {
+			if (red) {
 				style_section = 0;
 			}
 			else
 
-			if (blue) {
+			if (yellow) {
 				style_section = 1;
 			}				
 			else
 
-			if (red) {
+			if (blue) {
 				style_section = 2;
 			}
 			else
