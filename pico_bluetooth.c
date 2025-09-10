@@ -31,7 +31,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
-void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -199,9 +199,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool joy_down = axis_x > axis_y;  
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
-  
-  static uint8_t base = 48;
-  
+    
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
 		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
@@ -297,7 +295,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			left = dpad_left;
 			
 			if (dpad_left) {
-				play_chord(true, false, base, green, red, yellow, blue, orange);
+				play_chord(true, false, green, red, yellow, blue, orange);
 			} else {			
 				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
 				
@@ -318,7 +316,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
-				play_chord(true, true, base, green, red, yellow, blue, orange);
+				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
 				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
 				
@@ -341,7 +339,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_up) {
 				transpose--;
 				if (transpose < 0) transpose = 11;
-				base = 48 + transpose;	
 			}
 			break;			
 		}
@@ -351,8 +348,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			if (dpad_down) {
 				transpose++;
-				if (transpose > 11) transpose = 0;	
-				base = 48 + transpose;	
+				if (transpose > 11) transpose = 0;		
 			}
 			break;
 		}		
@@ -461,11 +457,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }
 }
 
-void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
 	bool handled = false;
 	uint8_t chord_note = 0;
 	uint8_t bass_note = 0;	
-	uint8_t chord_type = 0;
+	uint8_t chord_type = 0;	
+	uint8_t base = 48;
+	
+	base = 48 + transpose;
 	
 	// --- F/C
 

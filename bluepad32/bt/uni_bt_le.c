@@ -87,7 +87,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
-void play_chord(bool on, bool up, uint8_t base, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
 extern bool enable_style_play;
 extern int active_strum_pattern;	
@@ -712,8 +712,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	static int sysex_sent;
 	static bool chord_sent;
 	static int query_state;
-	
-	uint8_t base = 48;	
+		
 	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
@@ -763,7 +762,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		memcpy(event_data, value, value_length);			
 		
 		if (event_data[5] == 0) {	// paddle is neutral
-			int old_key = transpose;	
 			
 			if (event_data[1] == 0) transpose = 0;	// C
 			if (event_data[1] == 1) transpose = 2;	// D
@@ -771,11 +769,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (event_data[1] == 3) transpose = 5;	// F
 			if (event_data[1] == 4) transpose = 7;	// G
 			if (event_data[1] == 5) transpose = 9;	// A
-			if (event_data[1] == 6) transpose = 11;	// B	
-
-			if (old_key != transpose) {
-				base = 48 + transpose;	
-			}			
+			if (event_data[1] == 6) transpose = 11;	// B				
 		}
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
@@ -968,7 +962,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_up = true; 
 				} else {
-					start = true;	// prev style									
+					break_btn = true;	// break						
 				}								
 
 			}
@@ -980,7 +974,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_down = true; 
 				} else {
-					starpower = true;	// next style								
+					fill_btn = true;	// fill								
 				}								
 			}
 				
@@ -996,7 +990,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				if (chord_selected) {
 					strum_up = true;
 				} else {	
-					break_btn = true;	// break																										
+					start = true;	// prev style	
 				}								
 			}
 			else
@@ -1008,7 +1002,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 					strum_down = true;
 
 				} else {
-					fill_btn = true;	// fill																										
+					starpower = true;	// next style																															
 				}								
 			}							
 
@@ -1037,7 +1031,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			else
 	
 			if (strum_up || strum_down) {
-				play_chord(true, strum_up, base, green, red, yellow, blue, orange);
+				play_chord(true, strum_up, green, red, yellow, blue, orange);
 				
 				chord_sent = true;
 				strum_up = false;
