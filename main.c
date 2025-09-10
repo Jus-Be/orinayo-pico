@@ -72,8 +72,7 @@ int main() {
 	bluetooth_init();
 		
     while (true) {
-		tud_task(); // tinyusb device task			
-		tuh_task(); // tinyusb host task			
+		tud_task(); // tinyusb device task					
     }
 }
 
