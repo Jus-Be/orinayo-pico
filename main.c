@@ -122,6 +122,33 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	tud_midi_n_stream_write(0, 0, msg, 3);	
 }
 
+void midi_yamaha_start_stop(int8_t code, bool on)
+{
+	uint8_t msg[6];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43; 
+	msg[2] = 0x60;
+	msg[3] = code; 
+	msg[4] = on ? 0x7F : 0x00;	
+	msg[5] = 0xF7;
+	
+	tud_midi_n_stream_write(0, 0, msg, 6);	
+}
+
+void midi_yamaha_arr(uint8_t code, bool on)
+{
+	uint8_t msg[7];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x7E;   
+	msg[3] = 0x00;
+	msg[4] = code; 
+	msg[5] = on ? 0x7F : 0x00;
+	msg[6] = 0xF7;
+	
+	tud_midi_n_stream_write(0, 0, msg, 7);	
+}
+
 void midi_ketron_arr(uint8_t code, bool on)
 {
 	uint8_t msg[8];	

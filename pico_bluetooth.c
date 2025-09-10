@@ -18,6 +18,7 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+bool style_started = false;
 bool enable_style_play = true;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
@@ -31,6 +32,9 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
+void midi_yamaha_start_stop(uint8_t code, bool on);
+void midi_yamaha_arr(uint8_t code, bool on);
+
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
 int chord_chat[12][3][6] = {
@@ -278,7 +282,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (but6) {
 				style_section--;
 				if (style_section < 0) style_section = 3;
-				midi_ketron_arr(3 + style_section, but6 ? true : false);				
+				midi_ketron_arr(3 + style_section, but6 ? true : false);
+				midi_yamaha_arr(0x10 + style_section, but6 ? true : false);				
 			}
 	
 			break;
@@ -353,18 +358,53 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}		
 		
-		uint8_t code = 0x12;	// default start/stop
+		uint8_t ketron_code = 0x12;		// default start/stop
+		uint8_t yamaha_code = 127;		// default start/stop		
 		
 		if (mbut0 != logo) {
 			logo = mbut0;	
 			
-			if (yellow) code = 0x0F;	// INTRO/END-1
-			if (red) code = 0x10;		// INTRO/END-2
-			if (green) code = 0x11;		// INTRO/END-3		
-			if (blue) code = 0x17;		// TO END
-			if (orange) code = 0x35;	// FADE		
+			if (yellow) {				// INTRO/END-1
+				ketron_code = 0x0F;		
+				yamaha_code = 0x00;					
+			}
+
+			if (red) {
+				ketron_code = 0x10;		// INTRO/END-2
+				yamaha_code = 0x01;					
+			}
 			
-			midi_ketron_arr(code, mbut0 ? true : false);
+			if (green) {
+				ketron_code = 0x11;		// INTRO/END-3		
+				yamaha_code = 0x02;					
+			}
+			
+			if (blue) {
+				ketron_code = 0x17;		// TO END
+				yamaha_code = 0x01;					
+			}
+			
+			if (orange) {
+				ketron_code = 0x35;	// FADE	
+				yamaha_code = 0x02;					
+			}
+			
+			midi_ketron_arr(ketron_code, mbut0 ? true : false);
+			
+			if (!style_started) {
+				if (yamaha_code != 127) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
+				midi_yamaha_start_stop(0x7A, mbut0 ? true : false);
+				
+			} else {
+				if (yamaha_code != 127) {
+					midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
+				} else {
+					midi_yamaha_start_stop(0x7D, mbut0 ? true : false);
+				}
+				
+			}
+			
+			style_started = !style_started;
 			break;
 		}		
 		
@@ -405,7 +445,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (style_section > 3) style_section = 0;				
 			}
 			
-			midi_ketron_arr(3 + style_section, mbut1 ? true : false);	
+			midi_ketron_arr(3 + style_section, mbut1 ? true : false);
+			midi_yamaha_arr(0x10 + style_section, mbut1 ? true : false);				
 			break;			
 		}
 		
@@ -421,7 +462,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (joy_up != joystick_up) {
 			joystick_up = joy_up;		
-			midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill				
+			midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill
+			midi_yamaha_arr(0x10 + style_section, joy_up ? true : false);				
 			break;
 		}
 		
@@ -432,7 +474,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
-			midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break			
+			midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break	
+			midi_yamaha_arr(0x18, knob_up ? true : false);				
 			break;			
 		}
 		

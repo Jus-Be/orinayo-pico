@@ -87,8 +87,11 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
+void midi_yamaha_start_stop(uint8_t code, bool on);
+void midi_yamaha_arr(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 
+extern bool style_started;
 extern bool enable_style_play;
 extern int active_strum_pattern;	
 extern int active_neck_pos;
@@ -708,7 +711,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     UNUSED(channel);
     UNUSED(size);
 
-	static int sysex_sent;
+	static int ketron_sysex_code;
+	static int yamaha_sysex_code;	
+	static int yamaha_sysex_start;	
 	static bool chord_sent;
 	static int query_state;
 		
@@ -765,10 +770,20 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		if (ll_have_fired && ll_cannot_fire) {
 			ll_have_fired = false;
 
-			if (sysex_sent) {			
-				midi_ketron_arr(sysex_sent, false);	
-				sysex_sent = 0;
+			if (ketron_sysex_code) {			
+				midi_ketron_arr(ketron_sysex_code, false);	
+				ketron_sysex_code = 0;
 			}
+
+			if (yamaha_sysex_code) {			
+				midi_yamaha_arr(yamaha_sysex_code, false);	
+				yamaha_sysex_code = 0;
+			}
+			
+			if (yamaha_sysex_start) {			
+				midi_yamaha_start_stop(yamaha_sysex_start, false);	
+				yamaha_sysex_start = 0;
+			}			
 						
 			if (chord_sent) {
 				chord_sent = false;
@@ -1031,16 +1046,55 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			
 			if (logo) {
 				logo = false;
-				uint8_t code = 0x12;		// default start/stop									
-				if (yellow) code = 0x0F;	// INTRO/END-1
-				if (red) code = 0x10;		// INTRO/END-2
-				if (green) code = 0x11;		// INTRO/END-3		
-				if (blue) code = 0x17;		// TO END
-				if (orange) code = 0x35;	// FADE		
-				
-				sysex_sent = code;
-				midi_ketron_arr(sysex_sent, true);	
+
+				ketron_sysex_code = 0x12;		// default start/stop
+				yamaha_sysex_code = 127;		// default start/stop		
 			
+				logo = mbut0;	
+				
+				if (yellow) {				// INTRO/END-1
+					ketron_sysex_code = 0x0F;		
+					yamaha_sysex_code = 0x00;					
+				}
+
+				if (red) {
+					ketron_sysex_code = 0x10;		// INTRO/END-2
+					yamaha_sysex_code = 0x01;					
+				}
+				
+				if (green) {
+					ketron_sysex_code = 0x11;		// INTRO/END-3		
+					yamaha_sysex_code = 0x02;					
+				}
+				
+				if (blue) {
+					ketron_sysex_code = 0x17;		// TO END
+					yamaha_sysex_code = 0x01;					
+				}
+				
+				if (orange) {
+					ketron_sysex_code = 0x35;	// FADE	
+					yamaha_sysex_code = 0x02;					
+				}
+	
+				midi_ketron_arr(ketron_sysex_code, true);	
+				
+				if (!style_started) {
+					if (yamaha_sysex_code != 127) midi_yamaha_arr(yamaha_sysex_code,true);	
+					yamaha_sysex_start = 07A;
+					midi_yamaha_start_stop(yamaha_sysex_start, true);
+					
+				} else {
+					if (yamaha_sysex_code != 127) {
+						yamaha_sysex_code = 0x20 + yamaha_sysex_code;						
+						midi_yamaha_arr(yamaha_sysex_code, true);	
+					} else {
+						yamaha_sysex_start = 07D;
+						midi_yamaha_start_stop(yamaha_sysex_start, true);
+					}					
+				}				
+				
+				style_started = !style_started;			
 			}
 			else
 
@@ -1049,8 +1103,11 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				style_section--;
 				if (style_section < 0) style_section = 3;
 				
-				sysex_sent = 3 + style_section;
-				midi_ketron_arr(sysex_sent, true);								
+				ketron_sysex_code = 3 + style_section;
+				midi_ketron_arr(ketron_sysex_code, true);
+
+				yamaha_sysex_code = 0x10 + style_section;				
+				midi_yamaha_arr(yamaha_sysex_code, true);					
 			}
 			else
 				
@@ -1059,24 +1116,33 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				style_section++;
 				if (style_section > 3) style_section = 0;	
 				
-				sysex_sent = 3 + style_section;
-				midi_ketron_arr(sysex_sent, true);							
+				ketron_sysex_code = 3 + style_section;
+				midi_ketron_arr(ketron_sysex_code, true);	
+
+				yamaha_sysex_code = 0x10 + style_section;				
+				midi_yamaha_arr(yamaha_sysex_code, true);					
 			}	
 			else
 				
 			if (fill_btn) {
 				fill_btn = false;
 			
-				sysex_sent = 0x07 + style_section;
-				midi_ketron_arr(sysex_sent, true);							
+				ketron_sysex_code = 0x07 + style_section;
+				midi_ketron_arr(ketron_sysex_code, true);	
+
+				yamaha_sysex_code = 0x10 + style_section;				
+				midi_yamaha_arr(yamaha_sysex_code, true);					
 			}	
 			else
 				
 			if (break_btn) {
 				break_btn = false;
 			
-				sysex_sent = 0x0B + style_section;
-				midi_ketron_arr(sysex_sent, true);							
+				ketron_sysex_code = 0x0B + style_section;
+				midi_ketron_arr(ketron_sysex_code, true);	
+
+				yamaha_sysex_code = 0x18 + style_section;				
+				midi_yamaha_arr(yamaha_sysex_code, true);					
 			}			
 		}	
     }
