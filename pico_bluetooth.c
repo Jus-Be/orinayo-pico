@@ -399,14 +399,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 				} 
 				
-				midi_yamaha_start_stop(0x7A, mbut0 ? true : false);
+				if (mbut0) midi_yamaha_start_stop(0x7A, true);
 				
 			} else {
 				if (yamaha_code != 127) {
 					midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
 				}
 				
-				midi_yamaha_start_stop(0x7D, mbut0 ? true : false);				
+				if (mbut0) midi_yamaha_start_stop(0x7D, true);				
 			}
 			
 			if (mbut0) style_started = !style_started;
