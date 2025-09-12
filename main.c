@@ -56,6 +56,7 @@ static uint32_t old_p4 = 0;
 
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_send_program_change(uint8_t command, uint8_t code);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
@@ -67,7 +68,10 @@ int main() {
 	
     board_init();
     tusb_init();
+	
 	sleep_ms(1000);	
+	midi_send_program_change(0xC0, 25);	// jazz guitar on channel 1
+	midi_send_program_change(0xC3, 89);	// warm pad on channel 4 (chords)
 	
 	bluetooth_init();
 		
@@ -120,6 +124,16 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 	
 	tud_midi_n_stream_write(0, 0, msg, 3);	
+}
+
+void midi_send_program_change(uint8_t command, uint8_t code)
+{
+	uint8_t msg[2];	
+	
+	msg[0] = command;
+	msg[1] = code;
+	
+	tud_midi_n_stream_write(0, 0, msg, 2);	
 }
 
 void midi_yamaha_start_stop(int8_t code, bool on)
@@ -181,9 +195,9 @@ void midi_ketron_footsw(uint8_t code, bool on)
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) 
 {
 	if (on) {
-		midi_send_note(0x93, p1, 127);
-		midi_send_note(0x93, p2, 127);
-		midi_send_note(0x93, p3, 127);		
+		midi_send_note(0x93, p1, 32);
+		midi_send_note(0x93, p2, 32);
+		midi_send_note(0x93, p3, 32);		
 		
 		old_p1 = p1;
 		old_p2 = p2;
@@ -199,10 +213,10 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  
 {
 	if (on) {	
-		midi_send_note(0x93, p1, 127);
-		midi_send_note(0x93, p2, 127);
-		midi_send_note(0x93, p3, 127);
-		midi_send_note(0x93, p4, 127);	
+		midi_send_note(0x93, p1, 32);
+		midi_send_note(0x93, p2, 32);
+		midi_send_note(0x93, p3, 32);
+		midi_send_note(0x93, p4, 32);	
 		
 		old_p1 = p1;
 		old_p2 = p2;
