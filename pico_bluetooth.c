@@ -764,11 +764,12 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			velocity = 100;
 		
 			for (int n=0; n<notes_count; n++) {
-				note = chord_midinotes[n];
+				note = chord_midinotes[(notes_count - 1) - n];
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
-				midi_send_note(0x90, note, velocity);		
+				midi_send_note(0x90, note, velocity);
+				sleep_ms(200);					
 			}	
 
 			seq_index++;	
