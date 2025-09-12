@@ -768,8 +768,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
-				midi_send_note(0x90, note, velocity);
-				sleep_ms(200);					
+				midi_send_note(0x90, note, velocity);				
 			}	
 
 			seq_index++;	
