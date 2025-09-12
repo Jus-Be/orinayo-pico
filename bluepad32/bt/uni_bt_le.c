@@ -1124,23 +1124,27 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 			if (fill_btn) {
 				fill_btn = false;
-			
-				ketron_sysex_code = 0x07 + style_section;
-				midi_ketron_arr(ketron_sysex_code, true);	
 
-				yamaha_sysex_code = 0x10 + style_section;				
-				midi_yamaha_arr(yamaha_sysex_code, true);					
+				if (style_started) {			
+					ketron_sysex_code = 0x07 + style_section;
+					midi_ketron_arr(ketron_sysex_code, true);	
+
+					yamaha_sysex_code = 0x10 + style_section;				
+					midi_yamaha_arr(yamaha_sysex_code, true);		
+				}					
 			}	
 			else
 				
 			if (break_btn) {
 				break_btn = false;
 			
-				ketron_sysex_code = 0x0B + style_section;
-				midi_ketron_arr(ketron_sysex_code, true);	
+				if (style_started) {			
+					ketron_sysex_code = 0x0B + style_section;
+					midi_ketron_arr(ketron_sysex_code, true);	
 
-				yamaha_sysex_code = 0x18 + style_section;				
-				midi_yamaha_arr(yamaha_sysex_code, true);					
+					yamaha_sysex_code = 0x18 + style_section;				
+					midi_yamaha_arr(yamaha_sysex_code, true);					
+				}
 			}			
 		}	
     }

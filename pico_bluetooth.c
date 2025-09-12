@@ -468,9 +468,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 
 		if (joy_up != joystick_up) {
-			joystick_up = joy_up;		
-			midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill
-			midi_yamaha_arr(0x10 + style_section, joy_up ? true : false);				
+			joystick_up = joy_up;	
+
+			if (style_started) {
+				midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill
+				midi_yamaha_arr(0x10 + style_section, joy_up ? true : false);				
+			}
 			break;
 		}
 		
@@ -481,8 +484,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
-			midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break	
-			midi_yamaha_arr(0x18, knob_up ? true : false);				
+
+			if (style_started) {			
+				midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break	
+				midi_yamaha_arr(0x18, knob_up ? true : false);				
+			}
 			break;			
 		}
 		
