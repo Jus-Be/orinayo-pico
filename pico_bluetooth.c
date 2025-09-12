@@ -775,6 +775,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		
 			for (int n=0; n<notes_count; n++) {
 				note = chord_midinotes[(notes_count - 1) - n];
+				if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower								
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
@@ -785,6 +786,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (seq_index > 11) seq_index = 0;	
 		} else {
 			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+			if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower
 			old_midinotes[0] = note;
 			midi_send_note(0x90, note, velocity);
 		}			
