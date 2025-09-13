@@ -320,7 +320,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				}						
 			}
 			
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
+			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
 			break;
 		}		
 
@@ -341,7 +341,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				}				
 			}
 	
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
+			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
 			break;
 		}
 
@@ -416,6 +416,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			
 			if (mbut0) style_started = !style_started;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
 			break;
 		}		
 		
@@ -424,10 +425,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 			if (green) 
 			{
-				if (mbut1) {
-					enable_style_play = !enable_style_play;
-					break;
-				}
+
 			}
 			else
 				
@@ -462,13 +460,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_ketron_footsw(8, mbut2 ? true : false);	// 	Mute Bass. Requires device config	
+			midi_ketron_footsw(8, mbut2 ? true : false);	// 	user defined from footswitch	
 			menu = mbut2;
 		}		
 		
-		if (mbut3 != config) {
-			midi_ketron_footsw(9, mbut3 ? true : false);	// 	Mute Chords. Requires device config	
+		if (mbut3 != config) {	// config options
 			config = mbut3;
+			
+			if (mbut3) {
+				if (green) enable_style_play = !enable_style_play;		// enable/disable chords on channel 4
+				break;
+			}
 		}
 
 		if (joy_up != joystick_up) {
