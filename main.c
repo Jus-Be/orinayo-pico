@@ -62,6 +62,12 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 
+bool repeating_timer_callback(__unused struct repeating_timer *t) {
+    //printf("Repeat at %lld\n", time_us_64());
+	midi_send_note(0x89, 60, 100);
+    return true;
+}
+
 int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
@@ -69,15 +75,22 @@ int main() {
     board_init();
     tusb_init();
 	
-	sleep_ms(1000);	
+	sleep_ms(1000);		
+	bluetooth_init();
+	
+	tud_task();
 	midi_send_program_change(0xC0, 25);	// jazz guitar on channel 1
 	midi_send_program_change(0xC3, 89);	// warm pad on channel 4 (chords)
 	
-	bluetooth_init();
-		
+
+    struct repeating_timer timer;	
+    add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
+	
     while (true) {
 		tud_task(); // tinyusb device task					
     }
+	
+    cancel_repeating_timer(&timer);	
 }
 
 //--------------------------------------------------------------------+
