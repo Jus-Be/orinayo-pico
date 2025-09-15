@@ -64,7 +64,12 @@ void midi_ketron_footsw(uint8_t code, bool on);
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
-	midi_send_note(0x89, 60, 100);
+	static uint8_t previous = 0;
+	uint8_t current = 60;
+	
+	if (previous) midi_send_note(0x89, previous, 0);
+	midi_send_note(0x99, current, 100);	
+	previous = current;
     return true;
 }
 
