@@ -67,8 +67,9 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 	static uint8_t previous = 0;
 	uint8_t current = 60;
 	
-	if (previous) midi_send_note(0x89, previous, 0);
-	midi_send_note(0x99, current, 100);	
+	//if (previous) midi_send_note(0x89, previous, 0);
+	//midi_send_note(0x99, current, 100);	
+	//board_millis();	
 	previous = current;
     return true;
 }

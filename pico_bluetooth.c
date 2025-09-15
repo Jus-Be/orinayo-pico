@@ -755,7 +755,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	if (handled && active_strum_pattern > -1) 
 	{	
-		if (up || active_strum_pattern == 0) {
+		if (up || active_strum_pattern == 0) {										// up strum or neck postion 1 requires next sequence pattern note/chord
 			while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 				seq_index++;
 				if (seq_index > 11) seq_index = 0;
@@ -788,7 +788,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (seq_index > 11) seq_index = 0;	
 		} else {
 			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-			if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower
+			if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower for neck position 2
 			old_midinotes[0] = note;
 			midi_send_note(0x90, note, velocity);
 		}			
