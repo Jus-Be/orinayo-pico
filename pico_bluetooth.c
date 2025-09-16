@@ -816,7 +816,11 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				old_midinotes[0] = note;				
 			}	
 			
-		} else {
+		} 
+		else 
+		
+		if (up || active_strum_pattern == 0) 	// only mute with strumming
+		{
 			for (int n=0; n<6; n++) 
 			{
 				if (mute_midinotes[n] > 0) {
