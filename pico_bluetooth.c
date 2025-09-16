@@ -316,7 +316,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);	
-						mute_midinotes[n] = old_midinotes[n];
 						old_midinotes[n] = 0;
 					}
 				}						
@@ -337,8 +336,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				for (int n=0; n<6; n++) 
 				{
 					if (old_midinotes[n] > 0) {
-						midi_send_note(0x80, old_midinotes[n], 0);	
-						mute_midinotes[n] = old_midinotes[n];						
+						midi_send_note(0x80, old_midinotes[n], 0);						
 						old_midinotes[n] = 0;						
 					}						
 				}				
@@ -798,6 +796,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				for (int n=0; n<notes_count; n++) {
 					note = chord_midinotes[(notes_count - 1) - n];							
 					old_midinotes[n] = note;
+					mute_midinotes[n] = note;					
 					
 					velocity = velocity - 15;
 					midi_send_note(0x90, note, velocity);				
@@ -813,6 +812,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				}
 				
 				old_midinotes[0] = note;
+				mute_midinotes[0] = note;
 				midi_send_note(0x90, note, velocity);
 			}	
 			
@@ -820,7 +820,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			for (int n=0; n<6; n++) 
 			{
 				if (mute_midinotes[n] > 0) {
-					midi_send_note(0x90, mute_midinotes[n], 45);	// lower velocity to achieve muted sound
+					midi_send_note(0x90, mute_midinotes[n], 38);	// lower velocity to achieve muted sound
 					old_midinotes[n] = mute_midinotes[n];					
 					mute_midinotes[n] = 0;
 				}
