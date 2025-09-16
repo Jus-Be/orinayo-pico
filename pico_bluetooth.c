@@ -808,7 +808,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
 				
 				if (!up && active_neck_pos == 1) {
-					note = note - 24; 	// bass needs another octave lower for neck position 2
+					note = (note % 12) + 24; 	// bass needs another octave lower for neck position 2
 				}
 				
 				old_midinotes[0] = note;
@@ -820,7 +820,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			for (int n=0; n<6; n++) 
 			{
 				if (mute_midinotes[n] > 0) {
-					note = 12 + (mute_midinotes[n] % 12);
+					//note = 12 + (mute_midinotes[n] % 12);
+					note = mute_midinotes[n];
 					midi_send_note(0x90, note, 38);	// lower velocity to achieve muted sound
 					old_midinotes[n] = note;					
 				}
