@@ -774,10 +774,11 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			}
 
 			velocity = 100;
+			
+			qsort(chord_midinotes, notes_count, sizeof(uint8_t), up ? compUp : compDown);			
 		
 			for (int n=0; n<notes_count; n++) {
-				note = chord_midinotes[(notes_count - 1) - n];
-				if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower								
+				note = chord_midinotes[(notes_count - 1) - n];							
 				old_midinotes[n] = note;
 				
 				velocity = velocity - 10;
@@ -788,11 +789,23 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (seq_index > 11) seq_index = 0;	
 		} else {
 			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-			if (active_neck_pos == 1) note = note - 12; 	// bass needs another octave lower for neck position 2
+			
+			if (!up && active_neck_pos == 1) {
+				note = note - 12; 	// bass needs another octave lower for neck position 2
+			}
+			
 			old_midinotes[0] = note;
 			midi_send_note(0x90, note, velocity);
 		}			
 	} 
+}
+
+int compUp(const void *a, const void *b) {
+    return (*(uint8_t *)b - *(uint8_t *)a);
+}
+
+int compDown(const void *a, const void *b) {
+    return (*(uint8_t *)a - *(uint8_t *)b);
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
