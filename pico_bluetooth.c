@@ -26,6 +26,7 @@ int style_section = 0;
 int transpose = 0; 
 
 uint8_t old_midinotes[6] = {0};
+uint8_t mute_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
@@ -315,6 +316,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);	
+						mute_midinotes[n] = old_midinotes[n];
 						old_midinotes[n] = 0;
 					}
 				}						
@@ -336,6 +338,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);	
+						mute_midinotes[n] = old_midinotes[n];						
 						old_midinotes[n] = 0;						
 					}						
 				}				
@@ -519,12 +522,21 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }
 }
 
+
+int compUp(const void *a, const void *b) {
+    return (*(uint8_t *)b - *(uint8_t *)a);
+}
+
+int compDown(const void *a, const void *b) {
+    return (*(uint8_t *)a - *(uint8_t *)b);
+}
+
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
-	bool handled = false;
 	uint8_t chord_note = 0;
-	uint8_t bass_note = 0;	
 	uint8_t chord_type = 0;	
+	uint8_t bass_note = 0;		
 	uint8_t base = 60;
+	bool handled = false;	
 	
 	base = 60 + transpose;
 	
@@ -753,59 +765,67 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	int velocity = 100;	
 	uint8_t note = 0;
 	
-	if (handled && active_strum_pattern > -1) 
-	{	
-		if (up || active_strum_pattern == 0) {										// up strum or neck postion 1 requires next sequence pattern note/chord
-			while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
-				seq_index++;
-				if (seq_index > 11) seq_index = 0;
-			}
+	if (active_strum_pattern > -1) 
+	{
+		if (handled) 
+		{
+			if (up || active_strum_pattern == 0) {										// up strum or neck postion 1 requires next sequence pattern note/chord
+				while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+					seq_index++;
+					if (seq_index > 11) seq_index = 0;
+				}
 
-			for (int i=0; i<6; i++) {
-				string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
-				
-				if (string > -1 && string < 6) 
-				{
-					if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-						chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
-						notes_count++;						
+				for (int i=0; i<6; i++) {
+					string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+					
+					if (string > -1 && string < 6) 
+					{
+						if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
+							chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
+							notes_count++;						
+						}
 					}
 				}
-			}
 
-			velocity = 100;
-			
-			qsort(chord_midinotes, notes_count, sizeof(uint8_t), up ? compUp : compDown);			
-		
-			for (int n=0; n<notes_count; n++) {
-				note = chord_midinotes[(notes_count - 1) - n];							
-				old_midinotes[n] = note;
+				velocity = 100;
 				
-				velocity = velocity - 10;
-				midi_send_note(0x90, note, velocity);				
+				if (up) {
+					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
+				} else {
+					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compDown);								
+				}
+			
+				for (int n=0; n<notes_count; n++) {
+					note = chord_midinotes[(notes_count - 1) - n];							
+					old_midinotes[n] = note;
+					
+					velocity = velocity - 10;
+					midi_send_note(0x90, note, velocity);				
+				}	
+
+				seq_index++;	
+				if (seq_index > 11) seq_index = 0;	
+			} else {
+				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+				
+				if (!up && active_neck_pos == 1) {
+					note = note - 12; 	// bass needs another octave lower for neck position 2
+				}
+				
+				old_midinotes[0] = note;
+				midi_send_note(0x90, note, velocity);
 			}	
-
-			seq_index++;	
-			if (seq_index > 11) seq_index = 0;	
+			
 		} else {
-			note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-			
-			if (!up && active_neck_pos == 1) {
-				note = note - 12; 	// bass needs another octave lower for neck position 2
+			for (int n=0; n<6; n++) 
+			{
+				if (mute_midinotes[n] > 0) {
+					midi_send_note(0x90, mute_midinotes[n], 40);	// lower velocity to achieve muted sound
+					old_midinotes[n] = mute_midinotes[n];					
+				}
 			}
-			
-			old_midinotes[0] = note;
-			midi_send_note(0x90, note, velocity);
 		}			
-	} 
-}
-
-int compUp(const void *a, const void *b) {
-    return (*(uint8_t *)b - *(uint8_t *)a);
-}
-
-int compDown(const void *a, const void *b) {
-    return (*(uint8_t *)a - *(uint8_t *)b);
+	} 		
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
