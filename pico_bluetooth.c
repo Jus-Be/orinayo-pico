@@ -523,11 +523,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 }
 
 
-int compUp(const void *a, const void *b) {
+int compDown(const void *a, const void *b) {
     return (*(uint8_t *)b - *(uint8_t *)a);
 }
 
-int compDown(const void *a, const void *b) {
+int compUp(const void *a, const void *b) {
     return (*(uint8_t *)a - *(uint8_t *)b);
 }
 
@@ -799,7 +799,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = chord_midinotes[(notes_count - 1) - n];							
 					old_midinotes[n] = note;
 					
-					velocity = velocity - 10;
+					velocity = velocity - 15;
 					midi_send_note(0x90, note, velocity);				
 				}	
 
@@ -820,8 +820,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			for (int n=0; n<6; n++) 
 			{
 				if (mute_midinotes[n] > 0) {
-					midi_send_note(0x90, mute_midinotes[n], 40);	// lower velocity to achieve muted sound
+					midi_send_note(0x90, mute_midinotes[n], 45);	// lower velocity to achieve muted sound
 					old_midinotes[n] = mute_midinotes[n];					
+					mute_midinotes[n] = 0;
 				}
 			}
 		}			
