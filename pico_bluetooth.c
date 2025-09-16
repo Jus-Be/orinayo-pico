@@ -774,6 +774,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				}
 
 				for (int i=0; i<6; i++) {
+					mute_midinotes[i] = 0;	// reset muted notes
 					string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
 					
 					if (string > -1 && string < 6) 
@@ -808,7 +809,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
 				
 				if (!up && active_neck_pos == 1) {
-					note = (note % 12) + 24; 	// bass needs another octave lower for neck position 2
+					note = (note % 12) + 12; 	// bass needs another octave lower for neck position 2
 				}
 				
 				old_midinotes[0] = note;
