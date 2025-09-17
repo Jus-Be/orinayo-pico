@@ -835,9 +835,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		}
 		else
 		{
-			note = 12 + (mute_midinotes[n] % 12);
+			note = 12 + (mute_midinotes[0] % 12);
 			midi_send_note(0x90, note, 30);	// guitar sound effects
-			old_midinotes[n] = note;			
+			old_midinotes[0] = note;			
 		}
 	
 	} 		
