@@ -812,7 +812,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = note - 12; 	// bass needs another octave lower for strum pattern 2
 				}
 				
-				for (int x=0; x<notes_count; x++) mute_midinotes[x] = 0;			
+				for (int x=0; x<6; x++) mute_midinotes[x] = 0;			
 				mute_midinotes[0] = note;
 								 
 				midi_send_note(0x90, note, velocity);
@@ -828,16 +828,18 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			{
 				if (mute_midinotes[n] > 0) {
 					note = mute_midinotes[n];
-					midi_send_note(0x90, note, 30);	// lower velocity to achieve muted sound
+					midi_send_note(0x90, note, 35);	// lower velocity to achieve muted sound
 					old_midinotes[n] = note;					
 				}
 			}
 		}
 		else
 		{
-			note = 12 + (mute_midinotes[0] % 12);
-			midi_send_note(0x90, note, 30);	// guitar sound effects
-			old_midinotes[0] = note;			
+			if (mute_midinotes[0] > 0) {			
+				note = 12 + (mute_midinotes[0] % 12);
+				midi_send_note(0x90, note, 100);	// guitar sound effects
+				old_midinotes[0] = note;	
+			}				
 		}
 	
 	} 		
