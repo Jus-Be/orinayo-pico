@@ -808,13 +808,13 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			{										
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{				
-					note = ample_chord + 24 + transpose;
-					old_midinotes[0] = note;					
+					note = ample_chord + 24;				
 					midi_send_note(0x90, ample_chord + 24, 127);
+					old_midinotes[0] = note;						
 				
-					note = ample_style_notes[style_section] + 24 + transpose;							
-					old_midinotes[1] = note;
-					midi_send_note(0x90, note, 127);	
+					note = ample_style_notes[style_section] + 24;							
+					midi_send_note(0x90, note, 127);
+					old_midinotes[1] = note;					
 				} 
 				else 
 				{
@@ -846,12 +846,12 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				
 					for (int n=0; n<notes_count; n++) {
 						note = chord_midinotes[(notes_count - 1) - n];							
-						old_midinotes[n] = note;
 						mute_midinotes[n] = note;					
 						
 						velocity = velocity - 15;
-						//if ((note % 12) < 4) note = note + 12;						
-						midi_send_note(0x90, note, velocity);				
+						if (enable_ample_guitar && note < 16) note = note + 12;						
+						midi_send_note(0x90, note, velocity);
+						old_midinotes[n] = note;
 					}	
 
 					seq_index++;	
@@ -865,7 +865,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = note - 12; 	// bass needs another octave lower for strum pattern 2
 				}
 				
-				//if ((note % 12) < 4) note = note + 12;				 
+				if (enable_ample_guitar && note < 16) note = note + 12;				 
 				midi_send_note(0x90, note, velocity);
 				old_midinotes[0] = note;				
 			}					
@@ -875,32 +875,32 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (enable_ample_guitar) 	// noises
 			{
 				if (active_strum_pattern == 0) {
-					note = 69;
-					if (up) note = 70;
+					note = 93;
+					if (up) note = 94;
 				}
 				else
 
 				if (active_strum_pattern == 1) {
-					note = 71;
-					if (up) note = 70;
+					note = 95;
+					if (up) note = 94;
 				}					
 				else
 
 				if (active_strum_pattern == 2) {
-					note = 52;
-					if (up) note = 55;
+					note = 76;
+					if (up) note = 79;
 				}				
 				else
 
 				if (active_strum_pattern == 3) {
-					note = 53;
-					if (up) note = 57;
+					note = 77;
+					if (up) note = 81;
 				}					
 				else
 
 				if (active_strum_pattern == 4) {
-					note = 57;
-					if (up) note = 59;
+					note = 82;
+					if (up) note = 83;
 				}
 				
 				midi_send_note(0x90, note, 100);				
