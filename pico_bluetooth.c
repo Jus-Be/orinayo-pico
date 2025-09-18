@@ -726,7 +726,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 5, base + 9);
 		chord_note = (base + 2);	
 		chord_type = 1;
-		ample_chord = 13;			
+		ample_chord = 14;			
 		handled = true;			
 	}
 	else
@@ -735,7 +735,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 9, base + 12);
 		chord_note = (base - 7);
-		ample_chord = 15;	
+		ample_chord = 17;	
 		handled = true;			
 	}
 	else
@@ -744,7 +744,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 11, base + 14);
 		chord_note = (base - 5);	
-		ample_chord = 16;			
+		ample_chord = 19;			
 		handled = true;			
 	}
 	else
@@ -754,7 +754,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 12, base + 16);
 		chord_note = (base - 3);	
 		chord_type = 1;
-		ample_chord = 17;			
+		ample_chord = 21;			
 		handled = true;			
 	}
 	
@@ -778,6 +778,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	int string = 0;
 	int notes_count = 0;
 	int velocity = 100;	
+
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
 	uint8_t ample_string_notes[6] = {47, 35, 43, 41, 40, 38};
@@ -811,9 +812,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						if (string > -1 && string < 6) 
 						{
 							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								note = ample_string_notes[string] + 24;
+								note = ample_string_notes[chord_chat[chord_note % 12][chord_type][string]] + 24;
 								old_midinotes[1] = note;
-								midi_send_note(0x90, note, 127);								
+								midi_send_note(0x90, note, up ? 75 : 100);								
 							}
 						}
 					}											
