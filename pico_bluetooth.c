@@ -263,26 +263,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 			if (green) {
 				active_strum_pattern = 0;
+				if (enable_ample_guitar) midi_send_note(0x90, 96, 127);				
 			}
 			else
 				
 			if (yellow) {
 				active_strum_pattern = 2;
+				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
 			}
 			else
 
 			if (blue) {
 				active_strum_pattern = 3;
+				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
 			}				
 			else
 
 			if (red) {
 				active_strum_pattern = 1;
+				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
 			}
 			else
 
 			if (orange) {
 				active_strum_pattern = 4;
+				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
 			}
 			else {		
 				
@@ -479,6 +484,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (red) {
 					enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
 					enable_style_play = !enable_ample_guitar;
+					
+					midi_send_note(0x90, 96, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 				}
 				break;
 			}
@@ -787,42 +794,19 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (handled) 
 		{
-			if (enable_ample_guitar) 
-			{
-				old_midinotes[6] = ample_chord + 24;
-				midi_send_note(0x90, ample_chord + 24, 127);
+			if (up || active_strum_pattern == 0) 
+			{										
+				if (enable_ample_guitar && active_strum_pattern == 0) 
+				{				
+					old_midinotes[0] = ample_chord + 24;
+					midi_send_note(0x90, ample_chord + 24, 127);
 				
-				if (active_strum_pattern == 0)  {	
 					note = ample_style_notes[style_section] + 24;							
 					old_midinotes[1] = note;
-					midi_send_note(0x90, note, 127);
-					
-				} else {
-					
-					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
-						seq_index++;
-						if (seq_index > 11) seq_index = 0;
-					}
-
-					for (int i=0; i<6; i++) {
-						mute_midinotes[i] = 0;	// reset muted notes
-						string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
-						
-						if (string > -1 && string < 6) 
-						{
-							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								note = ample_string_notes[chord_chat[chord_note % 12][chord_type][string]] + 24;
-								old_midinotes[i] = note;
-								midi_send_note(0x90, note, up ? 75 : 100);								
-							}
-						}
-					}											
-				}
-			} 
-			else 
-			{
-				if (up || active_strum_pattern == 0) 
-				{																			// up strum or neck postion 1 requires next sequence pattern note/chord
+					midi_send_note(0x90, note, 127);	
+				} 
+				else 
+				{
 					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 						seq_index++;
 						if (seq_index > 11) seq_index = 0;
@@ -859,19 +843,19 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}	
 
 					seq_index++;	
-					if (seq_index > 11) seq_index = 0;	
-					
-				} else {
-					note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-					
-					if (!up && active_strum_pattern == 1) {
-						note = note - 12; 	// bass needs another octave lower for strum pattern 2
-					}
-					
-					midi_send_note(0x90, note, velocity);
-					old_midinotes[0] = note;				
-				}	
-			}				
+					if (seq_index > 11) seq_index = 0;
+				}						
+				
+			} else {
+				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+				
+				if (!up && active_strum_pattern == 1) {
+					note = note - 12; 	// bass needs another octave lower for strum pattern 2
+				}
+				
+				midi_send_note(0x90, note, velocity);
+				old_midinotes[0] = note;				
+			}					
 		} 
 		else 
 		{
