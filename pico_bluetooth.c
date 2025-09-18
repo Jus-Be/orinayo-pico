@@ -263,31 +263,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 			if (green) {
 				active_strum_pattern = 0;
-				if (enable_ample_guitar) midi_send_note(0x90, 96, 127);				
+				if (enable_ample_guitar) midi_send_note(0x90, 97, 127);				
 			}
 			else
 				
 			if (yellow) {
 				active_strum_pattern = 2;
-				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
+				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
 			}
 			else
 
 			if (blue) {
 				active_strum_pattern = 3;
-				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
+				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
 			}				
 			else
 
 			if (red) {
 				active_strum_pattern = 1;
-				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
+				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
 			}
 			else
 
 			if (orange) {
 				active_strum_pattern = 4;
-				if (enable_ample_guitar) midi_send_note(0x90, 96, 1);					
+				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
 			}
 			else {		
 				
@@ -485,14 +485,19 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
 					enable_style_play = !enable_ample_guitar;
 					
-					midi_send_note(0x90, 96, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
+					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 				}
 				break;
 			}
 		}
 
 		if (joy_up != joystick_up) {
-			joystick_up = joy_up;	
+			joystick_up = joy_up;
+
+			if (enable_ample_guitar) {
+				midi_send_note(0x90, 24, joy_up ? 127 : 0);	// sustain guitar notes
+			} 
+			else
 
 			if (style_started) {
 				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
@@ -509,6 +514,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
 
+			if (enable_ample_guitar) {
+				midi_send_note(0x90, 26, knob_up ? 127 : 0);	// palm mute guitar notes
+			} 
+			else
+				
 			if (style_started) {			
 				midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
 				midi_yamaha_arr(0x18, knob_up ? true : false);				
@@ -798,10 +808,11 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			{										
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{				
-					old_midinotes[0] = ample_chord + 24;
+					note = ample_chord + 24 + transpose;
+					old_midinotes[0] = note;					
 					midi_send_note(0x90, ample_chord + 24, 127);
 				
-					note = ample_style_notes[style_section] + 24;							
+					note = ample_style_notes[style_section] + 24 + transpose;							
 					old_midinotes[1] = note;
 					midi_send_note(0x90, note, 127);	
 				} 
@@ -839,6 +850,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						mute_midinotes[n] = note;					
 						
 						velocity = velocity - 15;
+						if (note % 12 < 4) note =+12;						
 						midi_send_note(0x90, note, velocity);				
 					}	
 
@@ -853,6 +865,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = note - 12; 	// bass needs another octave lower for strum pattern 2
 				}
 				
+				if (note % 12 < 4) note =+12;				 
 				midi_send_note(0x90, note, velocity);
 				old_midinotes[0] = note;				
 			}					
