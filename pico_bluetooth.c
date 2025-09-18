@@ -482,10 +482,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				else
 					
 				if (red) {
-					enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
-					enable_style_play = !enable_ample_guitar;
-					
+					enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
 					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
+					midi_send_note(0x90, 86, 127);								// set chord detectt					
 				}
 				break;
 			}
@@ -560,8 +559,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t chord_note = 0;
 	uint8_t chord_type = 0;	
 	uint8_t bass_note = 0;		
-	uint8_t base = 60;
-	uint8_t ample_chord = 12;	
+	uint8_t base = 60;	
 	bool handled = false;	
 	
 	base = 60 + transpose;
@@ -697,8 +695,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 7, base + 11);
 		chord_note = (base - 8);	
-		chord_type = 1;
-		ample_chord = 14;			
+		chord_type = 1;		
 		handled = true;			
 	}
 	else
@@ -732,8 +729,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	if (yellow)    // C
 	{
 		if (enable_style_play) midi_play_chord(on, base, base + 4, base + 7);
-		chord_note = (base);
-		ample_chord = 12;		
+		chord_note = (base);	
 		handled = true;			
 	}
 	else
@@ -742,8 +738,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 5, base + 9);
 		chord_note = (base + 2);	
-		chord_type = 1;
-		ample_chord = 14;			
+		chord_type = 1;		
 		handled = true;			
 	}
 	else
@@ -751,8 +746,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	if (orange)   // F
 	{
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 9, base + 12);
-		chord_note = (base - 7);
-		ample_chord = 17;	
+		chord_note = (base - 7);	
 		handled = true;			
 	}
 	else
@@ -760,8 +754,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	if (green)     // G
 	{
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 11, base + 14);
-		chord_note = (base - 5);	
-		ample_chord = 19;			
+		chord_note = (base - 5);			
 		handled = true;			
 	}
 	else
@@ -770,8 +763,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 12, base + 16);
 		chord_note = (base - 3);	
-		chord_type = 1;
-		ample_chord = 21;			
+		chord_type = 1;			
 		handled = true;			
 	}
 	
@@ -808,13 +800,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			{										
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{				
-					note = ample_chord + 24;				
-					midi_send_note(0x90, ample_chord + 24, 127);
-					old_midinotes[0] = note;						
-				
 					note = ample_style_notes[style_section] + 24;							
 					midi_send_note(0x90, note, 127);
-					old_midinotes[1] = note;					
+					old_midinotes[0] = note;					
 				} 
 				else 
 				{

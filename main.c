@@ -49,6 +49,8 @@ void pico_set_led(bool led_on) {
 #endif
 }
 
+extern bool enable_ample_guitar;
+
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
@@ -214,6 +216,13 @@ void midi_ketron_footsw(uint8_t code, bool on)
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) 
 {
 	if (on) {
+		
+		if (enable_ample_guitar) {	// squeeze into C1 - B2
+			p1 = (p1 % 24) + 36;
+			p2 = (p2 % 24) + 36;
+			p3 = (p3 % 24) + 36;
+		}
+		
 		midi_send_note(0x93, p1, 32);
 		midi_send_note(0x93, p2, 32);
 		midi_send_note(0x93, p3, 32);		
@@ -221,6 +230,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 		old_p1 = p1;
 		old_p2 = p2;
 		old_p3 = p3;
+		
 	} else {
 		midi_send_note(0x83, old_p1, 0);
 		midi_send_note(0x83, old_p2, 0);
@@ -231,7 +241,15 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  
 {
-	if (on) {	
+	if (on) {
+
+		if (enable_ample_guitar) {	// squeeze into C1 - B2
+			p1 = (p1 % 24) + 36;
+			p2 = (p2 % 24) + 36;
+			p3 = (p3 % 24) + 36;
+			p4 = (p4 % 24) + 36;			
+		}
+		
 		midi_send_note(0x93, p1, 32);
 		midi_send_note(0x93, p2, 32);
 		midi_send_note(0x93, p3, 32);
