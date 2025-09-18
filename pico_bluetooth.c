@@ -26,7 +26,7 @@ int active_neck_pos = 2;
 int style_section = 0; 
 int transpose = 0; 
 
-uint8_t old_midinotes[8] = {0};
+uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
@@ -318,7 +318,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<8; n++) 
+				for (int n=0; n<6; n++) 
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);	
@@ -339,7 +339,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<8; n++) 
+				for (int n=0; n<6; n++) 
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);						
@@ -850,7 +850,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						mute_midinotes[n] = note;					
 						
 						velocity = velocity - 15;
-						if (note % 12 < 4) note =+12;						
+						//if ((note % 12) < 4) note = note + 12;						
 						midi_send_note(0x90, note, velocity);				
 					}	
 
@@ -865,15 +865,46 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = note - 12; 	// bass needs another octave lower for strum pattern 2
 				}
 				
-				if (note % 12 < 4) note =+12;				 
+				//if ((note % 12) < 4) note = note + 12;				 
 				midi_send_note(0x90, note, velocity);
 				old_midinotes[0] = note;				
 			}					
 		} 
 		else 
 		{
-			if (enable_ample_guitar) {
+			if (enable_ample_guitar) 	// noises
+			{
+				if (active_strum_pattern == 0) {
+					note = 69;
+					if (up) note = 70;
+				}
+				else
+
+				if (active_strum_pattern == 1) {
+					note = 71;
+					if (up) note = 70;
+				}					
+				else
+
+				if (active_strum_pattern == 2) {
+					note = 52;
+					if (up) note = 55;
+				}				
+				else
+
+				if (active_strum_pattern == 3) {
+					note = 53;
+					if (up) note = 57;
+				}					
+				else
+
+				if (active_strum_pattern == 4) {
+					note = 57;
+					if (up) note = 59;
+				}
 				
+				midi_send_note(0x90, note, 100);				
+				old_midinotes[0] = note;
 			} 
 			else 
 			{		
