@@ -849,7 +849,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						mute_midinotes[n] = note;					
 						
 						velocity = velocity - 15;
-						if (enable_ample_guitar && note < 16) note = note + 12;						
+						if (enable_ample_guitar && note < 40) note = note + 12;						
 						midi_send_note(0x90, note, velocity);
 						old_midinotes[n] = note;
 					}	
@@ -865,7 +865,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = note - 12; 	// bass needs another octave lower for strum pattern 2
 				}
 				
-				if (enable_ample_guitar && note < 16) note = note + 12;				 
+				if (enable_ample_guitar && note < 40) note = note + 12;				 
 				midi_send_note(0x90, note, velocity);
 				old_midinotes[0] = note;				
 			}					
@@ -887,20 +887,20 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				else
 
 				if (active_strum_pattern == 2) {
-					note = 76;
-					if (up) note = 79;
+					note = 89;
+					if (up) note = 92;
 				}				
 				else
 
 				if (active_strum_pattern == 3) {
-					note = 77;
-					if (up) note = 81;
+					note = 89;
+					if (up) note = 91;
 				}					
 				else
 
 				if (active_strum_pattern == 4) {
-					note = 82;
-					if (up) note = 83;
+					note = 89;
+					if (up) note = 90;
 				}
 				
 				midi_send_note(0x90, note, 100);				
