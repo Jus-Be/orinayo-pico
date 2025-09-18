@@ -20,7 +20,7 @@
 
 bool style_started = false;
 bool enable_style_play = true;
-bool enable_ample_guitar = true;
+bool enable_ample_guitar = false;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -471,8 +471,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			config = mbut3;
 			
 			if (mbut3) {
-				if (green) enable_style_play = !enable_style_play;		// enable/disable chords on channel 4
-				if (red) enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
+				if (green) {
+					enable_style_play = !enable_style_play;		// enable/disable chords on channel 4
+				}
+				else
+					
+				if (red) {
+					enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
+					enable_style_play = !enable_ample_guitar;
+				}
 				break;
 			}
 		}
@@ -782,10 +789,10 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (enable_ample_guitar) 
 			{
 				if (active_strum_pattern == 0)  {	
-					note = ample_style_notes[style_section];
+					note = ample_style_notes[style_section] + 12;
 					
-					old_midinotes[0] = ample_chord;
-					midi_send_note(0x90, ample_chord, 127);
+					old_midinotes[0] = ample_chord + 12;
+					midi_send_note(0x90, ample_chord + 12, 127);
 							
 					old_midinotes[1] = note;
 					midi_send_note(0x90, note, 127);
@@ -804,7 +811,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						if (string > -1 && string < 6) 
 						{
 							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								note = ample_string_notes[string];
+								note = ample_string_notes[string] + 12;
 								old_midinotes[1] = note;
 								midi_send_note(0x90, note, 127);								
 							}
