@@ -20,6 +20,7 @@
 
 bool style_started = false;
 bool enable_style_play = true;
+bool enable_ample_guitar = true;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -287,11 +288,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				
 				if (but6) {
 					style_section--;
-					if (style_section < 0) style_section = 3;
+					if (style_section < 0) style_section = 7;
 				}
-
-				midi_ketron_arr(3 + style_section, but6 ? true : false);
-				midi_yamaha_arr(0x10 + style_section, but6 ? true : false);			
+				
+				midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
+				midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);			
 			}	
 	
 			break;
@@ -310,7 +311,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_left) {
 				play_chord(true, false, green, red, yellow, blue, orange);
 			} else {			
-				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
+				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -331,7 +332,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_right) {
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
+				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -426,37 +427,38 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 			if (green) 
 			{
-
+				style_section = 0;
 			}
 			else
 				
 			if (red) {
-				style_section = 0;
+				style_section = 1;
 			}
 			else
 
 			if (yellow) {
-				style_section = 1;
+				style_section = 2;
 			}				
 			else
 
 			if (blue) {
-				style_section = 2;
+				style_section = 3;
 			}
 			else
 
 			if (orange) {
-				style_section = 3;
+				style_section = 4;
 			}
 			else 
 			
 			if (mbut1) {
 				style_section++;
-				if (style_section > 3) style_section = 0;				
+				if (style_section > 7) style_section = 0;				
 			}
 			
-			midi_ketron_arr(3 + style_section, mbut1 ? true : false);
-			midi_yamaha_arr(0x10 + style_section, mbut1 ? true : false);				
+			midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
+			midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+			
 			break;			
 		}
 		
@@ -470,6 +472,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			if (mbut3) {
 				if (green) enable_style_play = !enable_style_play;		// enable/disable chords on channel 4
+				if (red) enable_ample_guitar = !enable_ample_guitar; 	// Ample Guitar VST mode
 				break;
 			}
 		}
@@ -478,8 +481,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			joystick_up = joy_up;	
 
 			if (style_started) {
-				midi_ketron_arr(0x07 + style_section, joy_up ? true : false);	// 	Fill
-				midi_yamaha_arr(0x10 + style_section, joy_up ? true : false);				
+				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
+				midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
 			}
 			break;
 		}
@@ -493,7 +496,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			logo_knob_up = knob_up;	
 
 			if (style_started) {			
-				midi_ketron_arr(0x0B + style_section, knob_up ? true : false);	// 	break	
+				midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
 				midi_yamaha_arr(0x18, knob_up ? true : false);				
 			}
 			break;			
@@ -534,6 +537,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t chord_type = 0;	
 	uint8_t bass_note = 0;		
 	uint8_t base = 60;
+	uint8_t ample_chord = 12;	
 	bool handled = false;	
 	
 	base = 60 + transpose;
@@ -670,6 +674,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 7, base + 11);
 		chord_note = (base - 8);	
 		chord_type = 1;
+		ample_chord = 14;			
 		handled = true;			
 	}
 	else
@@ -703,7 +708,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	if (yellow)    // C
 	{
 		if (enable_style_play) midi_play_chord(on, base, base + 4, base + 7);
-		chord_note = (base);	
+		chord_note = (base);
+		ample_chord = 12;		
 		handled = true;			
 	}
 	else
@@ -713,6 +719,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 5, base + 9);
 		chord_note = (base + 2);	
 		chord_type = 1;
+		ample_chord = 13;			
 		handled = true;			
 	}
 	else
@@ -720,7 +727,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	if (orange)   // F
 	{
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 9, base + 12);
-		chord_note = (base - 7);	
+		chord_note = (base - 7);
+		ample_chord = 15;	
 		handled = true;			
 	}
 	else
@@ -729,6 +737,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	{
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 11, base + 14);
 		chord_note = (base - 5);	
+		ample_chord = 16;			
 		handled = true;			
 	}
 	else
@@ -738,6 +747,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 12, base + 16);
 		chord_note = (base - 3);	
 		chord_type = 1;
+		ample_chord = 17;			
 		handled = true;			
 	}
 	
@@ -762,71 +772,117 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	int notes_count = 0;
 	int velocity = 100;	
 	uint8_t note = 0;
+	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
+	uint8_t ample_string_notes[6] = {47, 35, 43, 41, 40, 38};
 	
 	if (active_strum_pattern > -1) 
 	{
 		if (handled) 
 		{
-			if (up || active_strum_pattern == 0) {										// up strum or neck postion 1 requires next sequence pattern note/chord
-				while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
-					seq_index++;
-					if (seq_index > 11) seq_index = 0;
-				}
-
-				for (int i=0; i<6; i++) {
-					mute_midinotes[i] = 0;	// reset muted notes
-					string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+			if (enable_ample_guitar) 
+			{
+				if (active_strum_pattern == 0)  {	
+					note = ample_style_notes[style_section];
 					
-					if (string > -1 && string < 6) 
-					{
-						if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-							chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
-							notes_count++;						
+					old_midinotes[0] = ample_chord;
+					midi_send_note(0x90, ample_chord, 127);
+							
+					old_midinotes[1] = note;
+					midi_send_note(0x90, note, 127);
+					
+				} else {
+					
+					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+						seq_index++;
+						if (seq_index > 11) seq_index = 0;
+					}
+
+					for (int i=0; i<6; i++) {
+						mute_midinotes[i] = 0;	// reset muted notes
+						string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+						
+						if (string > -1 && string < 6) 
+						{
+							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
+								note = ample_string_notes[string];
+								old_midinotes[1] = note;
+								midi_send_note(0x90, note, 127);								
+							}
+						}
+					}											
+				}
+			} 
+			else 
+			{
+				if (up || active_strum_pattern == 0) 
+				{																			// up strum or neck postion 1 requires next sequence pattern note/chord
+					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+						seq_index++;
+						if (seq_index > 11) seq_index = 0;
+					}
+
+					for (int i=0; i<6; i++) {
+						mute_midinotes[i] = 0;	// reset muted notes
+						string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+						
+						if (string > -1 && string < 6) 
+						{
+							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
+								chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
+								notes_count++;						
+							}
 						}
 					}
-				}
 
-				velocity = 100;
-				
-				if (up) {
-					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
-				} else {
-					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compDown);								
-				}
-			
-				for (int n=0; n<notes_count; n++) {
-					note = chord_midinotes[(notes_count - 1) - n];							
-					old_midinotes[n] = note;
-					mute_midinotes[n] = note;					
+					velocity = 100;
 					
-					velocity = velocity - 15;
-					midi_send_note(0x90, note, velocity);				
-				}	
+					if (up) {
+						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
+					} else {
+						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compDown);								
+					}
+				
+					for (int n=0; n<notes_count; n++) {
+						note = chord_midinotes[(notes_count - 1) - n];							
+						old_midinotes[n] = note;
+						mute_midinotes[n] = note;					
+						
+						velocity = velocity - 15;
+						midi_send_note(0x90, note, velocity);				
+					}	
 
-				seq_index++;	
-				if (seq_index > 11) seq_index = 0;	
-			} else {
-				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-				
-				if (!up && active_strum_pattern == 1) {
-					note = note - 12; 	// bass needs another octave lower for strum pattern 2
-				}
-				
-				midi_send_note(0x90, note, velocity);
-				old_midinotes[0] = note;				
-			}	
-			
+					seq_index++;	
+					if (seq_index > 11) seq_index = 0;	
+					
+				} else {
+					note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+					
+					if (!up && active_strum_pattern == 1) {
+						note = note - 12; 	// bass needs another octave lower for strum pattern 2
+					}
+					
+					midi_send_note(0x90, note, velocity);
+					old_midinotes[0] = note;				
+				}	
+			}				
 		} 
 		else 
-		
-		if (active_strum_pattern == 0) 	// only mute with strumming up and down
 		{
-			for (int n=0; n<6; n++) 
-			{
-				if (mute_midinotes[n] > 0) {
-					note = mute_midinotes[n];
-					midi_send_note(0x90, note, 35);	// lower velocity to achieve muted sound
-					old_midinotes[n] = note;					
+			if (enable_ample_guitar) {
+				
+			} 
+			else 
+			{		
+				if (active_strum_pattern == 0) 	// only mute with strumming up and down
+				{
+					for (int n=0; n<6; n++) 
+					{
+						if (mute_midinotes[n] > 0) {
+							note = mute_midinotes[n];
+							midi_send_note(0x90, note, 35);	// lower velocity to achieve muted sound
+							old_midinotes[n] = note;					
+						}
+					}
 				}
 			}
 		}
