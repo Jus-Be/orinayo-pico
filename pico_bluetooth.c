@@ -26,7 +26,7 @@ int active_neck_pos = 2;
 int style_section = 0; 
 int transpose = 0; 
 
-uint8_t old_midinotes[6] = {0};
+uint8_t old_midinotes[8] = {0};
 uint8_t mute_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
@@ -313,7 +313,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<6; n++) 
+				for (int n=0; n<8; n++) 
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);	
@@ -334,7 +334,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} else {			
 				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
 				
-				for (int n=0; n<6; n++) 
+				for (int n=0; n<8; n++) 
 				{
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);						
@@ -781,7 +781,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
-	uint8_t ample_string_notes[6] = {47, 35, 43, 41, 40, 38};
+	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
 	if (active_strum_pattern > -1) 
 	{
@@ -789,12 +789,11 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		{
 			if (enable_ample_guitar) 
 			{
+				old_midinotes[6] = ample_chord + 24;
+				midi_send_note(0x90, ample_chord + 24, 127);
+				
 				if (active_strum_pattern == 0)  {	
-					note = ample_style_notes[style_section] + 24;
-					
-					old_midinotes[0] = ample_chord + 24;
-					midi_send_note(0x90, ample_chord + 24, 127);
-							
+					note = ample_style_notes[style_section] + 24;							
 					old_midinotes[1] = note;
 					midi_send_note(0x90, note, 127);
 					
@@ -813,7 +812,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						{
 							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
 								note = ample_string_notes[chord_chat[chord_note % 12][chord_type][string]] + 24;
-								old_midinotes[1] = note;
+								old_midinotes[i] = note;
 								midi_send_note(0x90, note, up ? 75 : 100);								
 							}
 						}
