@@ -789,10 +789,10 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			if (enable_ample_guitar) 
 			{
 				if (active_strum_pattern == 0)  {	
-					note = ample_style_notes[style_section] + 12;
+					note = ample_style_notes[style_section] + 24;
 					
-					old_midinotes[0] = ample_chord + 12;
-					midi_send_note(0x90, ample_chord + 12, 127);
+					old_midinotes[0] = ample_chord + 24;
+					midi_send_note(0x90, ample_chord + 24, 127);
 							
 					old_midinotes[1] = note;
 					midi_send_note(0x90, note, 127);
@@ -811,7 +811,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						if (string > -1 && string < 6) 
 						{
 							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								note = ample_string_notes[string] + 12;
+								note = ample_string_notes[string] + 24;
 								old_midinotes[1] = note;
 								midi_send_note(0x90, note, 127);								
 							}
