@@ -316,7 +316,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_left) {
 				play_chord(true, false, green, red, yellow, blue, orange);
 			} else {			
-				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
+				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -337,7 +337,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_right) {
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (enable_style_play && !enable_ample_guitar) midi_play_chord(false, 0, 0, 0);	
+				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
