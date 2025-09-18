@@ -226,9 +226,9 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, 32);
-			midi_send_note(0x93, p2, 32);
-			midi_send_note(0x93, p3, 32);		
+			midi_send_note(0x93, p1, 64);
+			midi_send_note(0x93, p2, 64);
+			midi_send_note(0x93, p3, 64);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
@@ -256,10 +256,10 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				p4 = (p4 % 12) + ((p4  % 12) <  (p2 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, 32);
-			midi_send_note(0x93, p2, 32);
-			midi_send_note(0x93, p3, 32);
-			midi_send_note(0x93, p4, 32);	
+			midi_send_note(0x93, p1, 64);
+			midi_send_note(0x93, p2, 64);
+			midi_send_note(0x93, p3, 64);
+			midi_send_note(0x93, p4, 64);	
 			
 			old_p1 = p1;
 			old_p2 = p2;
