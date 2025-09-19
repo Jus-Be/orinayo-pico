@@ -226,9 +226,9 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, 64);
-			midi_send_note(0x93, p2, 64);
-			midi_send_note(0x93, p3, 64);		
+			midi_send_note(0x93, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x93, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x93, p3, enable_ample_guitar ? 127 : 32);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
@@ -252,14 +252,14 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			if (enable_ample_guitar) {	// squeeze into C1 - B2
 				p1 = (p1 % 12) + 36;
 				p2 = (p2 % 12) + ((p2  % 12) <  (p1 % 12) ? 48 : 36);
-				p3 = (p3 % 12) + ((p3  % 12) <  (p2 % 12) ? 48 : 36);
-				p4 = (p4 % 12) + ((p4  % 12) <  (p2 % 12) ? 48 : 36);
+				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
+				p4 = (p4 % 12) + ((p4  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, 64);
-			midi_send_note(0x93, p2, 64);
-			midi_send_note(0x93, p3, 64);
-			midi_send_note(0x93, p4, 64);	
+			midi_send_note(0x93, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x93, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x93, p3, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x93, p4, enable_ample_guitar ? 127 : 32);	
 			
 			old_p1 = p1;
 			old_p2 = p2;
