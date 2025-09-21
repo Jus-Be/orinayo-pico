@@ -206,51 +206,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   bool joy_down = axis_x > axis_y;  
   bool knob_up = axis_ry > axis_rx; 
   bool knob_down = axis_rx > axis_ry; 
-  
-  bool button_pressed[5] = {false, false, false, false, false};
     
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
 		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 	  
 		// first get button state
-		
 				
 		if (but1 != green) {
 			green = but1;
-			button_pressed[1] = !!but1;			
 		}
 		
 		if (but0 != red) {
 			red = but0;
-			button_pressed[0] = !!but0;				
 		}
 		
 		if (but2 != yellow) {
 			yellow = but2;
-			button_pressed[2] = !!but2;				
 		}
 		
 		if (but3 != blue) {
 			blue = but3;
-			button_pressed[3] = !!but3;				
 		}
 
 		if (but4 != orange) {
 			orange = but4;
-			button_pressed[4] = !!but4;				
-		}
-		
-		if (enable_style_play && enable_ample_guitar) {
-			// keep strumming, but change chord
-	
-			if (left || right && (button_pressed[0] || button_pressed[1] || button_pressed[2] || button_pressed[3] || button_pressed[4])) {		
-				midi_play_chord(false, 0, 0, 0);								// stop current chord
-				play_chord(true, true, green, red, yellow, blue, orange);		// play new chord	
-				
-				for (int z=0; z<5; z++) button_pressed[z] = false;				
-				break;				
-			}
 		}
 		
 		if (but6 != pitch) {		// prev section/style
