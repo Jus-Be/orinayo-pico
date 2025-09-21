@@ -24,7 +24,7 @@ bool enable_ample_guitar = false;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
-int old_style = 0;
+int old_style = -1;
 int transpose = 0; 
 
 uint8_t old_midinotes[6] = {0};
@@ -431,31 +431,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (mbut1 != starpower) { // next style/section			
 			starpower = mbut1;
-			old_style = style_section;
+			if (mbut1) old_style = style_section;
 
 			if (green) 
 			{
-				style_section = 0;
+				if (mbut1) style_section = 0;
 			}
 			else
 				
 			if (red) {
-				style_section = 1;
+				if (mbut1) style_section = 1;
 			}
 			else
 
 			if (yellow) {
-				style_section = 2;
+				if (mbut1) style_section = 2;
 			}				
 			else
 
 			if (blue) {
-				style_section = 3;
+				if (mbut1) style_section = 3;
 			}
 			else
 
 			if (orange) {
-				style_section = 4;
+				if (mbut1) style_section = 4;
 			}
 			else 
 			
