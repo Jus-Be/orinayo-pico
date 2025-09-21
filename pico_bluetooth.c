@@ -214,6 +214,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 	  
 		// first get button state
+		
 				
 		if (but1 != green) {
 			green = but1;
@@ -246,6 +247,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (left || right && (button_pressed[0] || button_pressed[1] || button_pressed[2] || button_pressed[3] || button_pressed[4])) {		
 				midi_play_chord(false, 0, 0, 0);								// stop current chord
 				play_chord(true, true, green, red, yellow, blue, orange);		// play new chord	
+				
+				for (int z=0; z<5; z++) button_pressed[z] = false;				
 				break;				
 			}
 		}
