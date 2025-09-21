@@ -801,11 +801,13 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		{
 			if (up || active_strum_pattern == 0) 
 			{										
-				if (enable_ample_guitar && active_strum_pattern == 0 && style_section != old_style) 
-				{				
-					note = ample_style_notes[style_section] + 24;							
-					midi_send_note(0x90, note, 127);
-					old_midinotes[0] = note;					
+				if (enable_ample_guitar && active_strum_pattern == 0) 
+				{	
+					if (style_section != old_style) {
+						note = ample_style_notes[style_section] + 24;							
+						midi_send_note(0x90, note, 127);
+						old_midinotes[0] = note;		
+					}						
 				} 
 				else 
 				{
