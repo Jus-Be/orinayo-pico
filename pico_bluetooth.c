@@ -24,6 +24,7 @@ bool enable_ample_guitar = false;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
+int old_style = 0;
 int transpose = 0; 
 
 uint8_t old_midinotes[6] = {0};
@@ -292,6 +293,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			else {		
 				
 				if (but6) {
+					old_style = style_section;
 					style_section--;
 					if (style_section < 0) style_section = 7;
 				}
@@ -429,6 +431,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (mbut1 != starpower) { // next style/section			
 			starpower = mbut1;
+			old_style = style_section;
 
 			if (green) 
 			{
@@ -798,7 +801,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		{
 			if (up || active_strum_pattern == 0) 
 			{										
-				if (enable_ample_guitar && active_strum_pattern == 0) 
+				if (enable_ample_guitar && active_strum_pattern == 0 && style_section != old_style) 
 				{				
 					note = ample_style_notes[style_section] + 24;							
 					midi_send_note(0x90, note, 127);
