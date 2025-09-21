@@ -233,6 +233,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			orange = but4;
 		}
 		
+		if (enable_style_play && enable_ample_guitar) 
+		{			
+			if (left || right && (green || red || yellow || blue || orange)) {
+				midi_play_chord(false, 0, 0, 0);								// stop current chord
+				play_chord(true, true, green, red, yellow, blue, orange);		// play new chord	
+			}
+			break;
+		}
+		
 		if (but6 != pitch) {		// prev section/style
 			pitch = but6;
 
