@@ -212,25 +212,33 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 	  
 		// first get button state
-				
-		if (but1 != green) {
-			green = but1;
-		}
-		
-		if (but0 != red) {
-			red = but0;
-		}
-		
-		if (but2 != yellow) {
-			yellow = but2;
-		}
-		
-		if (but3 != blue) {
-			blue = but3;
-		}
 
-		if (but4 != orange) {
-			orange = but4;
+		if ((but1 != green) || (but0 != red) || (but2 != yellow) || (but3 != blue) || (but4 != orange)) 
+		{				
+			if (but1 != green) {
+				green = but1;
+			}
+			
+			if (but0 != red) {
+				red = but0;
+			}
+			
+			if (but2 != yellow) {
+				yellow = but2;
+			}
+			
+			if (but3 != blue) {
+				blue = but3;
+			}
+
+			if (but4 != orange) {
+				orange = but4;
+			}
+			
+			if ((right || left) && enable_ample_guitar && enable_ample_guitar) {
+				midi_play_chord(false, 0, 0, 0);									// stop current chord
+				play_chord(true, !!right, green, red, yellow, blue, orange);		// play new chord				
+			}
 		}
 		
 		if (but6 != pitch) {		// prev section/style
