@@ -234,11 +234,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (but4 != orange) {
 				orange = but4;
 			}
-			
-			if ((right || left) && enable_ample_guitar && enable_ample_guitar) {
-				midi_play_chord(false, 0, 0, 0);									// stop current chord
-				play_chord(true, !!right, green, red, yellow, blue, orange);		// play new chord				
-			}
 		}
 		
 		if (but6 != pitch) {		// prev section/style
@@ -802,57 +797,55 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	if (active_strum_pattern > -1) 
 	{
+		if (enable_ample_guitar && active_strum_pattern == 0) 
+		{				
+			note = ample_style_notes[style_section] + 24;							
+			midi_send_note(0x90, note, 127);
+			old_midinotes[0] = note;					
+		}
+				
 		if (handled) 
 		{
 			if (up || active_strum_pattern == 0) 
-			{										
-				if (enable_ample_guitar && active_strum_pattern == 0) 
-				{				
-					note = ample_style_notes[style_section] + 24;							
-					midi_send_note(0x90, note, 127);
-					old_midinotes[0] = note;					
-				} 
-				else 
-				{
-					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
-						seq_index++;
-						if (seq_index > 11) seq_index = 0;
-					}
+			{										 
+				while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+					seq_index++;
+					if (seq_index > 11) seq_index = 0;
+				}
 
-					for (int i=0; i<6; i++) {
-						mute_midinotes[i] = 0;	// reset muted notes
-						string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
-						
-						if (string > -1 && string < 6) 
-						{
-							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
-								notes_count++;						
-							}
+				for (int i=0; i<6; i++) {
+					mute_midinotes[i] = 0;	// reset muted notes
+					string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+					
+					if (string > -1 && string < 6) 
+					{
+						if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
+							chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
+							notes_count++;						
 						}
 					}
+				}
 
-					velocity = 100;
-					
-					if (up) {
-						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
-					} else {
-						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compDown);								
-					}
+				velocity = 100;
 				
-					for (int n=0; n<notes_count; n++) {
-						note = chord_midinotes[(notes_count - 1) - n];							
-						mute_midinotes[n] = note;					
-						
-						velocity = velocity - 15;
-						if (enable_ample_guitar && note < 40) note = note + 12;						
-						midi_send_note(0x90, note, velocity);
-						old_midinotes[n] = note;
-					}	
+				if (up) {
+					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
+				} else {
+					qsort(chord_midinotes, notes_count, sizeof(uint8_t), compDown);								
+				}
+			
+				for (int n=0; n<notes_count; n++) {
+					note = chord_midinotes[(notes_count - 1) - n];							
+					mute_midinotes[n] = note;					
+					
+					velocity = velocity - 15;
+					if (enable_ample_guitar && note < 40) note = note + 12;						
+					midi_send_note(0x90, note, velocity);
+					old_midinotes[n] = note;
+				}	
 
-					seq_index++;	
-					if (seq_index > 11) seq_index = 0;
-				}						
+				seq_index++;	
+				if (seq_index > 11) seq_index = 0;					
 				
 			} else {
 				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
