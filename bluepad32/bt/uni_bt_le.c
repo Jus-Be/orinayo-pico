@@ -1292,7 +1292,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		}
 	}
 
-    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o') 
+    if (name[0] == 'O' && name[1] == 'r'/* && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o'*/) 
 	{	
 		if (!orinayo_enabled) {
 			orinayo_enabled = true;
