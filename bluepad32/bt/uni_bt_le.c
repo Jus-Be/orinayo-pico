@@ -776,7 +776,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
-				send_ble_midi(midi_data, 3);
+				//send_ble_midi(midi_data, 3);
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 3, midi_data);
 			}
 		}
 	}		
