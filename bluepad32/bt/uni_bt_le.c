@@ -176,12 +176,12 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_LIST_OF_128_BIT_SERVICE_SOLICITATION_UUIDS:
                 break;
             case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
-				break;
-            case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
                 for (i = 0; i < size; i++) {
                     name[i] = data[i];
                 }
-                name[size] = 0;
+                name[size] = 0;			
+				break;
+            case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
                 break;
             case BLUETOOTH_DATA_TYPE_TX_POWER_LEVEL:
                 break;
