@@ -1281,6 +1281,8 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
 	
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
+	
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
 		liberlive_enabled = true;
 		hog_connect(addr, addr_type);		
@@ -1288,7 +1290,6 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	}
 
     if (name[0] == 'O'/* && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o' */) {
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
