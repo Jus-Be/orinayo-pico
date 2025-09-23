@@ -83,7 +83,7 @@ static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-void send_ble_midi(uint8_t* midi_data, int len);
+void send_ble_midi(uint8_t midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -152,7 +152,8 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
     ad_context_t context;
 
-    for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context); ad_iterator_next(&context)) {
+    for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context);
+         ad_iterator_next(&context)) {
         uint8_t data_type = ad_iterator_get_data_type(&context);
         uint8_t size = ad_iterator_get_data_len(&context);
         const uint8_t* data = ad_iterator_get_data(&context);
@@ -750,16 +751,14 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
 		if (query_state == 0) 
 		{
-/*			
 			if (liberlive_enabled) {
 				uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
 			}
 			else
-*/
+				
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-				uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};							
-				//uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
+				uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);										
 			}
 		}
@@ -778,6 +777,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
 				send_ble_midi(midi_data, 3);
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 3, midi_data);
 			}
 		}
 	}		
@@ -1171,7 +1171,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     }
 }
 
-void send_ble_midi(uint8_t* midi_data, int len) {
+void send_ble_midi(uint8_t midi_data, int len) {
 	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, midi_data);
 }
 
@@ -1281,7 +1281,10 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
-    adv_event_get_data(packet, &appearance, name);	 	
+    adv_event_get_data(packet, &appearance, name);	
+	
+	uint8_t midi_data[3] = {0x90, 0x42, 0x7F};
+	send_ble_midi(midi_data, 3);	
 	
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
 		liberlive_enabled = true;
@@ -1289,8 +1292,10 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		return;	
 	}
 
-    if (name[0] == 'O'/* && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o' */) {
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);		
+    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o') {
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+		midi_data[2] = 0x72;
+		send_ble_midi(midi_data, 3);		
 		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
