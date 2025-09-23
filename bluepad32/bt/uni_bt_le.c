@@ -83,7 +83,7 @@ static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-void send_ble_midi(uint8_t midi_data, int len);
+void send_ble_midi(uint8_t* midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -742,7 +742,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
 		query_state = 1;
-		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 			
 	}
 	else
 					
@@ -759,8 +760,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
-				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);										
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 				
+				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);													
 			}
 		}
 		else		
@@ -1172,7 +1172,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     }
 }
 
-void send_ble_midi(uint8_t midi_data, int len) {
+void send_ble_midi(uint8_t* midi_data, int len) {
 	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, midi_data);
 }
 
