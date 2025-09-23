@@ -82,7 +82,7 @@ static void pico_bluetooth_on_init_complete(void) {
   // PICO_INFO("Started Bluetooth scanning for new devices.\n");
 
   uni_property_dump_all();
-  //cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const char* name, uint16_t cod, uint8_t rssi) {
@@ -98,7 +98,7 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   // Check if it's a Gamepad controller
   if (name && (strstr(name, "STANDARD GAMEPAD"))) {
     // PICO_INFO("Gamepad controller detected! Attempting connection...\n");
-	 //cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
   }
 
   // As an example, if you want to filter out keyboards, do:
@@ -124,13 +124,13 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
   // Re-enable scanning when a device is disconnected
   uni_bt_start_scanning_and_autoconnect_safe();
   
-  //cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
   // PICO_DEBUG("[BT] Restarted scanning (device disconnected)\n");
 }
 
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
-  //cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
   return UNI_ERROR_SUCCESS;
 }
 
@@ -425,7 +425,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			
 			if (mbut0) style_started = !style_started;
-			//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
 			break;
 		}		
 		
