@@ -75,9 +75,10 @@
 #include "uni_log.h"
 #include "uni_property.h"
 
+bool orinayo_enabled;
+
 static bool is_scanning;
 static bool ble_enabled;
-
 static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
@@ -747,17 +748,29 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) {
 		// action query here
 		
-		if (query_state == 0) {
-			uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
-			gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
+		if (query_state == 0) 
+		{
+			if (liberlive_enabled) {
+				uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
+				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
+			}
+			else
+				
+			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+				uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
+				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);										
+			}
 		}
 		else		
 		
-		if (query_state == 1) {
-			// Write Chord Key Mapping			
-			static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
-			gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
-			query_state = 2;				
+		if (query_state == 1) 
+		{
+			if (liberlive_enabled) {			
+				// Write Chord Key Mapping			
+				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
+				query_state = 2;
+			}				
 		}
 	}		
 	else
@@ -1150,6 +1163,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     }
 }
 
+void send_ble_midi(uint8_t *midi_data, int len) {
+	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, *midi_data);
+}
 
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
     uni_hid_device_t* device;
@@ -1167,7 +1183,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
             connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
 			logi("Using con_handle: %#x\n", connection_handle);
 				
-			if (liberlive_enabled) {
+			if (liberlive_enabled) {	// "000000ff-0000-1000-8000-00805f9b34fb"
 				uint8_t service_name[16] = {0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
@@ -1176,7 +1192,17 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				ll_cannot_fire = true;
 				ll_have_fired = false;
 				
-			} else {		
+			} 
+			else
+				
+			if (orinayo_enabled) {	// "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+				uint8_t service_name[16] = {0x4F, 0xAF, 0xC2, 0x01, 0x1F, 0xB5, 0x4F, 0x9E, 0x8F, 0xCC, 0xC5, 0xC9, 0xC3, 0x31, 0x91, 0x4B} ;			
+				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
+				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
+				
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+			} 			
+			else {		
 				device = uni_hid_device_get_instance_for_address(event_addr);
 				
 				if (!device) {
@@ -1251,6 +1277,12 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
 		liberlive_enabled = true;
+		hog_connect(addr, addr_type);		
+		return;	
+	}
+
+    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' &&  && name[3] == 'y' && name[4] == 'o') {
+		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
 	}

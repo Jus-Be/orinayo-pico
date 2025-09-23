@@ -49,6 +49,7 @@ void pico_set_led(bool led_on) {
 #endif
 }
 
+extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
 extern int active_strum_pattern;
 
@@ -57,6 +58,7 @@ static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
+void send_ble_midi(uint8_t *midi_data, int len);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
@@ -146,6 +148,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 	
 	tud_midi_n_stream_write(0, 0, msg, 3);	
+	if (orinayo_enabled) send_ble_midi(msg, 3);
 }
 
 void midi_send_program_change(uint8_t command, uint8_t code)
@@ -156,6 +159,7 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 	msg[1] = code;
 	
 	tud_midi_n_stream_write(0, 0, msg, 2);	
+	if (orinayo_enabled) send_ble_midi(msg, 2);	
 }
 
 void midi_yamaha_start_stop(int8_t code, bool on)
