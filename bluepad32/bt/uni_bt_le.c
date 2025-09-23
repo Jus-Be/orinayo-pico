@@ -152,8 +152,7 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
     ad_context_t context;
 
-    for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context);
-         ad_iterator_next(&context)) {
+    for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context); ad_iterator_next(&context)) {
         uint8_t data_type = ad_iterator_get_data_type(&context);
         uint8_t size = ad_iterator_get_data_len(&context);
         const uint8_t* data = ad_iterator_get_data(&context);
@@ -177,6 +176,7 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_LIST_OF_128_BIT_SERVICE_SOLICITATION_UUIDS:
                 break;
             case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
+				break;
             case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
                 for (i = 0; i < size; i++) {
                     name[i] = data[i];
