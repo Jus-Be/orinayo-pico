@@ -760,6 +760,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);										
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 				
 			}
 		}
 		else		
@@ -777,7 +778,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
 				send_ble_midi(midi_data, 3);
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 3, midi_data);
+				query_state = 2;
 			}
 		}
 	}		
@@ -1207,8 +1208,6 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				uint8_t service_name[16] = {0x4F, 0xAF, 0xC2, 0x01, 0x1F, 0xB5, 0x4F, 0x9E, 0x8F, 0xCC, 0xC5, 0xC9, 0xC3, 0x31, 0x91, 0x4B} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
 				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
-				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 			} 			
 			else {		
 				device = uni_hid_device_get_instance_for_address(event_addr);
