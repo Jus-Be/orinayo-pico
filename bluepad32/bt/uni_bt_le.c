@@ -83,6 +83,7 @@ static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
+void send_ble_midi(uint8_t midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -1163,8 +1164,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     }
 }
 
-void send_ble_midi(uint8_t *midi_data, int len) {
-	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, *midi_data);
+void send_ble_midi(uint8_t midi_data, int len) {
+	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, midi_data);
 }
 
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
@@ -1281,7 +1282,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		return;	
 	}
 
-    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' &&  && name[3] == 'y' && name[4] == 'o') {
+    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[3] == 'y' && name[4] == 'o') {
 		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
