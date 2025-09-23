@@ -83,7 +83,7 @@ static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-void send_ble_midi(uint8_t midi_data, int len);
+void send_ble_midi(uint8_t* midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -176,12 +176,11 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_LIST_OF_128_BIT_SERVICE_SOLICITATION_UUIDS:
                 break;
             case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
+            case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
                 for (i = 0; i < size; i++) {
                     name[i] = data[i];
                 }
-                name[size] = 0;			
-				break;
-            case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
+                name[size] = 0;
                 break;
             case BLUETOOTH_DATA_TYPE_TX_POWER_LEVEL:
                 break;
@@ -776,8 +775,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
-				//send_ble_midi(midi_data, 3);
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 3, midi_data);
+				send_ble_midi(midi_data, 3);
 			}
 		}
 	}		
@@ -1171,7 +1169,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     }
 }
 
-void send_ble_midi(uint8_t midi_data, int len) {
+void send_ble_midi(uint8_t* midi_data, int len) {
 	gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, midi_data);
 }
 
@@ -1289,7 +1287,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		return;	
 	}
 
-    if (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o') {
+    if (name[0] == 'O'/* && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o' */) {
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
 		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		

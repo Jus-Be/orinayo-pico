@@ -58,7 +58,7 @@ static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
-void send_ble_midi(uint8_t midi_data, int len);
+void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
