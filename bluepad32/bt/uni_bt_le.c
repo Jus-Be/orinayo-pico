@@ -750,14 +750,16 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
 		if (query_state == 0) 
 		{
+/*			
 			if (liberlive_enabled) {
 				uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);						
 			}
 			else
-				
+*/
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-				uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
+				uint8_t characterstic_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};							
+				//uint8_t characterstic_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, characterstic_name);										
 			}
 		}
@@ -1279,9 +1281,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
-    adv_event_get_data(packet, &appearance, name);	
-	
-	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
+    adv_event_get_data(packet, &appearance, name);	 	
 	
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
 		liberlive_enabled = true;
@@ -1290,6 +1290,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	}
 
     if (name[0] == 'O'/* && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o' */) {
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);		
 		orinayo_enabled = true;
 		hog_connect(addr, addr_type);		
 		return;	
