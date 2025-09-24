@@ -520,6 +520,12 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                 case GATT_EVENT_LONG_CHARACTERISTIC_VALUE_QUERY_RESULT:
                     logd("--> GATT_EVENT_LONG_CHARACTERISTIC_VALUE_QUERY_RESULT\n");
                     break;
+				case GATT_EVENT_SERVICE_QUERY_RESULT:
+					handle_gatt_client_event(packet_type, channel, packet, size);
+					break;
+				case GATT_EVENT_CHARACTERISTIC_QUERY_RESULT:
+					handle_gatt_client_event(packet_type, channel, packet, size);				
+					break;
                 default:
                     break;
             }
