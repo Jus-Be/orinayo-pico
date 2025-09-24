@@ -89,10 +89,7 @@ int main() {
 	sleep_ms(1000);		
 	bluetooth_init();
 	
-	tud_task();
-	midi_send_program_change(0xC0, 25);	// jazz guitar on channel 1
-	midi_send_program_change(0xC3, 89);	// warm pad on channel 4 (chords)
-	
+	tud_task();	
 
     struct repeating_timer timer;	
     add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
@@ -148,7 +145,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 	
 	tud_midi_n_stream_write(0, 0, msg, 3);	
-	if (orinayo_enabled) send_ble_midi(msg, 3);
+	if (orinayo_enabled && (command == 0x90 || command == 0x80)) send_ble_midi(msg, 3);
 }
 
 void midi_send_program_change(uint8_t command, uint8_t code)

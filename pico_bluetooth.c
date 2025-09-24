@@ -116,6 +116,7 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
   // Disable scanning when a device is connected to save power
   uni_bt_stop_scanning_safe();    
   // PICO_DEBUG("[BT] Stopped scanning (device connected)\n");
+  
 }
 
 static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
@@ -131,6 +132,9 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
+  
+	midi_send_program_change(0xC0, 25);	// jazz guitar on channel 1
+	midi_send_program_change(0xC3, 89);	// warm pad on channel 4 (chords)  
   return UNI_ERROR_SUCCESS;
 }
 
