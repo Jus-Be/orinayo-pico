@@ -115,7 +115,8 @@ static hci_con_handle_t connection_handle;
 static void hog_connect(bd_addr_t addr, bd_addr_type_t addr_type) {
     // Stop scan, otherwise it will be able to connect.
     // Happens in ESP32, but not in libusb
-    gap_stop_scan();
+    // TODO
+	//gap_stop_scan();
     logi("BLE scan -> 0\n");
 
     gap_connect(addr, addr_type);
@@ -744,7 +745,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
 		query_state = 1;
-		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);			
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 			
 	}
 	else
 					
@@ -761,7 +763,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
 			}
 		}
 		else		
