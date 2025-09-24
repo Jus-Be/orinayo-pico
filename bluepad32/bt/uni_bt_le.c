@@ -743,8 +743,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 	}
 	else
 		
-    if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
+    if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {		
 		query_state = 1;
 		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);				
 	}
@@ -763,7 +762,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 					
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 					
 			}
 		}
 		else		
