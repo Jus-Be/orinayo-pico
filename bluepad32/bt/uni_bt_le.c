@@ -738,7 +738,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     type_of_packet = hci_event_packet_get_type(packet);
 	
 	 if (type_of_packet != GATT_EVENT_NOTIFICATION) {
-		midi_send_note(0x90, 24, type_of_packet); 
+		midi_ketron_arr(type_of_packet, false);	
 	 }
 	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
