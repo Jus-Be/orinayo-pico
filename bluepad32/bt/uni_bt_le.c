@@ -737,6 +737,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
 	
+	 if (type_of_packet != GATT_EVENT_NOTIFICATION) {
+		midi_send_note(0x90, 24, type_of_packet); 
+	 }
+	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
 		query_state = 0;
 		gatt_event_service_query_result_get_service(packet, &server_service);
@@ -764,7 +768,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
-				midi_send_note(0x90, 24, 4);
+				//midi_send_note(0x90, 24, 4);
 			}
 		}
 		else		
