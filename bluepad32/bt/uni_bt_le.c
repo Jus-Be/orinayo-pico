@@ -745,7 +745,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {		
 		query_state = 1;
-		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);				
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 		
 	}
 	else
 					
@@ -760,9 +761,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			else
 				
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
-				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 					
+				//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
+				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);						
 			}
 		}
 		else		
@@ -1288,8 +1288,8 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		if (!liberlive_enabled) {
 			liberlive_enabled = true;
 			hog_connect(addr, addr_type);		
-			return;	
 		}
+		return;			
 	}
 
     if (appearance == 0x880 || (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o')) 
@@ -1297,8 +1297,8 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		if (!orinayo_enabled) {
 			orinayo_enabled = true;
 			hog_connect(addr, addr_type);		
-			return;	
 		}
+		return;			
 	}
 	
     if (uni_hid_device_get_instance_for_address(addr)) {
