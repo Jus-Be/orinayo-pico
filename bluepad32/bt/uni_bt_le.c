@@ -737,24 +737,26 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
 	
+	midi_send_note(0x90, type_of_packet, type_of_packet);	
+	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
-
+		query_state = 0;
+		gatt_event_service_query_result_get_service(packet, &server_service);
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {		
-	
+		query_state = 1;
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 		
 	}
 	else
 					
     if (type_of_packet == GATT_EVENT_QUERY_COMPLETE) {
 		// action query here
 		
-		if (query_state == 0) 	{
-			query_state = 1;
-			
-			gatt_event_service_query_result_get_service(packet, &server_service);			
-		
+		if (query_state == 0) 
+		{
 			if (liberlive_enabled) {				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, liberlive_name);						
 			}
@@ -765,24 +767,22 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);						
 			}
 		}
-		else	
-
-		if (query_state == 1) 	{
-			query_state = 2;
-
-			gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);
-				
+		else		
+		
+		if (query_state == 1) 
+		{
 			if (liberlive_enabled) {			
 				// Write Chord Key Mapping			
 				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
+				query_state = 2;
 			}
 			else
 				
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
 				send_ble_midi(midi_data, 3);
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
+				query_state = 2;				
 			}
 		}
 	}		
