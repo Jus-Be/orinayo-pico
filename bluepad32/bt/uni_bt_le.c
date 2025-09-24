@@ -1182,7 +1182,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
-	gatt_client_write_value_of_characteristic_without_response(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, len, midi_data);
+	gatt_client_write_value_of_characteristic_without_response(connection_handle, server_characteristic.value_handle, len, midi_data);
 }
 
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
