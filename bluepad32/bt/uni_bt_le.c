@@ -737,6 +737,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
 	
+	midi_send_note(0x90, 24, type_of_packet);
+	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
 		query_state = 0;
 		gatt_event_service_query_result_get_service(packet, &server_service);
