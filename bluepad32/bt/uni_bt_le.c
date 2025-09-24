@@ -771,7 +771,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			query_state = 2;
 
 			gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
 				
 			if (liberlive_enabled) {			
 				// Write Chord Key Mapping			
@@ -782,7 +781,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 				
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
-				send_ble_midi(midi_data, 3);				
+				send_ble_midi(midi_data, 3);
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 	
 			}
 		}
 	}		
