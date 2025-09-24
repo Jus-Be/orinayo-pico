@@ -75,11 +75,11 @@
 #include "uni_log.h"
 #include "uni_property.h"
 
-bool orinayo_enabled;
+bool orinayo_enabled = false;
+bool liberlive_enabled = false;
 
 static bool is_scanning;
 static bool ble_enabled;
-static bool liberlive_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
@@ -736,20 +736,18 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
-
-    if (type_of_packet != GATT_EVENT_NOTIFICATION) {		
-		midi_send_note(0x91, 24, type_of_packet);
-	}
 	
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
 		query_state = 0;
 		gatt_event_service_query_result_get_service(packet, &server_service);
+		midi_send_note(0x90, 24, 3);		
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
 		query_state = 1;
-		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);				
+		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
+		midi_send_note(0x90, 24, 5);
 	}
 	else
 					
@@ -766,6 +764,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
+				midi_send_note(0x90, 24, 4);
 			}
 		}
 		else		
@@ -784,7 +783,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 			if (orinayo_enabled) {
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
 				send_ble_midi(midi_data, 3);
-				query_state = 2;				
+				query_state = 2;	
+				midi_send_note(0x90, 24, 6);
 			}
 		}
 	}		
@@ -1212,8 +1212,10 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 			if (orinayo_enabled) {	// "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 				uint8_t service_name[16] = {0x4F, 0xAF, 0xC2, 0x01, 0x1F, 0xB5, 0x4F, 0x9E, 0x8F, 0xCC, 0xC5, 0xC9, 0xC3, 0x31, 0x91, 0x4B} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
+				midi_send_note(0x90, 24, 2);				
 			} 			
-			else {		
+			else {	
+			/*
 				device = uni_hid_device_get_instance_for_address(event_addr);
 				
 				if (!device) {
@@ -1226,6 +1228,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 
 				// Resume scanning
 				// gap_start_scan();
+			*/				
 			}
             break;
 
@@ -1299,7 +1302,8 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	{	
 		if (!orinayo_enabled) {
 			orinayo_enabled = true;
-			hog_connect(addr, addr_type);		
+			hog_connect(addr, addr_type);	
+			midi_send_note(0x90, 24, 1);
 			return;	
 		}
 	}
@@ -1309,7 +1313,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
         return;
     }
 
-
+/*
     if (appearance != UNI_BT_HID_APPEARANCE_GAMEPAD && appearance != UNI_BT_HID_APPEARANCE_JOYSTICK &&
         appearance != UNI_BT_HID_APPEARANCE_MOUSE && appearance != UNI_BT_HID_APPEARANCE_KEYBOARD) {
         // Don't log it. There too many devices advertising themselves.
@@ -1360,6 +1364,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     d->conn.rssi = rssi;
 
     hog_connect(addr, addr_type);
+*/	
 }
 
 void uni_bt_le_on_hci_disconnection_complete(uint16_t channel, const uint8_t* packet, uint16_t size) {
@@ -1367,6 +1372,8 @@ void uni_bt_le_on_hci_disconnection_complete(uint16_t channel, const uint8_t* pa
     ARG_UNUSED(packet);
     ARG_UNUSED(size);
 
+	liberlive_enabled = false;
+	orinayo_enabled = false;	
     resume_scanning_hint();
 }
 
