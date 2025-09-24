@@ -744,14 +744,14 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     if (type_of_packet == GATT_EVENT_SERVICE_QUERY_RESULT) {
 		query_state = 0;
 		gatt_event_service_query_result_get_service(packet, &server_service);
-		//midi_send_note(0x90, 24, 3);		
+		midi_send_note(0x90, 24, 3);		
 	}
 	else
 		
     if (type_of_packet == GATT_EVENT_CHARACTERISTIC_QUERY_RESULT) {	
 		query_state = 1;
 		gatt_event_characteristic_query_result_get_characteristic(packet, &server_characteristic);	
-		//midi_send_note(0x90, 24, 5);
+		midi_send_note(0x90, 24, 5);
 	}
 	else
 					
@@ -768,7 +768,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 				//gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																	
 				gatt_client_discover_characteristics_for_service(handle_gatt_client_event, connection_handle, &server_service);	
-				//midi_send_note(0x90, 24, 4);
 			}
 		}
 		else		
@@ -788,7 +787,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
 				send_ble_midi(midi_data, 3);
 				query_state = 2;	
-				//midi_send_note(0x90, 24, 6);
+				midi_send_note(0x90, 24, 6);
 			}
 		}
 	}		
