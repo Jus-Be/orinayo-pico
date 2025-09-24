@@ -709,7 +709,7 @@ static void uni_sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
 }
 
 // Callback function which manages GATT events. Implements a state machine.
-static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
+void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
     UNUSED(packet_type);
     UNUSED(channel);
     UNUSED(size);
