@@ -1461,6 +1461,7 @@ void uni_bt_le_setup(void) {
     // libusb works with mostly any configuration
 
     gatt_client_init();
+	gatt_client_set_required_security_level(0);	// BAO no encrption needed
     hids_client_init(hid_descriptor_storage, sizeof(hid_descriptor_storage));
     // FIXME: this is an empty function and PicoW toolchain is removing empty function (?)
     // scan_parameters_service_client_init();
