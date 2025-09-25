@@ -145,7 +145,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 		
 	if (orinayo_enabled) {
-		send_ble_midi(msg, 3);
+		if (command == 0x90 || command == 0x80) send_ble_midi(msg, 3);	 // no chords
 	}
 	else {
 		tud_midi_n_stream_write(0, 0, msg, 3);			
