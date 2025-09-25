@@ -833,7 +833,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						}
 					}
 
-					velocity = 100;
+					velocity = 127;
 					
 					if (up) {
 						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
