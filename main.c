@@ -95,7 +95,7 @@ int main() {
     add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
 	
     while (true) {
-		tud_task(); // tinyusb device task					
+		if (!orinayo_enabled)) tud_task(); // tinyusb device task					
     }
 	
     cancel_repeating_timer(&timer);	
@@ -144,7 +144,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[1] = note;
 	msg[2] = velocity;   
 		
-	if (orinayo_enabled && (command == 0x90 || command == 0x80)) {
+	if (orinayo_enabled)) {
 		send_ble_midi(msg, 3);
 	}
 	else {
