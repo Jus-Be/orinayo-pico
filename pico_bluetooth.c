@@ -268,31 +268,51 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 			if (green) {
 				active_strum_pattern = 0;
-				if (enable_ample_guitar) midi_send_note(0x90, 97, 127);				
+				
+				if (enable_ample_guitar) {
+					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
+					midi_send_note(0xB0, 64, 1);		// hold pedal off	
+				}
 			}
 			else
 				
 			if (yellow) {
 				active_strum_pattern = 2;
-				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
+				
+				if (enable_ample_guitar) {
+					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+					midi_send_note(0xB0, 64, 127);		// hold pedal on					
+				}
 			}
 			else
 
 			if (blue) {
 				active_strum_pattern = 3;
-				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
+				
+				if (enable_ample_guitar) {
+					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+					midi_send_note(0xB0, 64, 127);		// hold pedal on						
+				}
 			}				
 			else
 
 			if (red) {
 				active_strum_pattern = 1;
-				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
+				
+				if (enable_ample_guitar) {
+					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+					midi_send_note(0xB0, 64, 127);		// hold pedal on						
+				}				
 			}
 			else
 
 			if (orange) {
 				active_strum_pattern = 4;
-				if (enable_ample_guitar) midi_send_note(0x90, 97, 1);					
+				
+				if (enable_ample_guitar) {
+					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+					midi_send_note(0xB0, 64, 127);		// hold pedal on						
+				}			
 			}
 			else {		
 				
