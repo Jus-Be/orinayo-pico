@@ -270,6 +270,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_strum_pattern = 0;
 				
 				if (enable_ample_guitar) {
+					midi_send_note(0x90, 86, 127);		// enable chord detection					
 					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
 					midi_send_note(0xB0, 64, 1);		// hold pedal off	
 				}
