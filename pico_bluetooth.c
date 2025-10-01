@@ -301,7 +301,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_strum_pattern = 1;
 				
 				if (enable_ample_guitar) {
-					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
+					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 1);		// hold pedal off						
 				}				
 			}
@@ -863,13 +863,18 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}
 				
 					for (int n=0; n<notes_count; n++) {
-						note = chord_midinotes[(notes_count - 1) - n];							
-						mute_midinotes[n] = note;					
-						
+						note = chord_midinotes[(notes_count - 1) - n];											
 						velocity = velocity - 15;
-						if (enable_ample_guitar && note < 40) note = note + 12;						
+						
+						if (active_neck_pos == 1) {
+							note = note - 12; 	// bass needs another octave lower for bass neck pos
+						}						
+						
+						if (enable_ample_guitar && note < 40) note = note + 12;	
+						
 						midi_send_note(0x90, note, velocity);
 						old_midinotes[n] = note;
+						mute_midinotes[n] = note;							
 					}	
 
 					seq_index++;	
