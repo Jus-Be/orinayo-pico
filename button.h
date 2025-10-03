@@ -19,6 +19,4 @@ typedef enum {
     BUTTON_EVENT_VERY_LONG_HOLD_RELEASE,
 } button_event_t;
 
-bool __no_inline_not_in_flash_func(bb_get_bootsel_button)();
-
 button_event_t button_poll_event(void);
