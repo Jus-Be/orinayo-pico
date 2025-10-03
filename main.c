@@ -14,6 +14,8 @@
 #include "tusb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
+#include "looper.h"
+#include "note_scheduler.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined

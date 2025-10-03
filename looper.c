@@ -108,8 +108,9 @@ static void looper_perform_step(void) {
             note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
                                          velocity);
 
-            if (i == looper_status.current_track)
+            if (i == looper_status.current_track) {
                 //led_set(1);
+			}
         } else if (i == looper_status.current_track) {
             //led_set(0);
         }
