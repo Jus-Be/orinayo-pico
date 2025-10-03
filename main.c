@@ -92,15 +92,21 @@ int main() {
 	
 	tud_task();	
 
-    struct repeating_timer timer;	
-    add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
+    //struct repeating_timer timer;	
+    //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
 	async_timer_init();
+	looper_schedule_step_timer();
 	
-    while (true) {
-		if (!orinayo_enabled) tud_task(); // tinyusb device task					
+    while (true) 
+	{
+		if (!orinayo_enabled) {
+			tud_task(); // tinyusb device task
+			looper_handle_input();	
+			note_scheduler_dispatch_pending();	
+		}			
     }
 	
-    cancel_repeating_timer(&timer);	
+    //cancel_repeating_timer(&timer);	
 }
 
 //--------------------------------------------------------------------+
