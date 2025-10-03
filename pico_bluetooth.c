@@ -955,16 +955,52 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}					
 				}
 */
-				if (style_section % 2 == 0) {
+				if (style_section % 8 == 0) {
 					note = 36;					// Bass Drum
 					if (up) note = 38;			// Snare
 				}
 				else
 					
-				if (style_section % 2 == 1) {
+				if (style_section % 8 == 1) {
 					note = 42;					// Closed Hi Hat
 					if (up) note = 46;			// Open Hi Hat
 				}
+				else
+					
+				if (style_section % 8 == 2) {
+					note = 41;					// Low floor Tom
+					if (up) note = 43;			// High floor Tom
+				}
+				else
+					
+				if (style_section % 8 == 3) {
+					note = 51;					// Ride Cymbal 1
+					if (up) note = 59;			// Ride Cymbal 2
+				}
+				else
+
+				if (style_section % 8 == 4) {
+					note = 60;					// Hi Bongo
+					if (up) note = 61;			// Low Bongo
+				}
+				else
+					
+				if (style_section % 8 == 5) {
+					note = 63;					// Hi Conga
+					if (up) note = 64;			// Low Conga
+				}
+				else
+					
+				if (style_section % 8 == 6) {
+					note = 65;					// High Timbale
+					if (up) note = 66;			// Low Timbale
+				}
+				else
+					
+				if (style_section % 8 == 7) {
+					note = 76;					// Hi Wood Block
+					if (up) note = 77;			// Low Wood Block
+				}					
 				
 				midi_send_note(0x99, note, 127);				
 				old_drumnotes[0] = note;
