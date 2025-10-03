@@ -955,8 +955,17 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}					
 				}
 */
-				note = 36;
-				if (up) note = 38;
+				if (style_section % 2 == 0) {
+					note = 36;					// Bass Drum
+					if (up) note = 38;			// Snare
+				}
+				else
+					
+				if (style_section % 2 == 1) {
+					note = 42;					// Closed Hi Hat
+					if (up) note = 46;			// Open Hi Hat
+				}
+				
 				midi_send_note(0x99, note, 127);				
 				old_drumnotes[0] = note;
 			}
