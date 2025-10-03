@@ -41,7 +41,7 @@ target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CU
 target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_board pico_btstack_classic pico_btstack_ble pico_btstack_cyw43 bluepad32)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
-add_executable(${PROJECT_NAME} main.c usb_descriptors.c)
+add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
