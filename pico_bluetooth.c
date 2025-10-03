@@ -968,8 +968,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				else
 					
 				if (style_section % 8 == 2) {
-					note = 41;					// Low floor Tom
-					if (up) note = 43;			// High floor Tom
+					note = 50;					// High Tom
+					if (up) note = 45;			// Low Tom
 				}
 				else
 					
@@ -992,8 +992,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				else
 					
 				if (style_section % 8 == 6) {
-					note = 65;					// High Timbale
-					if (up) note = 66;			// Low Timbale
+					note = 75					// Claves
+					if (up) note = 56;			// Cowbell
 				}
 				else
 					
