@@ -27,6 +27,7 @@ int style_section = 0;
 int old_style = -1;
 int transpose = 0; 
 
+uint8_t old_drumnotes[6] = {0};
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
@@ -351,6 +352,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_note(0x80, old_midinotes[n], 0);	
 						old_midinotes[n] = 0;
 					}
+					
+					if (old_drumnotes[n] > 0) {
+						midi_send_note(0x89, old_drumnotes[n], 0);
+						old_drumnotes[n] = 0;						
+					}
 				}						
 			}
 			
@@ -371,7 +377,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);						
 						old_midinotes[n] = 0;						
-					}						
+					}
+
+					if (old_drumnotes[n] > 0) {
+						midi_send_note(0x89, old_drumnotes[n], 0);
+						old_drumnotes[n] = 0;						
+					}					
 				}				
 			}
 	
@@ -930,18 +941,24 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				old_midinotes[0] = note;
 			} 
 			else 
-			{		
-				if (active_strum_pattern == 0) 	// only mute with strumming up and down
-				{
-					for (int n=0; n<6; n++) 
+			{	
+/*		
+				if (active_strum_pattern == 0) 	
+				{					
+					for (int n=0; n<6; n++) // only mute played notes with strumming up and down
 					{
 						if (mute_midinotes[n] > 0) {
 							note = mute_midinotes[n];
 							midi_send_note(0x90, note, 35);	// lower velocity to achieve muted sound
 							old_midinotes[n] = note;					
 						}
-					}
+					}					
 				}
+*/
+				note = 36;
+				if (up) note = 38;
+				midi_send_note(0x99, note, 127);				
+				old_drumnotes[0] = note;
 			}
 		}
 	} 		
