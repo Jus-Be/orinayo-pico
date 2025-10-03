@@ -98,13 +98,14 @@ int main() {
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
 	async_timer_init();
 	looper_schedule_step_timer();
+    note_scheduler_init();
 	
     while (true) 
 	{
 		if (!orinayo_enabled) {
 			tud_task(); // tinyusb device task
 			looper_handle_input();	
-			//note_scheduler_dispatch_pending();	
+			note_scheduler_dispatch_pending();	
 		}			
     }
 	

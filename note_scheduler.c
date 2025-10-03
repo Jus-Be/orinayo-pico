@@ -86,7 +86,9 @@ bool note_scheduler_schedule_note(uint64_t time_us, uint8_t channel, uint8_t not
 // Called from the main loop to process all pending scheduled notes.
 void note_scheduler_dispatch_pending(void) {
     critical_section_enter_blocking(&pending_notes_cs);
-    for (size_t i = 0; i < MAX_SCHEDULED_NOTES; i++) {
+	
+    for (size_t i = 0; i < MAX_SCHEDULED_NOTES; i++) 
+	{
         if (pending_notes[i].valid) {
             looper_perform_note(pending_notes[i].channel, pending_notes[i].note,
                                 pending_notes[i].velocity);
