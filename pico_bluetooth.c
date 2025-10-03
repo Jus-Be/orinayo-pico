@@ -21,6 +21,7 @@
 bool style_started = false;
 bool enable_style_play = true;
 bool enable_ample_guitar = false;
+bool enable_midi_drums = false;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -525,6 +526,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 					midi_send_note(0x90, 86, 127);								// set chord detectt					
 				}
+				
+				if (yellow) {
+					enable_midi_drums = !enable_midi_drums;
+				}
+				
 				break;
 			}
 		}
@@ -942,7 +948,59 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			} 
 			else 
 			{	
-/*		
+				if (enable_midi_drums) {
+					if (style_section % 8 == 0) {
+						note = 36;					// Bass Drum
+						if (up) note = 38;			// Snare
+					}
+					else
+						
+					if (style_section % 8 == 1) {
+						note = 42;					// Closed Hi Hat
+						if (up) note = 46;			// Open Hi Hat
+					}
+					else
+						
+					if (style_section % 8 == 2) {
+						note = 50;					// High Tom
+						if (up) note = 45;			// Low Tom
+					}
+					else
+						
+					if (style_section % 8 == 3) {
+						note = 51;					// Ride Cymbal 1
+						if (up) note = 59;			// Ride Cymbal 2
+					}
+					else
+
+					if (style_section % 8 == 4) {
+						note = 60;					// Hi Bongo
+						if (up) note = 61;			// Low Bongo
+					}
+					else
+						
+					if (style_section % 8 == 5) {
+						note = 63;					// Hi Conga
+						if (up) note = 64;			// Low Conga
+					}
+					else
+						
+					if (style_section % 8 == 6) {
+						note = 75;					// Claves
+						if (up) note = 56;			// Cowbell
+					}
+					else
+						
+					if (style_section % 8 == 7) {
+						note = 76;					// Hi Wood Block
+						if (up) note = 77;			// Low Wood Block
+					}					
+					
+					midi_send_note(0x99, note, 127);				
+					old_drumnotes[0] = note;
+				}
+				else
+					
 				if (active_strum_pattern == 0) 	
 				{					
 					for (int n=0; n<6; n++) // only mute played notes with strumming up and down
@@ -954,56 +1012,6 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						}
 					}					
 				}
-*/
-				if (style_section % 8 == 0) {
-					note = 36;					// Bass Drum
-					if (up) note = 38;			// Snare
-				}
-				else
-					
-				if (style_section % 8 == 1) {
-					note = 42;					// Closed Hi Hat
-					if (up) note = 46;			// Open Hi Hat
-				}
-				else
-					
-				if (style_section % 8 == 2) {
-					note = 50;					// High Tom
-					if (up) note = 45;			// Low Tom
-				}
-				else
-					
-				if (style_section % 8 == 3) {
-					note = 51;					// Ride Cymbal 1
-					if (up) note = 59;			// Ride Cymbal 2
-				}
-				else
-
-				if (style_section % 8 == 4) {
-					note = 60;					// Hi Bongo
-					if (up) note = 61;			// Low Bongo
-				}
-				else
-					
-				if (style_section % 8 == 5) {
-					note = 63;					// Hi Conga
-					if (up) note = 64;			// Low Conga
-				}
-				else
-					
-				if (style_section % 8 == 6) {
-					note = 75;					// Claves
-					if (up) note = 56;			// Cowbell
-				}
-				else
-					
-				if (style_section % 8 == 7) {
-					note = 76;					// Hi Wood Block
-					if (up) note = 77;			// Low Wood Block
-				}					
-				
-				midi_send_note(0x99, note, 127);				
-				old_drumnotes[0] = note;
 			}
 		}
 	} 		

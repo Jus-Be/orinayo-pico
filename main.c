@@ -13,6 +13,7 @@
 #include "bsp/board.h"
 #include "tusb.h"
 #include "pico_bluetooth.h"
+#include "async_timer.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -93,6 +94,7 @@ int main() {
 
     struct repeating_timer timer;	
     add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
+	async_timer_init();
 	
     while (true) {
 		if (!orinayo_enabled) tud_task(); // tinyusb device task					
