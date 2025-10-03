@@ -992,7 +992,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				else
 					
 				if (style_section % 8 == 6) {
-					note = 75					// Claves
+					note = 75;					// Claves
 					if (up) note = 56;			// Cowbell
 				}
 				else
