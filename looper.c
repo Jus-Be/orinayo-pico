@@ -54,11 +54,11 @@ static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 static uint32_t midi_clock_tick_count = 0;
 static uint64_t midi_clock_last_tick_us = 0;
 
+extern enable_midi_drums;
+
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
-    //return usb_midi_is_connected() || ble_midi_is_connected();
-	// TODO
-	return true;
+	return enable_midi_drums;
 }
 
 // Send a note event to the output destination.
@@ -125,8 +125,7 @@ static void looper_perform_step(void) {
                 params->ghost_intensity >
             (float)tracks[i].ghost_notes[looper_status.current_step].rand_sample / 100.0f;
 
-		// TODO
-        if (false && ghost_note_on && !tracks[i].fill_pattern[looper_status.current_step])
+        if (ghost_note_on && !tracks[i].fill_pattern[looper_status.current_step])
             note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
                                          ghost_note_velocity[i]);
         if (tracks[i].fill_pattern[looper_status.current_step] && !note_on)
@@ -230,7 +229,8 @@ void looper_process_state(uint64_t start_us) {
             looper_advance_step(start_us);
             break;
         case LOOPER_STATE_PLAYING:
-            send_click_if_needed();
+			// TODO
+            //send_click_if_needed();
             looper_perform_step();
             looper_advance_step(start_us);
             break;
@@ -268,7 +268,8 @@ void looper_process_state(uint64_t start_us) {
     }
 
     looper_status.lfo_phase += LFO_RATE;
-    ghost_note_maintenance_step();
+	// TODO
+    //ghost_note_maintenance_step();
 }
 
 static void looper_process_state_external_clock(uint64_t start_us) {
