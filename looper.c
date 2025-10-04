@@ -58,7 +58,7 @@ extern enable_midi_drums;
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
-	return true; //enable_midi_drums;
+	return enable_midi_drums;
 }
 
 // Send a note event to the output destination.
@@ -81,9 +81,9 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x5F);
+        looper_schedule_note_now(MIDI_CHANNEL10, looper_status.state == LOOPER_STATE_PLAYING ? COW_BELL : HAND_CLAP, 0x5F);
     else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x3F);
+        looper_schedule_note_now(MIDI_CHANNEL10, looper_status.state == LOOPER_STATE_PLAYING ? COW_BELL : HAND_CLAP, 0x3F);
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
@@ -229,8 +229,7 @@ void looper_process_state(uint64_t start_us) {
             looper_advance_step(start_us);
             break;
         case LOOPER_STATE_PLAYING:
-			// TODO
-            //send_click_if_needed();
+            send_click_if_needed();
             looper_perform_step();
             looper_advance_step(start_us);
             break;
