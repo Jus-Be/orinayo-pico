@@ -19,8 +19,8 @@
 //#include "drivers/ble_midi.h"
 #include "button.h"
 #include "display.h"
+#include "storage.h"
 //#include "drivers/led.h"
-//#include "drivers/storage.h"
 //#include "drivers/usb_midi.h"
 #include "ghost_note.h"
 #include "note_scheduler.h"
@@ -81,9 +81,9 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x20);
+        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x7F);
     else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x05);
+        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x5F);
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
@@ -180,7 +180,7 @@ static void looper_clear_all_tracks() {
         memset(tracks[i].ghost_notes, 0, sizeof(tracks[i].ghost_notes));
         memset(tracks[i].fill_pattern, 0, sizeof(tracks[i].fill_pattern));
     }
-    //storage_store_tracks();
+    storage_store_tracks();
 }
 
 // Routes button events related to tap-tempo mode.
@@ -240,7 +240,7 @@ void looper_process_state(uint64_t start_us) {
             if (looper_status.recording_step_count >= LOOPER_TOTAL_STEPS) {
                 //led_set(0);
                 looper_status.state = LOOPER_STATE_PLAYING;
-                //storage_store_tracks();
+                storage_store_tracks();
             }
             looper_advance_step(start_us);
             looper_status.recording_step_count++;
@@ -323,7 +323,7 @@ void looper_handle_button_event(button_event_t event) {
                 memset(track->pattern, 0, LOOPER_TOTAL_STEPS);
                 memset(track->ghost_notes, 0, sizeof(track->ghost_notes));
                 memset(track->fill_pattern, 0, LOOPER_TOTAL_STEPS);
-                //storage_erase_tracks();
+                storage_erase_tracks();
             }
             uint8_t quantized_step = looper_quantize_step();
             track->pattern[quantized_step] = true;

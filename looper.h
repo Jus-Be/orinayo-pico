@@ -9,7 +9,7 @@
 #include "pico/stdlib.h"
 #include "button.h"
 
-#define LOOPER_DEFAULT_BPM 240   // Beats per minute (global tempo)
+#define LOOPER_DEFAULT_BPM 120   // Beats per minute (global tempo)
 #define LOOPER_BARS 2            // Loop length in bars
 #define LOOPER_BEATS_PER_BAR 4   // Time signature numerator (e.g., 4/4)
 #define LOOPER_STEPS_PER_BEAT 4  // Resolution (4 = 16th notes)

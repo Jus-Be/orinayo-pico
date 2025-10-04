@@ -14,6 +14,7 @@
 #include "tusb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
+#include "storage.h"
 #include "looper.h"
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
@@ -95,6 +96,7 @@ int main() {
 	bluetooth_init();
 	
 	tud_task();	
+    storage_load_tracks();	
 
     //struct repeating_timer timer;	
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
