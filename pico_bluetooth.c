@@ -18,6 +18,7 @@
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+bool button_current_down = false;
 bool style_started = false;
 bool enable_style_play = true;
 bool enable_ample_guitar = false;
@@ -358,7 +359,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_note(0x89, old_drumnotes[n], 0);
 						old_drumnotes[n] = 0;						
 					}
-				}						
+				}	
+				button_current_down = false;
 			}
 			
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
@@ -384,7 +386,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_note(0x89, old_drumnotes[n], 0);
 						old_drumnotes[n] = 0;						
 					}					
-				}				
+				}
+				button_current_down = false;				
 			}
 	
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
@@ -949,6 +952,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			else 
 			{	
 				if (enable_midi_drums) {
+					button_current_down = true;
+/*					
 					if (style_section % 8 == 0) {
 						note = 36;					// Bass Drum
 						if (up) note = 38;			// Snare
@@ -998,6 +1003,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					
 					midi_send_note(0x99, note, 127);				
 					old_drumnotes[0] = note;
+*/					
 				}
 				else
 					

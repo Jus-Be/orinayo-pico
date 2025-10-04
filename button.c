@@ -34,6 +34,8 @@ typedef struct {
     uint64_t press_start_us;
 } button_fsm_t;
 
+extern bool button_current_down;
+
 
 /*
  * Reads BOOTSEL button state and returns a button_event_t (see button.h).
@@ -42,19 +44,18 @@ typedef struct {
 button_event_t button_poll_event(void) {
     static button_fsm_t fsm = {0};
     button_event_t ev = BUTTON_EVENT_NONE;
-    bool current_down = false; // TODO
     uint64_t now_us = time_us_64();
 
     switch (fsm.state) {
         case BUTTON_STATE_IDLE:
-            if (current_down) {
+            if (button_current_down) {
                 fsm.press_start_us = now_us;
                 fsm.state = BUTTON_STATE_PRESS_DOWN;
                 ev = BUTTON_EVENT_DOWN;
             }
             break;
         case BUTTON_STATE_PRESS_DOWN:
-            if (!current_down) {
+            if (!button_current_down) {
                 fsm.state = BUTTON_STATE_IDLE;
                 ev = BUTTON_EVENT_CLICK_RELEASE;
             } else if (now_us - fsm.press_start_us > PRESS_DURATION_US) {
@@ -63,7 +64,7 @@ button_event_t button_poll_event(void) {
             }
             break;
         case BUTTON_STATE_HOLD_ACTIVE:
-            if (!current_down) {
+            if (!button_current_down) {
                 fsm.state = BUTTON_STATE_IDLE;
                 ev = BUTTON_EVENT_HOLD_RELEASE;
             } else if (now_us - fsm.press_start_us > LONG_PRESS_DURATION_US) {
@@ -72,7 +73,7 @@ button_event_t button_poll_event(void) {
             }
             break;
         case BUTTON_STATE_LONG_HOLD_ACTIVE:
-            if (!current_down) {
+            if (!button_current_down) {
                 fsm.state = BUTTON_STATE_IDLE;
                 ev = BUTTON_EVENT_LONG_HOLD_RELEASE;
             } else if (now_us - fsm.press_start_us > VERY_LONG_PRESS_DURATION_US) {
@@ -81,7 +82,7 @@ button_event_t button_poll_event(void) {
             }
             break;
         case BUTTON_STATE_VERY_LONG_HOLD_ACTIVE:
-            if (!current_down) {
+            if (!button_current_down) {
                 fsm.state = BUTTON_STATE_IDLE;
                 ev = BUTTON_EVENT_VERY_LONG_HOLD_RELEASE;
             }
