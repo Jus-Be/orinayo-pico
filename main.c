@@ -16,6 +16,7 @@
 #include "async_timer.h"
 #include "looper.h"
 #include "note_scheduler.h"
+#include "pico/stdlib.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -88,6 +89,7 @@ int main() {
 	
     board_init();
     tusb_init();
+    stdio_init_all();
 	
 	sleep_ms(1000);		
 	bluetooth_init();

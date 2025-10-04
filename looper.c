@@ -216,7 +216,7 @@ void looper_update_bpm(uint32_t bpm) {
 // Processes the looper's main state machine, called by the step timer.
 void looper_process_state(uint64_t start_us) {
     bool ready = looper_perform_ready();
-    //display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
+    display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
     if (!ready)
         looper_status.state = LOOPER_STATE_WAITING;
     switch (looper_status.state) {
@@ -272,7 +272,7 @@ void looper_process_state(uint64_t start_us) {
 
 static void looper_process_state_external_clock(uint64_t start_us) {
     bool ready = looper_perform_ready();
-    //display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
+    display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
     if (!ready)
         looper_status.state = LOOPER_STATE_WAITING;
     switch (looper_status.state) {
