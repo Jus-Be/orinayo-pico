@@ -306,7 +306,7 @@ void looper_handle_button_event(button_event_t event) {
     track_t *track = &tracks[looper_status.current_track];
 
     switch (event) {
-        case BUTTON_EVENT_DOWN:
+        case BUTTON_EVENT_CLICK_BEGIN:
             // Button pressed: start timing and preview sound
             looper_status.timing.button_press_start_us = time_us_64();
             looper_schedule_note_now(track->channel, track->note, 0x7f);
@@ -440,6 +440,9 @@ static void looper_handle_input_external_clock(button_event_t event) {
 
 // Poll button events, process them, and update the status LED.
 void looper_handle_input(void) {
+    button_event_t event = button_poll_event();	
+	looper_handle_input_internal_clock(event);
+/*	
     button_event_t event = button_poll_event();
     if (looper_status.clock_source == LOOPER_CLOCK_INTERNAL)
         looper_handle_input_internal_clock(event);
@@ -447,6 +450,7 @@ void looper_handle_input(void) {
         looper_handle_input_external_clock(event);
 
     //led_update();
+*/
 }
 
 void looper_schedule_step_timer(void) {

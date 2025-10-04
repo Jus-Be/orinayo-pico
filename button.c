@@ -36,7 +36,6 @@ typedef struct {
 
 extern bool button_current_down;
 
-
 /*
  * Reads BOOTSEL button state and returns a button_event_t (see button.h).
  * Maintains internal FSM to distinguish short press, long press, and release.
@@ -51,7 +50,7 @@ button_event_t button_poll_event(void) {
             if (button_current_down) {
                 fsm.press_start_us = now_us;
                 fsm.state = BUTTON_STATE_PRESS_DOWN;
-                ev = BUTTON_EVENT_DOWN;
+                ev = BUTTON_EVENT_CLICK_BEGIN;
             }
             break;
         case BUTTON_STATE_PRESS_DOWN:
