@@ -33,7 +33,7 @@ enum {
 
 enum {
     BASS_DRUM = 36,
-    RIM_SHOT = 37,
+    COW_BELL = 56,
     SNARE_DRUM = 38,
     HAND_CLAP = 39,
     CLOSED_HIHAT = 42,
@@ -58,7 +58,7 @@ extern enable_midi_drums;
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
-	return enable_midi_drums;
+	return true; //enable_midi_drums;
 }
 
 // Send a note event to the output destination.
@@ -81,9 +81,9 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x7F);
+        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x5F);
     else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x5F);
+        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x3F);
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
