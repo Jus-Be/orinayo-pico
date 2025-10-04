@@ -125,7 +125,8 @@ static void looper_perform_step(void) {
                 params->ghost_intensity >
             (float)tracks[i].ghost_notes[looper_status.current_step].rand_sample / 100.0f;
 
-        if (ghost_note_on && !tracks[i].fill_pattern[looper_status.current_step])
+		// TODO
+        if (false && ghost_note_on && !tracks[i].fill_pattern[looper_status.current_step])
             note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
                                          ghost_note_velocity[i]);
         if (tracks[i].fill_pattern[looper_status.current_step] && !note_on)
