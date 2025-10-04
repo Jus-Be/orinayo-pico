@@ -18,7 +18,7 @@
 #include "async_timer.h"
 //#include "drivers/ble_midi.h"
 #include "button.h"
-#include "drivers/display.h"
+#include "display.h"
 //#include "drivers/led.h"
 //#include "drivers/storage.h"
 //#include "drivers/usb_midi.h"
