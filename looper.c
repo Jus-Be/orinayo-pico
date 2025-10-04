@@ -81,9 +81,9 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
-        looper_schedule_note_now(MIDI_CHANNEL1, RIM_SHOT, 0x20);
+        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x20);
     else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
-        looper_schedule_note_now(MIDI_CHANNEL1, RIM_SHOT, 0x05);
+        looper_schedule_note_now(MIDI_CHANNEL10, RIM_SHOT, 0x05);
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
