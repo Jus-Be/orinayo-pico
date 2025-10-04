@@ -36,7 +36,7 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 # Add source files 
-add_library(orinayobt STATIC pico_bluetooth.c async_timer.c button.c)
+add_library(orinayobt STATIC pico_bluetooth.c async_timer.c button.c display.c)
 target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src)
 target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_board pico_btstack_classic pico_btstack_ble pico_btstack_cyw43 bluepad32)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
