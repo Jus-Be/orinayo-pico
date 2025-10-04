@@ -105,8 +105,8 @@ int main() {
     while (true) 
 	{
 		if (!orinayo_enabled) {
+			looper_handle_input();				
 			tud_task(); // tinyusb device task
-			looper_handle_input();	
 			note_scheduler_dispatch_pending();	
 		}			
     }

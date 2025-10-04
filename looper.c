@@ -46,8 +46,8 @@ static looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOP
 static track_t tracks[] = {
     {"Bass", BASS_DRUM, MIDI_CHANNEL10, {0}, {0}},
     {"Snare", SNARE_DRUM, MIDI_CHANNEL10, {0}, {0}},
-    {"Hi-hat", CLOSED_HIHAT, MIDI_CHANNEL10, {0}, {0}},
-    {"Hand-clap", HAND_CLAP, MIDI_CHANNEL10, {0}, {0}},
+    {"Closed Hi-hat", CLOSED_HIHAT, MIDI_CHANNEL10, {0}, {0}},
+    {"Open Hi-hat", OPEN_HIHAT, MIDI_CHANNEL10, {0}, {0}},
 };
 static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
@@ -247,7 +247,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_TRACK_SWITCH:
             looper_status.current_track = (looper_status.current_track + 1) % NUM_TRACKS;
-            looper_schedule_note_now(MIDI_CHANNEL10, OPEN_HIHAT, 0x7f);
+            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             looper_advance_step(start_us);
             looper_status.state = LOOPER_STATE_PLAYING;
             break;
@@ -336,7 +336,7 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_LONG_HOLD_RELEASE:
             // ≥2 s hold: enter Tap-tempo (no track switch)
             looper_status.state = LOOPER_STATE_TAP_TEMPO;
-            looper_schedule_note_now(MIDI_CHANNEL10, OPEN_HIHAT, 0x7f);
+            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             break;
         case BUTTON_EVENT_VERY_LONG_HOLD_RELEASE:
             // ≥5 s hold: clear track data
