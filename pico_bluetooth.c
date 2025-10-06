@@ -16,6 +16,7 @@
 #include "button.h"
 #include "looper.h"
 #include "storage.h"
+#include "ghost_note.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
@@ -278,7 +279,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (green) {
 				active_strum_pattern = 0;
 				
-				if (enable_ample_guitar) {
+				if (but6 && enable_ample_guitar) {
 					midi_send_note(0x90, 86, 127);		// enable chord detection					
 					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
 					midi_send_note(0xB0, 64, 1);		// hold pedal off	
@@ -289,7 +290,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (yellow) {
 				active_strum_pattern = 2;
 				
-				if (enable_ample_guitar) {
+				if (but6 && enable_ample_guitar) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on					
 				}
@@ -299,7 +300,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (blue) {
 				active_strum_pattern = 3;
 				
-				if (enable_ample_guitar) {
+				if (but6 && enable_ample_guitar) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on						
 				}
@@ -309,7 +310,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (red) {
 				active_strum_pattern = 1;
 				
-				if (enable_ample_guitar) {
+				if (but6 && enable_ample_guitar) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 1);		// hold pedal off						
 				}				
@@ -319,7 +320,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) {
 				active_strum_pattern = 4;
 				
-				if (enable_ample_guitar) {
+				if (but6 && enable_ample_guitar) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on						
 				}			
@@ -331,9 +332,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					style_section--;
 					if (style_section < 0) style_section = 7;
 				}
-				
-				midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
-				midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);			
+
+				if (enable_midi_drums) {
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = (style_section % 4) / 4.0f;
+					
+				} else {				
+					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
+					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);	
+				}					
 			}	
 	
 			break;
@@ -524,8 +531,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (style_section > 7) style_section = 0;				
 			}
 			
-			midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
-			midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+			if (enable_midi_drums) {
+				ghost_parameters_t *params = ghost_note_parameters();
+				params->ghost_intensity = (style_section % 4) / 4.0f;
+				
+			} else {
+				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
+				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+			}
 			
 			break;			
 		}
