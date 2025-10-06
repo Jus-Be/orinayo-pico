@@ -362,7 +362,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}
 				}
 				
-				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+				if (looper_status.state == LOOPER_STATE_RECORDING) {
+					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+				}
 			}
 			
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
@@ -385,7 +387,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}					
 				}
 
-				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);							
+				if (looper_status.state == LOOPER_STATE_RECORDING) {
+					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+				}						
 			}
 	
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
@@ -424,7 +428,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_RECORDING) {
 						looper_status.state = LOOPER_STATE_PLAYING;
-						storage_store_tracks();					
+						//storage_store_tracks();					
 					} 
 					else 
 					
