@@ -51,7 +51,7 @@ static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 static uint32_t midi_clock_tick_count = 0;
 static uint64_t midi_clock_last_tick_us = 0;
 
-extern enable_midi_drums;
+extern bool enable_midi_drums;
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
@@ -219,7 +219,7 @@ void looper_process_state(uint64_t start_us) {
     switch (looper_status.state) {
         case LOOPER_STATE_WAITING:
             if (ready) {
-                //looper_status.state = LOOPER_STATE_PLAYING;
+                looper_status.state = LOOPER_STATE_PLAYING;
                 looper_status.current_step = 0;
             }
             //led_set((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0);
