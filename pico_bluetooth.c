@@ -13,11 +13,13 @@
 
 #include "debug.h"
 #include "sdkconfig.h"
+#include "button.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
+extern looper_status_t looper_status;
 bool button_current_down = false;
 bool style_started = false;
 bool enable_style_play = true;
@@ -29,7 +31,6 @@ int style_section = 0;
 int old_style = -1;
 int transpose = 0; 
 
-uint8_t old_drumnotes[6] = {0};
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
@@ -43,6 +44,7 @@ void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void looper_handle_input_internal_clock(button_event_t event);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -355,10 +357,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						old_midinotes[n] = 0;
 					}
 					
-					if (old_drumnotes[n] > 0) {
-						midi_send_note(0x89, old_drumnotes[n], 0);
-						old_drumnotes[n] = 0;						
-					}
+					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);
 				}	
 				button_current_down = false;
 			}
@@ -381,11 +380,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_note(0x80, old_midinotes[n], 0);						
 						old_midinotes[n] = 0;						
 					}
-
-					if (old_drumnotes[n] > 0) {
-						midi_send_note(0x89, old_drumnotes[n], 0);
-						old_drumnotes[n] = 0;						
-					}					
+					
+					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);					
 				}
 				button_current_down = false;				
 			}
@@ -955,8 +951,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					//button_current_down = true;
 					
 					if (style_section % 8 == 0) {
-						note = 36;					// Bass Drum
-						if (up) note = 38;			// Snare
+						looper_status.current_track = 0;					// Bass Drum
+						if (up) looper_status.current_track = 1;			// Snare
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
 					}
 					else
 						
@@ -999,10 +996,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					if (style_section % 8 == 7) {
 						note = 76;					// Hi Wood Block
 						if (up) note = 77;			// Low Wood Block
-					}					
-					
-					midi_send_note(0x99, note, 127);				
-					old_drumnotes[0] = note;					
+					}										
 				}
 				else
 					
