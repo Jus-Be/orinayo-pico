@@ -38,7 +38,7 @@ enum {
     CYMBAL = 49,
 };
 
-static looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
+looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
 
 static track_t tracks[] = {
     {"Bass", BASS_DRUM, MIDI_CHANNEL10, {0}, {0}},
@@ -219,7 +219,7 @@ void looper_process_state(uint64_t start_us) {
     switch (looper_status.state) {
         case LOOPER_STATE_WAITING:
             if (ready) {
-                looper_status.state = LOOPER_STATE_PLAYING;
+                looper_status.state = LOOPER_STATE_RECORDING;
                 looper_status.current_step = 0;
             }
             //led_set((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0);
@@ -227,20 +227,24 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			// TODO
-            send_click_if_needed();
+            //send_click_if_needed();
             looper_perform_step();
             looper_advance_step(start_us);
             break;
         case LOOPER_STATE_RECORDING:
             send_click_if_needed();
             looper_perform_step_recording();
+			
             if (looper_status.recording_step_count >= LOOPER_TOTAL_STEPS) {
+				looper_status.recording_step_count = 0;
                 //led_set(0);
-                looper_status.state = LOOPER_STATE_PLAYING;
-                storage_store_tracks();
-            }
+                //looper_status.state = LOOPER_STATE_PLAYING;
+                //storage_store_tracks();
+            } else {
+				looper_status.recording_step_count++;				
+			}
             looper_advance_step(start_us);
-            looper_status.recording_step_count++;
+
             break;
         case LOOPER_STATE_TRACK_SWITCH:
             looper_status.current_track = (looper_status.current_track + 1) % NUM_TRACKS;
@@ -416,7 +420,7 @@ void looper_handle_midi_start(void) {
     midi_clock_tick_count = 0;
 }
 
-static void looper_handle_input_internal_clock(button_event_t event) {
+void looper_handle_input_internal_clock(button_event_t event) {
     if (looper_status.state == LOOPER_STATE_TAP_TEMPO) {
         if (taptempo_handle_button_event(event) == TAP_EXIT)
             looper_status.state = LOOPER_STATE_PLAYING;
