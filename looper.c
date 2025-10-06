@@ -269,7 +269,7 @@ void looper_process_state(uint64_t start_us) {
     }
 
     looper_status.lfo_phase += LFO_RATE;
-    //ghost_note_maintenance_step();
+    ghost_note_maintenance_step();
 }
 
 static void looper_process_state_external_clock(uint64_t start_us) {
