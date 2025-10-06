@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "sdkconfig.h"
 #include "button.h"
+#include "looper.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
