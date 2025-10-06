@@ -15,13 +15,14 @@
 #include "sdkconfig.h"
 #include "button.h"
 #include "looper.h"
+#include "storage.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
 #endif
 
 extern looper_status_t looper_status;
-bool button_current_down = false;
+
 bool style_started = false;
 bool enable_style_play = true;
 bool enable_ample_guitar = false;
@@ -357,10 +358,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_note(0x80, old_midinotes[n], 0);	
 						old_midinotes[n] = 0;
 					}
-					
-					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);
-				}	
-				button_current_down = false;
+				}
+				
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
 			}
 			
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
@@ -380,11 +380,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (old_midinotes[n] > 0) {
 						midi_send_note(0x80, old_midinotes[n], 0);						
 						old_midinotes[n] = 0;						
-					}
-					
-					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);					
+					}					
 				}
-				button_current_down = false;				
+
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);							
 			}
 	
 			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
@@ -423,7 +422,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_RECORDING) {
 						looper_status.state = LOOPER_STATE_PLAYING;
-						//storage_store_tracks();					
+						storage_store_tracks();					
 					} 
 					else 
 					
@@ -966,9 +965,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			} 
 			else 
 			{	
-				if (enable_midi_drums) {
-					//button_current_down = true;
-					
+				if (enable_midi_drums && looper_status.state == LOOPER_STATE_RECORDING) 
+				{					
 					if (style_section % 8 == 0) {
 						looper_status.current_track = 0;					// Bass Drum
 						if (up) looper_status.current_track = 1;			// Snare
