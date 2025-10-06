@@ -47,6 +47,8 @@ void midi_yamaha_arr(uint8_t code, bool on);
 
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void looper_handle_input_internal_clock(button_event_t event);
+void looper_clear_all_tracks();
+void looper_update_bpm(uint32_t bpm);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -546,7 +548,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				
 				if (yellow) {
 					if (enable_midi_drums) {
-						looper_handle_input_internal_clock(BUTTON_EVENT_VERY_LONG_HOLD_RELEASE);
+						looper_clear_all_tracks();
 					}
 					enable_midi_drums = !enable_midi_drums;
 				}

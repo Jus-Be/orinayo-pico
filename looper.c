@@ -171,7 +171,7 @@ static uint8_t looper_quantize_step() {
 }
 
 // Clear all patterns in every track
-static void looper_clear_all_tracks() {
+void looper_clear_all_tracks() {
     for (size_t i = 0; i < NUM_TRACKS; i++) {
         memset(tracks[i].pattern, 0, sizeof(tracks[i].pattern));
         memset(tracks[i].ghost_notes, 0, sizeof(tracks[i].ghost_notes));
@@ -262,14 +262,14 @@ void looper_process_state(uint64_t start_us) {
             looper_status.current_track = 0;
             looper_update_bpm(LOOPER_DEFAULT_BPM);
             looper_advance_step(start_us);
-            //looper_status.state = LOOPER_STATE_PLAYING;
+            looper_status.state = LOOPER_STATE_PLAYING;
             break;
         default:
             break;
     }
 
     looper_status.lfo_phase += LFO_RATE;
-    ghost_note_maintenance_step();
+    //ghost_note_maintenance_step();
 }
 
 static void looper_process_state_external_clock(uint64_t start_us) {
