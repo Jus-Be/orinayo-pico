@@ -545,6 +545,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				}
 				
 				if (yellow) {
+					if (enable_midi_drums) {
+						looper_handle_input_internal_clock(BUTTON_EVENT_VERY_LONG_HOLD_RELEASE);
+					}
 					enable_midi_drums = !enable_midi_drums;
 				}
 				

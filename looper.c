@@ -250,7 +250,7 @@ void looper_process_state(uint64_t start_us) {
             looper_status.current_track = (looper_status.current_track + 1) % NUM_TRACKS;
             looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             looper_advance_step(start_us);
-            looper_status.state = LOOPER_STATE_PLAYING;
+            //looper_status.state = LOOPER_STATE_PLAYING;
             break;
         case LOOPER_STATE_TAP_TEMPO:
             send_click_if_needed();
@@ -262,15 +262,14 @@ void looper_process_state(uint64_t start_us) {
             looper_status.current_track = 0;
             looper_update_bpm(LOOPER_DEFAULT_BPM);
             looper_advance_step(start_us);
-            looper_status.state = LOOPER_STATE_PLAYING;
+            //looper_status.state = LOOPER_STATE_PLAYING;
             break;
         default:
             break;
     }
 
     looper_status.lfo_phase += LFO_RATE;
-	// TODO
-    //ghost_note_maintenance_step();
+    ghost_note_maintenance_step();
 }
 
 static void looper_process_state_external_clock(uint64_t start_us) {
