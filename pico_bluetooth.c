@@ -952,8 +952,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			else 
 			{	
 				if (enable_midi_drums) {
-					button_current_down = true;
-/*					
+					//button_current_down = true;
+					
 					if (style_section % 8 == 0) {
 						note = 36;					// Bass Drum
 						if (up) note = 38;			// Snare
@@ -1002,8 +1002,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}					
 					
 					midi_send_note(0x99, note, 127);				
-					old_drumnotes[0] = note;
-*/					
+					old_drumnotes[0] = note;					
 				}
 				else
 					
