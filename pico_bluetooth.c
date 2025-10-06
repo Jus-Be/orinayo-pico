@@ -416,53 +416,71 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		
 		if (mbut0 != logo) {
 			logo = mbut0;
-			ketron_code = 0x12;		// default start/stop
-			yamaha_code = 127;					
 			
-			if (yellow) {				// INTRO/END-1
-				ketron_code = 0x0F;		
-				yamaha_code = 0x00;					
-			}
-
-			if (red) {
-				ketron_code = 0x10;		// INTRO/END-2
-				yamaha_code = 0x01;					
-			}
-			
-			if (green) {
-				ketron_code = 0x11;		// INTRO/END-3		
-				yamaha_code = 0x02;					
-			}
-			
-			if (blue) {
-				ketron_code = 0x17;		// TO END
-				yamaha_code = 0x01;					
-			}
-			
-			if (orange) {
-				ketron_code = 0x35;	// FADE	
-				yamaha_code = 0x02;					
-			}
-			
-			midi_ketron_arr(ketron_code, mbut0 ? true : false);
-			
-			if (!style_started) {
-				if (yamaha_code != 127) {
-					midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
-				} 
-				
-				if (mbut0) midi_yamaha_start_stop(0x7A, true);
-				
+			if (enable_midi_drums) 
+			{
+				if (mbut0) {
+					
+					if (looper_status.state == LOOPER_STATE_RECORDING) {
+						looper_status.state = LOOPER_STATE_PLAYING;
+						//storage_store_tracks();					
+					} 
+					else 
+					
+					if (looper_status.state == LOOPER_STATE_PLAYING) {
+						looper_status.state = LOOPER_STATE_WAITING;
+						enable_midi_drums = false;
+					}	
+				}					
 			} else {
-				if (yamaha_code != 127) {
-					midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
+				ketron_code = 0x12;		// default start/stop
+				yamaha_code = 127;					
+				
+				if (yellow) {				// INTRO/END-1
+					ketron_code = 0x0F;		
+					yamaha_code = 0x00;					
+				}
+
+				if (red) {
+					ketron_code = 0x10;		// INTRO/END-2
+					yamaha_code = 0x01;					
 				}
 				
-				if (mbut0) midi_yamaha_start_stop(0x7D, true);				
+				if (green) {
+					ketron_code = 0x11;		// INTRO/END-3		
+					yamaha_code = 0x02;					
+				}
+				
+				if (blue) {
+					ketron_code = 0x17;		// TO END
+					yamaha_code = 0x01;					
+				}
+				
+				if (orange) {
+					ketron_code = 0x35;	// FADE	
+					yamaha_code = 0x02;					
+				}
+				
+				midi_ketron_arr(ketron_code, mbut0 ? true : false);
+				
+				if (!style_started) {
+					if (yamaha_code != 127) {
+						midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
+					} 
+					
+					if (mbut0) midi_yamaha_start_stop(0x7A, true);
+					
+				} else {
+					if (yamaha_code != 127) {
+						midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
+					}
+					
+					if (mbut0) midi_yamaha_start_stop(0x7D, true);				
+				}
+				
+				if (mbut0) style_started = !style_started;
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
 			}
-			
-			if (mbut0) style_started = !style_started;
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
 			break;
 		}		
 		
@@ -959,8 +977,9 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					else
 						
 					if (style_section % 8 == 1) {
-						note = 42;					// Closed Hi Hat
-						if (up) note = 46;			// Open Hi Hat
+						looper_status.current_track = 2;					// Closed Hit-Hat
+						if (up) looper_status.current_track = 3;			// Open Hit-Hat
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);
 					}
 					else
 						

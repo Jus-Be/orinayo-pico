@@ -107,8 +107,6 @@ int main() {
     while (true) 
 	{
 		if (!orinayo_enabled) {
-			//looper_handle_input();
-			// call looper_handle_input_internal_clock(button_event_t event) from gamepad event handler
 			tud_task(); // tinyusb device task
 			note_scheduler_dispatch_pending();	
 		}			

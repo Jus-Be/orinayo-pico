@@ -441,21 +441,6 @@ static void looper_handle_input_external_clock(button_event_t event) {
     }
 }
 
-// Poll button events, process them, and update the status LED.
-void looper_handle_input(void) {
-    button_event_t event = button_poll_event();	
-	looper_handle_input_internal_clock(event);
-/*	
-    button_event_t event = button_poll_event();
-    if (looper_status.clock_source == LOOPER_CLOCK_INTERNAL)
-        looper_handle_input_internal_clock(event);
-    else
-        looper_handle_input_external_clock(event);
-
-    //led_update();
-*/
-}
-
 void looper_schedule_step_timer(void) {
     looper_update_bpm(LOOPER_DEFAULT_BPM);
 
