@@ -227,7 +227,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			// TODO
-            //send_click_if_needed();
+            send_click_if_needed();
             looper_perform_step();
             looper_advance_step(start_us);
             break;
