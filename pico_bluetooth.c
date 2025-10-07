@@ -370,7 +370,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}
 				}
 				
-				if (looper_status.state == LOOPER_STATE_RECORDING) {
+				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
 				}
 			}
@@ -395,7 +395,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}					
 				}
 
-				if (looper_status.state == LOOPER_STATE_RECORDING) {
+				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
 				}						
 			}

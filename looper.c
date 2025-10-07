@@ -308,7 +308,7 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_CLICK_BEGIN:
             // Button pressed: start timing and preview sound
             looper_status.timing.button_press_start_us = time_us_64();
-            looper_schedule_note_now(track->channel, track->note, 0x7f);
+            //looper_schedule_note_now(track->channel, track->note, 0x7f);
             // Backup track pattern in case this press becomes a long-press (undo)
             memcpy(track->hold_pattern, track->pattern, LOOPER_TOTAL_STEPS);
             break;
@@ -334,7 +334,7 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_LONG_HOLD_RELEASE:
             // ≥2 s hold: enter Tap-tempo (no track switch)
             looper_status.state = LOOPER_STATE_TAP_TEMPO;
-            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
+            //looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             break;
         case BUTTON_EVENT_VERY_LONG_HOLD_RELEASE:
             // ≥5 s hold: clear track data
