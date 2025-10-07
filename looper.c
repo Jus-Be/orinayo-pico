@@ -308,7 +308,7 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_CLICK_BEGIN:
             // Button pressed: start timing and preview sound
             looper_status.timing.button_press_start_us = time_us_64();
-            //looper_schedule_note_now(track->channel, track->note, 0x7f);
+            looper_schedule_note_now(track->channel, track->note, 0x7f);
             // Backup track pattern in case this press becomes a long-press (undo)
             memcpy(track->hold_pattern, track->pattern, LOOPER_TOTAL_STEPS);
             break;
