@@ -435,9 +435,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (mbut0) {
 					
 					if (looper_status.state == LOOPER_STATE_RECORDING) {
+						style_section = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
-						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = 0;							
+						
+						ghost_parameters_t *params = ghost_note_parameters();						
+						params->ghost_intensity = 0;
+						
 						storage_store_tracks();					
 					} 
 					else 
@@ -531,7 +534,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (enable_midi_drums)	{
 						
 						if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-							looper_handle_input_internal_clock(BUTTON_EVENT_HOLD_RELEASE);						
+							looper_handle_input_internal_clock(BUTTON_EVENT_LONG_HOLD_RELEASE);						
 						}
 					} else {
 						style_section = 4;
