@@ -524,8 +524,19 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 
-			if (orange) {
-				if (mbut1) style_section = 4;
+			if (orange) 
+			{
+				if (mbut1) 
+				{
+					if (enable_midi_drums)	{
+						
+						if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+							looper_handle_input_internal_clock(BUTTON_EVENT_HOLD_RELEASE);						
+						}
+					} else {
+						style_section = 4;
+					}
+				}
 			}
 			else 
 			
@@ -991,24 +1002,18 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			} 
 			else 
 			{	
-				if (enable_midi_drums && (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO)) 
+				if (enable_midi_drums && looper_status.state == LOOPER_STATE_RECORDING) 
 				{					
-					if (style_section % 3 == 0) {
-						looper_handle_input_internal_clock(BUTTON_EVENT_LONG_HOLD_RELEASE);
-					}
-					else
-						
-					if (style_section % 3 == 1) {
+					if (style_section % 2 == 0) {
 						looper_status.current_track = 0;					// Bass Drum
 						if (up) looper_status.current_track = 1;			// Snare
-						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
-					}
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);					}
 					else
 						
-					if (style_section % 3 == 2) {
+					if (style_section % 2 == 1) {
 						looper_status.current_track = 2;					// Closed Hit-Hat
 						if (up) looper_status.current_track = 3;			// Open Hit-Hat
-						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
 					}										
 				}
 				else

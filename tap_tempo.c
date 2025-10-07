@@ -64,7 +64,7 @@ tap_result_t taptempo_handle_event(button_event_t ev) {
 
     switch (ctx.state) {
         case TT_IDLE:
-            if (ev == BUTTON_EVENT_CLICK_BEGIN) {
+            if (ev == BUTTON_EVENT_HOLD_RELEASE || ev == BUTTON_EVENT_LONG_HOLD_RELEASE) {
                 ctx.state = TT_IDLE;
                 return TAP_EXIT;
             } else if (ev == BUTTON_EVENT_CLICK_RELEASE) {
@@ -75,7 +75,7 @@ tap_result_t taptempo_handle_event(button_event_t ev) {
             return TAP_NONE;
 
         case TT_COLLECT:
-            if (ev == BUTTON_EVENT_CLICK_BEGIN) {
+            if (ev == BUTTON_EVENT_HOLD_RELEASE || ev == BUTTON_EVENT_LONG_HOLD_RELEASE) {
                 ctx.state = TT_IDLE;
                 return TAP_EXIT;
             }
