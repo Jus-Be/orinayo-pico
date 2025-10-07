@@ -334,7 +334,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 					if (enable_midi_drums && looper_status.state == LOOPER_STATE_PLAYING)	{
 						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = (4 - (style_section % 4)) / 4;			
+						params->ghost_intensity = (style_section % 2) == 0 ? 0 : 0.843;			
 					}					
 				}
 
@@ -533,7 +533,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 				if (enable_midi_drums && looper_status.state == LOOPER_STATE_PLAYING)	{
 					ghost_parameters_t *params = ghost_note_parameters();
-					params->ghost_intensity = ( 4 - (style_section % 4)) / 4;
+					params->ghost_intensity = (style_section % 2) == 0 ? 0 : 0.843;	
 				}
 			}	
 
