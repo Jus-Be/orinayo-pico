@@ -1009,36 +1009,6 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						looper_status.current_track = 2;					// Closed Hit-Hat
 						if (up) looper_status.current_track = 3;			// Open Hit-Hat
 						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);
-					}
-					else
-						
-					if (style_section % 8 == 3) {
-						note = 51;					// Ride Cymbal 1
-						if (up) note = 59;			// Ride Cymbal 2
-					}
-					else
-
-					if (style_section % 8 == 4) {
-						note = 60;					// Hi Bongo
-						if (up) note = 61;			// Low Bongo
-					}
-					else
-						
-					if (style_section % 8 == 5) {
-						note = 63;					// Hi Conga
-						if (up) note = 64;			// Low Conga
-					}
-					else
-						
-					if (style_section % 8 == 6) {
-						note = 75;					// Claves
-						if (up) note = 56;			// Cowbell
-					}
-					else
-						
-					if (style_section % 8 == 7) {
-						note = 76;					// Hi Wood Block
-						if (up) note = 77;			// Low Wood Block
 					}										
 				}
 				else

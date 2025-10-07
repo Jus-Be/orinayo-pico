@@ -420,7 +420,7 @@ void looper_handle_midi_start(void) {
 void looper_handle_input_internal_clock(button_event_t event) {
     if (looper_status.state == LOOPER_STATE_TAP_TEMPO) {
         if (taptempo_handle_button_event(event) == TAP_EXIT)
-            looper_status.state = LOOPER_STATE_PLAYING;
+            looper_status.state = LOOPER_STATE_RECORDING;
     } else {
         looper_handle_button_event(event);
     }
