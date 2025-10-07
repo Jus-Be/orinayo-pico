@@ -991,25 +991,24 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			} 
 			else 
 			{	
-				if (enable_midi_drums && looper_status.state == LOOPER_STATE_RECORDING) 
+				if (enable_midi_drums && (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO)) 
 				{					
-					if (style_section % 8 == 0) {
+					if (style_section % 3 == 0) {
+						looper_handle_input_internal_clock(BUTTON_EVENT_LONG_HOLD_RELEASE);
+					}
+					else
+						
+					if (style_section % 3 == 1) {
 						looper_status.current_track = 0;					// Bass Drum
 						if (up) looper_status.current_track = 1;			// Snare
 						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
 					}
 					else
 						
-					if (style_section % 8 == 1) {
+					if (style_section % 3 == 2) {
 						looper_status.current_track = 2;					// Closed Hit-Hat
 						if (up) looper_status.current_track = 3;			// Open Hit-Hat
 						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);
-					}
-					else
-						
-					if (style_section % 8 == 2) {
-						note = 50;					// High Tom
-						if (up) note = 45;			// Low Tom
 					}
 					else
 						
