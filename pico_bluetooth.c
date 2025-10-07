@@ -334,8 +334,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				}
 
 				if (enable_midi_drums) {
-					//ghost_parameters_t *params = ghost_note_parameters();
-					//params->ghost_intensity = 1.0(style_section % 4) / 4.0f;
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = (style_section % 4) / 4;
 					
 				} else {				
 					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
@@ -531,9 +531,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (style_section > 7) style_section = 0;				
 			}
 			
-			if (enable_midi_drums) {
-				//ghost_parameters_t *params = ghost_note_parameters();
-				//params->ghost_intensity = 1.0 ; //(style_section % 4) / 4.0f;
+			if (enable_midi_drums) 
+			{
+				ghost_parameters_t *params = ghost_note_parameters();
+				params->ghost_intensity = (style_section % 4) / 4;
 				
 			} else {
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
