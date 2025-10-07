@@ -14,7 +14,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "tusb.h"
 #include "async_timer.h"
 #include "button.h"
 #include "display.h"
@@ -315,14 +315,14 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_CLICK_RELEASE:
             // Short press release: quantize and record step
 			
-            /*if (looper_status.state != LOOPER_STATE_RECORDING) {
+            if (looper_status.state != LOOPER_STATE_RECORDING) {
                 looper_status.recording_step_count = 0;
                 looper_status.state = LOOPER_STATE_RECORDING;
                 memset(track->pattern, 0, LOOPER_TOTAL_STEPS);
                 memset(track->ghost_notes, 0, sizeof(track->ghost_notes));
                 memset(track->fill_pattern, 0, LOOPER_TOTAL_STEPS);
                 storage_erase_tracks();
-            }*/
+            }
             uint8_t quantized_step = looper_quantize_step();
             track->pattern[quantized_step] = true;
             break;
