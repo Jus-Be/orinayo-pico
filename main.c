@@ -108,6 +108,20 @@ int main() {
 	{
 		if (!orinayo_enabled) {
 			tud_task(); // tinyusb device task
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			
+			while (tud_midi_available()) {
+				uint8_t packet[4] = {0};
+				
+				tud_midi_packet_read(packet);
+				
+				uint8_t status = packet[1];
+				uint8_t channel = status & 0x0F;
+				uint8_t message = status & 0xF0;
+				
+				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
+			}	
+			
 			note_scheduler_dispatch_pending();	
 		}			
     }
