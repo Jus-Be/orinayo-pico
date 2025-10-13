@@ -108,7 +108,7 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   // Check if it's a Gamepad controller
   if (name && (strstr(name, "STANDARD GAMEPAD"))) {
     // PICO_INFO("Gamepad controller detected! Attempting connection...\n");
-	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
   }
 
   // As an example, if you want to filter out keyboards, do:
@@ -268,6 +268,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				
 			if (green && red) {
 				active_neck_pos = 1;
+				
+				if (but6) {
+					midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
+					active_strum_pattern = 2;			// arpeggios, no strumming
+				}
 			}
 			else
 				
@@ -279,7 +284,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (green) {
 				active_strum_pattern = 0;
 				
-				if (but6 && enable_ample_guitar) {
+				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
 					midi_send_note(0x90, 86, 127);		// enable chord detection					
 					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
 					midi_send_note(0xB0, 64, 1);		// hold pedal off	
@@ -290,7 +295,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (yellow) {
 				active_strum_pattern = 2;
 				
-				if (but6 && enable_ample_guitar) {
+				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on	
 					midi_send_note(0x90, 99, 127);					
@@ -301,7 +306,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (blue) {
 				active_strum_pattern = 3;
 				
-				if (but6 && enable_ample_guitar) {
+				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on	
 					midi_send_note(0x90, 99, 127);						
@@ -312,7 +317,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (red) {
 				active_strum_pattern = 1;
 				
-				if (but6 && enable_ample_guitar) {
+				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 1);		// hold pedal off						
 				}				
@@ -322,7 +327,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) {
 				active_strum_pattern = 4;
 				
-				if (but6 && enable_ample_guitar) {
+				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
 					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
 					midi_send_note(0xB0, 64, 127);		// hold pedal on	
 					midi_send_note(0x90, 99, 127);						
@@ -978,6 +983,12 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 		{
 			if (enable_ample_guitar) 	// noises
 			{
+				if (active_neck_pos == 1) {	// bass slides
+					note = 95;
+					if (up) note = 94;
+				}					
+				else
+					
 				if (active_strum_pattern == 0) {
 					note = 93;
 					if (up) note = 94;
