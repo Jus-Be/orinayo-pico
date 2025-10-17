@@ -57,6 +57,7 @@ void pico_set_led(bool led_on) {
 extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
 extern int active_strum_pattern;
+extern bool enable_midi_drums;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -109,7 +110,8 @@ int main() {
 	{
 		if (!orinayo_enabled) {
 			tud_task(); // tinyusb device task
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			
+			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 			
 			while (tud_midi_available()) {
 				uint8_t packet[4] = {0};
@@ -120,7 +122,7 @@ int main() {
 				uint8_t channel = status & 0x0F;
 				uint8_t message = status & 0xF0;
 				
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
+				if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 			}	
 			
 			note_scheduler_dispatch_pending();	
