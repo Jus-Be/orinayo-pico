@@ -39,6 +39,7 @@ uint8_t mute_midinotes[6] = {0};
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
+void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
@@ -143,8 +144,10 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
   
-	midi_send_program_change(0xC0, 26);	// jazz guitar on channel 1
-	midi_send_program_change(0xC3, 89);	// warm pad on channel 4 (chords)  
+	midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1
+	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
+	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+	
   return UNI_ERROR_SUCCESS;
 }
 

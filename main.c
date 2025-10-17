@@ -67,6 +67,7 @@ void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
+void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
@@ -173,11 +174,22 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
 	msg[2] = velocity;   
 		
 	if (orinayo_enabled) {
-		if (command == 0x90 || command == 0x80) send_ble_midi(msg, 3);	 // no chords
+		if (command == 0x90 || command == 0x80) send_ble_midi(msg, 3);	 // no midi
 	}
 	else {
 		tud_midi_n_stream_write(0, 0, msg, 3);			
 	}
+}
+
+void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value)
+{
+	uint8_t msg[3];	
+	
+	msg[0] = command;
+	msg[1] = controller;
+	msg[2] = value;   
+		
+	tud_midi_n_stream_write(0, 0, msg, 3);			
 }
 
 void midi_send_program_change(uint8_t command, uint8_t code)
