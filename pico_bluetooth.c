@@ -445,13 +445,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut0) {
 					
-					if (looper_status.state == LOOPER_STATE_RECORDING) {
+					if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 						style_section = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
 						//ghost_parameters_t *params = ghost_note_parameters();						
-						//params->ghost_intensity = 0;
-						
+						//params->ghost_intensity = 0;						
 						//storage_store_tracks();					
 					} 
 					else 
@@ -533,8 +532,19 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}				
 			else
 
-			if (blue) {
-				if (mbut1) style_section = 3;
+			if (blue) 
+			{
+				if (mbut1) 
+				{
+					if (enable_midi_drums)	{						
+						looper_status.state = LOOPER_STATE_RECORDING;
+						looper_status.current_step = 0;
+						break;
+						
+					} else {
+						style_section = 3;
+					}
+				}
 			}
 			else
 
@@ -543,11 +553,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (mbut1) 
 				{
 					if (enable_midi_drums)	{
-						
-						if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-							looper_handle_input_internal_clock(BUTTON_EVENT_LONG_HOLD_RELEASE);						
-							break;							
-						}
+						looper_status.state = LOOPER_STATE_TAP_TEMPO;					
+						break;							
 						
 					} else {
 						style_section = 4;
@@ -577,16 +584,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_ketron_footsw(8, mbut2 ? true : false);	// 	user defined from footswitch	
+			midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 			menu = mbut2;
 		}		
 		
-		if (mbut3 != config) {	// config options
+		if (mbut3 != config) {	// config/menu options
 			config = mbut3;
 			
-			if (mbut3) {
+			if (mbut3) 
+			{
 				if (green) {
-					enable_style_play = !enable_style_play;		// enable/disable chords on channel 4
+					enable_style_play = !enable_style_play;						// enable/disable chords on channel 4
 				}
 				else
 					
@@ -596,9 +604,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_note(0x90, 86, 127);								// set chord detectt					
 				}
 				
-				if (yellow) {
+				if (yellow) 
+				{
 					if (enable_midi_drums) {
-						looper_clear_all_tracks();
+						looper_clear_all_tracks();								// Midi drums looper
 					}
 					enable_midi_drums = !enable_midi_drums;
 				}
@@ -611,7 +620,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			joystick_up = joy_up;
 
 			if (enable_ample_guitar) {
-				midi_send_note(0x90, 24, joy_up ? 127 : 0);	// sustain guitar notes
+				midi_send_note(0x90, 24, joy_up ? 127 : 0);						// sustain guitar notes
 			} 
 			else
 
