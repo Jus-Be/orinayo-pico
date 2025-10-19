@@ -14,7 +14,7 @@
 #define DENSITY_WIN_HALF 8
 #define CHANCE(p) ((rand() / (RAND_MAX + 1.0)) < (p))
 
-static float note_density_track_window[4][LOOPER_TOTAL_STEPS];
+static float note_density_track_window[14][LOOPER_TOTAL_STEPS];
 
 static bool pending_fill_request = false;
 
@@ -29,10 +29,20 @@ static ghost_parameters_t parameters = {
 ghost_parameters_t *ghost_note_parameters(void) { return &parameters; }
 
 static uint8_t velocity_table[] = {
-    0x20,  // track 1 - Kick
-    0x25,  // track 2 - Snare
-    0x30,  // track 3 - Hi-hat closed
-    0x25   // track 4 - Hi-hat open
+    0x20,  // track  1 - Kick
+    0x25,  // track  2 - Snare
+    0x30,  // track  3 - Hi-hat closed
+    0x20   // track  4 - Low floor tom
+    0x20,  // track  5 - Low Tom
+    0x30,  // track  6 - Hi-hat open
+    0x20,  // track  7 - Hi mid tom
+    0x20   // track  8 - crash cymbal
+    0x20,  // track  9 - ride cymbal
+    0x20,  // track 10 - vibraslap
+    0x25   // track 11 - Hi bongo
+    0x25,  // track 12 - Low bongo
+    0x25,  // track 13 - Mute conga
+    0x25,  // track 14 - Low conga	
 };
 
 uint8_t *ghost_note_velocity_table(void) { return velocity_table; }
