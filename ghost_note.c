@@ -32,17 +32,17 @@ static uint8_t velocity_table[] = {
     0x20,  // track  1 - Kick
     0x25,  // track  2 - Snare
     0x30,  // track  3 - Hi-hat closed
-    0x20   // track  4 - Low floor tom
+    0x20,  // track  4 - Low floor tom
     0x20,  // track  5 - Low Tom
     0x30,  // track  6 - Hi-hat open
     0x20,  // track  7 - Hi mid tom
-    0x20   // track  8 - crash cymbal
+    0x20,  // track  8 - crash cymbal
     0x20,  // track  9 - ride cymbal
     0x20,  // track 10 - vibraslap
-    0x25   // track 11 - Hi bongo
+    0x25,  // track 11 - Hi bongo
     0x25,  // track 12 - Low bongo
     0x25,  // track 13 - Mute conga
-    0x25,  // track 14 - Low conga	
+    0x25   // track 14 - Low conga	
 };
 
 uint8_t *ghost_note_velocity_table(void) { return velocity_table; }
