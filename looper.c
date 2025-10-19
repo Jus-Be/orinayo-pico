@@ -43,6 +43,8 @@ enum {
     LOW_BONGO = 61,
     MUTE_CONGA = 62,
     LOW_CONGA = 64,	
+	HAND_CLAP = 39,
+	COW_BELL = 56,
 };
 
 looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
@@ -95,12 +97,12 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0) {
-        //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x2F);
+        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x2F);
     }
 	else 
 		
 	if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0) {
-        //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x0F);
+        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x0F);
 	}
 }
 
@@ -266,7 +268,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_TRACK_SWITCH:
             looper_status.current_track = (looper_status.current_track + 1) % NUM_TRACKS;
-            //looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
+            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             looper_advance_step(start_us);
             //looper_status.state = LOOPER_STATE_PLAYING;
             break;
@@ -355,12 +357,12 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_LONG_HOLD_RELEASE:
             // ≥2 s hold: enter Tap-tempo (no track switch)
             looper_status.state = LOOPER_STATE_TAP_TEMPO;
-            //looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
+            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             break;
         case BUTTON_EVENT_VERY_LONG_HOLD_RELEASE:
             // ≥5 s hold: clear track data
             looper_status.state = LOOPER_STATE_CLEAR_TRACKS;
-            //looper_schedule_note_now(MIDI_CHANNEL10, CYMBAL, 0x7f);
+            looper_schedule_note_now(MIDI_CHANNEL10, CRASH_CYMBAL, 0x7f);
             break;
         default:
             break;
