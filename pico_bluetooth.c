@@ -449,7 +449,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
 						ghost_parameters_t *params = ghost_note_parameters();						
-						params->ghost_intensity = 0;											
+						params->ghost_intensity = 0.843;											
 					} 
 					else 
 					
