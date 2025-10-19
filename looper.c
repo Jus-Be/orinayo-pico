@@ -30,12 +30,19 @@ enum {
 
 enum {
     BASS_DRUM = 36,
-    COW_BELL = 56,
     SNARE_DRUM = 38,
-    HAND_CLAP = 39,
-    CLOSED_HIHAT = 42,
+    CLOSED_HIHAT = 42,	
+    LOW_FLOOR_TOM = 41,	
+    LOW_TOM = 45,		
     OPEN_HIHAT = 46,
-    CYMBAL = 49,
+    HI_MID_TOM = 48,		
+    CRASH_CYMBAL = 49,
+    RIDE_CYMBAL = 51,	
+    VIBRASLAP = 58,	
+    HI_BONGO = 60,
+    LOW_BONGO = 61,
+    MUTE_CONGA = 62,
+    LOW_CONGA = 64,	
 };
 
 looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
@@ -44,7 +51,17 @@ static track_t tracks[] = {
     {"Bass", BASS_DRUM, MIDI_CHANNEL10, {0}, {0}},
     {"Snare", SNARE_DRUM, MIDI_CHANNEL10, {0}, {0}},
     {"Closed Hi-hat", CLOSED_HIHAT, MIDI_CHANNEL10, {0}, {0}},
-    {"Open Hi-hat", OPEN_HIHAT, MIDI_CHANNEL10, {0}, {0}},
+    {"Low Floor Tom", LOW_FLOOR_TOM, MIDI_CHANNEL10, {0}, {0}},
+    {"Low Tom", LOW_TOM, MIDI_CHANNEL10, {0}, {0}},	
+    {"Open Hi-hat", OPEN_HIHAT, MIDI_CHANNEL10, {0}, {0}},	
+    {"Hi Mid Tom", HI_MID_TOM, MIDI_CHANNEL10, {0}, {0}},
+    {"Crash Cymbal", CRASH_CYMBAL, MIDI_CHANNEL10, {0}, {0}},	
+    {"Ride Cymbal", RIDE_CYMBAL, MIDI_CHANNEL10, {0}, {0}},	
+    {"Vibraslap", VIBRASLAP, MIDI_CHANNEL10, {0}, {0}},
+    {"Hi Bongo", HI_BONGO, MIDI_CHANNEL10, {0}, {0}},
+    {"Low Bongo", LOW_BONGO, MIDI_CHANNEL10, {0}, {0}},
+    {"Mute Conga", MUTE_CONGA, MIDI_CHANNEL10, {0}, {0}},
+    {"Low Conga", LOW_CONGA, MIDI_CHANNEL10, {0}, {0}},
 };
 static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
@@ -78,9 +95,9 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
     if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x2F);
+        //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x2F);
     else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
-        looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x0F);
+        //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x0F);
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
@@ -245,7 +262,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_TRACK_SWITCH:
             looper_status.current_track = (looper_status.current_track + 1) % NUM_TRACKS;
-            looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
+            //looper_schedule_note_now(MIDI_CHANNEL10, HAND_CLAP, 0x7f);
             looper_advance_step(start_us);
             //looper_status.state = LOOPER_STATE_PLAYING;
             break;
