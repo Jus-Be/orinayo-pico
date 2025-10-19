@@ -94,10 +94,14 @@ static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velo
 
 // Sends a MIDI click at specific steps to indicate rhythm.
 static void send_click_if_needed(void) {
-    if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0)
+    if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0 && looper_status.current_step == 0) {
         //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x2F);
-    else if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0)
+    }
+	else 
+		
+	if ((looper_status.current_step % LOOPER_CLICK_DIV) == 0) {
         //looper_schedule_note_now(MIDI_CHANNEL10, COW_BELL, 0x0F);
+	}
 }
 
 static uint64_t looper_get_swing_offset_us(uint8_t step_index) {
@@ -356,7 +360,7 @@ void looper_handle_button_event(button_event_t event) {
         case BUTTON_EVENT_VERY_LONG_HOLD_RELEASE:
             // ≥5 s hold: clear track data
             looper_status.state = LOOPER_STATE_CLEAR_TRACKS;
-            looper_schedule_note_now(MIDI_CHANNEL10, CYMBAL, 0x7f);
+            //looper_schedule_note_now(MIDI_CHANNEL10, CYMBAL, 0x7f);
             break;
         default:
             break;
