@@ -1035,17 +1035,39 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			{	
 				if (enable_midi_drums && looper_status.state == LOOPER_STATE_RECORDING) 
 				{					
-					if (style_section % 2 == 0) {
+					if (style_section % 5 == 0) {
 						looper_status.current_track = 0;					// Bass Drum
 						if (up) looper_status.current_track = 1;			// Snare
 						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);					}
 					else
 						
-					if (style_section % 2 == 1) {
+					if (style_section % 5 == 1) {
 						looper_status.current_track = 2;					// Closed Hit-Hat
-						if (up) looper_status.current_track = 3;			// Open Hit-Hat
+						if (up) looper_status.current_track = 5;			// Open Hit-Hat
 						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
-					}										
+					}	
+					else
+						
+					if (style_section % 5 == 2) {
+						looper_status.current_track = 3;					// Low floor tom
+						if (up) looper_status.current_track = 6;			// High tom
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
+					}
+					else
+						
+					if (style_section % 5 == 3) {
+						looper_status.current_track = 7;					// crash cymbals
+						if (up) looper_status.current_track = 8;			// ride cymbals
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
+					}
+					else
+						
+					if (style_section % 5 == 4) {
+						looper_status.current_track = 10;					// Hi Bongo
+						if (up) looper_status.current_track = 11;			// Low Bongo
+						looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_BEGIN);						
+					}					
+					
 				}
 				else
 					
