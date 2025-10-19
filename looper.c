@@ -234,12 +234,11 @@ void looper_update_bpm(uint32_t bpm) {
 void looper_process_state(uint64_t start_us) {
     bool ready = looper_perform_ready();
     display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
-    if (!ready)
-        looper_status.state = LOOPER_STATE_WAITING;
+    if (!ready) looper_status.state = LOOPER_STATE_WAITING;
+	
     switch (looper_status.state) {
         case LOOPER_STATE_WAITING:
             if (ready) {
-                looper_status.state = LOOPER_STATE_PLAYING;
                 looper_status.current_step = 0;
             }
             //led_set((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0);
