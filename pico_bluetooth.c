@@ -444,7 +444,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut0) {
 					
-					if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 						style_section = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
@@ -455,7 +455,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_PLAYING) {
 						looper_status.state = LOOPER_STATE_WAITING;
-						enable_midi_drums = false;
 					}	
 				}					
 			} else {

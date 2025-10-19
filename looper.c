@@ -10,7 +10,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "looper.h"
-#include "pico/cyw43_arch.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -133,10 +132,10 @@ static void looper_perform_step(void) {
                                          velocity);
 
             if (i == looper_status.current_track) {
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
+				// LED ON??	
 			}
         } else if (i == looper_status.current_track) {
-            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
+            // LED OFF ??
         }
         uint8_t *ghost_note_velocity = ghost_note_velocity_table();
         bool ghost_note_on =
@@ -293,12 +292,11 @@ void looper_process_state(uint64_t start_us) {
 static void looper_process_state_external_clock(uint64_t start_us) {
     bool ready = looper_perform_ready();
     display_update_looper_status(ready, &looper_status, tracks, NUM_TRACKS);
-    if (!ready)
-        looper_status.state = LOOPER_STATE_WAITING;
+    if (!ready) looper_status.state = LOOPER_STATE_WAITING;
+	
     switch (looper_status.state) {
         case LOOPER_STATE_WAITING:
             if (ready) {
-                looper_status.state = LOOPER_STATE_PLAYING;
                 looper_status.current_step = 0;
             }
             //led_set((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0);
