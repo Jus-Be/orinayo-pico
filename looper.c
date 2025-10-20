@@ -65,6 +65,14 @@ static track_t tracks[] = {
 };
 static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
+static uint16_t drum_styles[5][32] = {
+	{0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,1},
+	{0,2052,0,1028,0,4,0,0,0,4,0,4,0,1,0,0,0,4,0,4,0,68,0,64,0,4,0,4,0,4,0,2048},
+	{0,0,0,4,0,4,0,1,0,0,0,4,0,4,0,70,0,64,0,4,0,4,0,4,0,2048,0,2052,0,1028,0,6},
+	{5,0,0,0,4,0,4,0,6,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,6,0,0,0,4,0,4,0},
+	{0,8,0,9,0,9,0,11,0,129,0,0,0,2,0,129,0,8,0,9,0,9,0,11,0,129,0,0,0,2,0,129},	
+};
+	
 static uint32_t midi_clock_tick_count = 0;
 static uint64_t midi_clock_last_tick_us = 0;
 
@@ -165,6 +173,21 @@ static void looper_perform_step_recording(void) {
             note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
                                          0x7f);
     }
+}
+
+// Copies static style to pattern memory
+void looper_copy_style(uint8_t style) {
+
+    for (uint8_t s = 0; s < LOOPER_TOTAL_STEPS; s++) {
+		uint16_t drums = drum_styles[style][s];
+		uint16_t drum = 0;
+		
+		for (int i = (NUM_TRACKS - 1); i > -1; i--) {	
+			drum = 2 ^ i;
+			tracks[i].pattern[s] = (drums >= drum);			
+			if (tracks[i].pattern[s]) drums = drums - drum;
+		}
+	}		
 }
 
 // Updates the current step index and timestamp based on current loop progress.
@@ -278,7 +301,7 @@ void looper_process_state(uint64_t start_us) {
             looper_status.current_track = 0;
             looper_update_bpm(LOOPER_DEFAULT_BPM);
             looper_advance_step(start_us);
-            looper_status.state = LOOPER_STATE_PLAYING;
+            //looper_status.state = LOOPER_STATE_PLAYING;
             break;
         default:
             break;

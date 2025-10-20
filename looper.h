@@ -78,24 +78,18 @@ typedef struct {
 
 
 void looper_status_led_init(void);
-
 looper_status_t *looper_status_get(void);
-
 track_t *looper_tracks_get(size_t *num_tracks);
 
 void looper_update_bpm(uint32_t bpm);
-
 void looper_process_state(uint64_t start_us);
-
 void looper_handle_button_event(button_event_t event);
-
 void looper_handle_tick(async_context_t *ctx, async_at_time_worker_t *worker);
-
 void looper_handle_midi_tick(void);
 void looper_handle_midi_start(void);
-
 void looper_handle_input(void);
-
 void looper_schedule_step_timer(void);
-
 void looper_perform_note(uint8_t channel, uint8_t note, uint8_t velocity);
+void looper_copy_style(uint8_t style);
+void looper_handle_input_internal_clock(button_event_t event);
+void looper_clear_all_tracks();
