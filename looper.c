@@ -65,7 +65,7 @@ static track_t tracks[] = {
 };
 static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
-static double drum_styles[5][32] = {
+static uint16_t drum_styles[5][32] = {
 	{1,0,0,0,2,1,32,0,1,0,32,1,2,0,0,0,1,0,0,1,2,0,0,0,0,0,32,0,2,0,0,0},
 	{5,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,5,0,4,0,4,0,5,0,5,0,4,0,4,0,4,0},
 	{0,129,0,1,0,3,0,1,0,1,0,1,0,3,0,0,0,1,0,1,0,3,0,1,0,1,0,1,0,3,0,2},
@@ -180,7 +180,8 @@ void looper_copy_style(uint8_t style) {
     for (int s = 0; s < LOOPER_TOTAL_STEPS; s++) 
 	{		
 		for (int i = 0; i < NUM_TRACKS; i++) {	
-			tracks[i].pattern[s] = (drum_styles[style][s] > 0) && ((drum_styles[style][s] & pow(2, i)) == pow(2, i));
+			int drum = (int) pow(2, i);
+			tracks[i].pattern[s] = (drum_styles[style][s] > 0) && ((drum_styles[style][s] & drum) == drum);
 		}
 	}
 }
