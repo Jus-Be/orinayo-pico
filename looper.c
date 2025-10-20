@@ -187,7 +187,9 @@ void looper_copy_style(uint8_t style) {
 			tracks[i].pattern[s] = (drums >= drum);			
 			if (tracks[i].pattern[s]) drums = drums - drum;
 		}
-	}		
+	}
+	
+	looper_status.current_step = 0;	
 }
 
 // Updates the current step index and timestamp based on current loop progress.
