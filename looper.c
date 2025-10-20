@@ -182,7 +182,7 @@ void looper_copy_style(uint8_t style) {
     for (int s = 0; s < LOOPER_TOTAL_STEPS; s++) 
 	{		
 		for (int i = 0; i < NUM_TRACKS; i++) {	
-			tracks[i].pattern[s] = !!(drum_styles[style][s] & (2 ^ i));
+			tracks[i].pattern[s] = drum_styles[style][s] > 0 && (!!(drum_styles[style][s] & (2 ^ i)));
 		}
 	}
 }
