@@ -66,11 +66,11 @@ static track_t tracks[] = {
 static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
 static uint16_t drum_styles[5][32] = {
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
-	{2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0},
-	{4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0},
-	{7,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0},
+	{0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,1},
+	{0,0,0,1,0,34,0,0,0,1,0,34,0,0,0,2,0,33,0,0,0,1,0,33,0,0,0,34,0,1,0,32},
+	{0,4,0,4,0,0,0,4,0,4,0,0,0,4,0,5,0,4,0,4,0,4,0,4,0,0,0,5,0,4,0,5},
+	{0,0,0,4,0,0,0,6,0,0,0,4,0,0,0,5,0,0,0,4,0,0,0,6,0,0,0,4,0,0,0,5},
+	{0,0,0,1026,0,0,0,1025,0,1,0,1026,0,2,0,1025,0,0,0,1026,0,0,0,1025,0,1,0,1026,0,2,0,1025},	
 };
 	
 static uint32_t midi_clock_tick_count = 0;
@@ -137,7 +137,7 @@ static void looper_perform_step(void) {
         bool note_on = tracks[i].pattern[looper_status.current_step];
         if (note_on) {
             uint8_t velocity = ghost_note_modulate_base_velocity(i, 0x7f, looper_status.lfo_phase);
-            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
+            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note - 1,
                                          velocity);
 
             if (i == looper_status.current_track) {
@@ -153,10 +153,10 @@ static void looper_perform_step(void) {
             (float)tracks[i].ghost_notes[looper_status.current_step].rand_sample / 100.0f;
 
         if (ghost_note_on && !tracks[i].fill_pattern[looper_status.current_step])
-            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
+            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note - 1,
                                          ghost_note_velocity[i]);
         if (tracks[i].fill_pattern[looper_status.current_step] && !note_on)
-            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
+            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note - 1,
                                          0x7f);
     }
 }
@@ -170,7 +170,7 @@ static void looper_perform_step_recording(void) {
     //led_set(1);
     for (uint8_t i = 0; i < NUM_TRACKS; i++) {
         bool note_on = tracks[i].pattern[looper_status.current_step];		
-        if (note_on) note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note, 0x7f);
+        if (note_on) note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note - 1, 0x7f);
     }
 }
 
