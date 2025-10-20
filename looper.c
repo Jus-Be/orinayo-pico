@@ -291,8 +291,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			if ((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0) {
-				looper_copy_style(1, style_section % 5);
-				looper_status.current_step = 0;				
+				looper_copy_style(1, style_section % 5);				
 			}
             looper_perform_step();
             looper_advance_step(start_us);

@@ -354,7 +354,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}
 		
-		// next handle actions
+		// handle actions
 		
 		if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
 			start = but9;		
