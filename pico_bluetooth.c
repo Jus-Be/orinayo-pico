@@ -442,7 +442,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (mbut0) {
 					
 					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-						style_section = 0;							
+						style_section = 0;	
+						looper_status.current_step = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
 						ghost_parameters_t *params = ghost_note_parameters();						

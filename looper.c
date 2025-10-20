@@ -27,22 +27,22 @@ enum {
 };
 
 enum {
-    BASS_DRUM = 36,
-    SNARE_DRUM = 38,
-    CLOSED_HIHAT = 42,	
-    LOW_FLOOR_TOM = 41,	
-    LOW_TOM = 45,		
-    OPEN_HIHAT = 46,
-    HI_MID_TOM = 48,		
-    CRASH_CYMBAL = 49,
-    RIDE_CYMBAL = 51,	
-    VIBRASLAP = 58,	
-    HI_BONGO = 60,
-    LOW_BONGO = 61,
-    MUTE_CONGA = 62,
-    LOW_CONGA = 64,	
-	HAND_CLAP = 39,
-	COW_BELL = 56,
+    BASS_DRUM = 35,
+    SNARE_DRUM = 37,
+    CLOSED_HIHAT = 41,	
+    LOW_FLOOR_TOM = 40,	
+    LOW_TOM = 44,		
+    OPEN_HIHAT = 45,
+    HI_MID_TOM = 47,		
+    CRASH_CYMBAL = 48,
+    RIDE_CYMBAL = 50,	
+    VIBRASLAP = 57,	
+    HI_BONGO = 59,
+    LOW_BONGO = 60,
+    MUTE_CONGA = 61,
+    LOW_CONGA = 63,	
+	HAND_CLAP = 38,
+	COW_BELL = 55,
 };
 
 looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
@@ -178,10 +178,10 @@ static void looper_perform_step_recording(void) {
 
 // Copies static style to pattern memory
 void looper_copy_style(uint8_t style) {
-
+	uint16_t drum, drums;
+	
     for (uint8_t s = 0; s < LOOPER_TOTAL_STEPS; s++) {
-		uint16_t drums = drum_styles[style][s];
-		uint16_t drum = 0;
+		drums = drum_styles[style][s];
 		
 		for (int i = (NUM_TRACKS - 1); i > -1; i--) {	
 			drum = 2 ^ i;
@@ -270,7 +270,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			if ((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0) {
-				looper_copy_style(style_section);	
+				looper_copy_style(style_section % sizeof(drum_styles));	
 			}
             looper_perform_step();
             looper_advance_step(start_us);
