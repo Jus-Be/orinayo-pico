@@ -77,6 +77,7 @@ static uint32_t midi_clock_tick_count = 0;
 static uint64_t midi_clock_last_tick_us = 0;
 
 extern bool enable_midi_drums;
+extern int style_section; 
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
@@ -188,8 +189,6 @@ void looper_copy_style(uint8_t style) {
 			if (tracks[i].pattern[s]) drums = drums - drum;
 		}
 	}
-	
-	looper_status.current_step = 0;	
 }
 
 // Updates the current step index and timestamp based on current loop progress.
@@ -270,8 +269,9 @@ void looper_process_state(uint64_t start_us) {
             looper_advance_step(start_us);
             break;
         case LOOPER_STATE_PLAYING:
-			// TODO
-            //send_click_if_needed();
+			if ((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0) {
+				looper_copy_style(style_section);	
+			}
             looper_perform_step();
             looper_advance_step(start_us);
             break;
