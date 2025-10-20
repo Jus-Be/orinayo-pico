@@ -337,7 +337,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (but6) {
 					old_style = style_section;
 					style_section--;
-					if (style_section < 0) style_section = 24;
+					if (style_section < 0) style_section = 7;
 
 					if (enable_midi_drums && looper_status.state == LOOPER_STATE_PLAYING)	{
 						ghost_parameters_t *params = ghost_note_parameters();
@@ -560,7 +560,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			if (mbut1) {
 				style_section++;
-				if (style_section > 24) style_section = 0;
+				if (style_section > 7) style_section = 0;
 			}			
 			
 			if (enable_midi_drums)	
