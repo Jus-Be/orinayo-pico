@@ -27,22 +27,22 @@ enum {
 };
 
 enum {
-    BASS_DRUM = 35,
-    SNARE_DRUM = 37,
-    CLOSED_HIHAT = 41,	
-    LOW_FLOOR_TOM = 40,	
-    LOW_TOM = 44,		
-    OPEN_HIHAT = 45,
-    HI_MID_TOM = 47,		
-    CRASH_CYMBAL = 48,
-    RIDE_CYMBAL = 50,	
-    VIBRASLAP = 57,	
-    HI_BONGO = 59,
-    LOW_BONGO = 60,
-    MUTE_CONGA = 61,
-    LOW_CONGA = 63,	
-	HAND_CLAP = 38,
-	COW_BELL = 55,
+    BASS_DRUM = 36,
+    SNARE_DRUM = 38,
+    CLOSED_HIHAT = 42,	
+    LOW_FLOOR_TOM = 41,	
+    LOW_TOM = 45,		
+    OPEN_HIHAT = 46,
+    HI_MID_TOM = 48,		
+    CRASH_CYMBAL = 49,
+    RIDE_CYMBAL = 51,	
+    VIBRASLAP = 58,	
+    HI_BONGO = 60,
+    LOW_BONGO = 61,
+    MUTE_CONGA = 62,
+    LOW_CONGA = 64,	
+	HAND_CLAP = 39,
+	COW_BELL = 56,
 };
 
 looper_status_t looper_status = {.bpm = LOOPER_DEFAULT_BPM, .state = LOOPER_STATE_WAITING};
@@ -67,10 +67,10 @@ static const size_t NUM_TRACKS = sizeof(tracks) / sizeof(track_t);
 
 static uint16_t drum_styles[5][32] = {
 	{0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,1},
-	{0,2052,0,1028,0,4,0,0,0,4,0,4,0,1,0,0,0,4,0,4,0,68,0,64,0,4,0,4,0,4,0,2048},
-	{0,0,0,4,0,4,0,1,0,0,0,4,0,4,0,70,0,64,0,4,0,4,0,4,0,2048,0,2052,0,1028,0,6},
-	{5,0,0,0,4,0,4,0,6,0,0,0,4,0,4,0,4,0,0,0,4,0,4,0,6,0,0,0,4,0,4,0},
-	{0,8,0,9,0,9,0,11,0,129,0,0,0,2,0,129,0,8,0,9,0,9,0,11,0,129,0,0,0,2,0,129},	
+	{0,0,0,1,0,34,0,0,0,1,0,34,0,0,0,2,0,33,0,0,0,1,0,33,0,0,0,34,0,1,0,32},
+	{0,4,0,4,0,0,0,4,0,4,0,0,0,4,0,5,0,4,0,4,0,4,0,4,0,0,0,5,0,4,0,5},
+	{0,0,0,4,0,0,0,6,0,0,0,4,0,0,0,5,0,0,0,4,0,0,0,6,0,0,0,4,0,0,0,5},
+	{0,0,0,1026,0,0,0,1025,0,1,0,1026,0,2,0,1025,0,0,0,1026,0,0,0,1025,0,1,0,1026,0,2,0,1025},	
 };
 	
 static uint32_t midi_clock_tick_count = 0;
@@ -270,7 +270,8 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			if ((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0) {
-				looper_copy_style(style_section % sizeof(drum_styles));	
+				looper_copy_style(style_section % 5);
+				looper_status.current_step = 0;				
 			}
             looper_perform_step();
             looper_advance_step(start_us);
