@@ -178,15 +178,11 @@ static void looper_perform_step_recording(void) {
 
 // Copies static style to pattern memory
 void looper_copy_style(uint8_t style) {
-	uint16_t drum, drums;
 	
-    for (uint8_t s = 0; s < LOOPER_TOTAL_STEPS; s++) {
-		drums = drum_styles[style][s];
-		
-		for (int i = (NUM_TRACKS - 1); i > -1; i--) {	
-			drum = 2 ^ i;
-			tracks[i].pattern[s] = (drums >= drum && drums != 0);			
-			if (tracks[i].pattern[s]) drums = drums - drum;
+    for (int s = 0; s < LOOPER_TOTAL_STEPS; s++) 
+	{		
+		for (int i = 0; i < NUM_TRACKS; i++) {	
+			tracks[i].pattern[s] = !!(drum_styles[style][s] & (2 ^ i));
 		}
 	}
 }
