@@ -185,7 +185,7 @@ void looper_copy_style(uint8_t style) {
 		
 		for (int i = (NUM_TRACKS - 1); i > -1; i--) {	
 			drum = 2 ^ i;
-			tracks[i].pattern[s] = (drums >= drum);			
+			tracks[i].pattern[s] = (drums >= drum && drums != 0);			
 			if (tracks[i].pattern[s]) drums = drums - drum;
 		}
 	}
