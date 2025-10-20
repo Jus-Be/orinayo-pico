@@ -169,10 +169,8 @@ static void looper_perform_step_recording(void) {
 
     //led_set(1);
     for (uint8_t i = 0; i < NUM_TRACKS; i++) {
-        bool note_on = tracks[i].pattern[looper_status.current_step];
-        if (note_on)
-            note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note,
-                                         0x7f);
+        bool note_on = tracks[i].pattern[looper_status.current_step];		
+        if (note_on) note_scheduler_schedule_note(now + swing_offset_us, tracks[i].channel, tracks[i].note, 0x7f);
     }
 }
 
@@ -182,7 +180,7 @@ void looper_copy_style(uint8_t style) {
     for (int s = 0; s < LOOPER_TOTAL_STEPS; s++) 
 	{		
 		for (int i = 0; i < NUM_TRACKS; i++) {	
-			tracks[i].pattern[s] = drum_styles[style][s] > 0 && (!!(drum_styles[style][s] & (2 ^ i)));
+			tracks[i].pattern[s] = (drum_styles[style][s] > 0) && ((drum_styles[style][s] & (2 ^ i)) == (2 ^ i));
 		}
 	}
 }
