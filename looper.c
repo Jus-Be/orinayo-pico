@@ -104,6 +104,7 @@ static uint64_t midi_clock_last_tick_us = 0;
 
 extern bool enable_midi_drums;
 extern int style_section; 
+extern int style_group;
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
@@ -291,7 +292,7 @@ void looper_process_state(uint64_t start_us) {
             break;
         case LOOPER_STATE_PLAYING:
 			if ((looper_status.current_step % (LOOPER_CLICK_DIV * 4)) == 0) {
-				looper_copy_style(1, style_section % 5);				
+				if (style_group > -1) looper_copy_style(style_group, style_section % 5);				
 			}
             looper_perform_step();
             looper_advance_step(start_us);

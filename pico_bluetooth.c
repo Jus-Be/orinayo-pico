@@ -30,6 +30,7 @@ bool enable_midi_drums = false;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
+int style_group = 0; 
 int old_style = -1;
 int transpose = 0; 
 
@@ -443,6 +444,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 						style_section = 0;	
+						style_group = 0;
 						looper_status.current_step = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
@@ -500,42 +502,58 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (mbut0) midi_yamaha_start_stop(0x7D, true);				
 				}
-				
-				if (mbut0) style_started = !style_started;
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);
 			}
+			
+			if (mbut0) style_started = !style_started;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);			
 			break;
 		}		
 		
 		if (mbut1 != starpower) { // next style/section			
-			starpower = mbut1;
+			starpower = mbut1;			
 			if (mbut1) old_style = style_section;
 
 			if (green) 
 			{
-				if (mbut1) style_section = 0;
+				if (mbut1) {
+					if (enable_midi_drums)	{						
+						if (style_started) style_section = 0; else style_group = 0;						
+					} else {
+						style_section = 0;
+					}
+				}
 			}
 			else
 				
-			if (red) {
-				if (mbut1) style_section = 1;
+			if (red) 
+			{
+				if (mbut1) {
+					if (enable_midi_drums)	{						
+						if (style_started) style_section = 1; else style_group = 1;						
+					} else {
+						style_section = 1;
+					}
+				}
 			}
 			else
 
-			if (yellow) {
-				if (mbut1) style_section = 2;
+			if (yellow) 
+			{
+				if (mbut1) {
+					if (enable_midi_drums)	{						
+						if (style_started) style_section = 2; else style_group = 2;						
+					} else {
+						style_section = 2;
+					}
+				}
 			}				
 			else
 
 			if (blue) 
 			{
-				if (mbut1) 
-				{
+				if (mbut1) {
 					if (enable_midi_drums)	{						
-						looper_status.state = LOOPER_STATE_RECORDING;
-						looper_status.current_step = 0;
-						break;
-						
+						if (style_started) style_section = 3; else style_group = 3;						
 					} else {
 						style_section = 3;
 					}
@@ -545,12 +563,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 			if (orange) 
 			{
-				if (mbut1) 
-				{
-					if (enable_midi_drums)	{
-						looper_status.state = LOOPER_STATE_TAP_TEMPO;					
-						break;							
-						
+				if (mbut1) {
+					if (enable_midi_drums)	{						
+						if (style_started) style_section = 4; else style_group = 4;						
 					} else {
 						style_section = 4;
 					}
@@ -613,6 +628,36 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (joy_up != joystick_up) {
 			joystick_up = joy_up;
+			
+			if (green) 
+			{
+				if (joy_up && enable_midi_drums) looper_update_bpm(80);
+			}
+			else
+				
+			if (red) 
+			{
+				if (joy_up && enable_midi_drums) looper_update_bpm(96);
+			}
+			else
+
+			if (yellow) 
+			{
+				if (joy_up && enable_midi_drums) looper_update_bpm(100);
+			}
+			else
+				
+			if (blue) 
+			{
+				if (joy_up && enable_midi_drums) looper_update_bpm(110);
+			}
+			else	
+
+			if (orange) 
+			{
+				if (joy_up && enable_midi_drums) looper_update_bpm(120);
+			}
+			else					
 
 			if (enable_ample_guitar) {
 				midi_send_note(0x90, 24, joy_up ? 127 : 0);						// sustain guitar notes
@@ -633,6 +678,51 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
+			
+			if (yellow) 
+			{
+				if (knob_up) 
+				{
+					if (enable_midi_drums)	{	
+						ghost_parameters_t *params = ghost_note_parameters();
+
+						if (params->ghost_intensity == 0.843) {
+							params->ghost_intensity = 0.0;					
+						} else {
+							params->ghost_intensity = 0.843;							
+						}
+						break;
+					}
+				}
+			}
+			else			
+			
+			if (blue) 
+			{
+				if (knob_up) 
+				{
+					if (!style_started && enable_midi_drums)	{						
+						looper_status.state = LOOPER_STATE_RECORDING;
+						style_group = -1;
+						looper_status.current_step = 0;
+						break;
+					}
+				}
+			}
+			else
+
+			if (orange) 
+			{
+				if (knob_up) 
+				{
+					if (!style_started && enable_midi_drums)	{
+						looper_status.state = LOOPER_STATE_TAP_TEMPO;	
+						style_group = -1;
+						break;	
+					}
+				}
+			}
+			else
 
 			if (enable_ample_guitar) {
 				midi_send_note(0x90, 26, knob_up ? 127 : 0);	// palm mute guitar notes
