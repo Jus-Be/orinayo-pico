@@ -444,7 +444,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 						style_section = 0;	
-						style_group = 0;
 						looper_status.current_step = 0;						
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
@@ -703,7 +702,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (!style_started && enable_midi_drums)	{						
 						looper_status.state = LOOPER_STATE_RECORDING;
+						
+						if (style_group > -1) looper_clear_all_tracks();		// clear static style				
 						style_group = -1;
+						
 						looper_status.current_step = 0;
 						break;
 					}
@@ -717,7 +719,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (!style_started && enable_midi_drums)	{
 						looper_status.state = LOOPER_STATE_TAP_TEMPO;	
-						style_group = -1;
 						break;	
 					}
 				}
