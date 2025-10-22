@@ -141,9 +141,11 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
   
-	midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1
 	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
 	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+	
+	midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1	
+	midi_send_control_change(0xB0, 7, 100); // set default volume	
 	
   return UNI_ERROR_SUCCESS;
 }
@@ -257,21 +259,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			else
 
 			if (yellow && blue) {
-				active_neck_pos = 3;
+				active_neck_pos = 3;	// High
+				
+				if (but6) {
+					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
+					active_strum_pattern = 3;			// force arpeggios, no strumming					
+				}				
 			}
 			else
 
 			if (yellow && red) {
-				active_neck_pos = 2;
+				active_neck_pos = 2;	// Normal
+				
+				if (but6) {
+					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
+					active_strum_pattern = 1;			// force bass/strum					
+				}				
 			}
 			else
 				
 			if (green && red) {
-				active_neck_pos = 1;
+				active_neck_pos = 1;	// Low
 				
 				if (but6) {
 					midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
-					active_strum_pattern = 2;			// arpeggios, no strumming
+					active_strum_pattern = 2;			// force arpeggios, no strumming
 				}
 			}
 			else
