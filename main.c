@@ -75,7 +75,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
-void void midi_seqtrak_pattern(uint8_t pattern);
+void midi_seqtrak_pattern(uint8_t pattern);
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
