@@ -38,7 +38,7 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
-void void midi_seqtrak_pattern(uint8_t pattern);
+void midi_seqtrak_pattern(uint8_t pattern);
 void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);

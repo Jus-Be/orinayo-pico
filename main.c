@@ -185,7 +185,7 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	
 	if (!orinayo_enabled) 
 	{	
-		for (int i=0; i<11; i++) {
+		for (int i=0; i<7; i++) {
 			msg[7] = 0x50 + i;
 			tud_midi_n_stream_write(0, 0, msg, 11);	
 		}
