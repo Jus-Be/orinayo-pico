@@ -235,8 +235,9 @@ void midi_yamaha_start_stop(int8_t code, bool on)
 	}
 }
 
-void midi_yamaha_arr(uint8_t code, bool on)
-{
+void midi_yamaha_arr(uint8_t code, bool on) {
+	if (enable_seqtrak) return;
+	
 	uint8_t msg[7];	
 	msg[0] = 0xF0;
 	msg[1] = 0x43;
@@ -251,8 +252,9 @@ void midi_yamaha_arr(uint8_t code, bool on)
 	}
 }
 
-void midi_ketron_arr(uint8_t code, bool on)
-{
+void midi_ketron_arr(uint8_t code, bool on) {
+	if (enable_seqtrak) return;
+	
 	uint8_t msg[8];	
 	msg[0] = 0xF0;
 	msg[1] = 0x26;
@@ -268,8 +270,9 @@ void midi_ketron_arr(uint8_t code, bool on)
 	}
 }
 
-void midi_ketron_footsw(uint8_t code, bool on)
-{
+void midi_ketron_footsw(uint8_t code, bool on) {
+	if (enable_seqtrak) return;
+	
 	uint8_t msg[8];		
 	msg[0] = 0xF0;
 	msg[1] = 0x26;

@@ -24,7 +24,7 @@
 extern looper_status_t looper_status;
 
 bool style_started = false;
-bool enable_style_play = true;
+bool enable_style_play = false;
 bool enable_seqtrak = false;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
@@ -141,13 +141,7 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
-  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  
-  
-	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
-	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
-	
-	midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1	
-	midi_send_control_change(0xB0, 7, 100); // set default volume	
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  	
 	
   return UNI_ERROR_SUCCESS;
 }
@@ -274,8 +268,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 2;	// Normal
 				
 				if (but6) {
-					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
-					active_strum_pattern = 1;			// force bass/strum					
+					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
 				}				
 			}
 			else
@@ -624,17 +617,27 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (green) {
 					enable_style_play = !enable_style_play;						// enable/disable chords on channel 4
+  
+					if (enable_style_play) {
+						midi_send_program_change(0xC0 + (enable_seqtrak ? 7 : 3), 89);		// warm pad on channel 4 (chords) 
+						midi_send_control_change(0xB0 + (enable_seqtrak ? 7 : 3), 7, 0); 	// don't play pads by default
+						
+						midi_send_program_change(0xC0 + (enable_seqtrak ? 8 : 0), 26);		// jazz guitar on channel 1	
+						midi_send_control_change(0xB0 + (enable_seqtrak ? 8 : 0), 7, 100); // set default volume	
+					}						
 				}
 				else
 					
 				if (red) {
 					enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
 					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-					midi_send_note(0x90, 86, 127);								// set chord detectt					
+					midi_send_note(0x90, 86, 127);
+					enable_style_play =	true;
 				}
 				
-				if (yellow) 
-				{
+				if (yellow) {
+					enable_style_play =	true;
+					
 					if (enable_midi_drums) {
 						looper_clear_all_tracks();								// Midi drums looper
 					}
@@ -642,6 +645,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				}
 				
 				if (blue) {
+					enable_style_play =	true;					
 					enable_seqtrak = !enable_seqtrak;
 				}
 				
