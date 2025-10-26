@@ -37,6 +37,7 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
 void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value);
@@ -504,14 +505,20 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 					} 
 					
-					if (mbut0) midi_yamaha_start_stop(0x7A, true);
+					if (mbut0) {
+						midi_yamaha_start_stop(0x7A, true);
+						midi_start_stop(true);
+					}
 					
 				} else {
 					if (yamaha_code != 127) {
 						midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
 					}
 					
-					if (mbut0) midi_yamaha_start_stop(0x7D, true);				
+					if (mbut0) {
+						midi_yamaha_start_stop(0x7D, true);				
+						midi_start_stop(false);
+					}						
 				}
 			}
 			

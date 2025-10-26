@@ -65,6 +65,7 @@ static uint32_t old_p4 = 0;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
+void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
 void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value);
@@ -203,6 +204,16 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 		send_ble_midi(msg, 2);	
 	} else {
 		tud_midi_n_stream_write(0, 0, msg, 2);		
+	}
+}
+
+void midi_start_stop(bool start)
+{
+	uint8_t msg[1];	
+	msg[4] = start ? 0xFA : 0xFC;	
+
+	if (!orinayo_enabled) {	
+		tud_midi_n_stream_write(0, 0, msg, 1);	
 	}
 }
 
