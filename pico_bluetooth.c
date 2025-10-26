@@ -38,6 +38,7 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void void midi_seqtrak_pattern(uint8_t pattern);
 void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
@@ -595,9 +596,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
 					//ghost_parameters_t *params = ghost_note_parameters();
 					//params->ghost_intensity = 0.843;	
-				}
+				}				
+			}
+			else
 				
-			} else {	
+			if (enable_seqtrak) {
+				if (mbut1) midi_seqtrak_pattern(style_section % 6);				
+			} 
+			else {	
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
 				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
 			}				
