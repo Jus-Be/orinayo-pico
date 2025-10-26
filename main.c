@@ -168,7 +168,7 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
-	unit8_t channel = 0;	
+	uint8_t channel = 0;	
 	if (enable_seqtrak) channel = 8;
 	
 	uint8_t msg[3];	
@@ -285,7 +285,7 @@ void midi_ketron_footsw(uint8_t code, bool on)
 	}
 }
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
-	unit8_t channel = 3;	
+	uint8_t channel = 3;	
 	if (enable_seqtrak) channel = 7;
 	
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
@@ -316,7 +316,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 }
 
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  {
-	unit8_t channel = 3;	
+	uint8_t channel = 3;	
 	if (enable_seqtrak) channel = 7;
 	
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
