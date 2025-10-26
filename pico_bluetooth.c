@@ -347,16 +347,23 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					old_style = style_section;
 					style_section--;
 					if (style_section < 0) style_section = 7;
-
-					if (enable_midi_drums && looper_status.state == LOOPER_STATE_PLAYING)	{
-						//ghost_parameters_t *params = ghost_note_parameters();
-						//params->ghost_intensity = 0.843;			
-					}					
 				}
 
-				if (!enable_midi_drums) {				
+				if (enable_midi_drums)	
+				{
+					if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
+						//ghost_parameters_t *params = ghost_note_parameters();
+						//params->ghost_intensity = 0.843;		
+					}							
+				}	
+				else
+					
+				if (enable_seqtrak) {
+					if (but6) midi_seqtrak_pattern(style_section % 6);				
+				}
+				else {
 					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
-					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);					
+					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
 				}
 			}	
 	
