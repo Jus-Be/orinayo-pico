@@ -288,8 +288,6 @@ void midi_ketron_footsw(uint8_t code, bool on) {
 	}
 }
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
-	uint8_t channel = 3;	
-	if (enable_seqtrak) channel = 7;
 	
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
 	{
@@ -301,27 +299,25 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x90 + channel, p1, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x90 + channel, p2, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x90 + channel, p3, enable_ample_guitar ? 127 : 32);		
+			midi_send_note(0x90, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90, p3, enable_ample_guitar ? 127 : 32);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;
 			
 		} else {
-			midi_send_note(0x90 + channel, old_p1, 0);
-			midi_send_note(0x90 + channel, old_p2, 0);
-			midi_send_note(0x90 + channel, old_p3, 0);
-			midi_send_note(0x90 + channel, old_p4, 0);		
+			midi_send_note(0x90, old_p1, 0);
+			midi_send_note(0x90, old_p2, 0);
+			midi_send_note(0x90, old_p3, 0);
+			midi_send_note(0x90, old_p4, 0);		
 		}
 	}
 }
 
-void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  {
-	uint8_t channel = 3;	
-	if (enable_seqtrak) channel = 7;
-	
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  {	
+
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
 	{	
 		if (on) {
@@ -333,20 +329,20 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				p4 = (p4 % 12) + ((p4  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x90 + channel, p1, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x90 + channel, p2, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x90 + channel, p3, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x90 + channel, p4, enable_ample_guitar ? 127 : 32);	
+			midi_send_note(0x90, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90, p3, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90, p4, enable_ample_guitar ? 127 : 32);	
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;		
 			old_p4 = p4;				
 		} else {
-			midi_send_note(0x90 + channel, old_p1, 0);
-			midi_send_note(0x90 + channel, old_p2, 0);
-			midi_send_note(0x90 + channel, old_p3, 0);		
-			midi_send_note(0x90 + channel, old_p4, 0);			
+			midi_send_note(0x90, old_p1, 0);
+			midi_send_note(0x90, old_p2, 0);
+			midi_send_note(0x90, old_p3, 0);		
+			midi_send_note(0x90, old_p4, 0);			
 		}
 	}
 }
