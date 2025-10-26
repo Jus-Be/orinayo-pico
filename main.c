@@ -218,6 +218,8 @@ void midi_start_stop(bool start)
 
 	if (!orinayo_enabled) {	
 		tud_midi_n_stream_write(0, 0, msg, 1);	
+		msg[0] = 0xF8;	
+		tud_midi_n_stream_write(0, 0, msg, 1);			
 	}
 }
 
