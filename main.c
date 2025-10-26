@@ -214,7 +214,7 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 void midi_start_stop(bool start)
 {
 	uint8_t msg[1];	
-	msg[1] = start ? 0xFA : 0xFC;	
+	msg[0] = start ? 0xFA : 0xFC;	
 
 	if (!orinayo_enabled) {	
 		tud_midi_n_stream_write(0, 0, msg, 1);	
