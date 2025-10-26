@@ -25,6 +25,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
+bool enable_seqtrak = false;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 int active_strum_pattern = 0;	
@@ -638,6 +639,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						looper_clear_all_tracks();								// Midi drums looper
 					}
 					enable_midi_drums = !enable_midi_drums;
+				}
+				
+				if (blue) {
+					enable_seqtrak = !enable_seqtrak;
 				}
 				
 				break;

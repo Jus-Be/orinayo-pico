@@ -57,6 +57,7 @@ extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
 extern int active_strum_pattern;
 extern bool enable_midi_drums;
+extern bool enable_seqtrak;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -166,11 +167,13 @@ void tud_resume_cb(void)
 // MIDI Tasks
 //--------------------------------------------------------------------+
 
-void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity)
-{
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
+	unit8_t channel = 0;	
+	if (enable_seqtrak) channel = 8;
+	
 	uint8_t msg[3];	
 	
-	msg[0] = command;
+	msg[0] = command + channel;
 	msg[1] = note;
 	msg[2] = velocity;   
 		
@@ -210,7 +213,7 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 void midi_start_stop(bool start)
 {
 	uint8_t msg[1];	
-	msg[4] = start ? 0xFA : 0xFC;	
+	msg[1] = start ? 0xFA : 0xFC;	
 
 	if (!orinayo_enabled) {	
 		tud_midi_n_stream_write(0, 0, msg, 1);	
@@ -281,8 +284,10 @@ void midi_ketron_footsw(uint8_t code, bool on)
 		tud_midi_n_stream_write(0, 0, msg, 8);	
 	}
 }
-void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) 
-{
+void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
+	unit8_t channel = 3;	
+	if (enable_seqtrak) channel = 7;
+	
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
 	{
 		if (on) {
@@ -293,25 +298,27 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3)
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x93, p2, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x93, p3, enable_ample_guitar ? 127 : 32);		
+			midi_send_note(0x90 + channel, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90 + channel, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90 + channel, p3, enable_ample_guitar ? 127 : 32);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;
 			
 		} else {
-			midi_send_note(0x83, old_p1, 0);
-			midi_send_note(0x83, old_p2, 0);
-			midi_send_note(0x83, old_p3, 0);
-			midi_send_note(0x83, old_p4, 0);		
+			midi_send_note(0x90 + channel, old_p1, 0);
+			midi_send_note(0x90 + channel, old_p2, 0);
+			midi_send_note(0x90 + channel, old_p3, 0);
+			midi_send_note(0x90 + channel, old_p4, 0);		
 		}
 	}
 }
 
-void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  
-{
+void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4)  {
+	unit8_t channel = 3;	
+	if (enable_seqtrak) channel = 7;
+	
 	if (!enable_ample_guitar || (enable_ample_guitar && active_strum_pattern == 0))
 	{	
 		if (on) {
@@ -323,20 +330,20 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				p4 = (p4 % 12) + ((p4  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_note(0x93, p1, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x93, p2, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x93, p3, enable_ample_guitar ? 127 : 32);
-			midi_send_note(0x93, p4, enable_ample_guitar ? 127 : 32);	
+			midi_send_note(0x90 + channel, p1, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90 + channel, p2, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90 + channel, p3, enable_ample_guitar ? 127 : 32);
+			midi_send_note(0x90 + channel, p4, enable_ample_guitar ? 127 : 32);	
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;		
 			old_p4 = p4;				
 		} else {
-			midi_send_note(0x83, old_p1, 0);
-			midi_send_note(0x83, old_p2, 0);
-			midi_send_note(0x83, old_p3, 0);		
-			midi_send_note(0x83, old_p4, 0);			
+			midi_send_note(0x90 + channel, old_p1, 0);
+			midi_send_note(0x90 + channel, old_p2, 0);
+			midi_send_note(0x90 + channel, old_p3, 0);		
+			midi_send_note(0x90 + channel, old_p4, 0);			
 		}
 	}
 }
