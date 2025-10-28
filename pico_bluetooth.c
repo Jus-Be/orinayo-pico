@@ -25,6 +25,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
+bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
@@ -254,9 +255,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose = 0;
 			}
 			else
+				
+			if (red && blue) {
+				if (but6) enable_auto_hold = !enable_auto_hold;
+			}
+			else
 
 			if (yellow && orange) {
-				enable_style_play = !enable_style_play;	// toggle chord generation
+				if (but6) enable_style_play = !enable_style_play;	// toggle chord generation
 			}				
 			else
 
@@ -386,10 +392,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			left = dpad_left;
 			
 			if (dpad_left) {
-				midi_play_chord(false, 0, 0, 0);	
+				if (enable_auto_hold) midi_play_chord(false, 0, 0, 0);	
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange) midi_play_chord(false, 0, 0, 0);	
+				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -412,10 +418,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
-				midi_play_chord(false, 0, 0, 0);					
+				if (enable_auto_hold) midi_play_chord(false, 0, 0, 0);					
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange) midi_play_chord(false, 0, 0, 0);	
+				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
