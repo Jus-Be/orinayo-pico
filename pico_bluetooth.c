@@ -255,6 +255,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 
+			if (yellow && orange) {
+				enable_style_play = !enable_style_play;	// toggle chord generation
+			}				
+			else
+
 			if (yellow && blue) {
 				active_neck_pos = 3;	// High
 				
@@ -381,9 +386,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			left = dpad_left;
 			
 			if (dpad_left) {
-				play_chord(true, false, green, red, yellow, blue, orange);
+				midi_play_chord(false, 0, 0, 0);	
+				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
+				if (!green && !red && !yellow && !blue && !orange) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -406,9 +412,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
+				midi_play_chord(false, 0, 0, 0);					
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (enable_style_play) midi_play_chord(false, 0, 0, 0);	
+				if (!green && !red && !yellow && !blue && !orange) midi_play_chord(false, 0, 0, 0);	
 				
 				for (int n=0; n<6; n++) 
 				{
