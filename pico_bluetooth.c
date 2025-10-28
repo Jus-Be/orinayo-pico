@@ -34,6 +34,7 @@ int active_neck_pos = 2;
 int style_section = 0; 
 int style_group = 0; 
 int old_style = -1;
+int ample_old_key = 0;
 int transpose = 0; 
 
 uint8_t old_midinotes[6] = {0};
@@ -391,11 +392,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_left != left) { 	// Strum down
 			left = dpad_left;
 			
-			if (dpad_left) {
-				if (enable_auto_hold) midi_play_chord(false, 0, 0, 0);	
+			if (dpad_left) 	{
+				if (enable_auto_hold) clear_chord_notes();				
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) midi_play_chord(false, 0, 0, 0);	
+				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) clear_chord_notes();		
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -418,10 +419,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
-				if (enable_auto_hold) midi_play_chord(false, 0, 0, 0);					
+				if (enable_auto_hold) clear_chord_notes();				
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) midi_play_chord(false, 0, 0, 0);	
+				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) clear_chord_notes();		
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -533,6 +534,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {
 						midi_yamaha_start_stop(0x7D, true);				
 						midi_start_stop(false);
+						midi_play_chord(false, 0, 0, 0);	
 					}						
 				}
 			}
@@ -639,8 +641,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (mbut3 != config) {	// config/menu options
 			config = mbut3;
 			
-			if (mbut3) 
-			{
+			if (mbut3) 	{
+				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
+				
 				if (green) {  
 					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
 					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
@@ -802,6 +805,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
       //loge("Unsupported controller class: %d\n", ctl->klass);
       break;
   }
+}
+
+void clear_chord_notes() {
+	midi_play_chord(false, 0, 0, 0);
+	if (ample_old_key) midi_send_note(0x80, ample_old_key, 0);					
+	ample_old_key = 0;		
 }
 
 
@@ -1060,8 +1069,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				{	
 					if (style_section != old_style) {
 						note = ample_style_notes[style_section] + 24;							
-						midi_send_note(0x90, note, 127);
-						old_midinotes[0] = note;		
+						midi_send_note(0x90, note, 127);				// play style key note
+						ample_old_key = note;		
 					}						
 				} 
 				else 

@@ -315,8 +315,10 @@ void midi_ketron_footsw(uint8_t code, bool on) {
 		tud_midi_n_stream_write(0, 0, msg, 8);	
 	}
 }
-void midi_send_chord_note(uint8_t command, uint8_t note, uint8_t velocity) {
-	uint8_t channel = 3;	
+void midi_send_chord_note(uint8_t note, uint8_t velocity) {
+	uint8_t command = 0x90;
+	uint8_t channel = 3;
+	
 	if (enable_seqtrak) channel = 7;
 	
 	uint8_t msg[3];	
@@ -342,19 +344,19 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_chord_note(0x90, p1, enable_ample_guitar ? 127 : 127);
-			midi_send_chord_note(0x90, p2, enable_ample_guitar ? 127 : 127);
-			midi_send_chord_note(0x90, p3, enable_ample_guitar ? 127 : 127);		
+			midi_send_chord_note( p1, enable_ample_guitar ? 127 : 127);
+			midi_send_chord_note( p2, enable_ample_guitar ? 127 : 127);
+			midi_send_chord_note( p3, enable_ample_guitar ? 127 : 127);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;
 			
 		} else {
-			midi_send_chord_note(0x90, old_p1, 0);
-			midi_send_chord_note(0x90, old_p2, 0);
-			midi_send_chord_note(0x90, old_p3, 0);
-			midi_send_chord_note(0x90, old_p4, 0);		
+			midi_send_chord_note( old_p1, 0);
+			midi_send_chord_note( old_p2, 0);
+			midi_send_chord_note( old_p3, 0);
+			midi_send_chord_note( old_p4, 0);		
 		}
 	}
 }
@@ -372,20 +374,20 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				p4 = (p4 % 12) + ((p4  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_chord_note(0x90, p1, enable_ample_guitar ? 127 : 127);
-			midi_send_chord_note(0x90, p2, enable_ample_guitar ? 127 : 127);
-			midi_send_chord_note(0x90, p3, enable_ample_guitar ? 127 : 127);
-			midi_send_chord_note(0x90, p4, enable_ample_guitar ? 127 : 127);	
+			midi_send_chord_note( p1, enable_ample_guitar ? 127 : 127);
+			midi_send_chord_note( p2, enable_ample_guitar ? 127 : 127);
+			midi_send_chord_note( p3, enable_ample_guitar ? 127 : 127);
+			midi_send_chord_note( p4, enable_ample_guitar ? 127 : 127);	
 			
 			old_p1 = p1;
 			old_p2 = p2;
 			old_p3 = p3;		
 			old_p4 = p4;				
 		} else {
-			midi_send_chord_note(0x90, old_p1, 0);
-			midi_send_chord_note(0x90, old_p2, 0);
-			midi_send_chord_note(0x90, old_p3, 0);		
-			midi_send_chord_note(0x90, old_p4, 0);			
+			midi_send_chord_note( old_p1, 0);
+			midi_send_chord_note( old_p2, 0);
+			midi_send_chord_note( old_p3, 0);		
+			midi_send_chord_note( old_p4, 0);			
 		}
 	}
 }
