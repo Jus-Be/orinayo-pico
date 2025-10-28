@@ -68,7 +68,7 @@ void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
 void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
-void midi_send_chord_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_send_chord_note(uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
 void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
