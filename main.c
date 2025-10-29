@@ -82,7 +82,9 @@ void midi_seqtrak_pattern(uint8_t pattern);
 void midi_seqtrak_mute(uint8_t track, bool mute);
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
+void midi_seqtrak_arp();
 uint8_t get_arp_template(void);
+
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
@@ -258,15 +260,7 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	
 	if (!orinayo_enabled) {	
 		// config bass arp on track 8 and 10		
-		uint8_t template = get_arp_template();
-										
-		midi_send_control_change(0xB7, 27, template);
-		midi_send_control_change(0xB7, 28, 127); 							// Arp Gate always 200%
-		midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); // Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
-		
-		midi_send_control_change(0xB9, 27, template);	
-		midi_send_control_change(0xB9, 28, 127); 							
-		midi_send_control_change(0xB9, 29, style_section % 2 == 0 ? 6 : 9); // flip arp speed for bass and keys		
+		midi_seqtrak_arp();		
 		
 		// switch drums tracks 1-7
 		
@@ -274,10 +268,22 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 			msg[7] = 0x50 + i;
 			tud_midi_n_stream_write(0, 0, msg, 11);	
 		}
-		
-		
-
 	}	
+}
+
+void midi_seqtrak_arp() {
+	if (!enable_seqtrak || orinayo_enabled) return;	
+	
+	// config bass arp on track 8 and 10		
+	uint8_t template = get_arp_template();
+									
+	midi_send_control_change(0xB7, 27, template);
+	midi_send_control_change(0xB7, 28, 127); 							// Arp Gate always 200%
+	midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); // Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
+	
+	midi_send_control_change(0xB9, 27, template);	
+	midi_send_control_change(0xB9, 28, 127); 							
+	midi_send_control_change(0xB9, 29, style_section % 2 == 0 ? 6 : 9); // flip arp speed for bass and keys			
 }
 
 uint8_t get_arp_template(void) {
