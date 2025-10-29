@@ -78,6 +78,8 @@ void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void midi_seqtrak_pattern(uint8_t pattern);
 void midi_seqtrak_mute(uint8_t track, bool mute);
+void midi_seqtrak_key(uint8_t key);
+void midi_seqtrak_tempo(int tempo);
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
@@ -170,6 +172,49 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 // MIDI Tasks
 //--------------------------------------------------------------------+
+
+void midi_seqtrak_tempo(int tempo) {
+	if (!enable_seqtrak) return;	
+	
+	uint8_t msg[12];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0C; 
+	msg[6] = 0x30;
+	msg[7] = 0x40;
+	msg[8] = 0x76;
+	msg[9] = (int) (tempo / 128);
+	msg[10] = tempo % 128;
+	msg[11] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 12);	
+	}	
+}
+
+void midi_seqtrak_key(uint8_t key) {
+	if (!enable_seqtrak) return;	
+	
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0C; 
+	msg[6] = 0x30;
+	msg[7] = 0x40;
+	msg[8] = 0x7F;
+	msg[9] = key;
+	msg[10] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
 
 void midi_seqtrak_mute(uint8_t track, bool mute) {
 	if (!enable_seqtrak) return;	

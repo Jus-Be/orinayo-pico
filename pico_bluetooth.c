@@ -41,6 +41,8 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void midi_seqtrak_key(uint8_t key);
+void midi_seqtrak_tempo(int tempo);
 void midi_seqtrak_pattern(uint8_t pattern);
 void midi_seqtrak_mute(uint8_t track, bool mute);
 void midi_start_stop(bool start);
@@ -453,7 +455,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 			if (dpad_up) {
 				transpose--;
-				if (transpose < 0) transpose = 11;
+				if (transpose < 0) 	transpose = 11;				
+				if (enable_seqtrak) midi_seqtrak_key(transpose);				
 			}
 			break;			
 		}
@@ -463,7 +466,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			if (dpad_down) {
 				transpose++;
-				if (transpose > 11) transpose = 0;		
+				if (transpose > 11) transpose = 0;	
+				if (enable_seqtrak) midi_seqtrak_key(transpose);					
 			}
 			break;
 		}		
@@ -711,31 +715,46 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			
 			if (green) 
 			{
-				if (joy_up && enable_midi_drums) looper_update_bpm(80);
+				if (joy_up) {
+					if (enable_midi_drums) 	looper_update_bpm(80);
+					if (enable_seqtrak) 	midi_seqtrak_tempo(80);
+				}
 			}
 			else
 				
 			if (red) 
 			{
-				if (joy_up && enable_midi_drums) looper_update_bpm(96);
+				if (joy_up) {
+					if (enable_midi_drums) 	looper_update_bpm(96);
+					if (enable_seqtrak) 	midi_seqtrak_tempo(96);
+				}
 			}
 			else
 
 			if (yellow) 
 			{
-				if (joy_up && enable_midi_drums) looper_update_bpm(100);
+				if (joy_up) {
+					if (enable_midi_drums) 	looper_update_bpm(100);
+					if (enable_seqtrak) 	midi_seqtrak_tempo(100);
+				}
 			}
 			else
 				
 			if (blue) 
 			{
-				if (joy_up && enable_midi_drums) looper_update_bpm(110);
+				if (joy_up) {
+					if (enable_midi_drums) 	looper_update_bpm(110);
+					if (enable_seqtrak) 	midi_seqtrak_tempo(110);
+				}
 			}
 			else	
 
 			if (orange) 
 			{
-				if (joy_up && enable_midi_drums) looper_update_bpm(120);
+				if (joy_up) {
+					if (enable_midi_drums) 	looper_update_bpm(120);
+					if (enable_seqtrak) 	midi_seqtrak_tempo(120);
+				}
 			}
 			else					
 
