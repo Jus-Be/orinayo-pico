@@ -302,7 +302,7 @@ void midi_seqtrak_arp() {
 	midi_send_control_change(0xB7, 27, template);
 	midi_send_control_change(0xB7, 28, 127); 							// Arp Gate always 200%
 	midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); // Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
-	midi_seqtrak_arp_octave(7, -1);										// set octave to -1 for bass
+	midi_seqtrak_arp_octave(7, -2);										// set octave to -2 for bass
 	
 	midi_send_control_change(0xB9, 27, template);	
 	midi_send_control_change(0xB9, 28, 127); 							
