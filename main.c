@@ -172,6 +172,8 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 
 void midi_seqtrak_mute(uint8_t track, bool mute) {
+	if (!enable_seqtrak) return;	
+	
 	uint8_t msg[11];	
 	msg[0] = 0xF0;
 	msg[1] = 0x43;
@@ -185,12 +187,14 @@ void midi_seqtrak_mute(uint8_t track, bool mute) {
 	msg[9] = mute ? 125 : 0;
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) 
+	if (!orinayo_enabled) {
 		tud_midi_n_stream_write(0, 0, msg, 11);	
 	}	
 }
 
 void midi_seqtrak_pattern(uint8_t pattern) {
+	if (!enable_seqtrak) return;	
+	
 	uint8_t msg[11];	
 	msg[0] = 0xF0;
 	msg[1] = 0x43;
