@@ -184,7 +184,7 @@ void midi_seqtrak_mute(uint8_t track, bool mute) {
 	msg[6] = 0x30;
 	msg[7] = 0x50 + track;
 	msg[8] = 0x29;
-	msg[9] = mute ? 0 : 125;
+	msg[9] = mute ? 0x7D : 0;
 	msg[10] = 0xF7;
 	
 	if (!orinayo_enabled) {
@@ -203,7 +203,7 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	msg[4] = 0x1C;
 	msg[5] = 0x0C; 
 	msg[6] = 0x30;
-	msg[7] = 0x57;
+
 	msg[8] = 0x0F;
 	msg[9] = pattern;
 	msg[10] = 0xF7;
