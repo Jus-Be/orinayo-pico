@@ -257,14 +257,7 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	msg[10] = 0xF7;
 	
 	if (!orinayo_enabled) {	
-		// first switch drums tracks 1-7
-		
-		for (int i=0; i<7; i++) {						
-			msg[7] = 0x50 + i;
-			tud_midi_n_stream_write(0, 0, msg, 11);	
-		}
-		
-		// next config bass arp on track 8 and 10		
+		// config bass arp on track 8 and 10		
 		uint8_t template = get_arp_template();
 										
 		midi_send_control_change(0xB7, 27, template);
@@ -274,6 +267,15 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 		midi_send_control_change(0xB9, 27, template);	
 		midi_send_control_change(0xB9, 28, 127); 							
 		midi_send_control_change(0xB9, 29, style_section % 2 == 0 ? 6 : 9); // flip arp speed for bass and keys		
+		
+		// switch drums tracks 1-7
+		
+		for (int i=0; i<7; i++) {						
+			msg[7] = 0x50 + i;
+			tud_midi_n_stream_write(0, 0, msg, 11);	
+		}
+		
+		
 
 	}	
 }
