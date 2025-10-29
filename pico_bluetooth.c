@@ -528,11 +528,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 					} 
 					
-					if (mbut0) {
-						midi_yamaha_start_stop(0x7A, true);
-						midi_start_stop(true);
-						midi_seqtrak_mute(7, false);
-						midi_seqtrak_mute(9, false);						
+					if (mbut0) {						
+						if (enable_seqtrak) {
+							midi_seqtrak_mute(7, false);
+							midi_seqtrak_mute(9, false);
+							midi_start_stop(true);							
+						} else {
+							midi_yamaha_start_stop(0x7A, true);							
+						}
 					}
 					
 				} else {
@@ -541,11 +544,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}
 					
 					if (mbut0) {
-						midi_yamaha_start_stop(0x7D, true);				
-						midi_start_stop(false);
-						midi_play_chord(false, 0, 0, 0);	
-						midi_seqtrak_mute(7, true);
-						midi_seqtrak_mute(9, true);						
+						if (enable_seqtrak) {	
+							midi_seqtrak_mute(7, true);
+							midi_seqtrak_mute(9, true);							
+							midi_start_stop(false);
+							midi_play_chord(false, 0, 0, 0);		
+						} else {
+							midi_yamaha_start_stop(0x7D, true);		
+						}							
 					}						
 				}
 			}
