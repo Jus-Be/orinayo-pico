@@ -192,7 +192,7 @@ void midi_seqtrak_arp_octave(uint8_t track, int octave) {
 	msg[6] = 0x31;
 	msg[7] = 0x50 + track;
 	msg[8] = 0x1C;
-	msg[9] = 0x40 + octave);	// 0x3D - 0x43 (-3 to +3)
+	msg[9] = 0x40 + octave;	// 0x3D - 0x43 (-3 to +3)
 	msg[10] = 0xF7;
 	
 	if (!orinayo_enabled) {
