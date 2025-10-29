@@ -106,6 +106,8 @@ extern bool enable_midi_drums;
 extern int style_section; 
 extern int style_group;
 
+void midi_seqtrak_tempo(int tempo);
+
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
 	return enable_midi_drums;
@@ -274,6 +276,7 @@ track_t *looper_tracks_get(size_t *num) {
 void looper_update_bpm(uint32_t bpm) {
     looper_status.bpm = bpm;
     looper_status.step_period_ms = 60000 / (bpm * LOOPER_STEPS_PER_BEAT);
+	midi_seqtrak_tempo(bpm);
 }
 
 // Processes the looper's main state machine, called by the step timer.

@@ -280,7 +280,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 3;	// High
 				
 				if (but6) {
-					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
+					if (!enable_seqtrak) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
 					active_strum_pattern = 3;			// force arpeggios, no strumming					
 				}				
 			}
@@ -290,7 +290,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 2;	// Normal
 				
 				if (but6) {
-					midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
+					if (!enable_seqtrak) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
 				}				
 			}
 			else
@@ -299,7 +299,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 1;	// Low
 				
 				if (but6) {
-					midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
+					if (!enable_seqtrak) midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
 					active_strum_pattern = 2;			// force arpeggios, no strumming
 				}
 			}
@@ -675,7 +675,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (mbut3) 	{
 				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 				
-				if (green) {  
+				if (green && !enable_seqtrak) {  
 					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
 					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
 					
