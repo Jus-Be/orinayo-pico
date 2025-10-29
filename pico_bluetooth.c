@@ -27,6 +27,7 @@ bool style_started = false;
 bool enable_style_play = true;
 bool enable_auto_hold = false;
 bool enable_seqtrak = false;
+bool enable_seqtrak_dx = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 int active_strum_pattern = 0;	
@@ -41,6 +42,7 @@ uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
 void midi_seqtrak_pattern(uint8_t pattern);
+void midi_seqtrak_mute(uint8_t track, bool mute);
 void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_send_program_change(uint8_t command, uint8_t code);
@@ -256,6 +258,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose = 0;
 			}
 			else
+
+			if (green && yellow) {
+				if (but6) enable_seqtrak_dx = !enable_seqtrak_dx;
+			}
+			else				
 				
 			if (red && blue) {
 				if (but6) enable_auto_hold = !enable_auto_hold;
@@ -524,6 +531,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {
 						midi_yamaha_start_stop(0x7A, true);
 						midi_start_stop(true);
+						midi_seqtrak_mute(7, true);
+						midi_seqtrak_mute(9, true);						
 					}
 					
 				} else {
@@ -535,6 +544,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_yamaha_start_stop(0x7D, true);				
 						midi_start_stop(false);
 						midi_play_chord(false, 0, 0, 0);	
+						midi_seqtrak_mute(7, false);
+						midi_seqtrak_mute(9, false);						
 					}						
 				}
 			}

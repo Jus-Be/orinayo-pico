@@ -58,6 +58,7 @@ extern bool enable_ample_guitar;
 extern int active_strum_pattern;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
+extern bool enable_seqtrak_dx;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -76,6 +77,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void midi_seqtrak_pattern(uint8_t pattern);
+void midi_seqtrak_mute(uint8_t track, bool mute);
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
@@ -168,6 +170,25 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 // MIDI Tasks
 //--------------------------------------------------------------------+
+
+void midi_seqtrak_mute(uint8_t track, bool mute) {
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0C; 
+	msg[6] = 0x30;
+	msg[7] = 0x50 + track;
+	msg[8] = 0x29;
+	msg[9] = mute ? 125 : 0;
+	msg[10] = 0xF7;
+	
+	if (!orinayo_enabled) 
+		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
 
 void midi_seqtrak_pattern(uint8_t pattern) {
 	uint8_t msg[11];	
@@ -329,8 +350,10 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 			msg[0] = command + 7;						// AWM2 Synth (CH8)
 			tud_midi_n_stream_write(0, 0, msg, 3);	
 			
-			msg[0] = command + 9;						// DX Synth (CH10)
-			tud_midi_n_stream_write(0, 0, msg, 3);			
+			if (enable_seqtrak_dx) {
+				msg[0] = command + 9;						// DX Synth (CH10)
+				tud_midi_n_stream_write(0, 0, msg, 3);	
+			}				
 			
 		} else {
 			tud_midi_n_stream_write(0, 0, msg, 3);			
