@@ -55,7 +55,9 @@ void pico_set_led(bool led_on) {
 
 extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
+extern int style_section;
 extern int active_strum_pattern;
+extern int active_neck_pos;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
 extern bool enable_seqtrak_dx;
@@ -253,13 +255,35 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	msg[9] = pattern;
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) 
-	{	
-		for (int i=0; i<7; i++) {
+	if (!orinayo_enabled) {	
+		// first switch drums tracks 1-7
+		
+		for (int i=0; i<7; i++) {						
 			msg[7] = 0x50 + i;
 			tud_midi_n_stream_write(0, 0, msg, 11);	
 		}
+		
+		// next config bass arp on track 8 and 10
+										
+		midi_send_control_change(0xB7, 27, get_arp_template());
+		midi_send_control_change(0xB7, 28, 127); 							// Arp Gate always 200%
+		midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); // Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
+		
+		midi_send_control_change(0xB9, 27, get_arp_template());	
+		midi_send_control_change(0xB9, 28, 127); 							
+		midi_send_control_change(0xB9, 29, style_section % 2 == 0 ? 6 : 9); // flip arp speed for bass and keys		
+
 	}	
+}
+
+uint8_t get_arp_template() {
+	if (active_strum_pattern == -1) return 15;																							// no chord data, use pattern data
+	if (active_strum_pattern == 0) 	return style_section % 2 == 0 ? 13 : 14;															// strum - use chord 
+	if (active_strum_pattern == 1) 	return style_section % 2 == 0 ? 6 : 7;																// strum/bass - use random 
+	if (active_strum_pattern == 2) 	return style_section % 2 == 0 ? 2 : 3;																// arp1 - use up 
+	if (active_strum_pattern == 3) 	return style_section % 2 == 0 ? 4 : 5;																// arp2 - use down
+	if (active_strum_pattern == 4) 	return style_section % 2 == 0 ? (active_neck_pos == 1 ? 8 : 9) : (active_neck_pos == 2 ? 10: 11);	// arp3 - use up/down
+	return 15;	
 }
 
 
