@@ -83,6 +83,7 @@ void midi_seqtrak_mute(uint8_t track, bool mute);
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
 void midi_seqtrak_arp();
+void midi_seqtrak_arp_octave(uint8_t track, int octave);
 uint8_t get_arp_template(void);
 
 
@@ -177,6 +178,27 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 // MIDI Tasks
 //--------------------------------------------------------------------+
+
+void midi_seqtrak_arp_octave(uint8_t track, int octave) {
+	if (!enable_seqtrak) return;	
+	
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0C; 
+	msg[6] = 0x31;
+	msg[7] = 0x50 + track;
+	msg[8] = 0x1C;
+	msg[9] = 0x40 + octave);	// 0x3D - 0x43 (-3 to +3)
+	msg[10] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
 
 void midi_seqtrak_tempo(int tempo) {
 	if (!enable_seqtrak) return;	
@@ -280,6 +302,7 @@ void midi_seqtrak_arp() {
 	midi_send_control_change(0xB7, 27, template);
 	midi_send_control_change(0xB7, 28, 127); 							// Arp Gate always 200%
 	midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); // Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
+	midi_seqtrak_arp_octave(7, -1);										// set octave to -1 for bass
 	
 	midi_send_control_change(0xB9, 27, template);	
 	midi_send_control_change(0xB9, 28, 127); 							
