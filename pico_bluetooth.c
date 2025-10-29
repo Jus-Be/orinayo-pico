@@ -639,8 +639,18 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 				
-			if (enable_seqtrak) {
-				if (mbut1) midi_seqtrak_pattern(style_section % 6);				
+			if (enable_seqtrak) 
+			{
+				if (mbut1) 
+				{
+					if (style_started) {
+						midi_seqtrak_pattern(style_section % 6);				
+					} else {
+						midi_send_program_change(0xC0, style_group);		// set PC to project no
+						midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
+						midi_send_control_change(0xB0, 32, 0); 				// LSB 0							
+					}
+				}
 			} 
 			else {	
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
