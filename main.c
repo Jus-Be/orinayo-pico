@@ -280,12 +280,8 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	msg[9] = pattern;
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) {	
-		// config bass arp on track 8 and 10		
-		midi_seqtrak_arp();		
-		
-		// switch drums tracks 1-7
-		
+	if (!orinayo_enabled) 
+	{			
 		for (int i=0; i<7; i++) {						
 			msg[7] = 0x50 + i;
 			tud_midi_n_stream_write(0, 0, msg, 11);	
