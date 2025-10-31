@@ -1073,10 +1073,10 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (yellow)    // C
 	{
+		seqtrak_chord = 1;		
 		if (enable_style_play) midi_play_chord(on, base, base + 4, base + 7);
 		chord_note = (base);	
 		handled = true;	
-		seqtrak_chord = 1;
 	}
 	else
 

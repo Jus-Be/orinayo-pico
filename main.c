@@ -485,7 +485,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			old_p2 = p2;
 			old_p3 = p3;			
 
-			if (enable_seqtrak && seqtrak_chord > 0) {
+			if (enable_seqtrak && seqtrak_chord > 0 && active_strum_pattern == 0) {	// sampler only with strum mode
 				uint8_t msg[3] = {0x9A, seqtrak_chord + 59, 127};
 				tud_midi_n_stream_write(0, 0, msg, 3);
 			}			
@@ -496,7 +496,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			midi_send_chord_note( old_p3, 0);
 			midi_send_chord_note( old_p4, 0);
 
-			if (enable_seqtrak && seqtrak_chord > 0) {
+			if (enable_seqtrak && seqtrak_chord > 0 && active_strum_pattern == 0) {
 				uint8_t msg[3] = {0x8A, seqtrak_chord + 59, 0};
 				tud_midi_n_stream_write(0, 0, msg, 3);
 			}			
@@ -527,7 +527,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			old_p3 = p3;		
 			old_p4 = p4;
 
-			if (enable_seqtrak && seqtrak_chord > 0) {
+			if (enable_seqtrak && seqtrak_chord > 0 && active_strum_pattern == 0) {
 				uint8_t msg[3] = {0x9A, seqtrak_chord + 59, 127};
 				tud_midi_n_stream_write(0, 0, msg, 3);
 			}
@@ -538,7 +538,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			midi_send_chord_note( old_p3, 0);		
 			midi_send_chord_note( old_p4, 0);	
 
-			if (enable_seqtrak && seqtrak_chord > 0) {
+			if (enable_seqtrak && seqtrak_chord > 0 && active_strum_pattern == 0) {
 				uint8_t msg[3] = {0x8A, seqtrak_chord + 59, 0};
 				tud_midi_n_stream_write(0, 0, msg, 3);
 			}			
