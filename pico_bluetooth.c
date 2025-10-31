@@ -581,13 +581,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}		
 		
-		if (mbut1 != starpower) { // next style/section			
+		if (mbut1 != starpower) { // next style/section	
+			bool style_selected = false;
 			starpower = mbut1;			
 			if (mbut1) old_style = style_section;
 
 			if (green) 
 			{
 				if (mbut1) {
+					style_selected = true;
+					
 					if (enable_midi_drums)	{						
 						if (style_started) style_section = 0; else style_group = 0;						
 					} else {
@@ -600,6 +603,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (red) 
 			{
 				if (mbut1) {
+					style_selected = true;
+										
 					if (enable_midi_drums)	{						
 						if (style_started) style_section = 1; else style_group = 1;						
 					} else {
@@ -612,6 +617,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (yellow) 
 			{
 				if (mbut1) {
+					style_selected = true;
+										
 					if (enable_midi_drums)	{						
 						if (style_started) style_section = 2; else style_group = 2;						
 					} else {
@@ -624,6 +631,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (blue) 
 			{
 				if (mbut1) {
+					style_selected = true;
+										
 					if (enable_midi_drums)	{						
 						if (style_started) style_section = 3; else style_group = 3;						
 					} else {
@@ -636,6 +645,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) 
 			{
 				if (mbut1) {
+					style_selected = true;
+										
 					if (enable_midi_drums)	{						
 						if (style_started) style_section = 4; else style_group = 4;						
 					} else {
@@ -666,8 +677,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (style_started) {
 						midi_seqtrak_arp();
 						midi_seqtrak_pattern(style_section % 6);				
-					} else {
-						midi_send_program_change(0xC0, style_section % 8);		// set PC to project no
+					} 
+					else 
+						
+					if (style_selected) {
+						midi_send_program_change(0xC0, style_section % 8);	// set PC to project no
 						midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
 						midi_send_control_change(0xB0, 32, 0); 				// LSB 0							
 					}
