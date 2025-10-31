@@ -902,32 +902,31 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	// --- F/C
 
-	if (yellow && blue && orange && red) 
-	{
-		if (enable_style_play) midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);
+	if (yellow && blue && orange && red) {
+		seqtrak_chord = 4;	
+		
+		if (enable_style_play) midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);		
 		chord_note = (base + 5);	
 		bass_note = base - 12;
-		handled = true;	
-		seqtrak_chord = 4;		
+		handled = true;		
 	}
 	else
 
 	// --- G/C
 
-	if (yellow && blue && orange && green) 
-	{
+	if (yellow && blue && orange && green) 	{
+		seqtrak_chord = 5;
+		
 		if (enable_style_play) midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);
 		chord_note = (base + 7);	
 		bass_note = base - 12;		
 		handled = true;		
-		seqtrak_chord = 5;
 	}
 	else
 
 	// -- B
 
-	if (red && yellow && blue && green) 
-	{
+	if (red && yellow && blue && green) {
 		if (enable_style_play) midi_play_chord(on, base - 1, base + 3, base + 6);	
 		chord_note = (base - 1);		
 		handled = true;			
@@ -935,7 +934,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	else
 
 	if (red && yellow && green)     // Ab
-	{
+	{	
 		if (enable_style_play) midi_play_chord(on, base - 4, base, base + 3);
 		chord_note = (base - 4);		
 		handled = true;				
@@ -969,80 +968,80 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (yellow && blue && orange)    // F/G
 	{
+		seqtrak_chord = 4;		
 		if (enable_style_play) midi_play_slash_chord(on, base - 17, base + 5, base + 9, base + 12);
 		chord_note = (base + 5);
 		bass_note = base - 17;			
 		handled = true;	
-		seqtrak_chord = 4;
 	}
 	else
 
 	if (red && yellow)     // Bb
 	{
+		seqtrak_chord = 7;			
 		if (enable_style_play) midi_play_chord(on, base - 2, base + 2, base + 5);
 		chord_note = (base - 2);		
-		handled = true;		
-		seqtrak_chord = 7;		
+		handled = true;			
 	}
 	else
 
 	if (green && yellow)     // Gsus
 	{
+		seqtrak_chord = 5;			
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 12, base + 14);
 		chord_note = (base - 5);	
 		chord_type = 2;
-		handled = true;		
-		seqtrak_chord = 5;		
+		handled = true;			
 	}
 	else
 
 	if (orange && yellow)     // Csus
 	{
+		seqtrak_chord = 1;		
 		if (enable_style_play) midi_play_chord(on, base, base + 5, base + 7);
 		chord_note = (base);	
 		chord_type = 2;
-		handled = true;		
-		seqtrak_chord = 1;		
+		handled = true;				
 	}
 	else
 
 	if (yellow && blue)    // C/E
 	{
+		seqtrak_chord = 1;			
 		if (enable_style_play) midi_play_slash_chord(on, base - 20, base, base + 4, base + 7);
 		chord_note = (base);
 		bass_note = base - 20;	
-		handled = true;	
-		seqtrak_chord = 1;		
+		handled = true;		
 	}
 	else
 
 	if (green && red)     // G/B
 	{
+		seqtrak_chord = 5;		
 		if (enable_style_play) midi_play_slash_chord(on, base - 13, base + 7, base + 11, base + 14);
 		chord_note = (base + 7);
 		bass_note = base - 13;			
 		handled = true;	
-		seqtrak_chord = 5;
 	}
 	else
 
 	if (blue && orange)     // F/A
 	{
+		seqtrak_chord = 4;		
 		if (enable_style_play) midi_play_slash_chord(on, base - 15, base + 5, base + 9, base + 12);
 		chord_note = (base + 5);
 		bass_note = base - 15;			
 		handled = true;	
-		seqtrak_chord = 4;
 	}
 	else
 
 	if (green && blue)     // Em
 	{
+		seqtrak_chord = 3;			
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 7, base + 11);
 		chord_note = (base - 8);	
 		chord_type = 1;		
-		handled = true;	
-		seqtrak_chord = 3;		
+		handled = true;		
 	}
 	else
 
@@ -1083,39 +1082,39 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (blue)      // Dm
 	{
+		seqtrak_chord = 2;			
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 5, base + 9);
 		chord_note = (base + 2);	
 		chord_type = 1;		
-		handled = true;	
-		seqtrak_chord = 2;		
+		handled = true;		
 	}
 	else
 
 	if (orange)   // F
 	{
+		seqtrak_chord = 4;			
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 9, base + 12);
 		chord_note = (base - 7);	
-		handled = true;	
-		seqtrak_chord = 4;		
+		handled = true;		
 	}
 	else
 
 	if (green)     // G
 	{
+		seqtrak_chord = 5;			
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 11, base + 14);
 		chord_note = (base - 5);			
-		handled = true;	
-		seqtrak_chord = 5;		
+		handled = true;		
 	}
 	else
 
 	if (red)     // Am
 	{
+		seqtrak_chord = 6;			
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 12, base + 16);
 		chord_note = (base - 3);	
 		chord_type = 1;			
-		handled = true;	
-		seqtrak_chord = 6;		
+		handled = true;		
 	}
 	
 	int O = 12;
