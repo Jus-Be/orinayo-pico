@@ -295,7 +295,7 @@ void midi_seqtrak_arp() {
 	// config bass arp on track 8 and 10		
 	uint8_t template = get_arp_template();
 									
-	midi_send_control_change(0xB7, 27, (style_section % 2) == 0 ? 2 : 3);	// Use Arp type UP only for bass
+	midi_send_control_change(0xB7, 27, (style_section % 2) == 0 ? 2 : 8);	// Use Arp type UP only for bass
 	midi_send_control_change(0xB7, 28, 127); 								// Arp Gate always 200%
 	midi_send_control_change(0xB7, 29, style_section % 2 == 0 ? 9 : 6); 	// Arp Speed 25% (ARRA/ARRC) or 50% (ARRB/ARRD) 
 	midi_seqtrak_arp_octave(7, -2);											// set octave to -2 for bass
