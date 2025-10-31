@@ -896,8 +896,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t bass_note = 0;		
 	uint8_t base = 60;	
 	bool handled = false;	
-	
-	seqtrak_chord = 0;	
+		
 	base = 60 + transpose;
 	
 	// --- F/C
@@ -927,6 +926,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	// -- B
 
 	if (red && yellow && blue && green) {
+		seqtrak_chord = 0;		
 		if (enable_style_play) midi_play_chord(on, base - 1, base + 3, base + 6);	
 		chord_note = (base - 1);		
 		handled = true;			
@@ -935,6 +935,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (red && yellow && green)     // Ab
 	{	
+		seqtrak_chord = 0;	
 		if (enable_style_play) midi_play_chord(on, base - 4, base, base + 3);
 		chord_note = (base - 4);		
 		handled = true;				
@@ -943,6 +944,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (red && yellow && blue)     // A
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 13, base + 16);
 		chord_note = (base - 3);		
 		handled = true;		
@@ -951,6 +953,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (blue && yellow && green)     // E
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 8, base + 11);
 		chord_note = (base - 8);		
 		handled = true;		
@@ -960,6 +963,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (blue && red && orange)     // Eb
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base - 9, base + 7, base + 10);
 		chord_note = (base - 9);		
 		handled = true;		
@@ -1047,6 +1051,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (orange && red)   // Fm
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 8, base + 12);
 		chord_note = (base - 7);	
 		chord_type = 1;
@@ -1056,6 +1061,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (green && orange)     // Gm
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 10, base + 14);
 		chord_note = (base - 5);	
 		chord_type = 1;
@@ -1065,6 +1071,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 
 	if (red && blue)     // D
 	{
+		seqtrak_chord = 0;			
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 6, base + 9);
 		chord_note = (base + 2);	
 		handled = true;			
