@@ -590,12 +590,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					
-					if (enable_midi_drums)	{						
-						if (style_started) style_section = 0; else style_group = 0;						
-					} else {
-						style_section = 0;
-					}
+					style_section = 0;
 				}
 			}
 			else
@@ -604,12 +599,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-										
-					if (enable_midi_drums)	{						
-						if (style_started) style_section = 1; else style_group = 1;						
-					} else {
-						style_section = 1;
-					}
+					style_section = 1;
 				}
 			}
 			else
@@ -618,12 +608,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-										
-					if (enable_midi_drums)	{						
-						if (style_started) style_section = 2; else style_group = 2;						
-					} else {
-						style_section = 2;
-					}
+					style_section = 2;
 				}
 			}				
 			else
@@ -632,12 +617,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-										
-					if (enable_midi_drums)	{						
-						if (style_started) style_section = 3; else style_group = 3;						
-					} else {
-						style_section = 3;
-					}
+					style_section = 3;
 				}
 			}
 			else
@@ -646,12 +626,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-										
-					if (enable_midi_drums)	{						
-						if (style_started) style_section = 4; else style_group = 4;						
-					} else {
-						style_section = 4;
-					}
+					style_section = 4;
 				}
 			}
 			else 
@@ -678,13 +653,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_seqtrak_arp();
 						midi_seqtrak_pattern(style_section % 6);				
 					} 
-					else 
-						
-					if (style_selected) {
-						midi_send_program_change(0xC0, style_section % 8);	// set PC to project no
-						midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
-						midi_send_control_change(0xB0, 32, 0); 				// LSB 0							
-					}
 				}
 			} 
 			else {	
@@ -698,6 +666,55 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (mbut2 != menu) {
 			midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 			menu = mbut2;
+			
+			if (green) 
+			{
+				if (mbut2) {
+					style_group = 0;	
+				}
+			}
+			else
+				
+			if (red) 
+			{
+				if (mbut2) {
+					style_group = 1;	
+				}
+			}
+			else
+
+			if (yellow) 
+			{
+				if (mbut2) {
+					style_group = 2;
+				}
+			}				
+			else
+
+			if (blue) 
+			{
+				if (mbut2) {
+					style_group = 3;	
+				}
+			}
+			else
+
+			if (orange) 
+			{
+				if (mbut2) {
+					style_group = 4;
+				}
+			}
+
+			if (enable_seqtrak) 
+			{
+				if (mbut2) {
+					midi_send_program_change(0xC0, style_group % 8);	// set PC to project no
+					midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
+					midi_send_control_change(0xB0, 32, 0); 				// LSB 0
+				}
+			}
+			break;			
 		}		
 		
 		if (mbut3 != config) {	// config/menu options
@@ -736,9 +753,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_seqtrak_mute(9, true);						
 					}
 				}
-				
-				break;
 			}
+			
+			break;			
 		}
 
 		if (joy_up != joystick_up) {
@@ -891,10 +908,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
-	if (ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
+	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
 	ample_old_key = 0;	
 }
-
 
 int compDown(const void *a, const void *b) {
     return (*(uint8_t *)b - *(uint8_t *)a);
