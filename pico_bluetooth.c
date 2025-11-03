@@ -825,19 +825,27 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 		if (knob_up != logo_knob_up) {
 			logo_knob_up = knob_up;	
-			
+
+			if (red) 
+			{
+				if (knob_up) 
+				{
+					if (enable_midi_drums)	{	
+						ghost_parameters_t *params = ghost_note_parameters();
+						params->ghost_intensity = 0.843;							
+						break;
+					}
+				}
+			}
+			else
+				
 			if (yellow) 
 			{
 				if (knob_up) 
 				{
 					if (enable_midi_drums)	{	
 						ghost_parameters_t *params = ghost_note_parameters();
-
-						if (params->ghost_intensity == 0.843) {
-							params->ghost_intensity = 0.0;					
-						} else {
-							params->ghost_intensity = 0.843;							
-						}
+						params->ghost_intensity = 0.0;					
 						break;
 					}
 				}
@@ -886,7 +894,32 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (knob_down != logo_knob_down) {	// unused
-			logo_knob_down = knob_down;					
+			logo_knob_down = knob_down;	
+
+			if (red) 
+			{
+				if (knob_down) 
+				{
+					if (enable_midi_drums)	{	
+						ghost_parameters_t *params = ghost_note_parameters();
+						params->ghost_intensity = 0.843;							
+						break;
+					}
+				}
+			}
+			else
+				
+			if (yellow) 
+			{
+				if (knob_down) 
+				{
+					if (enable_midi_drums)	{	
+						ghost_parameters_t *params = ghost_note_parameters();
+						params->ghost_intensity = 0.0;					
+						break;
+					}
+				}
+			}			
 			break;			
 		}
 				
