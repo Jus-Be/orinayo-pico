@@ -27,6 +27,7 @@ bool style_started = false;
 bool enable_style_play = true;
 bool enable_auto_hold = false;
 bool enable_seqtrak = false;
+bool enable_modx = false;
 bool enable_seqtrak_dx = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
@@ -42,6 +43,8 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void midi_modx_tempo(int tempo);
+void midi_modx_key(uint8_t key);
 void midi_seqtrak_arp();
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
@@ -282,7 +285,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 3;	// High
 				
 				if (but6) {
-					if (!enable_seqtrak) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
+					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
 					
 					active_strum_pattern = 3;			// force arpeggios, no strumming
 					if (enable_seqtrak) midi_seqtrak_arp();					
@@ -294,7 +297,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 2;	// Normal
 				
 				if (but6) {
-					if (!enable_seqtrak) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
+					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
 				}				
 			}
 			else
@@ -303,7 +306,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				active_neck_pos = 1;	// Low
 				
 				if (but6) {
-					if (!enable_seqtrak) midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
+					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
 					
 					active_strum_pattern = 2;									// force arpeggios, no strumming
 					if (enable_seqtrak) midi_seqtrak_arp();
@@ -398,6 +401,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_seqtrak_pattern(style_section % 6);				
 					}
 				}
+				else
+					
+				if (enable_modx) 
+				{
+					if (but6) {
+						uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
+						midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
+					}
+				}
 				else {
 					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
 					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
@@ -473,6 +485,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose--;
 				if (transpose < 0) 	transpose = 11;				
 				if (enable_seqtrak) midi_seqtrak_key(transpose);				
+				if (enable_modx) 	midi_modx_key(transpose);				
 			}
 			break;			
 		}
@@ -483,7 +496,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (dpad_down) {
 				transpose++;
 				if (transpose > 11) transpose = 0;	
-				if (enable_seqtrak) midi_seqtrak_key(transpose);					
+				if (enable_seqtrak) midi_seqtrak_key(transpose);
+				if (enable_modx) 	midi_modx_key(transpose);				
 			}
 			break;
 		}		
@@ -655,6 +669,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					} 
 				}
 			} 
+			else
+				
+			if (enable_modx) 
+			{
+				if (mbut1) {
+					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
+					midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
+				}
+			}			
 			else {	
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
 				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
@@ -714,6 +737,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_control_change(0xB0, 32, 0); 				// LSB 0
 				}
 			}
+			else 
+				
+			if (enable_modx) 
+			{
+				if (mbut2) {
+					midi_send_program_change(0xC0, style_group % 8);	// set PC to performance/set list no
+					midi_send_control_change(0xB0, 0, 62); 				// MSB 62						
+					midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1
+				}
+			}			
+				
 			break;			
 		}		
 		
@@ -723,7 +757,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (mbut3) 	{
 				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 				
-				if (green && !enable_seqtrak) {  
+				if (green && !enable_seqtrak && !enable_modx) {  
 					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
 					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
 					
@@ -737,20 +771,31 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 					midi_send_note(0x90, 86, 127);
 				}
-				
+				else
+					
 				if (yellow) {				
 					if (enable_midi_drums) {
 						looper_clear_all_tracks();								// Midi drums looper
 					}
 					enable_midi_drums = !enable_midi_drums;
 				}
-				
+				else
+					
 				if (blue) {				
 					enable_seqtrak = !enable_seqtrak;
 					
 					if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
 						midi_seqtrak_mute(7, true);
 						midi_seqtrak_mute(9, true);						
+					}
+				}
+				else
+					
+				if (orange) {				
+					enable_modx = !enable_modx;
+					
+					if (enable_modx) {					// set defaults
+						
 					}
 				}
 			}
@@ -766,6 +811,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up) {
 					if (enable_midi_drums) 	looper_update_bpm(80);
 					if (enable_seqtrak) 	midi_seqtrak_tempo(80);
+					if (enable_modx) 		midi_modx_tempo(80);					
 				}
 			}
 			else
@@ -775,6 +821,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up) {
 					if (enable_midi_drums) 	looper_update_bpm(96);
 					if (enable_seqtrak) 	midi_seqtrak_tempo(96);
+					if (enable_modx) 		midi_modx_tempo(96);					
 				}
 			}
 			else
@@ -784,6 +831,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up) {
 					if (enable_midi_drums) 	looper_update_bpm(100);
 					if (enable_seqtrak) 	midi_seqtrak_tempo(100);
+					if (enable_modx) 		midi_modx_tempo(100);					
 				}
 			}
 			else
@@ -793,6 +841,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up) {
 					if (enable_midi_drums) 	looper_update_bpm(110);
 					if (enable_seqtrak) 	midi_seqtrak_tempo(110);
+					if (enable_modx) 		midi_modx_tempo(110);					
 				}
 			}
 			else	
@@ -802,6 +851,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up) {
 					if (enable_midi_drums) 	looper_update_bpm(120);
 					if (enable_seqtrak) 	midi_seqtrak_tempo(120);
+					if (enable_modx) 		midi_modx_tempo(120);					
 				}
 			}
 			else					

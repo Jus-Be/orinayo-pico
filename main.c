@@ -64,6 +64,7 @@ extern bool enable_ample_guitar;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
 extern bool enable_seqtrak_dx;
+extern bool enable_modx;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -87,6 +88,8 @@ void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
 void midi_seqtrak_arp();
 void midi_seqtrak_arp_octave(uint8_t track, int octave);
+void midi_modx_tempo(int tempo);
+void midi_modx_key(uint8_t key);
 uint8_t get_arp_template(void);
 
 
@@ -200,6 +203,49 @@ void midi_seqtrak_arp_octave(uint8_t track, int octave) {
 	
 	if (!orinayo_enabled) {
 		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
+
+void midi_modx_key(uint8_t key) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x07; 
+	msg[6] = 0x00;
+	msg[7] = 0x00;
+	msg[8] = 0x07;
+	msg[9] = 0x40 + key;
+	msg[10] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
+
+void midi_modx_tempo(int tempo) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[12];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x07; 
+	msg[6] = 0x30;
+	msg[7] = 0x40;
+	msg[8] = 0x2C;
+	msg[9] = (int) (tempo / 128);
+	msg[10] = tempo % 128;
+	msg[11] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 12);	
 	}	
 }
 
