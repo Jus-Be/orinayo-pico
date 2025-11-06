@@ -27,6 +27,7 @@ bool style_started = false;
 bool enable_style_play = true;
 bool enable_auto_hold = false;
 bool enable_seqtrak = false;
+bool enable_arranger_mode = false;
 bool enable_modx = false;
 bool enable_seqtrak_dx = true;
 bool enable_ample_guitar = false;
@@ -410,7 +411,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
 					}
 				}
-				else {
+				else
+
+				if (enable_arranger_mode) {
 					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
 					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
 				}
@@ -526,7 +529,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						looper_status.state = LOOPER_STATE_WAITING;
 					}	
 				}					
-			} else {
+			} 
+			else 
+			
+			if (enable_arranger_mode) {
 				ketron_code = 0x12;		// default start/stop
 				yamaha_code = 127;					
 				
@@ -678,7 +684,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
 				}
 			}			
-			else {	
+			else 
+			
+			if (enable_arranger_mode) {	
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
 				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
 			}				
@@ -687,7 +695,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (mbut2 != menu) {
-			midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
+			if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 			menu = mbut2;
 			
 			if (green) 
@@ -757,12 +765,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (mbut3) 	{
 				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 				
-				if (green && !enable_seqtrak && !enable_modx) {  
-					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
-					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
-					
-					midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1	
-					midi_send_control_change(0xB0, 7, 100); // set default volume							
+				if (green) {  
+					enable_arranger_mode = !enable_arranger_mode;
+				
+					if (enable_arranger_mode) {				
+						midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
+						midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+						
+						midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1	
+						midi_send_control_change(0xB0, 7, 100); // set default volume	
+					}						
 				}
 				else
 					
@@ -861,7 +873,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} 
 			else
 
-			if (style_started) {
+			if (enable_arranger_mode && style_started) {
 				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
 				midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
 			}
@@ -936,7 +948,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			} 
 			else
 				
-			if (style_started) {			
+			if (enable_arranger_mode && style_started) {			
 				midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
 				midi_yamaha_arr(0x18, knob_up ? true : false);				
 			}
