@@ -90,6 +90,7 @@ void midi_seqtrak_arp();
 void midi_seqtrak_arp_octave(uint8_t track, int octave);
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
+void midi_modx_arp(bool on);
 uint8_t get_arp_template(void);
 
 
@@ -220,6 +221,27 @@ void midi_modx_key(uint8_t key) {
 	msg[7] = 0x00;
 	msg[8] = 0x07;
 	msg[9] = 0x40 + key;
+	msg[10] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 11);	
+	}	
+}
+
+void midi_modx_arp(bool on) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x07; 
+	msg[6] = 0x30;
+	msg[7] = 0x47;
+	msg[8] = 0x03;
+	msg[9] = on ? 1 : 0;
 	msg[10] = 0xF7;
 	
 	if (!orinayo_enabled) {

@@ -44,6 +44,7 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void midi_modx_arp(bool on);
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
 void midi_seqtrak_arp();
@@ -530,9 +531,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					}	
 				}					
 			} 
-			else 
+			else {
 			
-			if (enable_arranger_mode) {
 				ketron_code = 0x12;		// default start/stop
 				yamaha_code = 127;					
 				
@@ -561,11 +561,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					yamaha_code = 0x02;					
 				}
 				
-				midi_ketron_arr(ketron_code, mbut0 ? true : false);
+				if (enable_arranger_mode) midi_ketron_arr(ketron_code, mbut0 ? true : false);
 				
 				if (!style_started) {
 					if (yamaha_code != 127) {
-						midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
+						if (enable_arranger_mode) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 					} 
 					
 					if (mbut0) {						
@@ -573,14 +573,22 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(7, false);
 							midi_seqtrak_mute(9, false);
 							midi_start_stop(true);							
-						} else {
+						} 
+						else
+							
+						if (enable_modx) {
+							midi_modx_arp(true);
+						}
+						else 
+						
+						if (enable_arranger_mode) {
 							midi_yamaha_start_stop(0x7A, true);							
 						}
 					}
 					
 				} else {
 					if (yamaha_code != 127) {
-						midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
+						if (enable_arranger_mode) midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
 					}
 					
 					if (mbut0) {
@@ -589,7 +597,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(9, true);							
 							midi_start_stop(false);
 							midi_play_chord(false, 0, 0, 0);		
-						} else {
+						} 
+						else
+							
+						if (enable_modx) {
+							midi_modx_arp(false);
+						}						
+						else 
+						
+						if (enable_arranger_mode) {
 							midi_yamaha_start_stop(0x7D, true);		
 						}							
 					}						
