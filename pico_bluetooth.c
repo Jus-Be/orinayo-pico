@@ -571,7 +571,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {						
 						if (enable_seqtrak) {
 							midi_seqtrak_mute(7, false);
+							midi_send_control_change(0xB7, 64, 127);
+							
 							midi_seqtrak_mute(9, false);
+							midi_send_control_change(0xB9, 64, 127);	
+							
 							midi_start_stop(true);							
 						} 
 						else
@@ -595,7 +599,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {
 						if (enable_seqtrak) {	
 							midi_seqtrak_mute(7, true);
-							midi_seqtrak_mute(9, true);							
+							midi_send_control_change(0xB7, 64, 0);
+							
+							midi_seqtrak_mute(9, true);	
+							midi_send_control_change(0xB9, 64, 0);
+							
 							midi_start_stop(false);
 							midi_play_chord(false, 0, 0, 0);		
 						} 
