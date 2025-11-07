@@ -63,7 +63,8 @@ extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
-extern bool enable_seqtrak_dx;
+extern bool enable_chord_track;
+extern bool enable_bass_track;
 extern bool enable_modx;
 
 static uint32_t old_p1 = 0;
@@ -519,11 +520,14 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 		
 	if (!orinayo_enabled) 
 	{
-		if (enable_seqtrak) {
-			msg[0] = command + 7;						// AWM2 Synth (CH8)
-			tud_midi_n_stream_write(0, 0, msg, 3);	
+		if (enable_seqtrak) 
+		{
+			if (enable_bass_track) {
+				msg[0] = command + 7;						// AWM2 Synth (CH8)
+				tud_midi_n_stream_write(0, 0, msg, 3);	
+			}
 			
-			if (enable_seqtrak_dx) {
+			if (enable_chord_track) {
 				msg[0] = command + 9;						// DX Synth (CH10)
 				tud_midi_n_stream_write(0, 0, msg, 3);	
 			}				

@@ -29,7 +29,8 @@ bool enable_auto_hold = true;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
-bool enable_seqtrak_dx = true;
+bool enable_chord_track = true;
+bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 int active_strum_pattern = 0;	
@@ -268,22 +269,19 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 
-			if (green && yellow) {
-				if (but6) enable_seqtrak_dx = !enable_seqtrak_dx;
+			if (green && yellow) 
+			{
+				if (but6) {
+					enable_chord_track = !enable_chord_track;
+				}
 			}
 			else				
 				
-			if (red && blue) 
+			if (red && blue) 	
 			{				
-				if (but6) {	
-					enable_auto_hold = !enable_auto_hold;
-					
-					if (enable_seqtrak) {			
-						midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
-						midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
-						midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);													
-					} 
-				}										
+				if (but6) {
+					enable_bass_track = !enable_bass_track;									
+				}
 			}
 			else
 
@@ -580,10 +578,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(7, false);
 							midi_seqtrak_mute(9, false);
 							
-							//midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
-							//midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
-							//midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);							
-							
 							midi_start_stop(true);							
 						} 
 						else
@@ -608,10 +602,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						if (enable_seqtrak) {	
 							midi_seqtrak_mute(7, true);
 							midi_seqtrak_mute(9, true);	
-							
-							//midi_send_control_change(0xB7, 64, 0);
-							//midi_send_control_change(0xB9, 64, 0);
-							//midi_send_control_change(0xBA, 64, 0);
 							
 							midi_start_stop(false);
 							midi_play_chord(false, 0, 0, 0);		
