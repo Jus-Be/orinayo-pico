@@ -578,6 +578,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(true);
+							midi_send_control_change(0xB3, 64, 127);
 						}
 						else 
 						
@@ -602,6 +603,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(false);
+							midi_send_control_change(0xB3, 64, 0);							
 						}						
 						else 
 						
