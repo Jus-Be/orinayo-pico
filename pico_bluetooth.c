@@ -25,7 +25,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
-bool enable_auto_hold = false;
+bool enable_auto_hold = true;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -273,8 +273,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else				
 				
-			if (red && blue) {
-				if (but6) enable_auto_hold = !enable_auto_hold;
+			if (red && blue) 
+			{				
+				if (but6) {	
+					enable_auto_hold = !enable_auto_hold;
+					
+					if (enable_seqtrak) {			
+						midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
+						midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
+						midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);													
+					} 
+				}										
 			}
 			else
 
@@ -433,11 +442,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_left != left) { 	// Strum down
 			left = dpad_left;
 			
-			if (dpad_left) 	{
-				if (enable_auto_hold) clear_chord_notes();				
+			if (dpad_left) 	{				
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) clear_chord_notes();		
+				clear_chord_notes();		
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -459,11 +467,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_right != right) {	// strum up
 			right = dpad_right;	
 
-			if (dpad_right) {
-				if (enable_auto_hold) clear_chord_notes();				
+			if (dpad_right) {				
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (!enable_auto_hold || (!green && !red && !yellow && !blue && !orange)) clear_chord_notes();		
+				clear_chord_notes();		
 				
 				for (int n=0; n<6; n++) 
 				{
@@ -573,9 +580,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(7, false);
 							midi_seqtrak_mute(9, false);
 							
-							midi_send_control_change(0xB7, 64, 127);	// sustain implements auto-hold
-							midi_send_control_change(0xB9, 64, 127);	
-							midi_send_control_change(0xBA, 64, 127);							
+							midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
+							midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
+							midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);							
 							
 							midi_start_stop(true);							
 						} 
@@ -583,7 +590,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(true);
-							midi_send_control_change(0xB3, 64, 127);
+							midi_send_control_change(0xB3, 64, 127);	// sustain used to start/stop arp
 						}
 						else 
 						
@@ -1313,14 +1320,11 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					if (style_section != old_style) {
 						note = ample_style_notes[style_section] + 24;							
 						midi_send_note(0x90, note, 127);				// play style key note
-						midi_send_control_change(0xB0, 64, 127);		// sustain it for auto-hold
 						ample_old_key = note;		
 					}						
 				} 
 				else 
-				{
-					midi_send_control_change(0xB0, 64, 0);		// remove sustain
-					
+				{					
 					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 						seq_index++;
 						if (seq_index > 11) seq_index = 0;
