@@ -408,7 +408,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (but6) {
 						uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
-						midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
+						midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
 					}
 				}
 				else
@@ -681,7 +681,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
-					midi_send_control_change(0xB0, 92, modx_scenes[style_section % 8]);
+					midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
 				}
 			}			
 			else 
@@ -750,9 +750,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (enable_modx) 
 			{
 				if (mbut2) {
-					midi_send_program_change(0xC0, style_group % 8);	// set PC to performance/set list no
-					midi_send_control_change(0xB0, 0, 62); 				// MSB 62						
-					midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1
+					midi_send_program_change(0xC3, style_group % 8);	// set PC to performance/set list no
+					midi_send_control_change(0xB3, 0, 62); 				// MSB 62						
+					midi_send_control_change(0xB3, 32, 0); 				// LSB 0 Page 1
 				}
 			}			
 				
@@ -806,8 +806,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (orange) {				
 					enable_modx = !enable_modx;
 					
-					if (enable_modx) {					// set defaults
-						
+					if (enable_modx) {						// set default scene 1
+						midi_send_control_change(0xB3, 92, 0);						
 					}
 				}
 			}
