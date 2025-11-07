@@ -580,9 +580,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(7, false);
 							midi_seqtrak_mute(9, false);
 							
-							midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
-							midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
-							midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);							
+							//midi_send_control_change(0xB7, 64, enable_auto_hold ? 127 : 0);	// sustain implements auto-hold
+							//midi_send_control_change(0xB9, 64, enable_auto_hold ? 127 : 0);	
+							//midi_send_control_change(0xBA, 64, enable_auto_hold ? 127 : 0);							
 							
 							midi_start_stop(true);							
 						} 
@@ -609,9 +609,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							midi_seqtrak_mute(7, true);
 							midi_seqtrak_mute(9, true);	
 							
-							midi_send_control_change(0xB7, 64, 0);
-							midi_send_control_change(0xB9, 64, 0);
-							midi_send_control_change(0xBA, 64, 0);
+							//midi_send_control_change(0xB7, 64, 0);
+							//midi_send_control_change(0xB9, 64, 0);
+							//midi_send_control_change(0xBA, 64, 0);
 							
 							midi_start_stop(false);
 							midi_play_chord(false, 0, 0, 0);		
