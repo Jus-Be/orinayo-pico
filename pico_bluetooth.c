@@ -571,10 +571,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {						
 						if (enable_seqtrak) {
 							midi_seqtrak_mute(7, false);
-							midi_send_control_change(0xB7, 64, 127);
-							
 							midi_seqtrak_mute(9, false);
+							
+							midi_send_control_change(0xB7, 64, 127);	// sustain implements auto-hold
 							midi_send_control_change(0xB9, 64, 127);	
+							midi_send_control_change(0xBA, 64, 127);							
 							
 							midi_start_stop(true);							
 						} 
@@ -599,10 +600,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					if (mbut0) {
 						if (enable_seqtrak) {	
 							midi_seqtrak_mute(7, true);
-							midi_send_control_change(0xB7, 64, 0);
-							
 							midi_seqtrak_mute(9, true);	
+							
+							midi_send_control_change(0xB7, 64, 0);
 							midi_send_control_change(0xB9, 64, 0);
+							midi_send_control_change(0xBA, 64, 0);
 							
 							midi_start_stop(false);
 							midi_play_chord(false, 0, 0, 0);		
@@ -1311,11 +1313,14 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					if (style_section != old_style) {
 						note = ample_style_notes[style_section] + 24;							
 						midi_send_note(0x90, note, 127);				// play style key note
+						midi_send_control_change(0xB0, 64, 127);		// sustain it for auto-hold
 						ample_old_key = note;		
 					}						
 				} 
 				else 
 				{
+					midi_send_control_change(0xB0, 64, 0);		// remove sustain
+					
 					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 						seq_index++;
 						if (seq_index > 11) seq_index = 0;
