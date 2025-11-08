@@ -236,9 +236,7 @@ void midi_modx_arp_octave(uint8_t octave) {
 
 void midi_modx_arp(bool on) {
 	if (!enable_modx) return;	
-	
-	midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave
-	
+		
 	uint8_t msg[12];	
 	msg[0] = 0xF0;
 	msg[1] = 0x43;

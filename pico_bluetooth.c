@@ -25,7 +25,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
-bool enable_auto_hold = true;
+bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -269,6 +269,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose = 0;
 			}
 			else
+				
+			if (red && yellow && blue) {
+				enable_auto_hold = !enable_auto_hold;
+			}
+			else
 
 			if (green && yellow) 
 			{
@@ -294,11 +299,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (yellow && blue) {
 				active_neck_pos = 3;	// High
 				
-				if (but6) {
-					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1
-					
-					active_strum_pattern = 3;			// force arpeggios, no strumming
-					if (enable_seqtrak) midi_seqtrak_arp();					
+				if (but6) 
+				{
+					if (enable_arranger_mode) 	{
+						midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1						
+					}
+					else
+						
+					if (enable_seqtrak) 		midi_seqtrak_arp();	
+					else						
+					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
 				}				
 			}
 			else
@@ -306,8 +316,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (yellow && red) {
 				active_neck_pos = 2;	// Normal
 				
-				if (but6) {
-					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1				
+				if (but6) 
+				{
+					if (enable_arranger_mode) 	{
+						midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1						
+					}
+					else
+						
+					if (enable_seqtrak) 		midi_seqtrak_arp();	
+					else						
+					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
 				}				
 			}
 			else
@@ -315,11 +333,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (green && red) {
 				active_neck_pos = 1;	// Low
 				
-				if (but6) {
-					if (!enable_seqtrak && !enable_modx) midi_send_program_change(0xC0, 33);	// bass guitar on channel 1
-					
-					active_strum_pattern = 2;									// force arpeggios, no strumming
-					if (enable_seqtrak) midi_seqtrak_arp();
+				if (but6) 
+				{
+					if (enable_arranger_mode) 	{
+						midi_send_program_change(0xC0, 33);	// electric bass guitar on channel 1						
+						active_strum_pattern = 3;			// force arpeggios, no strumming
+					}
+					else
+						
+					if (enable_seqtrak) 		midi_seqtrak_arp();	
+					else						
+					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave	
 				}
 			}
 			else
@@ -585,7 +609,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(true);
-							//midi_send_control_change(0xB3, 64, 127);	// sustain used to start/stop arp
+							if (enable_auto_hold) midi_send_control_change(0xB3, 64, 127);	// sustain does auto-hold
 						}
 						else 
 						
@@ -611,7 +635,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(false);
-							//midi_send_control_change(0xB3, 64, 0);							
+							midi_send_control_change(0xB3, 64, 0);	// remove sustain if active					
 						}						
 						else 
 						
