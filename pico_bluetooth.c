@@ -271,7 +271,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			else
 				
 			if (red && yellow && blue) {
-				enable_auto_hold = !enable_auto_hold;
+				if (but6) enable_auto_hold = !enable_auto_hold;
 			}
 			else
 
@@ -608,6 +608,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						else
 							
 						if (enable_modx) {
+							midi_send_control_change(0xB3, 92, 0);		// set scenario 1						
 							midi_modx_arp(true);
 							if (enable_auto_hold) midi_send_control_change(0xB3, 64, 127);	// sustain does auto-hold
 						}
@@ -660,7 +661,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = 0;
+					style_section = (style_section < 4) ? 0 : 4;
 				}
 			}
 			else
@@ -669,7 +670,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = 1;
+					style_section = (style_section < 4) ? 1 : 5;
 				}
 			}
 			else
@@ -678,7 +679,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = 2;
+					style_section = (style_section < 4) ? 2 : 6;
 				}
 			}				
 			else
@@ -687,7 +688,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = 3;
+					style_section = (style_section < 4) ? 3 : 7;
 				}
 			}
 			else
