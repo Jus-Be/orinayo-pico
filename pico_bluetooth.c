@@ -785,7 +785,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (orange) 
 			{
 				if (mbut2) {
-					style_group = 4;
+					style_group = 7;
 				}
 			}
 
