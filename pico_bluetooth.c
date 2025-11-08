@@ -661,7 +661,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = (style_section < 4) ? 0 : 4;
+					style_section = style_section == 0 ? 4 : ((style_section < 4) ? 0 : 4);
 				}
 			}
 			else
@@ -670,7 +670,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = (style_section < 4) ? 1 : 5;
+					style_section = style_section == 1 ? 5 : ((style_section < 4) ? 1 : 5);
 				}
 			}
 			else
@@ -679,7 +679,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = (style_section < 4) ? 2 : 6;
+					style_section = style_section == 2 ? 6 : ((style_section < 4) ? 2 : 6);
 				}
 			}				
 			else
@@ -688,7 +688,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = (style_section < 4) ? 3 : 7;
+					style_section = style_section == 3 ? 7 : ((style_section < 4) ? 3 : 7);
 				}
 			}
 			else
@@ -801,9 +801,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (enable_modx) 
 			{
 				if (mbut2) {
-					midi_send_program_change(0xC3, style_group % 8);	// set PC to performance/set list no
 					midi_send_control_change(0xB3, 0, 62); 				// MSB 62						
 					midi_send_control_change(0xB3, 32, 0); 				// LSB 0 Page 1
+					midi_send_program_change(0xC3, style_group % 8);	// set PC to performance/set list no					
 				}
 			}			
 				
