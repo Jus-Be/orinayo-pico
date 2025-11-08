@@ -45,6 +45,7 @@ int transpose = 0;
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
+void midi_modx_arp_octave(uint8_t octave);
 void midi_modx_arp(bool on);
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
@@ -494,7 +495,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose--;
 				if (transpose < 0) 	transpose = 11;				
 				if (enable_seqtrak) midi_seqtrak_key(transpose);				
-				if (enable_modx) 	midi_modx_key(transpose);				
+				//if (enable_modx) 	midi_modx_key(transpose);				
 			}
 			break;			
 		}
@@ -506,7 +507,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				transpose++;
 				if (transpose > 11) transpose = 0;	
 				if (enable_seqtrak) midi_seqtrak_key(transpose);
-				if (enable_modx) 	midi_modx_key(transpose);				
+				//if (enable_modx) 	midi_modx_key(transpose);				
 			}
 			break;
 		}		
@@ -584,7 +585,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(true);
-							midi_send_control_change(0xB3, 64, 127);	// sustain used to start/stop arp
+							//midi_send_control_change(0xB3, 64, 127);	// sustain used to start/stop arp
 						}
 						else 
 						
@@ -610,7 +611,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							
 						if (enable_modx) {
 							midi_modx_arp(false);
-							midi_send_control_change(0xB3, 64, 0);							
+							//midi_send_control_change(0xB3, 64, 0);							
 						}						
 						else 
 						

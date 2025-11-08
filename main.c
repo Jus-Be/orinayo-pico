@@ -91,7 +91,9 @@ void midi_seqtrak_arp();
 void midi_seqtrak_arp_octave(uint8_t track, int octave);
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
+void midi_modx_octave(uint8_t octave);
 void midi_modx_arp(bool on);
+void midi_modx_arp_octave(uint8_t octave);
 uint8_t get_arp_template(void);
 
 
@@ -187,6 +189,98 @@ void tud_resume_cb(void)
 // MIDI Tasks
 //--------------------------------------------------------------------+
 
+
+void midi_modx_key(uint8_t key) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[12];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0D; 
+	msg[6] = 0x00;
+	msg[7] = 0x00;
+	msg[8] = 0x02;
+	msg[9] = 0x00;	
+	msg[10] = 0x40 + key;
+	msg[11] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 12);	
+	}	
+}
+
+void midi_modx_arp_octave(uint8_t octave) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[12];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0D; 
+	msg[6] = 0x00;
+	msg[7] = 0x00;
+	msg[8] = 0x02;
+	msg[9] = 0x02;	
+	msg[10] = 0x40 + octave;
+	msg[11] = 0xF7;	
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 12);	
+	}	
+}
+
+void midi_modx_arp(bool on) {
+	if (!enable_modx) return;	
+	
+	midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave
+	
+	uint8_t msg[12];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0D; 
+	msg[6] = 0x06;
+	msg[7] = 0x00;
+	msg[8] = 0x01;
+	msg[9] = 0x09;	
+	msg[10] = on ? 1 : 0;
+	msg[11] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 12);	
+	}	
+}
+
+void midi_modx_tempo(int tempo) {
+	if (!enable_modx) return;	
+	
+	uint8_t msg[13];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0D; 
+	msg[6] = 0x06;
+	msg[7] = 0x00;
+	msg[8] = 0x02;
+	msg[9] = 0x1E;	
+	msg[10] = (int) (tempo / 128);
+	msg[11] = tempo % 128;
+	msg[12] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 13);	
+	}	
+}
+
 void midi_seqtrak_arp_octave(uint8_t track, int octave) {
 	if (!enable_seqtrak) return;	
 	
@@ -205,70 +299,6 @@ void midi_seqtrak_arp_octave(uint8_t track, int octave) {
 	
 	if (!orinayo_enabled) {
 		tud_midi_n_stream_write(0, 0, msg, 11);	
-	}	
-}
-
-void midi_modx_key(uint8_t key) {
-	if (!enable_modx) return;	
-	
-	uint8_t msg[11];	
-	msg[0] = 0xF0;
-	msg[1] = 0x43;
-	msg[2] = 0x10;   
-	msg[3] = 0x7F;
-	msg[4] = 0x1C;
-	msg[5] = 0x07; 
-	msg[6] = 0x00;
-	msg[7] = 0x00;
-	msg[8] = 0x07;
-	msg[9] = 0x40 + key;
-	msg[10] = 0xF7;
-	
-	if (!orinayo_enabled) {
-		tud_midi_n_stream_write(0, 0, msg, 11);	
-	}	
-}
-
-void midi_modx_arp(bool on) {
-	if (!enable_modx) return;	
-	
-	uint8_t msg[11];	
-	msg[0] = 0xF0;
-	msg[1] = 0x43;
-	msg[2] = 0x10;   
-	msg[3] = 0x7F;
-	msg[4] = 0x1C;
-	msg[5] = 0x07; 
-	msg[6] = 0x30;
-	msg[7] = 0x47;
-	msg[8] = 0x03;
-	msg[9] = on ? 1 : 0;
-	msg[10] = 0xF7;
-	
-	if (!orinayo_enabled) {
-		tud_midi_n_stream_write(0, 0, msg, 11);	
-	}	
-}
-
-void midi_modx_tempo(int tempo) {
-	if (!enable_modx) return;	
-	
-	uint8_t msg[12];	
-	msg[0] = 0xF0;
-	msg[1] = 0x43;
-	msg[2] = 0x10;   
-	msg[3] = 0x7F;
-	msg[4] = 0x1C;
-	msg[5] = 0x07; 
-	msg[6] = 0x30;
-	msg[7] = 0x40;
-	msg[8] = 0x2C;
-	msg[9] = (int) (tempo / 128);
-	msg[10] = tempo % 128;
-	msg[11] = 0xF7;
-	
-	if (!orinayo_enabled) {
-		tud_midi_n_stream_write(0, 0, msg, 12);	
 	}	
 }
 
