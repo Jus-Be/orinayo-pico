@@ -213,8 +213,7 @@ void midi_modx_key(uint8_t key) {
 }
 
 void midi_modx_arp_octave(uint8_t octave) {
-	// TODO
-	if (enable_modx) return;	
+	if (!enable_modx) return;	
 	
 	uint8_t msg[12];	
 	msg[0] = 0xF0;

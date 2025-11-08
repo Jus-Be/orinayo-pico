@@ -698,7 +698,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (mbut1) {
 					style_selected = true;
-					style_section = 8;
+					style_section = 7;
 				}
 			}
 			else 
