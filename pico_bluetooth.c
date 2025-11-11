@@ -749,7 +749,71 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (mbut2 != menu) {
 			if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 			menu = mbut2;
-			
+
+			if (green && yellow) 
+			{
+				if (mbut2) {
+					style_group = 12;	
+				}
+			}
+			else
+				
+			if (red && blue) 
+			{
+				if (mbut2) {
+					style_group = 11;	
+				}
+			}
+			else
+
+			if (yellow && orange) 
+			{
+				if (mbut2) {
+					style_group = 10;
+				}
+			}				
+			else
+				
+			if (green && yellow) 
+			{
+				if (mbut2) {
+					style_group = 9;	
+				}
+			}
+			else
+				
+			if (green && red) 
+			{
+				if (mbut2) {
+					style_group = 8;	
+				}
+			}
+			else
+
+			if (red && yellow) 
+			{
+				if (mbut2) {
+					style_group = 7;
+				}
+			}				
+			else
+
+			if (yellow && blue) 
+			{
+				if (mbut2) {
+					style_group = 6;	
+				}
+			}
+			else
+
+			if (blue && orange) 
+			{
+				if (mbut2) {
+					style_group = 5;
+				}
+			}
+			else
+				
 			if (green) 
 			{
 				if (mbut2) {
@@ -802,9 +866,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (enable_modx) 
 			{
 				if (mbut2) {
-					midi_send_control_change(0xB0, 0, 62); 				// MSB 62						
+					midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
 					midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1
-					midi_send_program_change(0xC0, style_group % 8);	// set PC to performance/set list no					
+					midi_send_program_change(0xC0, style_group % 16);	// set PC to performance/set list no					
 				}
 			}			
 				
