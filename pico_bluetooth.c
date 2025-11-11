@@ -802,9 +802,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (enable_modx) 
 			{
 				if (mbut2) {
-					midi_send_control_change(0xB3, 0, 66); 				// MSB 66						
+					midi_send_control_change(0xB3, 0, 62); 				// MSB 62						
 					midi_send_control_change(0xB3, 32, 0); 				// LSB 0 Page 1
-					midi_send_program_change(0xC3, 1 + (style_group % 8));	// set PC to performance/set list no					
+					midi_send_program_change(0xC3, style_group % 8);	// set PC to performance/set list no					
 				}
 			}			
 				
