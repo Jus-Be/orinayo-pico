@@ -996,7 +996,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (joy_up && style_section > 0 && style_section < 4) {
 					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
 					midi_send_control_change(0xB3, 92, modx_scenes[style_section + 4]);
-					sleep_ms(100);
+					sleep_ms(1000);
 					midi_send_control_change(0xB3, 92, modx_scenes[style_section]);					
 				}
 			}
