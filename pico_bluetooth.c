@@ -6,6 +6,7 @@
 #include <bt/uni_bt.h>
 #include <btstack.h>
 #include <controller/uni_gamepad.h>
+#include "pico/stdlib.h"
 #include <pico/cyw43_arch.h>
 #include <pico/time.h>
 #include <uni.h>
@@ -989,6 +990,17 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				midi_send_note(0x90, 24, joy_up ? 127 : 0);						// sustain guitar notes
 			} 
 			else
+				
+			if (enable_modx) 
+			{
+				if (joy_up && style_section > 0 && style_section < 4) {
+					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
+					midi_send_control_change(0xB3, 92, modx_scenes[style_section + 4]);
+					sleep_ms(100);
+					midi_send_control_change(0xB3, 92, modx_scenes[style_section]);					
+				}
+			}
+			else
 
 			if (enable_arranger_mode && style_started) {
 				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
@@ -1385,7 +1397,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	int string = 0;
 	int notes_count = 0;
-	int velocity = 100;	
+	int velocity = 110;	
 
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
@@ -1425,7 +1437,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						}
 					}
 
-					velocity = 127;
+					velocity = 110;
 					
 					if (up) {
 						qsort(chord_midinotes, notes_count, sizeof(uint8_t), compUp);			
