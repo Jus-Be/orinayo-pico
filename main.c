@@ -93,6 +93,7 @@ void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
 void midi_modx_octave(uint8_t octave);
 void midi_modx_arp(bool on);
+void midi_modx_arp_hold(uint8_t part, bool on);
 void midi_modx_arp_octave(uint8_t octave);
 uint8_t get_arp_template(void);
 
@@ -253,6 +254,29 @@ void midi_modx_arp(bool on) {
 	
 	if (!orinayo_enabled) {
 		tud_midi_n_stream_write(0, 0, msg, 12);	
+	}	
+}
+
+void midi_modx_arp_hold(uint8_t part, bool on) {
+	if (!enable_modx) return;	
+		
+	uint8_t msg[13];	
+	msg[0] = 0xF0;
+	msg[1] = 0x43;
+	msg[2] = 0x10;   
+	msg[3] = 0x7F;
+	msg[4] = 0x1C;
+	msg[5] = 0x0D; 
+	msg[6] = 0x10 + part;
+	msg[7] = 0x00;
+	msg[8] = 0x06;
+	msg[9] = 0x00;	
+	msg[10] = 0x00;
+	msg[11] = on ? 2 : 1;
+	msg[12] = 0xF7;
+	
+	if (!orinayo_enabled) {
+		tud_midi_n_stream_write(0, 0, msg, 13);	
 	}	
 }
 

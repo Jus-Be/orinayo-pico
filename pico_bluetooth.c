@@ -48,6 +48,7 @@ uint8_t mute_midinotes[6] = {0};
 
 void midi_modx_arp_octave(uint8_t octave);
 void midi_modx_arp(bool on);
+void midi_modx_arp_hold(uint8_t part, bool on);
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
 void midi_seqtrak_arp();
@@ -272,8 +273,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else
 				
-			if (red && yellow && blue) {
-				if (but6) enable_auto_hold = !enable_auto_hold;
+			if (red && yellow && blue) 
+			{
+				if (but6) {
+					enable_auto_hold = !enable_auto_hold;
+					midi_modx_arp_hold(0, enable_auto_hold);
+					midi_modx_arp_hold(1, enable_auto_hold);
+				}					
 			}
 			else
 
@@ -612,7 +618,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						if (enable_modx) {
 							midi_send_control_change(0xB3, 92, 0);		// set scenario 1						
 							midi_modx_arp(true);
-							if (enable_auto_hold) midi_send_control_change(0xB3, 64, 127);	// sustain does auto-hold
 						}
 						else 
 						
@@ -1010,7 +1015,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		}
 		
 		if (joy_down != joystick_down) {	// unused
-			joystick_down = joy_down;			
+			joystick_down = joy_down;					
 			break;			
 		}
 
