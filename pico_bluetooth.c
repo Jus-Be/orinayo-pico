@@ -277,7 +277,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (but6) {
 					enable_auto_hold = !enable_auto_hold;
-					for (int i=0; i<8; i++) midi_modx_arp_hold(i, enable_auto_hold);
+					midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
 				}					
 			}
 			else
