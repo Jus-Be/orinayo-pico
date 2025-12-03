@@ -26,7 +26,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
-bool enable_auto_hold = false;
+bool enable_auto_hold = true;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -277,8 +277,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			{
 				if (but6) {
 					enable_auto_hold = !enable_auto_hold;
-					midi_modx_arp_hold(0, enable_auto_hold);
-					midi_modx_arp_hold(1, enable_auto_hold);
+					for (int i=0; i<8; i++) midi_modx_arp_hold(i, enable_auto_hold);
 				}					
 			}
 			else
