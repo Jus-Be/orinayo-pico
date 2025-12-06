@@ -26,7 +26,7 @@ extern looper_status_t looper_status;
 
 bool style_started = false;
 bool enable_style_play = true;
-bool enable_auto_hold = true;
+bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -492,10 +492,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			left = dpad_left;
 			
 			if (dpad_left) 	{	
-				stop_chord();			
+				if (!enable_auto_hold) stop_chord();			
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1) {
+				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
 					stop_chord();	// sustain arpeggios only
 				}
 				
@@ -512,10 +512,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
-				stop_chord();
+				if (!enable_auto_hold) stop_chord();
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1) {
+				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
 					stop_chord();	// sustain arpeggios only
 				}	
 
