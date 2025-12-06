@@ -490,18 +490,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_left != left) { 	// Strum down
 			left = dpad_left;
 			
-			if (dpad_left) 	{				
+			if (dpad_left) 	{	
+				stop_chord();			
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				clear_chord_notes();		
-				
-				for (int n=0; n<6; n++) 
-				{
-					if (old_midinotes[n] > 0) {
-						midi_send_note(0x80, old_midinotes[n], 0);	
-						old_midinotes[n] = 0;
-					}
-				}
+				if (!green && !red && !yellow && !blue && !orange) stop_chord();		
 				
 				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
@@ -515,18 +508,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_right != right) {	// strum up
 			right = dpad_right;	
 
-			if (dpad_right) {				
+			if (dpad_right) {
+				stop_chord();
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				clear_chord_notes();		
-				
-				for (int n=0; n<6; n++) 
-				{
-					if (old_midinotes[n] > 0) {
-						midi_send_note(0x80, old_midinotes[n], 0);						
-						old_midinotes[n] = 0;						
-					}					
-				}
+				if (!green && !red && !yellow && !blue && !orange) stop_chord();		
 
 				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
@@ -1149,6 +1135,18 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
       //loge("Unsupported controller class: %d\n", ctl->klass);
       break;
   }
+}
+
+void stop_chord() {
+	clear_chord_notes();		
+	
+	for (int n=0; n<6; n++) 
+	{
+		if (old_midinotes[n] > 0) {
+			midi_send_note(0x80, old_midinotes[n], 0);	
+			old_midinotes[n] = 0;
+		}
+	}	
 }
 
 void clear_chord_notes() {
