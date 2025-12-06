@@ -70,6 +70,7 @@ void midi_yamaha_arr(uint8_t code, bool on);
 
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void clear_chord_notes();
+void stop_chord();
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -494,7 +495,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				stop_chord();			
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange) stop_chord();		
+				if (!green && !red && !yellow && !blue && !orange && (active_strum_pattern == 0 || active_strum_pattern == 1)) {
+					stop_chord();	// sustain arpeggios only
+				}
 				
 				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
@@ -512,7 +515,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				stop_chord();
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange) stop_chord();		
+				if (!green && !red && !yellow && !blue && !orange && (active_strum_pattern == 0 || active_strum_pattern == 1)) {
+					stop_chord();	// sustain arpeggios only
+				}	
 
 				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
