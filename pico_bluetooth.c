@@ -495,7 +495,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				stop_chord();			
 				play_chord(true, false, green, red, yellow, blue, orange);	
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange && (active_strum_pattern == 0 || active_strum_pattern == 1)) {
+				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1) {
 					stop_chord();	// sustain arpeggios only
 				}
 				
@@ -515,7 +515,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				stop_chord();
 				play_chord(true, true, green, red, yellow, blue, orange);
 			} else {			
-				if (!green && !red && !yellow && !blue && !orange && (active_strum_pattern == 0 || active_strum_pattern == 1)) {
+				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1) {
 					stop_chord();	// sustain arpeggios only
 				}	
 
