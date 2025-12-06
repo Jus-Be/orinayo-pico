@@ -196,6 +196,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t orange = 0;
   static uint8_t starpower = 0;
   static uint8_t pitch = 0;
+  static uint8_t song_key = 0;
   
   static uint8_t up = 0;
   static uint8_t down = 0;
@@ -218,6 +219,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
   uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
   uint8_t but6 = (ctl->gamepad.buttons >> 6) & 0x01;   
+  uint8_t but7 = (ctl->gamepad.buttons >> 7) & 0x01;   
   uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
 
   uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
@@ -463,6 +465,21 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			break;
 		}
 		
+		// handle direct key change (D, E, F, G, A)
+
+		if (but7 != song_key)  {	
+			song_key = but7;
+
+			if (but7) {
+				if (green) 	transpose = 2;		// D
+				if (red) 	transpose = 4;		// E
+				if (yellow)	transpose = 5;		// F
+				if (blue) 	transpose = 7;		// G				
+				if (orange) transpose = 9;		// A
+			}
+			break;			
+		}
+		
 		// handle actions
 		
 		if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
@@ -615,8 +632,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						} 
 						else
 							
-						if (enable_modx) {
-							midi_send_control_change(0xB3, 92, 0);		// set scenario 1						
+						if (enable_modx) {					
 							midi_modx_arp(true);
 						}
 						else 
@@ -642,8 +658,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						else
 							
 						if (enable_modx) {
-							midi_modx_arp(false);
-							midi_send_control_change(0xB3, 64, 0);	// remove sustain if active					
+							midi_modx_arp(false);				
 						}						
 						else 
 						
