@@ -472,6 +472,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			song_key = but7;
 
 			if (but7) {
+				transpose = 0;
+				
 				if (green) 	transpose = 2;		// D
 				if (red) 	transpose = 4;		// E
 				if (yellow)	transpose = 5;		// F
