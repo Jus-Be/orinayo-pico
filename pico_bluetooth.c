@@ -25,7 +25,7 @@
 extern looper_status_t looper_status;
 
 bool style_started = false;
-bool enable_style_play = true;
+bool enable_style_play = false;
 bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_arranger_mode = false;
@@ -898,6 +898,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				
 				if (green) {  
 					enable_arranger_mode = !enable_arranger_mode;
+					enable_style_play = enable_arranger_mode;
 				
 					if (enable_arranger_mode) {				
 						midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
@@ -911,6 +912,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 				if (red) {
 					enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
+					enable_style_play = enable_ample_guitar;
+					
 					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 					midi_send_note(0x90, 86, 127);
 				}
@@ -926,6 +929,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 				if (blue) {				
 					enable_seqtrak = !enable_seqtrak;
+					enable_style_play = enable_seqtrak;				
 					
 					if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
 						midi_seqtrak_mute(7, true);
@@ -936,6 +940,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 				if (orange) {				
 					enable_modx = !enable_modx;
+					enable_style_play = ;enable_modx;					
 					
 					if (enable_modx) {						// set default scene 1
 						midi_send_control_change(0xB3, 92, 0);						
