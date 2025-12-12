@@ -940,7 +940,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 				if (orange) {				
 					enable_modx = !enable_modx;
-					enable_style_play = ;enable_modx;					
+					enable_style_play = enable_modx;					
 					
 					if (enable_modx) {						// set default scene 1
 						midi_send_control_change(0xB3, 92, 0);						
