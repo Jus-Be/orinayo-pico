@@ -1429,6 +1429,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	int string = 0;
 	int notes_count = 0;
 	int velocity = 110;	
+	bool strum_last_chord = false;
 
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
@@ -1436,9 +1437,15 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	if (active_strum_pattern > -1) 
 	{
+		if (!handled && active_strum_pattern > 1) {	// play strum of last chord for ample guitar arppergio noises
+			handled = true;
+			strum_last_chord = true;
+		}
+		else
+		
 		if (handled) 
 		{
-			if (up || active_strum_pattern == 0) 
+			if (up || active_strum_pattern == 0 || strum_last_chord) 
 			{										
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{	
@@ -1448,16 +1455,17 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						ample_old_key = note;		
 					}						
 				} 
-				else 
-				{					
-					while (strum_pattern[active_strum_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+				else {					
+					int play_pattern = strum_last_chord ? 0 : active_strum_pattern;	// select default strum for strum_last_chord
+					
+					while (strum_pattern[play_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
 						seq_index++;
 						if (seq_index > 11) seq_index = 0;
 					}
 
 					for (int i=0; i<6; i++) {
 						mute_midinotes[i] = 0;	// reset muted notes
-						string = 6 - strum_pattern[active_strum_pattern][seq_index][i];
+						string = 6 - strum_pattern[play_pattern][seq_index][i];
 						
 						if (string > -1 && string < 6) 
 						{
@@ -1527,23 +1535,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					note = 95;
 					if (up) note = 94;
 				}					
-				else
+				else {	// handled above as strum last chord action
 
-				if (active_strum_pattern == 2) {
-					note = 89;
-					if (up) note = 92;
-				}				
-				else
-
-				if (active_strum_pattern == 3) {
-					note = 89;
-					if (up) note = 91;
-				}					
-				else
-
-				if (active_strum_pattern == 4) {
-					note = 89;
-					if (up) note = 90;
 				}
 				
 				midi_send_note(0x90, note, 100);				
