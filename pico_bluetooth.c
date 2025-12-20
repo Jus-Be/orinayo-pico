@@ -1441,7 +1441,6 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 			handled = true;
 			strum_last_chord = true;
 		}
-		else
 		
 		if (handled) 
 		{
