@@ -40,6 +40,8 @@ int style_section = 0;
 int style_group = 0; 
 int old_style = -1;
 int ample_old_key = 0;
+int last_chord_note = 0;
+int last_chord_type = 0;
 int seqtrak_chord = 0;
 int transpose = 0; 
 
@@ -1434,9 +1436,14 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
+
+	if (handled) {
+		last_chord_note = chord_note;
+		last_chord_type = chord_type;
+	}
 	
 	if (active_strum_pattern > -1) 
-	{
+	{	
 		if (!handled && active_strum_pattern > 1) {	// play strum of last chord for ample guitar arppergio noises
 			handled = true;
 			strum_last_chord = true;
@@ -1468,8 +1475,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						
 						if (string > -1 && string < 6) 
 						{
-							if (chord_chat[chord_note % 12][chord_type][string] > -1) {	// ignore unused strings
-								chord_midinotes[notes_count] = string_frets[string] + chord_chat[chord_note % 12][chord_type][string];
+							if (chord_chat[last_chord_note % 12][last_chord_type][string] > -1) {	// ignore unused strings
+								chord_midinotes[notes_count] = string_frets[string] + chord_chat[last_chord_note % 12][last_chord_type][string];
 								notes_count++;						
 							}
 						}
