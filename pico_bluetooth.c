@@ -16,6 +16,7 @@
 #include "sdkconfig.h"
 #include "button.h"
 #include "looper.h"
+#include "storage.h"
 #include "ghost_note.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
@@ -436,7 +437,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				{
 					if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
 						//ghost_parameters_t *params = ghost_note_parameters();
-						//params->ghost_intensity = 0.843;		
+						//params->ghost_intensity = 0.843;	
+						storage_store_tracks();						
 					}							
 				}	
 				else
@@ -568,11 +570,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					
 					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
 						style_section = 0;	
-						looper_status.current_step = 0;						
+						looper_status.current_step = 0;	
+						
+						if (looper_status.state == LOOPER_STATE_RECORDING) storage_store_tracks();													
 						looper_status.state = LOOPER_STATE_PLAYING;
 						
 						//ghost_parameters_t *params = ghost_note_parameters();						
-						//params->ghost_intensity = 0.843;											
+						//params->ghost_intensity = 0.843;							
 					} 
 					else 
 					
@@ -729,6 +733,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
 					//ghost_parameters_t *params = ghost_note_parameters();
 					//params->ghost_intensity = 0.843;	
+					storage_store_tracks();						
 				}				
 			}
 			else

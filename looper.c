@@ -17,6 +17,7 @@
 #include "async_timer.h"
 #include "button.h"
 #include "display.h"
+#include "storage.h"
 #include "ghost_note.h"
 #include "note_scheduler.h"
 #include "tap_tempo.h"
@@ -246,6 +247,8 @@ void looper_clear_all_tracks() {
         memset(tracks[i].ghost_notes, 0, sizeof(tracks[i].ghost_notes));
         memset(tracks[i].fill_pattern, 0, sizeof(tracks[i].fill_pattern));
     }
+	
+	storage_store_tracks();	
 }
 
 // Routes button events related to tap-tempo mode.
@@ -389,6 +392,7 @@ void looper_handle_button_event(button_event_t event) {
                 memset(track->pattern, 0, LOOPER_TOTAL_STEPS);
                 memset(track->ghost_notes, 0, sizeof(track->ghost_notes));
                 memset(track->fill_pattern, 0, LOOPER_TOTAL_STEPS);
+				storage_erase_tracks();
             }
             uint8_t quantized_step = looper_quantize_step();
             track->pattern[quantized_step] = true;
