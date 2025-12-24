@@ -1449,7 +1449,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	
 	if (active_strum_pattern > -1) 
 	{	
-		if (!handled && active_strum_pattern > 1) {	// play strum of last chord for ample guitar arppergio noises
+		if (!handled && active_strum_pattern > 1 && active_neck_pos > 1) {	// play strum of last chord for ample guitar arppergio noises and non bass notes
 			handled = true;
 			strum_last_chord = true;
 		}
