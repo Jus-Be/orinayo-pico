@@ -108,6 +108,7 @@ extern int style_section;
 extern int style_group;
 
 void midi_seqtrak_tempo(int tempo);
+uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
 
 // Check if the note output destination is ready.
 static bool looper_perform_ready(void) {
@@ -119,11 +120,11 @@ void looper_perform_note(uint8_t channel, uint8_t note, uint8_t velocity) {
     uint8_t const cable_num = 0;
     // Send Note On for current position at full velocity (127) on channel 1.
     uint8_t note_on[] = {0x90 | channel, note, velocity};
-	tud_midi_n_stream_write(0, 0, note_on, sizeof(note_on));	
+	midi_n_stream_write(0, 0, note_on, sizeof(note_on));	
 
     // Send Note Off for previous note.
     uint8_t note_off[] = {0x80 | channel, note, 0};
-	tud_midi_n_stream_write(0, 0, note_off, sizeof(note_off));
+	midi_n_stream_write(0, 0, note_off, sizeof(note_off));
 }
 
 static void looper_schedule_note_now(uint8_t channel, uint8_t note, uint8_t velocity) {
