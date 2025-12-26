@@ -786,6 +786,16 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				query_state = 2;	
 			}
 		}
+		else
+			
+		if (query_state == 2) 	{
+			static uint8_t drum_style[6] = {177, 30, 38, 1, 0, 1};
+			gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_style);
+			
+			static uint8_t guitar_style[6] = {177, 30, 37, 1, 0, 1};			
+			gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, guitar_style);
+
+		}			
 	}		
 	else
 					
