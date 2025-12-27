@@ -783,8 +783,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t drum_preview[6] = {177, 30, 38, 1, 0, 1};			
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_preview);
 
-				static uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 2, 1};	// Dm
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
+				static uint8_t set_chord_type[6] = {177, 30, 20, 1, 0, 1};	
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, set_chord_type);				
 				query_state = 2;
 			}
 			else
