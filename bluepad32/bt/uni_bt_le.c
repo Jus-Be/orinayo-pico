@@ -783,7 +783,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t drum_preview[6] = {177, 30, 38, 1, 0, 1};			
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_preview);
 
-				static uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 2, 1};	// Dm
+				static uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 1, 2};	// Dm
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
 				query_state = 2;
 			}
@@ -798,7 +798,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		else
 			
 		if (query_state == 2) 	{
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 	
 
 			if (liberlive_enabled) {			
 				static uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 2, 32, 1, 1};	// chord paddle, group, item, difficulty, auto-bass
