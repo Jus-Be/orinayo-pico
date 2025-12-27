@@ -783,8 +783,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t drum_preview[6] = {177, 30, 38, 1, 0, 1};			
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_preview);
 
-				static uint8_t set_chord_type[8] = {177, 30, 12, 3, 0, 2, 1, 0};	// Dm
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 8, set_chord_type);				
+				static uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 2, 1};	// Dm
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
 				query_state = 2;
 			}
 			else
@@ -800,7 +800,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 2) 	{
 
 			if (liberlive_enabled) {			
-				static uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 2, 32, 1, 1};	// chord paddle, group, item, difficulty, auto-bass
+				static uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 1, 1};	// chord paddle, group, item, difficulty, auto-bass
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);
 				query_state = 3;
 			}				
@@ -811,7 +811,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 	
 
 			if (liberlive_enabled) {			
-				static uint8_t chord_preview[6] = {177, 30, 37, 1, 0, 2};	
+				static uint8_t chord_preview[6] = {177, 30, 37, 1, 0, 1};	
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, chord_preview);
 
 				query_state = 4;
