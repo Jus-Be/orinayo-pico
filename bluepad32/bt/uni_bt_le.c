@@ -777,10 +777,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
 
-				//static uint8_t set_drum[10] = {177, 30, 23, 5, 0, 42, 28, 0, 1, 1};
+				//static uint8_t set_drum[10] = {177, 30, 23, 5, 0, 42, 28, 0, 1, 1}; // chord group, item, paddle, difficulty, auto-bass
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_drum);
 
-				static uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 32, 2, 1, 1};
+				static uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 2, 32, 1, 1};	// chord paddle, group, item, difficulty, auto-bass
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);
 
 				query_state = 2;
@@ -802,7 +802,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t drum_preview[6] = {177, 30, 38, 1, 0, 1};			
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_preview);
 
-				static uint8_t chord_preview[6] = {177, 30, 37, 1, 0, 1};			
+				static uint8_t chord_preview[6] = {177, 30, 37, 1, 0, 1};	
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, chord_preview);
 
 				query_state = 3;
