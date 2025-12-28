@@ -786,7 +786,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t chord_tip[8] = {177, 30, 12, 3, 0, 6, 1, 0};	
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 8, chord_tip);
 			
-				uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 3, 1};	
+				uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 0, 8};	
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
 				
 				query_state = 2;
