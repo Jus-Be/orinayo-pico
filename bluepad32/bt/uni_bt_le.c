@@ -804,7 +804,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 2) 	{
 
 			if (liberlive_enabled) {
-				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 125, 1};	// chord paddle, group, item, key, difficulty
+				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 0, 1};	// chord paddle, group, item, key, difficulty
 				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);								
 				query_state = 3;
 			}				
