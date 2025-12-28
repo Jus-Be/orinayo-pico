@@ -803,9 +803,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			
 		if (query_state == 2) 	{
 
-			if (liberlive_enabled) {	
-				uint8_t set_drum[10] = {177, 30, 23, 5, 0, 46, 24, 0, 1, 1}; // drum group, item, paddle, difficulty, auto-bass
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_drum);			
+			if (liberlive_enabled) {
+				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 125, 1};	// chord paddle, group, item, key, difficulty
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);								
 				query_state = 3;
 			}				
 		}
@@ -814,9 +814,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 3) 	{
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true); 	
 
-			if (liberlive_enabled) {	
-				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 15, 1};	// chord paddle, group, item, key, difficulty
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);				
+			if (liberlive_enabled) {
+				//uint8_t set_drum[10] = {177, 30, 23, 5, 0, 46, 24, 0, 1, 1}; // drum group, item, paddle, difficulty, auto-bass
+				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_drum);			
+				
 				query_state = 4;
 			}				
 		}			
