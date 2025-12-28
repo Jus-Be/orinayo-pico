@@ -789,8 +789,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 5, 0};	
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
 
-				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 0, 15};	// chord paddle, group, item, key, difficulty
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);								
+
+				uint8_t set_key[6] = {177, 30, 24, 1, 0, 6};	
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, set_key);
 				
 				query_state = 2;
 			}
@@ -807,6 +808,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 2) 	{
 
 			if (liberlive_enabled) {
+				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 1, 2, 32, 0, 1};	// chord paddle, group, item, key, difficulty
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);												
 				query_state = 3;
 			}				
 		}
