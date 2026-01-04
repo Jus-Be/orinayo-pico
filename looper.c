@@ -107,6 +107,7 @@ extern bool enable_midi_drums;
 extern int style_section; 
 extern int style_group;
 
+void midi_process_state(uint64_t start_us);
 void midi_seqtrak_tempo(int tempo);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
 
@@ -422,6 +423,7 @@ void looper_handle_button_event(button_event_t event) {
 void looper_handle_tick(async_context_t *ctx, async_at_time_worker_t *worker) {
     uint64_t start_us = time_us_64();
 
+	midi_process_state(start_us);
     looper_process_state(start_us);
 
     float step_delay = looper_status.step_period_ms;
@@ -451,6 +453,7 @@ static void looper_audit_midi_sync(async_context_t *ctx, async_at_time_worker_t 
     async_context_add_at_time_worker_in_ms(ctx, worker, 1000);
 }
 
+// TODO
 void looper_handle_midi_tick(void) {
     uint64_t start_us = time_us_64();
     midi_clock_tick_count++;

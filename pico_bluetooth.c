@@ -45,6 +45,7 @@ int last_chord_note = 0;
 int last_chord_type = 0;
 int seqtrak_chord = 0;
 int transpose = 0; 
+int midi_current_step = 0;
 
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
@@ -70,6 +71,7 @@ void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
+void midi_process_state(uint64_t start_us);
 
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void clear_chord_notes();
@@ -1659,4 +1661,8 @@ void bluetooth_init(void) {
   // Initialize BP32
   uni_init(0, NULL);
   // PICO_INFO("Bluepad32 initialized\n");
+}
+
+void midi_process_state(uint64_t start_us) {
+	midi_current_step = (midi_current_step + 1) % 16;
 }
