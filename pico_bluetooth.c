@@ -956,7 +956,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 				
 				if (green && red) {
-					guitar_pc_code = (guitar_pc_code == 26) ? 24 : 26;
+					guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 					midi_send_program_change(0xC0, guitar_pc_code);	
 				}
 				else
