@@ -1555,8 +1555,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 				
 					for (int n=0; n<notes_count; n++) {
 						note = chord_midinotes[(notes_count - 1) - n];											
-						velocity = velocity - 15;
-						
+						if (velocity > 25) velocity = velocity - 10;
+										
 						if (active_neck_pos == 1) {
 							if ((note % 12) > 4) note = note - 12; 	// bass needs another octave lower for bass neck pos
 						}						
@@ -1796,7 +1796,7 @@ void midi_process_state(uint64_t start_us) {
 			for (int n=0; n<6; n++) {
 				midi_send_note(0x90, mute_midinotes[n], velocity);
 				chord_notes[n] = mute_midinotes[n];
-				velocity = velocity - 15;
+				if (velocity > 25) velocity = velocity - 10;
 			}
 			
 			if (start_action == 83) {	// normal
@@ -1817,7 +1817,7 @@ void midi_process_state(uint64_t start_us) {
 			for (int n=0; n<6; n++) {
 				midi_send_note(0x90, mute_midinotes[n], velocity);
 				chord_notes[n] = mute_midinotes[n];	
-				velocity = velocity - 15;				
+				if (velocity > 25) velocity = velocity - 10;			
 			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
