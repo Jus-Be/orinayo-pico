@@ -109,8 +109,8 @@ uint8_t strum_styles[5][5][16][3] = {
 		{{74, 77, 114}, {77, 74, 24}, {78, 77, 90}, {77, 78, 90}, {74, 77, 121}, {77, 74, 91}, {77, 77, 90}, {76, 77, 107}, {77, 76, 82}, {76, 77, 121}, {78, 76, 90}, {77, 78, 90}, {76, 77, 123}, {77, 76, 80}, {78, 77, 90}, {77, 78, 90}},		
 		{{64, 83, 91},  {0, 0, 0},    {64, 64, 50}, {0, 0, 0},    {74, 64, 103}, {0, 0, 0},    {79, 74, 71}, {76, 79, 90},  {77, 76, 64}, {76, 77, 89},  {77, 76, 67}, {83, 77, 71}, {74, 83, 101}, {0, 0, 0},    {79, 74, 64}, {83, 79, 40}},	
 		{{64, 81, 88},  {0, 0, 0},    {0, 64, 0},   {0, 0, 0},    {78, 0, 26},   {0, 78, 0},   {64, 0, 60},  {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {64, 0, 90},  {0, 64, 0},   {81, 0, 75},   {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
-		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
-		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}}
+		{{72, 77, 126}, {78, 72, 1},  {78, 78, 58}, {76, 78, 100},{78, 76, 1},   {0, 78, 0},   {72, 0, 123}, {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {64, 72, 90}, {0, 64, 0},   {72, 0, 109},  {78, 72, 90}, {77, 78, 90}, {77, 77, 64}},	
+		{{72, 76, 89},  {0, 0, 0},    {76, 72, 55}, {0, 0, 0},    {77, 76, 100}, {0, 0, 0},    {76, 77, 70}, {0, 0, 0},     {74, 76, 72}, {0, 74, 0},    {76, 0, 65},  {0, 0, 0},    {77, 76, 60},   {0, 0, 0},    {76, 77, 91}, {0, 0, 0}}
 	},
 	{
 		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
@@ -1752,37 +1752,37 @@ void midi_process_state(uint64_t start_us) {
 		// play string 1 -6
 
 		if (start_action == 62) {
-			voice_note = __6th + chord_chat[last_chord_note % 12][last_chord_type][5];
+			voice_note = __6th + chord_chat[last_chord_note % 12][last_chord_type][0];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 64) {
-			voice_note = __5th + chord_chat[last_chord_note % 12][last_chord_type][4];
+			voice_note = __5th + chord_chat[last_chord_note % 12][last_chord_type][1];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 65) {
-			voice_note = __4th + chord_chat[last_chord_note % 12][last_chord_type][3];
+			voice_note = __4th + chord_chat[last_chord_note % 12][last_chord_type][2];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 67) {
-			voice_note = __3rd + chord_chat[last_chord_note % 12][last_chord_type][2];
+			voice_note = __3rd + chord_chat[last_chord_note % 12][last_chord_type][3];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 69) {
-			voice_note = __2nd + chord_chat[last_chord_note % 12][last_chord_type][1];
+			voice_note = __2nd + chord_chat[last_chord_note % 12][last_chord_type][4];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 71) {
-			voice_note = __1st + chord_chat[last_chord_note % 12][last_chord_type][0];
+			voice_note = __1st + chord_chat[last_chord_note % 12][last_chord_type][5];
 			midi_send_note(0x90, voice_note, velocity);				
 		}
 		else
