@@ -24,7 +24,7 @@
 #endif
 
 extern looper_status_t looper_status;
-
+bool strum_neutral = true;
 bool style_started = false;
 bool enable_style_play = false;
 bool enable_auto_hold = false;
@@ -103,7 +103,7 @@ uint8_t strum_pattern[5][12][6] = {
 uint8_t strum_styles[5][5][16][3] = {
 	{
 		{{74, 77, 114}, {77, 74, 24}, {78, 77, 90}, {77, 78, 90}, {74, 77, 121}, {77, 74, 91}, {77, 77, 90}, {76, 77, 107}, {77, 76, 82}, {76, 77, 121}, {78, 76, 90}, {77, 78, 90}, {76, 77, 123}, {77, 76, 80}, {78, 77, 90}, {77, 78, 90}},		
-		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
+		{{64, 83, 91},  {0, 0, 0},    {64, 64, 50}, {0, 0, 0},    {74, 64, 103}, {0, 0, 0},    {79, 74, 71}, {76, 79, 90},  {77, 76, 64}, {76, 77, 89},  {77, 76, 67}, {83, 77, 71}, {74, 83, 101}, {0, 0, 0},    {79, 74, 64}, {83, 79, 40}},	
 		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
 		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}},	
 		{{0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0},     {0, 0, 0},    {0, 0, 0},    {0, 0, 0}}
@@ -537,10 +537,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 		if (dpad_left != left) { 	// Strum down
 			left = dpad_left;
 			
-			if (dpad_left) 	{	
+			if (dpad_left) 	{
+				strum_neutral = false;
 				if (!enable_auto_hold) stop_chord();			
-				play_chord(true, false, green, red, yellow, blue, orange);	
-			} else {			
+				play_chord(true, false, green, red, yellow, blue, orange);
+				
+			} else {
+				strum_neutral = true;
+				
 				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
 					stop_chord();	// sustain arpeggios only
 				}
@@ -558,9 +562,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			right = dpad_right;	
 
 			if (dpad_right) {
+				strum_neutral = false;				
 				if (!enable_auto_hold) stop_chord();
 				play_chord(true, true, green, red, yellow, blue, orange);
-			} else {			
+				
+			} else {
+				strum_neutral = true;
+				
 				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
 					stop_chord();	// sustain arpeggios only
 				}	
@@ -1708,7 +1716,7 @@ void midi_process_state(uint64_t start_us) {
 	
 	midi_current_step = (midi_current_step + 1) % 16;
 	
-	if (enable_midi_drums && active_strum_pattern == 0) {
+	if (enable_midi_drums && active_strum_pattern == 0 && (enable_auto_hold || !strum_neutral)) {
 		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][0];
 		uint8_t stop_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][1];
 		uint8_t velocity = strum_styles[style_group % 5][style_section % 5][midi_current_step][2];
