@@ -49,6 +49,8 @@ int seqtrak_chord = 0;
 int transpose = 0; 
 int midi_current_step = 0;
 
+uint8_t voice_note = 0;
+uint8_t chord_notes[6] = {0};
 uint8_t old_midinotes[6] = {0};
 uint8_t mute_midinotes[6] = {0};
 
@@ -1220,7 +1222,14 @@ void stop_chord() {
 			midi_send_note(0x80, old_midinotes[n], 0);	
 			old_midinotes[n] = 0;
 		}
-	}	
+		
+		if (chord_notes[n] > 0) {
+			midi_send_note(0x80, chord_notes[n], 0);	
+			chord_notes[n] = 0;
+		}				
+	}
+
+	if (voice_note != 0) midi_send_note(0x80, voice_note, 0);
 }
 
 void clear_chord_notes() {
@@ -1714,9 +1723,6 @@ void bluetooth_init(void) {
 }
 
 void midi_process_state(uint64_t start_us) {
-	static uint8_t chord_notes[6] = {0};
-	static uint8_t voice_note = 0;	
-	
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		
@@ -1821,7 +1827,7 @@ void midi_process_state(uint64_t start_us) {
 		// play voice note		
 
 		if (start_action == 77 || start_action == 78) {	
-			voice_note = (last_chord_note % 12) + (O * (active_neck_pos + 2));
+			voice_note = mute_midinotes[0]; //(last_chord_note % 12) + (O * (active_neck_pos + 2));
 			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
