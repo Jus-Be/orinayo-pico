@@ -1699,6 +1699,9 @@ void bluetooth_init(void) {
 }
 
 void midi_process_state(uint64_t start_us) {
+	static uint8_t chord_notes[6] = {0};
+	static uint8_t voice_note = 0;	
+	
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		
@@ -1709,36 +1712,58 @@ void midi_process_state(uint64_t start_us) {
 		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][0];
 		uint8_t stop_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][1];
 		uint8_t velocity = strum_styles[style_group % 5][style_section % 5][midi_current_step][2];
-		
-		// stop string 1 -6
-		
-		if (stop_action == 62) midi_send_note(0x80, __6th + chord_chat[last_chord_note % 12][last_chord_type][5], 0);
-		if (stop_action == 64) midi_send_note(0x80, __5th + chord_chat[last_chord_note % 12][last_chord_type][4], 0);
-		if (stop_action == 65) midi_send_note(0x80, __4th + chord_chat[last_chord_note % 12][last_chord_type][3], 0);
-		if (stop_action == 67) midi_send_note(0x80, __3rd + chord_chat[last_chord_note % 12][last_chord_type][2], 0);
-		if (stop_action == 69) midi_send_note(0x80, __2nd + chord_chat[last_chord_note % 12][last_chord_type][1], 0);
-		if (stop_action == 71) midi_send_note(0x80, __1st + chord_chat[last_chord_note % 12][last_chord_type][0], 0);
-		
+				
 		// stop chord strum notes
 		
-		if (stop_action == 72 || stop_action == 74 || stop_action == 76 || stop_action == 79 || stop_action == 81 || stop_action == 83) {		
-			for (int n=0; n<6; n++) midi_send_note(0x80, mute_midinotes[n], 0);
-		}
-		
-		// stop voice note
-		
-		if (stop_action == 77 || stop_action == 78) {		
-			 midi_send_note(0x80, (last_chord_note % 12) + (O * (active_neck_pos + 2)), 0);
+		if (stop_action == 72 || stop_action == 74 || stop_action == 76 || stop_action == 79 || stop_action == 81 || stop_action == 83) 
+		{		
+			for (int n=0; n<6; n++) {
+				midi_send_note(0x80, chord_notes[n], 0);
+			}
+			
+		} else {
+			midi_send_note(0x80, voice_note, 0);	// stop voice note
 		}
 		
 		// play string 1 -6
 
-		if (start_action == 62) midi_send_note(0x90, __6th + chord_chat[last_chord_note % 12][last_chord_type][5], velocity);
-		if (start_action == 64) midi_send_note(0x90, __5th + chord_chat[last_chord_note % 12][last_chord_type][4], velocity);
-		if (start_action == 65) midi_send_note(0x90, __4th + chord_chat[last_chord_note % 12][last_chord_type][3], velocity);
-		if (start_action == 67) midi_send_note(0x90, __3rd + chord_chat[last_chord_note % 12][last_chord_type][2], velocity);
-		if (start_action == 69) midi_send_note(0x90, __2nd + chord_chat[last_chord_note % 12][last_chord_type][1], velocity);
-		if (start_action == 71) midi_send_note(0x90, __1st + chord_chat[last_chord_note % 12][last_chord_type][0], velocity);				
+		if (start_action == 62) {
+			voice_note = __6th + chord_chat[last_chord_note % 12][last_chord_type][5];
+			midi_send_note(0x90, voice_note, velocity);
+		}
+		else
+			
+		if (start_action == 64) {
+			voice_note = __5th + chord_chat[last_chord_note % 12][last_chord_type][4];
+			midi_send_note(0x90, voice_note, velocity);
+		}
+		else
+			
+		if (start_action == 65) {
+			voice_note = __4th + chord_chat[last_chord_note % 12][last_chord_type][3];
+			midi_send_note(0x90, voice_note, velocity);
+		}
+		else
+			
+		if (start_action == 67) {
+			voice_note = __3rd + chord_chat[last_chord_note % 12][last_chord_type][2];
+			midi_send_note(0x90, voice_note, velocity);
+		}
+		else
+			
+		if (start_action == 69) {
+			voice_note = __2nd + chord_chat[last_chord_note % 12][last_chord_type][1];
+			midi_send_note(0x90, voice_note, velocity);
+		}
+		else
+			
+		if (start_action == 71) {
+			voice_note = __1st + chord_chat[last_chord_note % 12][last_chord_type][0];
+			midi_send_note(0x90, voice_note, velocity);				
+		}
+		else
+
+		// play chord strum up notes	
 		
 		if (start_action == 76 || start_action == 83) {
 			qsort(mute_midinotes, 6, sizeof(uint8_t), compUp);
@@ -1747,14 +1772,18 @@ void midi_process_state(uint64_t start_us) {
 				midi_send_program_change(0xC0, 28);
 			}
 			
-			for (int n=0; n<6; n++) midi_send_note(0x90, mute_midinotes[n], velocity);
+			for (int n=0; n<6; n++) {
+				midi_send_note(0x90, mute_midinotes[n], velocity);
+				chord_notes[n] = mute_midinotes[n];
+			}
 			
 			if (start_action == 83) {	// normal
 				midi_send_program_change(0xC0, 26);
 			}			
 		} 
-		
-		// play chord strum notes		
+		else
+			
+		// play chord strum down notes		
 
 		if (start_action == 72 || start_action == 74 || start_action == 79 || start_action == 81) {
 			qsort(mute_midinotes, 6, sizeof(uint8_t), compDown);
@@ -1763,17 +1792,22 @@ void midi_process_state(uint64_t start_us) {
 				midi_send_program_change(0xC0, 28);
 			}
 			
-			for (int n=0; n<6; n++) midi_send_note(0x90, mute_midinotes[n], velocity);
+			for (int n=0; n<6; n++) {
+				midi_send_note(0x90, mute_midinotes[n], velocity);
+				chord_notes[n] = mute_midinotes[n];				
+			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
 				midi_send_program_change(0xC0, 26);
 			}			
 		}
+		else
 		
 		// play voice note		
 
-		if (start_action == 77 || start_action == 78) {		
-			 midi_send_note(0x90, (last_chord_note % 12) + (O * (active_neck_pos + 2)), velocity);
+		if (start_action == 77 || start_action == 78) {	
+			voice_note = (last_chord_note % 12) + (O * (active_neck_pos + 2));
+			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
 }
