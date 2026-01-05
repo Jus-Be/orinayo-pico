@@ -1529,10 +1529,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}
 
 					for (int i=0; i<6; i++) 
-					{
-						if (!enable_midi_drums || active_strum_pattern != 0) {						
-							mute_midinotes[i] = 0;	// reset muted notes
-						}
+					{						
+						mute_midinotes[i] = 0;	// reset muted notes
 						
 						string = 6 - strum_pattern[play_pattern][seq_index][i];
 						
@@ -1726,6 +1724,11 @@ void midi_process_state(uint64_t start_us) {
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		
+	uint8_t auto_chord_midinotes[6] = {0};
+	
+	for (int i=0; i<6; i++) {
+		auto_chord_midinotes[i] = mute_midinotes[i];
+	}
 	
 	midi_current_step = (midi_current_step + 1) % 16;
 	
@@ -1787,15 +1790,15 @@ void midi_process_state(uint64_t start_us) {
 		// play chord strum up notes	
 		
 		if (start_action == 76 || start_action == 83) {
-			qsort(mute_midinotes, 6, sizeof(uint8_t), compUp);
+			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compUp);
 			
 			if (start_action == 83) {	// mute
 				midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
-				midi_send_note(0x90, mute_midinotes[n], velocity);
-				chord_notes[n] = mute_midinotes[n];
+				midi_send_note(0x90, auto_chord_midinotes[n], velocity);
+				chord_notes[n] = auto_chord_midinotes[n];
 				if (velocity > 25) velocity = velocity - 10;
 			}
 			
@@ -1808,15 +1811,15 @@ void midi_process_state(uint64_t start_us) {
 		// play chord strum down notes		
 
 		if (start_action == 72 || start_action == 74 || start_action == 79 || start_action == 81) {
-			qsort(mute_midinotes, 6, sizeof(uint8_t), compDown);
+			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compDown);
 			
 			if (start_action == 79 || start_action == 81) {	// mute
 				midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
-				midi_send_note(0x90, mute_midinotes[n], velocity);
-				chord_notes[n] = mute_midinotes[n];	
+				midi_send_note(0x90, auto_chord_midinotes[n], velocity);
+				chord_notes[n] = auto_chord_midinotes[n];	
 				if (velocity > 25) velocity = velocity - 10;			
 			}
 			
@@ -1829,7 +1832,7 @@ void midi_process_state(uint64_t start_us) {
 		// play voice note		
 
 		if (start_action == 77 || start_action == 78) {	
-			voice_note = mute_midinotes[0]; //(last_chord_note % 12) + (O * (active_neck_pos + 2));
+			voice_note = (last_chord_note % 12) + (O * (active_neck_pos + 2)); // auto_chord_midinotes[0];
 			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
