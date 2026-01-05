@@ -1575,7 +1575,7 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					if (!up && enable_midi_drums && active_strum_pattern == 0) {
 						// play bass note on downstroke with auto-strum
 						
-						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
 						midi_send_program_change(0xC0, 33);						
