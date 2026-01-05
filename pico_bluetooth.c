@@ -1567,7 +1567,16 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						
 						old_midinotes[n] = note;
 						mute_midinotes[n] = note;							
-					}	
+					}
+
+					if (!up && enable_midi_drums && active_strum_pattern == 0) {
+						// play bass note on downstroke
+						
+						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+						if ((note % 12) > 4) note = note - 12; 
+						midi_send_note(0x90, note, velocity);
+						old_midinotes[0] = note;						
+					}					
 
 					seq_index++;	
 					if (seq_index > 11) seq_index = 0;
