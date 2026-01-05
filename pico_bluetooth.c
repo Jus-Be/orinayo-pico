@@ -35,6 +35,8 @@ bool enable_chord_track = true;
 bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
+
+int guitar_pc_code = 26;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -356,7 +358,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (but6) 
 				{
 					if (enable_arranger_mode) 	{
-						midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1						
+						midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
 					}
 					else
 						
@@ -373,7 +375,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				if (but6) 
 				{
 					if (enable_arranger_mode) 	{
-						midi_send_program_change(0xC0, 26);	// electric jazz guitar on channel 1						
+						midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
 					}
 					else
 						
@@ -951,6 +953,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (mbut3) 	{
 				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 				
+				if (green && red) {
+					guitar_pc_code = (guitar_pc_code == 26) ? 24 : 26;
+				}
+				else
+				
 				if (green) {  
 					enable_arranger_mode = !enable_arranger_mode;
 					enable_style_play = enable_arranger_mode;
@@ -959,7 +966,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
 						midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
 						
-						midi_send_program_change(0xC0, 26);		// jazz guitar on channel 1	
+						midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
 						midi_send_control_change(0xB0, 7, 100); // set default volume	
 					}						
 				}
@@ -1786,7 +1793,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 83) {	// normal
-				midi_send_program_change(0xC0, 26);
+				midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		} 
 		else
@@ -1806,7 +1813,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
-				midi_send_program_change(0xC0, 26);
+				midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		}
 		else
