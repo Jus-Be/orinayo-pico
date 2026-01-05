@@ -957,6 +957,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				
 				if (green && red) {
 					guitar_pc_code = (guitar_pc_code == 26) ? 24 : 26;
+					midi_send_program_change(0xC0, guitar_pc_code);	
 				}
 				else
 				
@@ -1561,6 +1562,8 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 						
 						if (enable_ample_guitar && note < 40) note = note + 12;	
 						
+						// don't play chord when midi drums is enabled. auto-strum will handle it on beat
+						
 						if (!enable_midi_drums || active_strum_pattern != 0) {
 							midi_send_note(0x90, note, velocity);
 						}
@@ -1570,11 +1573,15 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 					}
 
 					if (!up && enable_midi_drums && active_strum_pattern == 0) {
-						// play bass note on downstroke
+						// play bass note on downstroke with auto-strum
 						
 						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
-						if ((note % 12) > 4) note = note - 12; 
-						midi_send_note(0x90, note, velocity);
+						if ((note % 12) > 4) note = note - 12;
+
+						midi_send_program_change(0xC0, 33);						
+						midi_send_note(0x90, note, 120);
+						midi_send_program_change(0xC0, guitar_pc_code);	
+						
 						old_midinotes[0] = note;						
 					}					
 
