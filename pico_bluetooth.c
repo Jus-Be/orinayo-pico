@@ -978,7 +978,13 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_send_control_change(0xB0, 0, 62); 				// MSB 62	
 					midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1											
 				}
-			}			
+			}
+			else {
+				if (mbut2) {
+					midi_send_control_change(0xB3, 15, style_group); 		// select style group
+				}							
+			}
+				
 				
 			break;		
 		}		
