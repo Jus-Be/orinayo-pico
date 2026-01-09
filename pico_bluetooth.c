@@ -36,6 +36,30 @@ bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 
+uint8_t but0;
+uint8_t but1;
+uint8_t but2;
+uint8_t but3;
+uint8_t but4; 
+uint8_t but6;
+uint8_t but7;   
+uint8_t but9;
+
+uint8_t mbut0;
+uint8_t mbut1;
+uint8_t mbut2;
+uint8_t mbut3;
+
+uint8_t dpad_left;	
+uint8_t dpad_right;
+uint8_t dpad_up;
+uint8_t dpad_down;
+
+bool joy_up;  
+bool joy_down;  
+bool knob_up; 
+bool knob_down; 
+
 int guitar_pc_code = 26;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
@@ -219,7 +243,40 @@ static const uni_property_t* pico_bluetooth_get_property(uni_property_idx_t idx)
   return NULL;
 }
 
-static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controller_t* ctl) {
+static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controller_t* ctl) { 
+	uint8_t axis_x = ctl->gamepad.axis_x / 4;
+	uint8_t axis_y = ctl->gamepad.axis_y / 4;
+	uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
+	uint8_t axis_ry = ctl->gamepad.axis_ry / 4;
+	
+	joy_up = axis_y > axis_x;  
+	joy_down = axis_x > axis_y;  
+	knob_up = axis_ry > axis_rx; 
+	knob_down = axis_rx > axis_ry; 	
+  
+	but0 = (ctl->gamepad.buttons >> 0) & 0x01;
+	but1 = (ctl->gamepad.buttons >> 1) & 0x01;
+	but2 = (ctl->gamepad.buttons >> 2) & 0x01;
+	but3 = (ctl->gamepad.buttons >> 3) & 0x01;
+	but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
+	but6 = (ctl->gamepad.buttons >> 6) & 0x01;   
+	but7 = (ctl->gamepad.buttons >> 7) & 0x01;   
+	but9 = (ctl->gamepad.buttons >> 9) & 0x01;	
+	
+	dpad_left = ctl->gamepad.dpad & 0x02;	
+	dpad_right = ctl->gamepad.dpad & 0x01;
+	dpad_up = ctl->gamepad.dpad & 0x04;
+	dpad_down = ctl->gamepad.dpad & 0x08;	
+	
+	mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
+	mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
+	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
+	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
+		
+	void pico_bluetooth_handle_data(); 	
+}
+
+static void pico_bluetooth_handle_data() {
   absolute_time_t now = get_absolute_time();
   uint64_t now_since_boot = to_us_since_boot(now);
 
@@ -259,37 +316,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   static uint8_t joystick_up = 0;
   static uint8_t joystick_down = 0;  
   static uint8_t logo_knob_up = 0;  
-  static uint8_t logo_knob_down = 0; 
-    
-  uint8_t but0 = (ctl->gamepad.buttons >> 0) & 0x01;
-  uint8_t but1 = (ctl->gamepad.buttons >> 1) & 0x01;
-  uint8_t but2 = (ctl->gamepad.buttons >> 2) & 0x01;
-  uint8_t but3 = (ctl->gamepad.buttons >> 3) & 0x01;
-  uint8_t but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
-  uint8_t but6 = (ctl->gamepad.buttons >> 6) & 0x01;   
-  uint8_t but7 = (ctl->gamepad.buttons >> 7) & 0x01;   
-  uint8_t but9 = (ctl->gamepad.buttons >> 9) & 0x01;
-
-  uint8_t dpad_left = ctl->gamepad.dpad & 0x02;	
-  uint8_t dpad_right = ctl->gamepad.dpad & 0x01;
-  uint8_t dpad_up = ctl->gamepad.dpad & 0x04;
-  uint8_t dpad_down = ctl->gamepad.dpad & 0x08;
-
-  uint8_t mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
-  uint8_t mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
-  uint8_t mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
-  uint8_t mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
+  static uint8_t logo_knob_down = 0; 	
   
-  uint8_t axis_x = ctl->gamepad.axis_x / 4;
-  uint8_t axis_y = ctl->gamepad.axis_y / 4;
-  uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
-  uint8_t axis_ry = ctl->gamepad.axis_ry / 4;	
-
-  bool joy_up = axis_y > axis_x;  
-  bool joy_down = axis_x > axis_y;  
-  bool knob_up = axis_ry > axis_rx; 
-  bool knob_down = axis_rx > axis_ry; 
-    
   switch (ctl->klass) {
     case UNI_CONTROLLER_CLASS_GAMEPAD:
 		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
