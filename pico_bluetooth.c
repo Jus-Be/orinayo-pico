@@ -563,7 +563,7 @@ void midi_bluetooth_handle_data() {
 			else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
 		}			
 
-		break;
+		return;
 	}
 
 	// handle direct key change (D, E, F, G, A)
@@ -580,14 +580,14 @@ void midi_bluetooth_handle_data() {
 			if (blue) 	transpose = 7;		// G				
 			if (orange) transpose = 9;		// A
 		}
-		break;			
+		return;			
 	}
 
 	// handle actions
 
 	if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
 		start = but9;		
-		break;			
+		return;			
 	}				
 
 	if (dpad_left != left) { 	// Strum down
@@ -611,7 +611,7 @@ void midi_bluetooth_handle_data() {
 		}
 		
 		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
-		break;
+		return;
 	}		
 
 	if (dpad_right != right) {	// strum up
@@ -635,7 +635,7 @@ void midi_bluetooth_handle_data() {
 		}
 
 		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
-		break;
+		return;
 	}
 
 	if (dpad_up != up) {	// transpose down
@@ -647,7 +647,7 @@ void midi_bluetooth_handle_data() {
 			if (enable_seqtrak) midi_seqtrak_key(transpose);				
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
-		break;			
+		return;			
 	}
 
 	if (dpad_down != down) {	// transpose up
@@ -659,7 +659,7 @@ void midi_bluetooth_handle_data() {
 			if (enable_seqtrak) midi_seqtrak_key(transpose);
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
-		break;
+		return;
 	}		
 
 	uint8_t ketron_code;
@@ -790,7 +790,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (mbut0) style_started = !style_started;
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);			
-		break;
+		return;
 	}		
 
 	if (mbut1 != starpower) { // next style/section	
@@ -893,7 +893,7 @@ void midi_bluetooth_handle_data() {
 			else midi_send_control_change(0xB3, 14, 65); 			// Next Style
 		}			
 		
-		break;			
+		return;			
 	}
 
 	if (mbut2 != menu) {
@@ -1029,7 +1029,7 @@ void midi_bluetooth_handle_data() {
 		}
 			
 			
-		break;		
+		return;		
 	}		
 
 	if (mbut3 != config) {	// config/menu options
@@ -1096,7 +1096,7 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		
-		break;			
+		return;			
 	}
 
 	if (joy_up != joystick_up) {
@@ -1178,12 +1178,12 @@ void midi_bluetooth_handle_data() {
 				midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
 			}
 		}
-		break;
+		return;
 	}
 
 	if (joy_down != joystick_down) {	// unused
 		joystick_down = joy_down;					
-		break;			
+		return;			
 	}
 
 	if (knob_up != logo_knob_up) {
@@ -1196,7 +1196,7 @@ void midi_bluetooth_handle_data() {
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
 					params->ghost_intensity = 0.843;							
-					break;
+					return;
 				}
 			}
 		}
@@ -1209,7 +1209,7 @@ void midi_bluetooth_handle_data() {
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
 					params->ghost_intensity = 0.0;					
-					break;
+					return;
 				}
 			}
 		}
@@ -1226,7 +1226,7 @@ void midi_bluetooth_handle_data() {
 					style_group = -1;
 					
 					looper_status.current_step = 0;
-					break;
+					return;
 				}
 			}
 		}
@@ -1238,7 +1238,7 @@ void midi_bluetooth_handle_data() {
 			{
 				if (!style_started && enable_midi_drums)	{
 					looper_status.state = LOOPER_STATE_TAP_TEMPO;	
-					break;	
+					return;	
 				}
 			}
 		}
@@ -1250,7 +1250,7 @@ void midi_bluetooth_handle_data() {
 		else
 			
 		if (enable_arranger_mode && style_started) {			
-			midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
+			midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	return	
 			midi_yamaha_arr(0x18, knob_up ? true : false);				
 		}
 		else {				
@@ -1259,7 +1259,7 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		
-		break;			
+		return;			
 	}
 
 	if (knob_down != logo_knob_down) {	// unused
@@ -1272,7 +1272,7 @@ void midi_bluetooth_handle_data() {
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
 					params->ghost_intensity = 0.843;							
-					break;
+					return;
 				}
 			}
 		}
@@ -1285,11 +1285,11 @@ void midi_bluetooth_handle_data() {
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
 					params->ghost_intensity = 0.0;					
-					break;
+					return;
 				}
 			}
 		}			
-		break;			
+		return;			
 	}
 				
 }
