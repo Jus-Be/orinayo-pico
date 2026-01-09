@@ -100,6 +100,7 @@ void midi_ketron_footsw(uint8_t code, bool on);
 void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 void midi_process_state(uint64_t start_us);
+void midi_bluetooth_handle_data();
 
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void clear_chord_notes();
@@ -273,10 +274,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
 	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
 		
-	void pico_bluetooth_handle_data(); 	
+	midi_bluetooth_handle_data(); 	
 }
 
-static void pico_bluetooth_handle_data() {
+void midi_bluetooth_handle_data() {
   absolute_time_t now = get_absolute_time();
   uint64_t now_since_boot = to_us_since_boot(now);
 
