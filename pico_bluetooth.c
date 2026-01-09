@@ -981,7 +981,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			}
 			else {
 				if (mbut2) {
-					midi_send_control_change(0xB3, 15, style_group); 		// select style group
+					midi_send_control_change(0xB3, 15, style_group + 1); 		// select style group
 				}							
 			}
 				
