@@ -706,7 +706,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							else if (yellow) midi_send_control_change(0xB3, 3, 3); 	// Fill-3						
 							else if (blue) midi_send_control_change(0xB3, 3, 4); 	// Sync start	
 							else if (orange) midi_send_control_change(0xB3, 3, 5); 	// Fade In
-							else midi_send_control_change(0xB3, 3, 0); 				// Play
+							else midi_send_control_change(0xB3, 3, 65); 			// Play
 						}
 					}
 					
@@ -739,7 +739,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 							else if (green) midi_send_control_change(0xB3, 3, 68); 	// End-3						
 							else if (blue) midi_send_control_change(0xB3, 3, 69); 	// Sync stop	
 							else if (orange) midi_send_control_change(0xB3, 3, 70); // Fade Out
-							else midi_send_control_change(0xB3, 3, 65); 			// Stop
+							else midi_send_control_change(0xB3, 3, 127); 			// Stop
 						}						
 					}						
 				}
@@ -847,7 +847,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
 				else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
 				else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
-				else midi_send_control_change(0xB3, 14, 0); 			// Next Style
+				else midi_send_control_change(0xB3, 14, 65); 			// Next Style
 			}			
 			
 			break;			
