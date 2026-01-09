@@ -510,6 +510,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
 				}
 			}	
+			
+			if (but6) {
+				if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
+				else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
+				else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
+				else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
+				else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
+				else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
+			}			
 	
 			break;
 		}
@@ -691,6 +700,14 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						if (enable_arranger_mode) {
 							midi_yamaha_start_stop(0x7A, true);							
 						}
+						else {
+							if (green) midi_send_control_change(0xB3, 3, 1); 		// Fill-1
+							else if (red) midi_send_control_change(0xB3, 3, 2); 	// Fill-2						
+							else if (yellow) midi_send_control_change(0xB3, 3, 3); 	// Fill-3						
+							else if (blue) midi_send_control_change(0xB3, 3, 4); 	// Sync start	
+							else if (orange) midi_send_control_change(0xB3, 3, 5); 	// Fade In
+							else midi_send_control_change(0xB3, 3, 0); 				// Play
+						}
 					}
 					
 				} else {
@@ -715,7 +732,15 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 						
 						if (enable_arranger_mode) {
 							midi_yamaha_start_stop(0x7D, true);		
-						}							
+						}	
+						else {
+							if (yellow) midi_send_control_change(0xB3, 3, 66); 		// End-1
+							else if (red) midi_send_control_change(0xB3, 3, 67); 	// End-2						
+							else if (green) midi_send_control_change(0xB3, 3, 68); 	// End-3						
+							else if (blue) midi_send_control_change(0xB3, 3, 69); 	// Sync stop	
+							else if (orange) midi_send_control_change(0xB3, 3, 70); // Fade Out
+							else midi_send_control_change(0xB3, 3, 65); 			// Stop
+						}						
 					}						
 				}
 			}
@@ -814,7 +839,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			if (enable_arranger_mode) {	
 				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
 				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
-			}				
+			}	
+
+			if (mbut1) {
+				if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
+				else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
+				else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
+				else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
+				else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
+				else midi_send_control_change(0xB3, 14, 0); 			// Next Style
+			}			
 			
 			break;			
 		}
@@ -1090,6 +1124,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
 				midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
 			}
+			else {				
+				if (joy_up) {
+					midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
+				}
+			}
 			break;
 		}
 		
@@ -1165,6 +1204,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 				midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
 				midi_yamaha_arr(0x18, knob_up ? true : false);				
 			}
+			else {				
+				if (knob_up) {
+					midi_send_control_change(0xB3, 14, 10); 	// Break
+				}
+			}
+			
 			break;			
 		}
 		
