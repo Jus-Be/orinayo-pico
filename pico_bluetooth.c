@@ -273,1025 +273,1025 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
 	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
 	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
-		
-	midi_bluetooth_handle_data(); 	
+
+	switch (ctl->klass) {
+		case UNI_CONTROLLER_CLASS_GAMEPAD:		
+			midi_bluetooth_handle_data(); 
+			break;
+		case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
+			// DO NOTHING
+			break;
+		case UNI_CONTROLLER_CLASS_MOUSE:
+			// DO NOTHING
+			break;
+		case UNI_CONTROLLER_CLASS_KEYBOARD:
+			// DO NOTHING
+			break;
+		default:
+			//loge("Unsupported controller class: %d\n", ctl->klass);
+		break;
+  }			
 }
 
 void midi_bluetooth_handle_data() {
-  absolute_time_t now = get_absolute_time();
-  uint64_t now_since_boot = to_us_since_boot(now);
+	absolute_time_t now = get_absolute_time();
+	uint64_t now_since_boot = to_us_since_boot(now);
 
-#if IS_PICO_DEBUG
-  static int count = 0;
-  static absolute_time_t last_updated = 0;
+	#if IS_PICO_DEBUG
+	  static int count = 0;
+	  static absolute_time_t last_updated = 0;
 
-  count++;
+	  count++;
 
-  int64_t elapsed_us = absolute_time_diff_us(last_updated, now);
-  if (elapsed_us >= 1000000) {
-    // PICO_DEBUG("[BT] Bluetooth data received: %u\n", count);
-    last_updated = now;
-    count = 0;
-  }
-#endif
+	  int64_t elapsed_us = absolute_time_diff_us(last_updated, now);
+	  if (elapsed_us >= 1000000) {
+		// PICO_DEBUG("[BT] Bluetooth data received: %u\n", count);
+		last_updated = now;
+		count = 0;
+	  }
+	#endif
 
-  static uint8_t green = 0;
-  static uint8_t red = 0;
-  static uint8_t yellow = 0;
-  static uint8_t blue = 0;
-  static uint8_t orange = 0;
-  static uint8_t starpower = 0;
-  static uint8_t pitch = 0;
-  static uint8_t song_key = 0;
+	static uint8_t green = 0;
+	static uint8_t red = 0;
+	static uint8_t yellow = 0;
+	static uint8_t blue = 0;
+	static uint8_t orange = 0;
+	static uint8_t starpower = 0;
+	static uint8_t pitch = 0;
+	static uint8_t song_key = 0;
+
+	static uint8_t up = 0;
+	static uint8_t down = 0;
+	static uint8_t left = 0;
+	static uint8_t right = 0;	
+
+	static uint8_t start = 0;
+	static uint8_t menu = 0;
+	static uint8_t logo = 0;
+	static uint8_t config = 0;	
+
+	static uint8_t joystick_up = 0;
+	static uint8_t joystick_down = 0;  
+	static uint8_t logo_knob_up = 0;  
+	static uint8_t logo_knob_down = 0; 	
   
-  static uint8_t up = 0;
-  static uint8_t down = 0;
-  static uint8_t left = 0;
-  static uint8_t right = 0;	
+	// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 
-  static uint8_t start = 0;
-  static uint8_t menu = 0;
-  static uint8_t logo = 0;
-  static uint8_t config = 0;	
-  
-  static uint8_t joystick_up = 0;
-  static uint8_t joystick_down = 0;  
-  static uint8_t logo_knob_up = 0;  
-  static uint8_t logo_knob_down = 0; 	
-  
-  switch (ctl->klass) {
-    case UNI_CONTROLLER_CLASS_GAMEPAD:
-		// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-	  
-		// first get button state
-				
-		if (but1 != green) {
-			green = but1;
-		}
-		
-		if (but0 != red) {
-			red = but0;
-		}
-		
-		if (but2 != yellow) {
-			yellow = but2;
-		}
-		
-		if (but3 != blue) {
-			blue = but3;
-		}
+	// first get button state
+			
+	if (but1 != green) {
+		green = but1;
+	}
 
-		if (but4 != orange) {
-			orange = but4;
-		}
-		
-		if (but6 != pitch) {		// prev section/style
-			pitch = but6;
+	if (but0 != red) {
+		red = but0;
+	}
 
-			if (but6 && (up || down)) {	// reset transpose
-				transpose = 0;
+	if (but2 != yellow) {
+		yellow = but2;
+	}
+
+	if (but3 != blue) {
+		blue = but3;
+	}
+
+	if (but4 != orange) {
+		orange = but4;
+	}
+
+	if (but6 != pitch) {		// prev section/style
+		pitch = but6;
+
+		if (but6 && (up || down)) {	// reset transpose
+			transpose = 0;
+		}
+		else
+			
+		if (red && yellow && blue) 
+		{
+			if (but6) {
+				enable_auto_hold = !enable_auto_hold;
+				midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
+			}					
+		}
+		else
+
+		if (green && yellow) 
+		{
+			if (but6) {
+				enable_chord_track = !enable_chord_track;
 			}
-			else
-				
-			if (red && yellow && blue) 
+		}
+		else				
+			
+		if (red && blue) 	
+		{				
+			if (but6) {
+				enable_bass_track = !enable_bass_track;									
+			}
+		}
+		else
+
+		if (yellow && orange) {
+			if (but6) enable_style_play = !enable_style_play;	// toggle chord generation
+		}				
+		else
+
+		if (yellow && blue) {
+			active_neck_pos = 3;	// High
+			
+			if (but6) 
 			{
-				if (but6) {
-					enable_auto_hold = !enable_auto_hold;
-					midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
-				}					
-			}
-			else
-
-			if (green && yellow) 
-			{
-				if (but6) {
-					enable_chord_track = !enable_chord_track;
-				}
-			}
-			else				
-				
-			if (red && blue) 	
-			{				
-				if (but6) {
-					enable_bass_track = !enable_bass_track;									
-				}
-			}
-			else
-
-			if (yellow && orange) {
-				if (but6) enable_style_play = !enable_style_play;	// toggle chord generation
-			}				
-			else
-
-			if (yellow && blue) {
-				active_neck_pos = 3;	// High
-				
-				if (but6) 
-				{
-					if (enable_arranger_mode) 	{
-						midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
-					}
-					else
-						
-					if (enable_seqtrak) 		midi_seqtrak_arp();	
-					else						
-					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
-				}				
-			}
-			else
-
-			if (yellow && red) {
-				active_neck_pos = 2;	// Normal
-				
-				if (but6) 
-				{
-					if (enable_arranger_mode) 	{
-						midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
-					}
-					else
-						
-					if (enable_seqtrak) 		midi_seqtrak_arp();	
-					else						
-					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
-				}				
-			}
-			else
-				
-			if (green && red) {
-				active_neck_pos = 1;	// Low
-				
-				if (but6) 
-				{
-					if (enable_arranger_mode) 	{
-						midi_send_program_change(0xC0, 33);	// electric bass guitar on channel 1						
-						active_strum_pattern = 3;			// force arpeggios, no strumming
-					}
-					else
-						
-					if (enable_seqtrak) 		midi_seqtrak_arp();	
-					else						
-					if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave	
-				}
-			}
-			else
-				
-			if (blue && orange) {
-				active_strum_pattern = -1;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();
-			}
-			else			
-							
-			if (green) {
-				active_strum_pattern = 0;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();				
-				
-				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
-					midi_send_note(0x90, 86, 127);		// enable chord detection					
-					midi_send_note(0x90, 97, 127);		// key switch for strum mode on
-					midi_send_note(0xB0, 64, 1);		// hold pedal off	
-				}
-			}
-			else
-				
-			if (yellow) {
-				active_strum_pattern = 2;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();
-				
-				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
-					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
-					midi_send_note(0xB0, 64, 127);		// hold pedal on	
-					midi_send_note(0x90, 99, 127);					
-				}
-			}
-			else
-
-			if (blue) {
-				active_strum_pattern = 3;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();
-				
-				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
-					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
-					midi_send_note(0xB0, 64, 127);		// hold pedal on	
-					midi_send_note(0x90, 99, 127);						
-				}
-			}				
-			else
-
-			if (red) {
-				active_strum_pattern = 1;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();
-				
-				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
-					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
-					midi_send_note(0xB0, 64, 1);		// hold pedal off						
-				}				
-			}
-			else
-
-			if (orange) {
-				active_strum_pattern = 4;
-				if (but6 && enable_seqtrak) midi_seqtrak_arp();
-				
-				if (but6 && enable_ample_guitar && active_neck_pos != 1) {
-					midi_send_note(0x90, 97, 1);		// key switch for strum mode off
-					midi_send_note(0xB0, 64, 127);		// hold pedal on	
-					midi_send_note(0x90, 99, 127);						
-				}			
-			}
-			else {		
-				
-				if (but6) {
-					old_style = style_section;
-					style_section--;
-					if (style_section < 0) style_section = 7;
-				}
-
-				if (enable_midi_drums)	
-				{
-					if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
-						//ghost_parameters_t *params = ghost_note_parameters();
-						//params->ghost_intensity = 0.843;	
-						storage_store_tracks();						
-					}							
-				}	
-				else
-					
-				if (enable_seqtrak) 
-				{
-					if (but6) {
-						midi_seqtrak_arp();
-						midi_seqtrak_pattern(style_section % 6);				
-					}
+				if (enable_arranger_mode) 	{
+					midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
 				}
 				else
 					
-				if (enable_modx) 
-				{
-					if (but6) {
-						uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
-						midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
-					}
+				if (enable_seqtrak) 		midi_seqtrak_arp();	
+				else						
+				if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
+			}				
+		}
+		else
+
+		if (yellow && red) {
+			active_neck_pos = 2;	// Normal
+			
+			if (but6) 
+			{
+				if (enable_arranger_mode) 	{
+					midi_send_program_change(0xC0, guitar_pc_code);	// electric jazz guitar on channel 1						
 				}
 				else
-
-				if (enable_arranger_mode) {
-					midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
-					midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
+					
+				if (enable_seqtrak) 		midi_seqtrak_arp();	
+				else						
+				if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave					
+			}				
+		}
+		else
+			
+		if (green && red) {
+			active_neck_pos = 1;	// Low
+			
+			if (but6) 
+			{
+				if (enable_arranger_mode) 	{
+					midi_send_program_change(0xC0, 33);	// electric bass guitar on channel 1						
+					active_strum_pattern = 3;			// force arpeggios, no strumming
 				}
-			}	
+				else
+					
+				if (enable_seqtrak) 		midi_seqtrak_arp();	
+				else						
+				if (enable_modx) 			midi_modx_arp_octave(active_neck_pos - 2);	// use neck position to set keyboard octave	
+			}
+		}
+		else
+			
+		if (blue && orange) {
+			active_strum_pattern = -1;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();
+		}
+		else			
+						
+		if (green) {
+			active_strum_pattern = 0;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();				
+			
+			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
+				midi_send_note(0x90, 86, 127);		// enable chord detection					
+				midi_send_note(0x90, 97, 127);		// key switch for strum mode on
+				midi_send_note(0xB0, 64, 1);		// hold pedal off	
+			}
+		}
+		else
+			
+		if (yellow) {
+			active_strum_pattern = 2;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();
+			
+			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
+				midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+				midi_send_note(0xB0, 64, 127);		// hold pedal on	
+				midi_send_note(0x90, 99, 127);					
+			}
+		}
+		else
+
+		if (blue) {
+			active_strum_pattern = 3;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();
+			
+			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
+				midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+				midi_send_note(0xB0, 64, 127);		// hold pedal on	
+				midi_send_note(0x90, 99, 127);						
+			}
+		}				
+		else
+
+		if (red) {
+			active_strum_pattern = 1;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();
+			
+			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
+				midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+				midi_send_note(0xB0, 64, 1);		// hold pedal off						
+			}				
+		}
+		else
+
+		if (orange) {
+			active_strum_pattern = 4;
+			if (but6 && enable_seqtrak) midi_seqtrak_arp();
+			
+			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
+				midi_send_note(0x90, 97, 1);		// key switch for strum mode off
+				midi_send_note(0xB0, 64, 127);		// hold pedal on	
+				midi_send_note(0x90, 99, 127);						
+			}			
+		}
+		else {		
 			
 			if (but6) {
-				if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
-				else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
-				else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
-				else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
-				else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
-				else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
-			}			
-	
-			break;
-		}
-		
-		// handle direct key change (D, E, F, G, A)
-
-		if (but7 != song_key)  {	
-			song_key = but7;
-
-			if (but7) {
-				transpose = 0;
-				
-				if (green) 	transpose = 2;		// D
-				if (red) 	transpose = 4;		// E
-				if (yellow)	transpose = 5;		// F
-				if (blue) 	transpose = 7;		// G				
-				if (orange) transpose = 9;		// A
+				old_style = style_section;
+				style_section--;
+				if (style_section < 0) style_section = 7;
 			}
-			break;			
-		}
-		
-		// handle actions
-		
-		if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
-			start = but9;		
-			break;			
-		}				
-		
-		if (dpad_left != left) { 	// Strum down
-			left = dpad_left;
-			
-			if (dpad_left) 	{
-				strum_neutral = false;
-				if (!enable_auto_hold) stop_chord();			
-				play_chord(true, false, green, red, yellow, blue, orange);
-				
-			} else {
-				strum_neutral = true;
-				
-				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
-					stop_chord();	// sustain arpeggios only
-				}
-				
-				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
-				}
-			}
-			
-			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
-			break;
-		}		
 
-		if (dpad_right != right) {	// strum up
-			right = dpad_right;	
-
-			if (dpad_right) {
-				strum_neutral = false;				
-				if (!enable_auto_hold) stop_chord();
-				play_chord(true, true, green, red, yellow, blue, orange);
-				
-			} else {
-				strum_neutral = true;
-				
-				if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
-					stop_chord();	// sustain arpeggios only
-				}	
-
-				if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-					looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
-				}						
-			}
-	
-			if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
-			break;
-		}
-
-		if (dpad_up != up) {	// transpose down
-			up = dpad_up;
-
-			if (dpad_up) {
-				transpose--;
-				if (transpose < 0) 	transpose = 11;				
-				if (enable_seqtrak) midi_seqtrak_key(transpose);				
-				//if (enable_modx) 	midi_modx_key(transpose);				
-			}
-			break;			
-		}
-
-		if (dpad_down != down) {	// transpose up
-			down = dpad_down;
-			
-			if (dpad_down) {
-				transpose++;
-				if (transpose > 11) transpose = 0;	
-				if (enable_seqtrak) midi_seqtrak_key(transpose);
-				//if (enable_modx) 	midi_modx_key(transpose);				
-			}
-			break;
-		}		
-		
-		uint8_t ketron_code;
-		uint8_t yamaha_code;
-		
-		if (mbut0 != logo) {
-			logo = mbut0;
-			
-			if (enable_midi_drums) 
-			{
-				if (mbut0) {
-					
-					if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-						style_section = 0;	
-						looper_status.current_step = 0;	
-						
-						if (looper_status.state == LOOPER_STATE_RECORDING) storage_store_tracks();													
-						looper_status.state = LOOPER_STATE_PLAYING;
-						
-						//ghost_parameters_t *params = ghost_note_parameters();						
-						//params->ghost_intensity = 0.843;							
-					} 
-					else 
-					
-					if (looper_status.state == LOOPER_STATE_PLAYING) {
-						looper_status.state = LOOPER_STATE_WAITING;
-					}	
-				}					
-			} 
-			else {
-			
-				ketron_code = 0x12;		// default start/stop
-				yamaha_code = 127;					
-				
-				if (yellow) {				// INTRO/END-1
-					ketron_code = 0x0F;		
-					yamaha_code = 0x00;					
-				}
-
-				if (red) {
-					ketron_code = 0x10;		// INTRO/END-2
-					yamaha_code = 0x01;					
-				}
-				
-				if (green) {
-					ketron_code = 0x11;		// INTRO/END-3		
-					yamaha_code = 0x02;					
-				}
-				
-				if (blue) {
-					ketron_code = 0x17;		// TO END
-					yamaha_code = 0x01;					
-				}
-				
-				if (orange) {
-					ketron_code = 0x35;	// FADE	
-					yamaha_code = 0x02;					
-				}
-				
-				if (enable_arranger_mode) midi_ketron_arr(ketron_code, mbut0 ? true : false);
-				
-				if (!style_started) {
-					if (yamaha_code != 127) {
-						if (enable_arranger_mode) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
-					} 
-					
-					if (mbut0) {						
-						if (enable_seqtrak) {
-							midi_seqtrak_mute(7, false);
-							midi_seqtrak_mute(9, false);
-							
-							midi_start_stop(true);							
-						} 
-						else
-							
-						if (enable_modx) {					
-							midi_modx_arp(true);
-						}
-						else 
-						
-						if (enable_arranger_mode) {
-							midi_yamaha_start_stop(0x7A, true);							
-						}
-						else {
-							if (green) midi_send_control_change(0xB3, 3, 1); 		// Fill-1
-							else if (red) midi_send_control_change(0xB3, 3, 2); 	// Fill-2						
-							else if (yellow) midi_send_control_change(0xB3, 3, 3); 	// Fill-3						
-							else if (blue) midi_send_control_change(0xB3, 3, 4); 	// Sync start	
-							else if (orange) midi_send_control_change(0xB3, 3, 5); 	// Fade In
-							else midi_send_control_change(0xB3, 3, 65); 			// Play
-						}
-					}
-					
-				} else {
-					if (yamaha_code != 127) {
-						if (enable_arranger_mode) midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
-					}
-					
-					if (mbut0) {
-						if (enable_seqtrak) {	
-							midi_seqtrak_mute(7, true);
-							midi_seqtrak_mute(9, true);	
-							
-							midi_start_stop(false);
-							midi_play_chord(false, 0, 0, 0);		
-						} 
-						else
-							
-						if (enable_modx) {
-							midi_modx_arp(false);				
-						}						
-						else 
-						
-						if (enable_arranger_mode) {
-							midi_yamaha_start_stop(0x7D, true);		
-						}	
-						else {
-							if (yellow) midi_send_control_change(0xB3, 3, 66); 		// End-1
-							else if (red) midi_send_control_change(0xB3, 3, 67); 	// End-2						
-							else if (green) midi_send_control_change(0xB3, 3, 68); 	// End-3						
-							else if (blue) midi_send_control_change(0xB3, 3, 69); 	// Sync stop	
-							else if (orange) midi_send_control_change(0xB3, 3, 70); // Fade Out
-							else midi_send_control_change(0xB3, 3, 127); 			// Stop
-						}						
-					}						
-				}
-			}
-			
-			if (mbut0) style_started = !style_started;
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);			
-			break;
-		}		
-		
-		if (mbut1 != starpower) { // next style/section	
-			bool style_selected = false;
-			starpower = mbut1;			
-			if (mbut1) old_style = style_section;
-
-			if (green) 
-			{
-				if (mbut1) {
-					style_selected = true;
-					style_section = 0;
-				}
-			}
-			else
-				
-			if (red) 
-			{
-				if (mbut1) {
-					style_selected = true;
-					style_section = 1;
-				}
-			}
-			else
-
-			if (yellow) 
-			{
-				if (mbut1) {
-					style_selected = true;
-					style_section = 2;
-				}
-			}				
-			else
-
-			if (blue) 
-			{
-				if (mbut1) {
-					style_selected = true;
-					style_section = 3;
-				}
-			}
-			else
-
-			if (orange) 
-			{
-				if (mbut1) {
-					style_selected = true;
-					style_section = 7;
-				}
-			}
-			else 
-			
-			if (mbut1) {
-				style_section++;
-				if (style_section > 7) style_section = 0;
-			}			
-			
 			if (enable_midi_drums)	
 			{
-				if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
+				if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
 					//ghost_parameters_t *params = ghost_note_parameters();
 					//params->ghost_intensity = 0.843;	
 					storage_store_tracks();						
-				}				
-			}
+				}							
+			}	
 			else
 				
 			if (enable_seqtrak) 
 			{
-				if (mbut1) 
-				{
-					if (style_started) {
-						midi_seqtrak_arp();
-						midi_seqtrak_pattern(style_section % 6);				
-					} 
+				if (but6) {
+					midi_seqtrak_arp();
+					midi_seqtrak_pattern(style_section % 6);				
 				}
-			} 
+			}
 			else
 				
 			if (enable_modx) 
 			{
-				if (mbut1) {
+				if (but6) {
 					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
 					midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
 				}
-			}			
-			else 
+			}
+			else
+
+			if (enable_arranger_mode) {
+				midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
+				midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
+			}
+		}	
+		
+		if (but6) {
+			if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
+			else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
+			else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
+			else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
+			else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
+			else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
+		}			
+
+		break;
+	}
+
+	// handle direct key change (D, E, F, G, A)
+
+	if (but7 != song_key)  {	
+		song_key = but7;
+
+		if (but7) {
+			transpose = 0;
 			
-			if (enable_arranger_mode) {	
-				midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
-				midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+			if (green) 	transpose = 2;		// D
+			if (red) 	transpose = 4;		// E
+			if (yellow)	transpose = 5;		// F
+			if (blue) 	transpose = 7;		// G				
+			if (orange) transpose = 9;		// A
+		}
+		break;			
+	}
+
+	// handle actions
+
+	if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
+		start = but9;		
+		break;			
+	}				
+
+	if (dpad_left != left) { 	// Strum down
+		left = dpad_left;
+		
+		if (dpad_left) 	{
+			strum_neutral = false;
+			if (!enable_auto_hold) stop_chord();			
+			play_chord(true, false, green, red, yellow, blue, orange);
+			
+		} else {
+			strum_neutral = true;
+			
+			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
+				stop_chord();	// sustain arpeggios only
+			}
+			
+			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+			}
+		}
+		
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
+		break;
+	}		
+
+	if (dpad_right != right) {	// strum up
+		right = dpad_right;	
+
+		if (dpad_right) {
+			strum_neutral = false;				
+			if (!enable_auto_hold) stop_chord();
+			play_chord(true, true, green, red, yellow, blue, orange);
+			
+		} else {
+			strum_neutral = true;
+			
+			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
+				stop_chord();	// sustain arpeggios only
 			}	
 
-			if (mbut1) {
-				if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
-				else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
-				else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
-				else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
-				else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
-				else midi_send_control_change(0xB3, 14, 65); 			// Next Style
-			}			
-			
-			break;			
+			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+			}						
 		}
+
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
+		break;
+	}
+
+	if (dpad_up != up) {	// transpose down
+		up = dpad_up;
+
+		if (dpad_up) {
+			transpose--;
+			if (transpose < 0) 	transpose = 11;				
+			if (enable_seqtrak) midi_seqtrak_key(transpose);				
+			//if (enable_modx) 	midi_modx_key(transpose);				
+		}
+		break;			
+	}
+
+	if (dpad_down != down) {	// transpose up
+		down = dpad_down;
 		
-		if (mbut2 != menu) {
-			if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
-			menu = mbut2;
+		if (dpad_down) {
+			transpose++;
+			if (transpose > 11) transpose = 0;	
+			if (enable_seqtrak) midi_seqtrak_key(transpose);
+			//if (enable_modx) 	midi_modx_key(transpose);				
+		}
+		break;
+	}		
 
-			if (green && yellow) 
-			{
-				if (mbut2) {
-					style_group = 12;	
-				}
-			}
-			else
-				
-			if (red && blue) 
-			{
-				if (mbut2) {
-					style_group = 11;	
-				}
-			}
-			else
+	uint8_t ketron_code;
+	uint8_t yamaha_code;
 
-			if (yellow && orange) 
-			{
-				if (mbut2) {
-					style_group = 10;
-				}
-			}				
-			else
-				
-			if (green && yellow) 
-			{
-				if (mbut2) {
-					style_group = 9;	
-				}
-			}
-			else
-				
-			if (green && red) 
-			{
-				if (mbut2) {
-					style_group = 8;	
-				}
-			}
-			else
-
-			if (red && yellow) 
-			{
-				if (mbut2) {
-					style_group = 7;
-				}
-			}				
-			else
-
-			if (yellow && blue) 
-			{
-				if (mbut2) {
-					style_group = 6;	
-				}
-			}
-			else
-
-			if (blue && orange) 
-			{
-				if (mbut2) {
-					style_group = 5;
-				}
-			}
-			else
-				
-			if (green) 
-			{
-				if (mbut2) {
-					style_group = 0;	
-				}
-			}
-			else
-				
-			if (red) 
-			{
-				if (mbut2) {
-					style_group = 1;	
-				}
-			}
-			else
-
-			if (yellow) 
-			{
-				if (mbut2) {
-					style_group = 2;
-				}
-			}				
-			else
-
-			if (blue) 
-			{
-				if (mbut2) {
-					style_group = 3;	
-				}
-			}
-			else
-
-			if (orange) 
-			{
-				if (mbut2) {
-					style_group = 4;
-				}
-			}
-
-			if (enable_seqtrak) 
-			{
-				if (mbut2) {
-					midi_send_program_change(0xC0, style_group % 8);	// set PC to project no
-					midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
-					midi_send_control_change(0xB0, 32, 0); 				// LSB 0
-				}
-			}
-			else 
-				
-			if (enable_modx) 
-			{
-				if (mbut2) {
-					// TODO - FIX!!!
-					midi_send_program_change(0xC0, style_group % 16);	// set PC to performance/set list no						
-					midi_send_control_change(0xB0, 0, 62); 				// MSB 62	
-					midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1											
-				}
-			}
-			else {
-				if (mbut2) {
-					midi_send_control_change(0xB3, 15, style_group + 1); 		// select style group
-				}							
-			}
-				
-				
-			break;		
-		}		
+	if (mbut0 != logo) {
+		logo = mbut0;
 		
-		if (mbut3 != config) {	// config/menu options
-			config = mbut3;
+		if (enable_midi_drums) 
+		{
+			if (mbut0) {
+				
+				if (looper_status.state == LOOPER_STATE_WAITING || looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+					style_section = 0;	
+					looper_status.current_step = 0;	
+					
+					if (looper_status.state == LOOPER_STATE_RECORDING) storage_store_tracks();													
+					looper_status.state = LOOPER_STATE_PLAYING;
+					
+					//ghost_parameters_t *params = ghost_note_parameters();						
+					//params->ghost_intensity = 0.843;							
+				} 
+				else 
+				
+				if (looper_status.state == LOOPER_STATE_PLAYING) {
+					looper_status.state = LOOPER_STATE_WAITING;
+				}	
+			}					
+		} 
+		else {
+		
+			ketron_code = 0x12;		// default start/stop
+			yamaha_code = 127;					
 			
-			if (mbut3) 	{
-				midi_play_chord(false, 0, 0, 0);	// reset chord  keys
+			if (yellow) {				// INTRO/END-1
+				ketron_code = 0x0F;		
+				yamaha_code = 0x00;					
+			}
+
+			if (red) {
+				ketron_code = 0x10;		// INTRO/END-2
+				yamaha_code = 0x01;					
+			}
+			
+			if (green) {
+				ketron_code = 0x11;		// INTRO/END-3		
+				yamaha_code = 0x02;					
+			}
+			
+			if (blue) {
+				ketron_code = 0x17;		// TO END
+				yamaha_code = 0x01;					
+			}
+			
+			if (orange) {
+				ketron_code = 0x35;	// FADE	
+				yamaha_code = 0x02;					
+			}
+			
+			if (enable_arranger_mode) midi_ketron_arr(ketron_code, mbut0 ? true : false);
+			
+			if (!style_started) {
+				if (yamaha_code != 127) {
+					if (enable_arranger_mode) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
+				} 
 				
-				if (green && red) {
-					guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
-					midi_send_program_change(0xC0, guitar_pc_code);	
-				}
-				else
-				
-				if (green) {  
-					enable_arranger_mode = !enable_arranger_mode;
-					enable_style_play = enable_arranger_mode;
-				
-					if (enable_arranger_mode) {				
-						midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
-						midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+				if (mbut0) {						
+					if (enable_seqtrak) {
+						midi_seqtrak_mute(7, false);
+						midi_seqtrak_mute(9, false);
 						
-						midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
-						midi_send_control_change(0xB0, 7, 100); // set default volume	
-					}						
-				}
-				else
-					
-				if (red) {
-					enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
-					enable_style_play = enable_ample_guitar;
-					
-					midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-					midi_send_note(0x90, 86, 127);
-				}
-				else
-					
-				if (yellow) {				
-					if (enable_midi_drums) {
-						looper_clear_all_tracks();								// Midi drums looper
+						midi_start_stop(true);							
+					} 
+					else
+						
+					if (enable_modx) {					
+						midi_modx_arp(true);
 					}
-					enable_midi_drums = !enable_midi_drums;
+					else 
+					
+					if (enable_arranger_mode) {
+						midi_yamaha_start_stop(0x7A, true);							
+					}
+					else {
+						if (green) midi_send_control_change(0xB3, 3, 1); 		// Fill-1
+						else if (red) midi_send_control_change(0xB3, 3, 2); 	// Fill-2						
+						else if (yellow) midi_send_control_change(0xB3, 3, 3); 	// Fill-3						
+						else if (blue) midi_send_control_change(0xB3, 3, 4); 	// Sync start	
+						else if (orange) midi_send_control_change(0xB3, 3, 5); 	// Fade In
+						else midi_send_control_change(0xB3, 3, 65); 			// Play
+					}
 				}
-				else
-					
-				if (blue) {				
-					enable_seqtrak = !enable_seqtrak;
-					enable_style_play = enable_seqtrak;				
-					
-					if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
+				
+			} else {
+				if (yamaha_code != 127) {
+					if (enable_arranger_mode) midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
+				}
+				
+				if (mbut0) {
+					if (enable_seqtrak) {	
 						midi_seqtrak_mute(7, true);
-						midi_seqtrak_mute(9, true);						
-					}
-				}
-				else
+						midi_seqtrak_mute(9, true);	
+						
+						midi_start_stop(false);
+						midi_play_chord(false, 0, 0, 0);		
+					} 
+					else
+						
+					if (enable_modx) {
+						midi_modx_arp(false);				
+					}						
+					else 
 					
-				if (orange) {				
-					enable_modx = !enable_modx;
-					enable_style_play = enable_modx;					
-					
-					if (enable_modx) {						// set default scene 1
-						midi_send_control_change(0xB3, 92, 0);						
-					}
-				}
+					if (enable_arranger_mode) {
+						midi_yamaha_start_stop(0x7D, true);		
+					}	
+					else {
+						if (yellow) midi_send_control_change(0xB3, 3, 66); 		// End-1
+						else if (red) midi_send_control_change(0xB3, 3, 67); 	// End-2						
+						else if (green) midi_send_control_change(0xB3, 3, 68); 	// End-3						
+						else if (blue) midi_send_control_change(0xB3, 3, 69); 	// Sync stop	
+						else if (orange) midi_send_control_change(0xB3, 3, 70); // Fade Out
+						else midi_send_control_change(0xB3, 3, 127); 			// Stop
+					}						
+				}						
 			}
-			
-			break;			
-		}
-
-		if (joy_up != joystick_up) {
-			joystick_up = joy_up;
-			
-			if (green) 
-			{
-				if (joy_up) {
-					if (enable_midi_drums) 	looper_update_bpm(80);
-					if (enable_seqtrak) 	midi_seqtrak_tempo(80);
-					if (enable_modx) 		midi_modx_tempo(80);					
-				}
-			}
-			else
-				
-			if (red) 
-			{
-				if (joy_up) {
-					if (enable_midi_drums) 	looper_update_bpm(96);
-					if (enable_seqtrak) 	midi_seqtrak_tempo(96);
-					if (enable_modx) 		midi_modx_tempo(96);					
-				}
-			}
-			else
-
-			if (yellow) 
-			{
-				if (joy_up) {
-					if (enable_midi_drums) 	looper_update_bpm(100);
-					if (enable_seqtrak) 	midi_seqtrak_tempo(100);
-					if (enable_modx) 		midi_modx_tempo(100);					
-				}
-			}
-			else
-				
-			if (blue) 
-			{
-				if (joy_up) {
-					if (enable_midi_drums) 	looper_update_bpm(110);
-					if (enable_seqtrak) 	midi_seqtrak_tempo(110);
-					if (enable_modx) 		midi_modx_tempo(110);					
-				}
-			}
-			else	
-
-			if (orange) 
-			{
-				if (joy_up) {
-					if (enable_midi_drums) 	looper_update_bpm(120);
-					if (enable_seqtrak) 	midi_seqtrak_tempo(120);
-					if (enable_modx) 		midi_modx_tempo(120);					
-				}
-			}
-			else					
-
-			if (enable_ample_guitar) {
-				midi_send_note(0x90, 24, joy_up ? 127 : 0);						// sustain guitar notes
-			} 
-			else
-				
-			if (enable_modx) 
-			{
-				if (joy_up && style_section > 0 && style_section < 4) {
-					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
-					
-					midi_send_control_change(0xB3, 92, modx_scenes[style_section + 3]);
-					sleep_ms(1000);				
-					midi_send_control_change(0xB3, 92, modx_scenes[style_section]);					
-				}
-			}
-			else
-
-			if (enable_arranger_mode && style_started) {
-				midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
-				midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
-			}
-			else {				
-				if (joy_up) {
-					midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
-				}
-			}
-			break;
 		}
 		
-		if (joy_down != joystick_down) {	// unused
-			joystick_down = joy_down;					
-			break;			
+		if (mbut0) style_started = !style_started;
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);			
+		break;
+	}		
+
+	if (mbut1 != starpower) { // next style/section	
+		bool style_selected = false;
+		starpower = mbut1;			
+		if (mbut1) old_style = style_section;
+
+		if (green) 
+		{
+			if (mbut1) {
+				style_selected = true;
+				style_section = 0;
+			}
+		}
+		else
+			
+		if (red) 
+		{
+			if (mbut1) {
+				style_selected = true;
+				style_section = 1;
+			}
+		}
+		else
+
+		if (yellow) 
+		{
+			if (mbut1) {
+				style_selected = true;
+				style_section = 2;
+			}
+		}				
+		else
+
+		if (blue) 
+		{
+			if (mbut1) {
+				style_selected = true;
+				style_section = 3;
+			}
+		}
+		else
+
+		if (orange) 
+		{
+			if (mbut1) {
+				style_selected = true;
+				style_section = 7;
+			}
+		}
+		else 
+		
+		if (mbut1) {
+			style_section++;
+			if (style_section > 7) style_section = 0;
+		}			
+		
+		if (enable_midi_drums)	
+		{
+			if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
+				//ghost_parameters_t *params = ghost_note_parameters();
+				//params->ghost_intensity = 0.843;	
+				storage_store_tracks();						
+			}				
+		}
+		else
+			
+		if (enable_seqtrak) 
+		{
+			if (mbut1) 
+			{
+				if (style_started) {
+					midi_seqtrak_arp();
+					midi_seqtrak_pattern(style_section % 6);				
+				} 
+			}
+		} 
+		else
+			
+		if (enable_modx) 
+		{
+			if (mbut1) {
+				uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
+				midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
+			}
+		}			
+		else 
+		
+		if (enable_arranger_mode) {	
+			midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
+			midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+		}	
+
+		if (mbut1) {
+			if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
+			else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
+			else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
+			else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
+			else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
+			else midi_send_control_change(0xB3, 14, 65); 			// Next Style
+		}			
+		
+		break;			
+	}
+
+	if (mbut2 != menu) {
+		if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
+		menu = mbut2;
+
+		if (green && yellow) 
+		{
+			if (mbut2) {
+				style_group = 12;	
+			}
+		}
+		else
+			
+		if (red && blue) 
+		{
+			if (mbut2) {
+				style_group = 11;	
+			}
+		}
+		else
+
+		if (yellow && orange) 
+		{
+			if (mbut2) {
+				style_group = 10;
+			}
+		}				
+		else
+			
+		if (green && yellow) 
+		{
+			if (mbut2) {
+				style_group = 9;	
+			}
+		}
+		else
+			
+		if (green && red) 
+		{
+			if (mbut2) {
+				style_group = 8;	
+			}
+		}
+		else
+
+		if (red && yellow) 
+		{
+			if (mbut2) {
+				style_group = 7;
+			}
+		}				
+		else
+
+		if (yellow && blue) 
+		{
+			if (mbut2) {
+				style_group = 6;	
+			}
+		}
+		else
+
+		if (blue && orange) 
+		{
+			if (mbut2) {
+				style_group = 5;
+			}
+		}
+		else
+			
+		if (green) 
+		{
+			if (mbut2) {
+				style_group = 0;	
+			}
+		}
+		else
+			
+		if (red) 
+		{
+			if (mbut2) {
+				style_group = 1;	
+			}
+		}
+		else
+
+		if (yellow) 
+		{
+			if (mbut2) {
+				style_group = 2;
+			}
+		}				
+		else
+
+		if (blue) 
+		{
+			if (mbut2) {
+				style_group = 3;	
+			}
+		}
+		else
+
+		if (orange) 
+		{
+			if (mbut2) {
+				style_group = 4;
+			}
 		}
 
-		if (knob_up != logo_knob_up) {
-			logo_knob_up = knob_up;	
+		if (enable_seqtrak) 
+		{
+			if (mbut2) {
+				midi_send_program_change(0xC0, style_group % 8);	// set PC to project no
+				midi_send_control_change(0xB0, 0, 64); 				// MSB 64						
+				midi_send_control_change(0xB0, 32, 0); 				// LSB 0
+			}
+		}
+		else 
+			
+		if (enable_modx) 
+		{
+			if (mbut2) {
+				// TODO - FIX!!!
+				midi_send_program_change(0xC0, style_group % 16);	// set PC to performance/set list no						
+				midi_send_control_change(0xB0, 0, 62); 				// MSB 62	
+				midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1											
+			}
+		}
+		else {
+			if (mbut2) {
+				midi_send_control_change(0xB3, 15, style_group + 1); 		// select style group
+			}							
+		}
+			
+			
+		break;		
+	}		
 
-			if (red) 
-			{
-				if (knob_up) 
-				{
-					if (enable_midi_drums)	{	
-						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = 0.843;							
-						break;
-					}
+	if (mbut3 != config) {	// config/menu options
+		config = mbut3;
+		
+		if (mbut3) 	{
+			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
+			
+			if (green && red) {
+				guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
+				midi_send_program_change(0xC0, guitar_pc_code);	
+			}
+			else
+			
+			if (green) {  
+				enable_arranger_mode = !enable_arranger_mode;
+				enable_style_play = enable_arranger_mode;
+			
+				if (enable_arranger_mode) {				
+					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
+					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+					
+					midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
+					midi_send_control_change(0xB0, 7, 100); // set default volume	
+				}						
+			}
+			else
+				
+			if (red) {
+				enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
+				enable_style_play = enable_ample_guitar;
+				
+				midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
+				midi_send_note(0x90, 86, 127);
+			}
+			else
+				
+			if (yellow) {				
+				if (enable_midi_drums) {
+					looper_clear_all_tracks();								// Midi drums looper
+				}
+				enable_midi_drums = !enable_midi_drums;
+			}
+			else
+				
+			if (blue) {				
+				enable_seqtrak = !enable_seqtrak;
+				enable_style_play = enable_seqtrak;				
+				
+				if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
+					midi_seqtrak_mute(7, true);
+					midi_seqtrak_mute(9, true);						
 				}
 			}
 			else
 				
-			if (yellow) 
-			{
-				if (knob_up) 
-				{
-					if (enable_midi_drums)	{	
-						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = 0.0;					
-						break;
-					}
-				}
-			}
-			else			
-			
-			if (blue) 
-			{
-				if (knob_up) 
-				{
-					if (!style_started && enable_midi_drums)	{						
-						looper_status.state = LOOPER_STATE_RECORDING;
-						
-						if (style_group > -1) looper_clear_all_tracks();		// clear static style				
-						style_group = -1;
-						
-						looper_status.current_step = 0;
-						break;
-					}
-				}
-			}
-			else
-
-			if (orange) 
-			{
-				if (knob_up) 
-				{
-					if (!style_started && enable_midi_drums)	{
-						looper_status.state = LOOPER_STATE_TAP_TEMPO;	
-						break;	
-					}
-				}
-			}
-			else
-
-			if (enable_ample_guitar) {
-				midi_send_note(0x90, 26, knob_up ? 127 : 0);	// palm mute guitar notes
-			} 
-			else
+			if (orange) {				
+				enable_modx = !enable_modx;
+				enable_style_play = enable_modx;					
 				
-			if (enable_arranger_mode && style_started) {			
-				midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
-				midi_yamaha_arr(0x18, knob_up ? true : false);				
-			}
-			else {				
-				if (knob_up) {
-					midi_send_control_change(0xB3, 14, 10); 	// Break
+				if (enable_modx) {						// set default scene 1
+					midi_send_control_change(0xB3, 92, 0);						
 				}
 			}
-			
-			break;			
 		}
 		
-		if (knob_down != logo_knob_down) {	// unused
-			logo_knob_down = knob_down;	
+		break;			
+	}
 
-			if (red) 
+	if (joy_up != joystick_up) {
+		joystick_up = joy_up;
+		
+		if (green) 
+		{
+			if (joy_up) {
+				if (enable_midi_drums) 	looper_update_bpm(80);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(80);
+				if (enable_modx) 		midi_modx_tempo(80);					
+			}
+		}
+		else
+			
+		if (red) 
+		{
+			if (joy_up) {
+				if (enable_midi_drums) 	looper_update_bpm(96);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(96);
+				if (enable_modx) 		midi_modx_tempo(96);					
+			}
+		}
+		else
+
+		if (yellow) 
+		{
+			if (joy_up) {
+				if (enable_midi_drums) 	looper_update_bpm(100);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(100);
+				if (enable_modx) 		midi_modx_tempo(100);					
+			}
+		}
+		else
+			
+		if (blue) 
+		{
+			if (joy_up) {
+				if (enable_midi_drums) 	looper_update_bpm(110);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(110);
+				if (enable_modx) 		midi_modx_tempo(110);					
+			}
+		}
+		else	
+
+		if (orange) 
+		{
+			if (joy_up) {
+				if (enable_midi_drums) 	looper_update_bpm(120);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(120);
+				if (enable_modx) 		midi_modx_tempo(120);					
+			}
+		}
+		else					
+
+		if (enable_ample_guitar) {
+			midi_send_note(0x90, 24, joy_up ? 127 : 0);						// sustain guitar notes
+		} 
+		else
+			
+		if (enable_modx) 
+		{
+			if (joy_up && style_section > 0 && style_section < 4) {
+				uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
+				
+				midi_send_control_change(0xB3, 92, modx_scenes[style_section + 3]);
+				sleep_ms(1000);				
+				midi_send_control_change(0xB3, 92, modx_scenes[style_section]);					
+			}
+		}
+		else
+
+		if (enable_arranger_mode && style_started) {
+			midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
+			midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
+		}
+		else {				
+			if (joy_up) {
+				midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
+			}
+		}
+		break;
+	}
+
+	if (joy_down != joystick_down) {	// unused
+		joystick_down = joy_down;					
+		break;			
+	}
+
+	if (knob_up != logo_knob_up) {
+		logo_knob_up = knob_up;	
+
+		if (red) 
+		{
+			if (knob_up) 
 			{
-				if (knob_down) 
-				{
-					if (enable_midi_drums)	{	
-						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = 0.843;							
-						break;
-					}
+				if (enable_midi_drums)	{	
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = 0.843;							
+					break;
 				}
 			}
-			else
-				
-			if (yellow) 
-			{
-				if (knob_down) 
-				{
-					if (enable_midi_drums)	{	
-						ghost_parameters_t *params = ghost_note_parameters();
-						params->ghost_intensity = 0.0;					
-						break;
-					}
-				}
-			}			
-			break;			
 		}
+		else
+			
+		if (yellow) 
+		{
+			if (knob_up) 
+			{
+				if (enable_midi_drums)	{	
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = 0.0;					
+					break;
+				}
+			}
+		}
+		else			
+		
+		if (blue) 
+		{
+			if (knob_up) 
+			{
+				if (!style_started && enable_midi_drums)	{						
+					looper_status.state = LOOPER_STATE_RECORDING;
+					
+					if (style_group > -1) looper_clear_all_tracks();		// clear static style				
+					style_group = -1;
+					
+					looper_status.current_step = 0;
+					break;
+				}
+			}
+		}
+		else
+
+		if (orange) 
+		{
+			if (knob_up) 
+			{
+				if (!style_started && enable_midi_drums)	{
+					looper_status.state = LOOPER_STATE_TAP_TEMPO;	
+					break;	
+				}
+			}
+		}
+		else
+
+		if (enable_ample_guitar) {
+			midi_send_note(0x90, 26, knob_up ? 127 : 0);	// palm mute guitar notes
+		} 
+		else
+			
+		if (enable_arranger_mode && style_started) {			
+			midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	break	
+			midi_yamaha_arr(0x18, knob_up ? true : false);				
+		}
+		else {				
+			if (knob_up) {
+				midi_send_control_change(0xB3, 14, 10); 	// Break
+			}
+		}
+		
+		break;			
+	}
+
+	if (knob_down != logo_knob_down) {	// unused
+		logo_knob_down = knob_down;	
+
+		if (red) 
+		{
+			if (knob_down) 
+			{
+				if (enable_midi_drums)	{	
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = 0.843;							
+					break;
+				}
+			}
+		}
+		else
+			
+		if (yellow) 
+		{
+			if (knob_down) 
+			{
+				if (enable_midi_drums)	{	
+					ghost_parameters_t *params = ghost_note_parameters();
+					params->ghost_intensity = 0.0;					
+					break;
+				}
+			}
+		}			
+		break;			
+	}
 				
-      break;
-    case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
-      // DO NOTHING
-      break;
-    case UNI_CONTROLLER_CLASS_MOUSE:
-      // DO NOTHING
-      break;
-    case UNI_CONTROLLER_CLASS_KEYBOARD:
-      // DO NOTHING
-      break;
-    default:
-      //loge("Unsupported controller class: %d\n", ctl->klass);
-      break;
-  }
 }
 
 void stop_chord() {

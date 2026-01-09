@@ -92,6 +92,31 @@ void midi_ketron_footsw(uint8_t code, bool on);
 void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void midi_bluetooth_handle_data();
+
+extern uint8_t but0;
+extern uint8_t but1;
+extern uint8_t but2;
+extern uint8_t but3;
+extern uint8_t but4; 
+extern uint8_t but6;
+extern uint8_t but7;   
+extern uint8_t but9;
+
+extern uint8_t mbut0;
+extern uint8_t mbut1;
+extern uint8_t mbut2;
+extern uint8_t mbut3;
+
+extern uint8_t dpad_left;	
+extern uint8_t dpad_right;
+extern uint8_t dpad_up;
+extern uint8_t dpad_down;
+
+extern bool joy_up;  
+extern bool joy_down;  
+extern bool knob_up; 
+extern bool knob_down;
 
 extern bool style_started;
 extern bool enable_style_play;
@@ -108,6 +133,7 @@ static gatt_client_characteristic_t server_characteristic;
 static gatt_client_notification_t notification_listener;
 static gatt_client_service_t server_service;
 static hci_con_handle_t connection_handle;
+
 
 /**
  * Connect to remote device but set timer for timeout
