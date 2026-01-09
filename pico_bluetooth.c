@@ -1296,10 +1296,10 @@ void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, ui
 	uint8_t chord_note = 0;
 	uint8_t chord_type = 0;	
 	uint8_t bass_note = 0;		
-	uint8_t base = 36;	
+	uint8_t base = 24;	
 	bool handled = false;	
 		
-	base = 36 + transpose;
+	base = 24 + transpose;
 	
 	// --- F/C
 
