@@ -1134,7 +1134,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (event_data[4] == 32) active_strum_pattern = 3;								
 			if (event_data[4] == 64) active_strum_pattern = 4;	
 			if (event_data[4] == 128) active_strum_pattern = -1;							
-		*/}	
+		}*/
 			
 		if (paddle_moved && !ll_have_fired) {			
 			ll_have_fired = true;
