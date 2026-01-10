@@ -910,7 +910,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
-			//return;
+			return;
 		}	
 
 		if (event_data[4] == 2) {
