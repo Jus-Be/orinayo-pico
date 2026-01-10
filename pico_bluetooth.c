@@ -60,6 +60,31 @@ bool joy_down;
 bool knob_up; 
 bool knob_down; 
 
+uint8_t green = 0;
+uint8_t red = 0;
+uint8_t yellow = 0;
+uint8_t blue = 0;
+uint8_t orange = 0;
+uint8_t starpower = 0;
+uint8_t pitch = 0;
+uint8_t song_key = 0;
+
+uint8_t up = 0;
+uint8_t down = 0;
+uint8_t left = 0;
+uint8_t right = 0;	
+
+uint8_t start = 0;
+uint8_t menu = 0;
+uint8_t logo = 0;
+uint8_t config = 0;	
+
+uint8_t joystick_up = 0;
+uint8_t joystick_down = 0;  
+uint8_t logo_knob_up = 0;  
+uint8_t logo_knob_down = 0; 	
+
+int applied_velocity = 100;
 int guitar_pc_code = 26;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
@@ -310,30 +335,6 @@ void midi_bluetooth_handle_data() {
 		count = 0;
 	  }
 	#endif
-
-	static uint8_t green = 0;
-	static uint8_t red = 0;
-	static uint8_t yellow = 0;
-	static uint8_t blue = 0;
-	static uint8_t orange = 0;
-	static uint8_t starpower = 0;
-	static uint8_t pitch = 0;
-	static uint8_t song_key = 0;
-
-	static uint8_t up = 0;
-	static uint8_t down = 0;
-	static uint8_t left = 0;
-	static uint8_t right = 0;	
-
-	static uint8_t start = 0;
-	static uint8_t menu = 0;
-	static uint8_t logo = 0;
-	static uint8_t config = 0;	
-
-	static uint8_t joystick_up = 0;
-	static uint8_t joystick_down = 0;  
-	static uint8_t logo_knob_up = 0;  
-	static uint8_t logo_knob_down = 0; 	
   
 	// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 

@@ -94,6 +94,7 @@ void midi_yamaha_arr(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void midi_bluetooth_handle_data();
 
+extern int applied_velocity;
 extern uint8_t but0;
 extern uint8_t but1;
 extern uint8_t but2;
@@ -118,12 +119,32 @@ extern bool joy_down;
 extern bool knob_up; 
 extern bool knob_down;
 
-extern bool style_started;
+extern uint8_t green;
+extern uint8_t red;
+extern uint8_t yellow;
+extern uint8_t blue;
+extern uint8_t orange;
+extern uint8_t starpower;
+extern uint8_t pitch;
+extern uint8_t song_key;
+
+extern uint8_t up;
+extern uint8_t down;
+extern uint8_t left;
+extern uint8_t right;	
+
+extern uint8_t start;
+extern uint8_t menu;
+extern uint8_t logo;
+extern uint8_t config;	
+
+extern uint8_t joystick_up;
+extern uint8_t joystick_down;  
+extern uint8_t logo_knob_up;  
+extern uint8_t logo_knob_down;
+
 extern bool enable_style_play;
 extern int active_strum_pattern;	
-extern int active_neck_pos;
-extern int style_section; 
-extern uint8_t old_midinotes[6];
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
@@ -740,22 +761,16 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     UNUSED(channel);
     UNUSED(size);
 
-	static int ketron_sysex_code;
-	static int yamaha_sysex_code;	
-	static int yamaha_sysex_start;	
 	static bool chord_sent;
 	static int query_state;
 		
-	uint8_t green = 0, red = 0, yellow = 0, blue = 0, orange = 0;	
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
 
-	bool starpower = false, start = false, logo = false, strum_up = false, strum_down = false, fill_btn = false, break_btn = false;	
 	bool chord_selected = false;
 	bool paddle_moved = false;	
 	bool style_disable_toggle = false;
 	
-	int applied_velocity = 100;
 	uint8_t event_data[16];
 	uint8_t liberlive_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};	
 	uint8_t orinayo_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
@@ -800,8 +815,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				
 			if (liberlive_enabled) {			
 				// Write Chord Key Mapping			
-				//static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
-				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
+				static uint8_t chord_mappings[26] = {177, 30, 31, 21, 0, 128, 147, 117, 5, 85, 81, 113, 160, 145, 112, 0, 80, 33, 65, 176, 144, 112, 0, 48, 32, 64};
+				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 26, chord_mappings);
 				
 				//static uint8_t drum_preview[6] = {177, 30, 38, 1, 0, 1};			
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, drum_preview);
@@ -809,8 +824,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//static uint8_t chord_preview[6] = {177, 30, 37, 1, 0, 1};	
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, chord_preview);
 
-				static uint8_t chord_tip[8] = {177, 30, 12, 3, 0, 2, 2, 1};	
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 8, chord_tip);
+				//static uint8_t chord_tip[8] = {177, 30, 12, 3, 0, 2, 2, 1};	
+				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 8, chord_tip);
 			
 				//uint8_t set_chord_type[7] = {177, 30, 27, 2, 0, 5, 0};	
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 7, set_chord_type);				
@@ -834,8 +849,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 2) 	{
 
 			if (liberlive_enabled) {
-				uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 4, 12, 1, 1};	// chord paddle, group, item, key, difficulty
-				gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);												
+				//uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 4, 12, 1, 1};	// chord paddle, group, item, key, difficulty
+				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);												
 				query_state = 3;
 			}				
 		}
@@ -847,7 +862,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (liberlive_enabled) {
 				//uint8_t set_drum[10] = {177, 30, 23, 5, 0, 46, 24, 0, 1, 1}; // drum group, item, paddle, difficulty, auto-bass
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_drum);			
-				
 				query_state = 4;
 			}				
 		}			
@@ -861,176 +875,157 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
-			ll_have_fired = false;
-
-			if (ketron_sysex_code) {			
-				midi_ketron_arr(ketron_sysex_code, false);	
-				ketron_sysex_code = 0;
-			}
-
-			if (yamaha_sysex_code) {			
-				midi_yamaha_arr(yamaha_sysex_code, false);	
-				yamaha_sysex_code = 0;
-			}
-			
-			if (yamaha_sysex_start) {			
-				midi_yamaha_start_stop(yamaha_sysex_start, false);	
-				yamaha_sysex_start = 0;
-			}			
+			ll_have_fired = false;			
 						
 			if (chord_sent) {
 				chord_sent = false;
-				midi_play_chord(false, 0, 0, 0);	
-				
-				for (int n=0; n<6; n++) 
-				{
-					if (old_midinotes[n] > 0) {
-						midi_send_note(0x80, old_midinotes[n], 0);	
-						old_midinotes[n] = 0;						
-					}						
-				}	
+
+				dpad_right = 0; right = 0;
+				dpad_left = 0;	left = 0;					
+				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			return;
 		}	
 
 		if (event_data[4] == 2) {
-			yellow = 1;		// 7b			
-			red = 1;								
+			but2 = 1; yellow = 0;		// 7b			
+			but0 = 1; red = 0;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 8) {
-			green = 1;		// 7							
-			red = 1;								
-			yellow = 1;				
-			blue = 1;								
+			but1 = 1; green = 0;		// 7							
+			but0 = 1; red = 0;										
+			but2 = 1; yellow = 0;				
+			but3 = 1; blue = 0;								
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 4) {
-			yellow = 1;		// 5b			
-			green = 1;								
-			red = 1;								
+			but2 = 1; yellow = 0;			// 5b			
+			but1 = 1; green = 0;								
+			but0 = 1; red = 0;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[4] == 4) {
-			red = 1;		// 6m
+			but0 = 1; red = 0;				// 6m							
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 16 || event_data[3] == 8) {
-			red = 1;		// 6
-			yellow = 1;
-			blue = 1;							
+			but0 = 1; red = 0;		// 6
+			but2 = 1; yellow = 0;
+			but3 = 1; blue = 0;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[4] == 8) {
-			green = 1;		// 5								
+			but1 = 1; green = 0;		// 5								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 32) {
-			green = 1;		// 5sus							
-			yellow = 1;						
+			but1 = 1; green = 0;		// 5sus							
+			but2 = 1; yellow = 0;						
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 16) {
-			green = 1;		// 5/7
-			red = 1;							
+			but1 = 1; green = 0;		// 5/7
+			but0 = 1; red = 0;							
 			chord_selected = true;
 		}													
 		else
 			
 		if (event_data[4] == 16) {
-			yellow = 1;		// 1
+			but2 = 1; yellow = 0;		// 1
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 64) {
-			yellow = 1;		// 1sus
-			orange = 1;							
+			but2 = 1; yellow = 0;		// 1sus
+			but4 = 1; orange = 0;							
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 32) {
-			yellow = 1;		// 1/3
-			blue = 1;							
+			but2 = 1; yellow = 0;		// 1/3
+			but3 = 1; blue = 0;							
 			chord_selected = true;
 		}
 		else						
 			
 		if (event_data[4] == 32) {
-			orange = 1;		// 4								
+			but4 = 1; orange = 0;		// 4								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[2] == 128) {
-			orange = 1;		// 3b
-			blue = 1;		
-			red = 1;							
+			but4 = 1; orange = 0;		// 3b
+			but3 = 1; blue = 0;		
+			but0 = 1; red = 0;							
 			chord_selected = true;
 		}
 		else
 
 		if (event_data[3] == 64) {
-			orange = 1;		// 4/6
-			blue = 1;							
+			but4 = 1; orange = 0;		// 4/6
+			but3 = 1; blue = 0;							
 			chord_selected = true;
 		}
 		else						
 			
 		if (event_data[4] == 64) {
-			blue = 1;		// 2m
+			but3 = 1; blue = 0;		// 2m
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 1) {
-			blue = 1;		// 2
-			red = 1;							
+			but3 = 1; blue = 0;		// 2
+			but0 = 1; red = 0;							
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 128) {
-			orange = 1;		// 4m
-			red = 1;							
+			but4 = 1; orange = 0;		// 4m
+			but0 = 1; red = 0;							
 			chord_selected = true;
 		}	
 		else
 			
 		if (event_data[4] == 128) {
-			green = 1;		// 3m
-			blue = 1;								
+			but1 = 1; green = 0;		// 3m
+			but3 = 1; blue = 0;								
 			chord_selected = true;
 		}
 		else
 			
 		if (event_data[3] == 2) {
-			green = 1;		// 3
-			yellow = 1;								
-			blue = 1;								
+			but1 = 1; green = 0;		// 3
+			but2 = 1; yellow = 0;								
+			but3 = 1; blue = 0;								
 			chord_selected = true;
 		}						
 		else
 			
 		if (event_data[4] == 1) {
-			green = 1;		// 5m
-			orange = 1;															
+			but1 = 1; green = 0;		// 5m
+			but4 = 1; orange = 0;															
 			chord_selected = true;
 		}						
 						
@@ -1038,12 +1033,12 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			paddle_moved = true;	
 
 			if (event_data[10] < 48) { // UP
-				logo = true;
+				mbut0 = 1; logo = 0;
 			}
 			else
 				
 			if (event_data[10] > 58) { // DOWN
-				logo = true;
+				mbut0 = 1; logo = 0;
 			}							
 
 		}	
@@ -1056,9 +1051,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = (50 - event_data[9]) / 50;
 
 				if (chord_selected) {
-					strum_up = true; 
+					dpad_right = 0; right = 0;
 				} else {
-					break_btn = true;	// break						
+					knob_up = 1; logo_knob_up = 0;	// break						
 				}								
 
 			}
@@ -1068,9 +1063,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = event_data[9] / 50;
 				
 				if (chord_selected) {
-					strum_down = true; 
+					dpad_left = 0;	left = 0;	
 				} else {
-					fill_btn = true;	// fill								
+					joy_up = 1; joystick_up = 0;	// fill								
 				}								
 			}
 				
@@ -1084,9 +1079,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = (50 - event_data[10]) / 50;							
 			
 				if (chord_selected) {
-					strum_up = true;
+					dpad_right = 0; right = 0;
 				} else {	
-					start = true;	// prev style	
+					but6 = 1; pitch = 0;	// prev style	
 				}								
 			}
 			else
@@ -1095,10 +1090,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = event_data[10] / 50;
 
 				if (chord_selected) {
-					strum_down = true;
+					dpad_left = 0;	left = 0;	
 
 				} else {
-					starpower = true;	// next style																															
+					mbut1 = 1; starpower = 0;	// next style																															
 				}								
 			}							
 
@@ -1124,121 +1119,11 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (style_disable_toggle) {
 				enable_style_play = !enable_style_play;	
 			}
-			else
-	
-			if (strum_up || strum_down) {
-				play_chord(true, strum_up, green, red, yellow, blue, orange);
-				
-				chord_sent = true;
-				strum_up = false;
-				strum_down = false;
-				
+			else {
+				midi_bluetooth_handle_data();						
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+				chord_sent = true;
 			}
-			else
-			
-			if (logo) {
-				logo = false;
-
-				ketron_sysex_code = 0x12;		// default start/stop
-				yamaha_sysex_code = 127;		// default start/stop		
-				
-				if (yellow) {				// INTRO/END-1
-					ketron_sysex_code = 0x0F;		
-					yamaha_sysex_code = 0x00;					
-				}
-
-				if (red) {
-					ketron_sysex_code = 0x10;		// INTRO/END-2
-					yamaha_sysex_code = 0x01;					
-				}
-				
-				if (green) {
-					ketron_sysex_code = 0x11;		// INTRO/END-3		
-					yamaha_sysex_code = 0x02;					
-				}
-				
-				if (blue) {
-					ketron_sysex_code = 0x17;		// TO END
-					yamaha_sysex_code = 0x01;					
-				}
-				
-				if (orange) {
-					ketron_sysex_code = 0x35;	// FADE	
-					yamaha_sysex_code = 0x02;					
-				}
-	
-				midi_ketron_arr(ketron_sysex_code, true);	
-				
-				if (!style_started) {
-					if (yamaha_sysex_code != 127) midi_yamaha_arr(yamaha_sysex_code,true);	
-					yamaha_sysex_start = 0x7A;
-					midi_yamaha_start_stop(yamaha_sysex_start, true);
-					
-				} else {
-					if (yamaha_sysex_code != 127) {
-						yamaha_sysex_code = 0x20 + yamaha_sysex_code;						
-						midi_yamaha_arr(yamaha_sysex_code, true);	
-					} else {
-						yamaha_sysex_start = 0x7D;
-						midi_yamaha_start_stop(yamaha_sysex_start, true);
-					}					
-				}				
-				
-				style_started = !style_started;			
-			}
-			else
-
-			if (start) {
-				start = false;
-				style_section--;
-				if (style_section < 0) style_section = 3;
-				
-				ketron_sysex_code = 3 + style_section;
-				midi_ketron_arr(ketron_sysex_code, true);
-
-				yamaha_sysex_code = 0x10 + style_section;				
-				midi_yamaha_arr(yamaha_sysex_code, true);					
-			}
-			else
-				
-			if (starpower) {
-				starpower = false;
-				style_section++;
-				if (style_section > 3) style_section = 0;	
-				
-				ketron_sysex_code = 3 + style_section;
-				midi_ketron_arr(ketron_sysex_code, true);	
-
-				yamaha_sysex_code = 0x10 + style_section;				
-				midi_yamaha_arr(yamaha_sysex_code, true);					
-			}	
-			else
-				
-			if (fill_btn) {
-				fill_btn = false;
-
-				if (style_started) {			
-					ketron_sysex_code = 0x07 + style_section;
-					midi_ketron_arr(ketron_sysex_code, true);	
-
-					yamaha_sysex_code = 0x10 + style_section;				
-					midi_yamaha_arr(yamaha_sysex_code, true);		
-				}					
-			}	
-			else
-				
-			if (break_btn) {
-				break_btn = false;
-			
-				if (style_started) {			
-					ketron_sysex_code = 0x0B + style_section;
-					midi_ketron_arr(ketron_sysex_code, true);	
-
-					yamaha_sysex_code = 0x18 + style_section;				
-					midi_yamaha_arr(yamaha_sysex_code, true);					
-				}
-			}			
 		}	
     }
 }
