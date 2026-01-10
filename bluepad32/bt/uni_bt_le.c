@@ -910,7 +910,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
-			return;
+			//return;
 		}	
 
 		if (event_data[4] == 2) {
@@ -1122,9 +1122,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}							
 
 		}
-		else
+		//else
 
-		if (event_data[5] == 64 ) {			// change style pattern
+		/*if (event_data[5] == 64 ) {			// change style pattern
 			paddle_moved = true;	
 			
 			if (event_data[4] == 2) style_disable_toggle = true;
@@ -1134,7 +1134,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (event_data[4] == 32) active_strum_pattern = 3;								
 			if (event_data[4] == 64) active_strum_pattern = 4;	
 			if (event_data[4] == 128) active_strum_pattern = -1;							
-		}	
+		*/}	
 			
 		if (paddle_moved && !ll_have_fired) {			
 			ll_have_fired = true;
@@ -1144,9 +1144,12 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			//	enable_style_play = !enable_style_play;	
 			//}
 			//else {
-				midi_bluetooth_handle_data();						
-				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-				chord_sent = true;
+				
+				if (dpad_left || dpad_right) {
+					midi_bluetooth_handle_data();						
+					cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+					chord_sent = true;
+				}
 			//}
 		}	
     }
