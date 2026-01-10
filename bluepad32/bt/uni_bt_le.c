@@ -1051,7 +1051,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = (50 - event_data[9]) / 50;
 
 				if (chord_selected) {
-					dpad_right = 0; right = 0;
+					dpad_right = 1; right = 0;
 				} else {
 					knob_up = 1; logo_knob_up = 0;	// break						
 				}								
@@ -1063,7 +1063,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = event_data[9] / 50;
 				
 				if (chord_selected) {
-					dpad_left = 0;	left = 0;	
+					dpad_left = 1;	left = 0;	
 				} else {
 					joy_up = 1; joystick_up = 0;	// fill								
 				}								
@@ -1079,7 +1079,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = (50 - event_data[10]) / 50;							
 			
 				if (chord_selected) {
-					dpad_right = 0; right = 0;
+					dpad_right = 1; right = 0;
 				} else {	
 					but6 = 1; pitch = 0;	// prev style	
 				}								
@@ -1090,7 +1090,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				applied_velocity = event_data[10] / 50;
 
 				if (chord_selected) {
-					dpad_left = 0;	left = 0;	
+					dpad_left = 1;	left = 0;	
 
 				} else {
 					mbut1 = 1; starpower = 0;	// next style																															
