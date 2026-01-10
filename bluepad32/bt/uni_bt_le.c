@@ -1131,8 +1131,23 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (event_data[5] == 64 ) {		// guitar play mode selection	
 			paddle_moved = true;
 			
-			if (chord_selected) {
-				but6 = 1; pitch = 0;			
+			if (chord_selected) 
+			{
+				if (event_data[4] == 128) {
+					but1 = 0; green = 0; but3 = 0; blue = 0;			// reset 3m
+					but0 = 1; red = 0;
+					mbut3 = 1; config = 0;								// ample guitar
+				}
+				else
+					
+				if (event_data[4] == 0) {
+					but2 = 0; yellow = 0; but0 = 0; red = 0;			// reset 7b
+					but1 = 1; green = 0;
+					mbut3 = 1; config = 0;								// arranger
+				}				
+				else {				
+					but6 = 1; pitch = 0;			
+				}
 			}
 		}
 			
