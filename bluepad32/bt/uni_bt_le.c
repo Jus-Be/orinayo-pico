@@ -912,6 +912,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			return;
 		}	
 
 		if (event_data[4] == 2) {
@@ -1052,7 +1053,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			but1 = 1; green = 0;		// 5m
 			but4 = 1; orange = 0;															
 			chord_selected = true;
-		}						
+		}	
+
+
+		
 						
 		if (event_data[5] == 15) {			// Paddle A+B
 			paddle_moved = true;	
@@ -1125,47 +1129,11 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		}
 		else
 
-		if (event_data[5] == 64 ) {			
-			paddle_moved = true;	
+		if (event_data[5] == 64 ) {		// guitar play mode selection	
+			paddle_moved = true;
 			
-			if (event_data[4] == 2) {
-				mbut3 = 1; config = 0;	// enable arranger mode
-				but1 = 1; green = 0;				
-			}
-			else
-				
-			if (event_data[4] == 4) { 	// change style pattern
-				but6 = 1; pitch = 0;				
-				but1 = 1; green = 0;
-			}
-			
-			if (event_data[4] == 8) {
-				but6 = 1; pitch = 0;								
-				but0 = 1; red = 0;	
-			}
-			else
-				
-			if (event_data[4] == 16) {
-				but6 = 1; pitch = 0;								
-				but2 = 1; yellow = 0;
-			}
-			else
-				
-			if (event_data[4] == 32) {
-				but6 = 1; pitch = 0;								
-				but3 = 1; blue = 0;									
-			}
-			else
-				
-			if (event_data[4] == 64) {
-				but6 = 1; pitch = 0;								
-				but4 = 1; orange = 0;
-			}
-			else
-				
-			if (event_data[4] == 128) {
-				mbut3 = 1; config = 0;	// enable ample guitar mode
-				but0 = 1; red = 0;							
+			if (chord_selected) {
+				but6 = 1; pitch = 0;			
 			}
 		}
 			
@@ -1176,9 +1144,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			midi_bluetooth_handle_data();						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 					
-			if (dpad_left || dpad_right) {
-				chord_sent = true;
-			}
+			chord_sent = true;
 		}	
     }
 }
