@@ -35,6 +35,7 @@ bool enable_chord_track = true;
 bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
+bool gamepad_guitar_connected = false;
 
 uint8_t but0;
 uint8_t but1;
@@ -251,6 +252,7 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
   // PICO_INFO("Device disconnected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Re-enable scanning when a device is disconnected
+  gamepad_guitar_connected = false;
   uni_bt_start_scanning_and_autoconnect_safe();
   
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);  
@@ -260,7 +262,7 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  	
-	
+  gamepad_guitar_connected = true;
   return UNI_ERROR_SUCCESS;
 }
 

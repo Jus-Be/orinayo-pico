@@ -118,6 +118,7 @@ extern bool joy_up;
 extern bool joy_down;  
 extern bool knob_up; 
 extern bool knob_down;
+extern bool gamepad_guitar_connected;
 
 extern uint8_t green;
 extern uint8_t red;
@@ -870,6 +871,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	else
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {
+		if (gamepad_guitar_connected) return;
+		
 		joy_up = false;  
 		joy_down = false;  
 		knob_up = false; 
@@ -904,8 +907,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (chord_sent) {
 				chord_sent = false;
 
-				right = 0;
-				left = 0;					
+				right = 1;
+				left = 1;					
 				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
