@@ -869,7 +869,31 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	}		
 	else
 					
-    if (type_of_packet == GATT_EVENT_NOTIFICATION) {			
+    if (type_of_packet == GATT_EVENT_NOTIFICATION) {
+		joy_up = false;  
+		joy_down = false;  
+		knob_up = false; 
+		knob_down = false; 	
+	  
+		but0 = 0;
+		but1 = 0;
+		but2 = 0;
+		but3 = 0;
+		but4 = 0; 
+		but6 = 0;   
+		but7 = 0;   
+		but9 = 0;	
+		
+		dpad_left = 0;	
+		dpad_right = 0;
+		dpad_up = 0;
+		dpad_down = 0;	
+		
+		mbut0 = 0;
+		mbut1 = 0;
+		mbut2 = 0;
+		mbut3 = 0;
+	
 		memcpy(event_data, value, value_length);			
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
@@ -880,12 +904,13 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (chord_sent) {
 				chord_sent = false;
 
-				dpad_right = 0; right = 0;
-				dpad_left = 0;	left = 0;					
+				right = 0;
+				left = 0;					
 				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			return;
 		}	
 
 		if (event_data[4] == 2) {
@@ -1052,7 +1077,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				if (chord_selected) {
 					dpad_right = 1; right = 0;
 				} else {
-					knob_up = 1; logo_knob_up = 0;	// break						
+					knob_up = false; logo_knob_up = 0;	// break						
 				}								
 
 			}
@@ -1064,7 +1089,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				if (chord_selected) {
 					dpad_left = 1;	left = 0;	
 				} else {
-					joy_up = 1; joystick_up = 0;	// fill								
+					joy_up = true; joystick_up = 0;	// fill								
 				}								
 			}
 				
@@ -1115,14 +1140,14 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
-			if (style_disable_toggle) {
-				enable_style_play = !enable_style_play;	
-			}
-			else {
+			//if (style_disable_toggle) {
+			//	enable_style_play = !enable_style_play;	
+			//}
+			//else {
 				midi_bluetooth_handle_data();						
 				cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 				chord_sent = true;
-			}
+			//}
 		}	
     }
 }
