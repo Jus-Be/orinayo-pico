@@ -144,7 +144,6 @@ extern uint8_t joystick_down;
 extern uint8_t logo_knob_up;  
 extern uint8_t logo_knob_down;
 
-extern bool enable_style_play;
 extern int active_strum_pattern;	
 
 // Temporal space for SDP in BLE
@@ -851,7 +850,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 			if (liberlive_enabled) {
 				//uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 4, 12, 1, 1};	// chord paddle, group, item, key, difficulty
-				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);												
+				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 10, set_chord);
 				query_state = 3;
 			}				
 		}
@@ -913,7 +912,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
-			return;
 		}	
 
 		if (event_data[4] == 2) {
@@ -1125,35 +1123,62 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}							
 
 		}
-		//else
+		else
 
-		/*if (event_data[5] == 64 ) {			// change style pattern
+		if (event_data[5] == 64 ) {			
 			paddle_moved = true;	
 			
-			if (event_data[4] == 2) style_disable_toggle = true;
-			if (event_data[4] == 4) active_strum_pattern = 0;		
-			if (event_data[4] == 8) active_strum_pattern = 1;	
-			if (event_data[4] == 16) active_strum_pattern = 2;	
-			if (event_data[4] == 32) active_strum_pattern = 3;								
-			if (event_data[4] == 64) active_strum_pattern = 4;	
-			if (event_data[4] == 128) active_strum_pattern = -1;							
-		}*/
+			if (event_data[4] == 2) {
+				mbut3 = 1; config = 0;	// enable arranger mode
+				but1 = 1; green = 0;				
+			}
+			else
+				
+			if (event_data[4] == 4) { 	// change style pattern
+				but6 = 1; pitch = 0;				
+				but1 = 1; green = 0;
+			}
+			
+			if (event_data[4] == 8) {
+				but6 = 1; pitch = 0;								
+				but0 = 1; red = 0;	
+			}
+			else
+				
+			if (event_data[4] == 16) {
+				but6 = 1; pitch = 0;								
+				but2 = 1; yellow = 0;
+			}
+			else
+				
+			if (event_data[4] == 32) {
+				but6 = 1; pitch = 0;								
+				but3 = 1; blue = 0;									
+			}
+			else
+				
+			if (event_data[4] == 64) {
+				but6 = 1; pitch = 0;								
+				but4 = 1; orange = 0;
+			}
+			else
+				
+			if (event_data[4] == 128) {
+				mbut3 = 1; config = 0;	// enable ample guitar mode
+				but0 = 1; red = 0;							
+			}
+		}
 			
 		if (paddle_moved && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
-			//if (style_disable_toggle) {
-			//	enable_style_play = !enable_style_play;	
-			//}
-			//else {
-				
-				if (dpad_left || dpad_right) {
-					midi_bluetooth_handle_data();						
-					cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-					chord_sent = true;
-				}
-			//}
+			midi_bluetooth_handle_data();						
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+					
+			if (dpad_left || dpad_right) {
+				chord_sent = true;
+			}
 		}	
     }
 }
