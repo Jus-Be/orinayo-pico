@@ -908,13 +908,11 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				chord_sent = false;
 			}
 
-			if (dpad_right == right && dpad_right) {
-				right= 1; dpad_right = 0;
+			if (right) {
 				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
-			if (dpad_left == left && dpad_left) {
-				left = 1; dpad_left = 0;				
+			if (left) {				
 				midi_bluetooth_handle_data();		// strum neutral		
 			}
 						
