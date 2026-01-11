@@ -228,7 +228,7 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   if (name && (strstr(name, "STANDARD GAMEPAD"))) {
     // PICO_INFO("Gamepad controller detected! Attempting connection...\n");
 	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-	 gamepad_guitar_connected = true; 
+	 //gamepad_guitar_connected = true; 
   }
 
   // As an example, if you want to filter out keyboards, do:
