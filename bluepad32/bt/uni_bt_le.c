@@ -1143,7 +1143,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				if (but0 && but2) {
 					but2 = 0; but0 = 0;									// reset 7b
 					but4 = 1; orange = 0;
-					config = 1;								// modx
+					mbut3 = 1; config = 0;								// modx
 				}				
 				else {				
 					but6 = 1; pitch = 0;			
