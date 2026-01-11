@@ -118,7 +118,9 @@ extern bool joy_up;
 extern bool joy_down;  
 extern bool knob_up; 
 extern bool knob_down;
+
 extern bool gamepad_guitar_connected;
+extern bool finished_processing;	
 
 extern uint8_t green;
 extern uint8_t red;
@@ -144,7 +146,7 @@ extern uint8_t joystick_down;
 extern uint8_t logo_knob_up;  
 extern uint8_t logo_knob_down;
 
-extern int active_strum_pattern;	
+extern int active_strum_pattern;
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
@@ -869,7 +871,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	else
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {
-		if (gamepad_guitar_connected) return;
+		if (gamepad_guitar_connected || !finished_processing) return;
 		
 		joy_up = false;  
 		joy_down = false;  
