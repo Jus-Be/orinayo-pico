@@ -272,6 +272,8 @@ static const uni_property_t* pico_bluetooth_get_property(uni_property_idx_t idx)
 }
 
 static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controller_t* ctl) { 
+	if (!gamepad_guitar_connected) return;
+	
 	uint8_t axis_x = ctl->gamepad.axis_x / 4;
 	uint8_t axis_y = ctl->gamepad.axis_y / 4;
 	uint8_t axis_rx = ctl->gamepad.axis_rx / 4;
