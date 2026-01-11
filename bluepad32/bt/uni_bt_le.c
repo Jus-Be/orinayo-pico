@@ -906,12 +906,12 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 						
 			if (chord_sent) {
 				chord_sent = false;
-
-				right = 1;
-				left = 1;					
-				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
+			if (left || right) {					
+				midi_bluetooth_handle_data();		// strum neutral		
+			}
+						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 			return;
 		}	

@@ -600,59 +600,7 @@ void midi_bluetooth_handle_data() {
 		start = but9;
 		finished_processing = true;	
 		return;			
-	}				
-
-	if (dpad_left != left) { 	// Strum down
-		left = dpad_left;
-		
-		if (dpad_left) 	{
-			strum_neutral = false;
-			if (!enable_auto_hold) stop_chord();			
-			play_chord(true, false, green, red, yellow, blue, orange);
-			
-		} else {
-			strum_neutral = true;
-			
-			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
-				stop_chord();	// sustain arpeggios only
-			}
-			
-			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
-			}
-		}
-		
-		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);
-
-		finished_processing = true;		
-		return;
-	}		
-
-	if (dpad_right != right) {	// strum up
-		right = dpad_right;	
-
-		if (dpad_right) {
-			strum_neutral = false;				
-			if (!enable_auto_hold) stop_chord();
-			play_chord(true, true, green, red, yellow, blue, orange);
-			
-		} else {
-			strum_neutral = true;
-			
-			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
-				stop_chord();	// sustain arpeggios only
-			}	
-
-			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
-				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
-			}						
-		}
-
-		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);	
-
-		finished_processing = true;		
-		return;
-	}
+	}						
 
 	if (dpad_up != up) {	// transpose down
 		up = dpad_up;
@@ -1333,6 +1281,59 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;
 		return;			
 	}
+
+	if (dpad_right != right) {	// strum up
+		right = dpad_right;	
+
+		if (dpad_right) {
+			strum_neutral = false;				
+			if (!enable_auto_hold) stop_chord();
+			play_chord(true, true, green, red, yellow, blue, orange);
+			
+		} else {
+			strum_neutral = true;
+			
+			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
+				stop_chord();	// sustain arpeggios only
+			}	
+
+			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+			}						
+		}
+
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);	
+
+		finished_processing = true;		
+		return;
+	}	
+	
+
+	if (dpad_left != left) { 	// Strum down
+		left = dpad_left;
+		
+		if (dpad_left) 	{
+			strum_neutral = false;
+			if (!enable_auto_hold) stop_chord();			
+			play_chord(true, false, green, red, yellow, blue, orange);
+			
+		} else {
+			strum_neutral = true;
+			
+			if ((!green && !red && !yellow && !blue && !orange) || active_strum_pattern == 0 || active_strum_pattern == 1 || enable_auto_hold) {
+				stop_chord();	// sustain arpeggios only
+			}
+			
+			if (looper_status.state == LOOPER_STATE_RECORDING || looper_status.state == LOOPER_STATE_TAP_TEMPO) {
+				looper_handle_input_internal_clock(BUTTON_EVENT_CLICK_RELEASE);				
+			}
+		}
+		
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);
+
+		finished_processing = true;		
+		return;
+	}	
 
 	finished_processing = true;				
 }
