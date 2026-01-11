@@ -229,7 +229,6 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   if (name && (strstr(name, "STANDARD GAMEPAD"))) {
     // PICO_INFO("Gamepad controller detected! Attempting connection...\n");
 	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-	 //gamepad_guitar_connected = true; 
   }
 
   // As an example, if you want to filter out keyboards, do:
@@ -241,7 +240,8 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
   return UNI_ERROR_SUCCESS;
 }
 
-static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {	
+static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
+	gamepad_guitar_connected = true; 	
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Disable scanning when a device is connected to save power
@@ -530,7 +530,7 @@ void midi_bluetooth_handle_data() {
 				if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
 					//ghost_parameters_t *params = ghost_note_parameters();
 					//params->ghost_intensity = 0.843;	
-					storage_store_tracks();						
+					//storage_store_tracks();						
 				}							
 			}	
 			else
@@ -681,7 +681,7 @@ void midi_bluetooth_handle_data() {
 					style_section = 0;	
 					looper_status.current_step = 0;	
 					
-					if (looper_status.state == LOOPER_STATE_RECORDING) storage_store_tracks();													
+					//if (looper_status.state == LOOPER_STATE_RECORDING) storage_store_tracks();													
 					looper_status.state = LOOPER_STATE_PLAYING;
 					
 					//ghost_parameters_t *params = ghost_note_parameters();						
@@ -858,7 +858,7 @@ void midi_bluetooth_handle_data() {
 			if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
 				//ghost_parameters_t *params = ghost_note_parameters();
 				//params->ghost_intensity = 0.843;	
-				storage_store_tracks();						
+				//storage_store_tracks();						
 			}				
 		}
 		else
