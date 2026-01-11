@@ -37,6 +37,7 @@ bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 bool gamepad_guitar_connected = false;
+bool finished_processing = true;
 
 uint8_t but0 = 0;
 uint8_t but1 = 0;
@@ -323,6 +324,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 }
 
 void midi_bluetooth_handle_data() {
+	if (!finished_processing) return;	
+	finished_processing = false;
+	
 	absolute_time_t now = get_absolute_time();
 	uint64_t now_since_boot = to_us_since_boot(now);
 
@@ -568,6 +572,7 @@ void midi_bluetooth_handle_data() {
 			else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
 		}			
 
+		finished_processing = true;
 		return;
 	}
 
@@ -585,13 +590,15 @@ void midi_bluetooth_handle_data() {
 			if (blue) 	transpose = 7;		// G				
 			if (orange) transpose = 9;		// A
 		}
+		finished_processing = true;		
 		return;			
 	}
 
 	// handle actions
 
 	if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
-		start = but9;		
+		start = but9;
+		finished_processing = true;	
 		return;			
 	}				
 
@@ -615,7 +622,9 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		
-		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);			
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_left);
+
+		finished_processing = true;		
 		return;
 	}		
 
@@ -639,7 +648,9 @@ void midi_bluetooth_handle_data() {
 			}						
 		}
 
-		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);				
+		if (!style_started) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, !!dpad_right);	
+
+		finished_processing = true;		
 		return;
 	}
 
@@ -652,6 +663,8 @@ void midi_bluetooth_handle_data() {
 			if (enable_seqtrak) midi_seqtrak_key(transpose);				
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
+		
+		finished_processing = true;		
 		return;			
 	}
 
@@ -664,6 +677,8 @@ void midi_bluetooth_handle_data() {
 			if (enable_seqtrak) midi_seqtrak_key(transpose);
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
+		
+		finished_processing = true;		
 		return;
 	}		
 
@@ -794,7 +809,9 @@ void midi_bluetooth_handle_data() {
 		}
 		
 		if (mbut0) style_started = !style_started;
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);			
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);	
+
+		finished_processing = true;
 		return;
 	}		
 
@@ -897,7 +914,8 @@ void midi_bluetooth_handle_data() {
 			else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
 			else midi_send_control_change(0xB3, 14, 65); 			// Next Style
 		}			
-		
+
+		finished_processing = true;		
 		return;			
 	}
 
@@ -1033,7 +1051,7 @@ void midi_bluetooth_handle_data() {
 			}							
 		}
 			
-			
+		finished_processing = true;			
 		return;		
 	}		
 
@@ -1100,7 +1118,8 @@ void midi_bluetooth_handle_data() {
 				}
 			}
 		}
-		
+
+		finished_processing = true;		
 		return;			
 	}
 
@@ -1183,11 +1202,15 @@ void midi_bluetooth_handle_data() {
 				midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
 			}
 		}
+		
+		finished_processing = true;		
 		return;
 	}
 
 	if (joy_down != joystick_down) {	// unused
-		joystick_down = joy_down;					
+		joystick_down = joy_down;	
+
+		finished_processing = true;
 		return;			
 	}
 
@@ -1200,7 +1223,9 @@ void midi_bluetooth_handle_data() {
 			{
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
-					params->ghost_intensity = 0.843;							
+					params->ghost_intensity = 0.843;	
+
+					finished_processing = true;
 					return;
 				}
 			}
@@ -1213,7 +1238,9 @@ void midi_bluetooth_handle_data() {
 			{
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
-					params->ghost_intensity = 0.0;					
+					params->ghost_intensity = 0.0;
+
+					finished_processing = true;
 					return;
 				}
 			}
@@ -1231,6 +1258,8 @@ void midi_bluetooth_handle_data() {
 					style_group = -1;
 					
 					looper_status.current_step = 0;
+					
+					finished_processing = true;					
 					return;
 				}
 			}
@@ -1242,7 +1271,9 @@ void midi_bluetooth_handle_data() {
 			if (knob_up) 
 			{
 				if (!style_started && enable_midi_drums)	{
-					looper_status.state = LOOPER_STATE_TAP_TEMPO;	
+					looper_status.state = LOOPER_STATE_TAP_TEMPO;
+
+					finished_processing = true;
 					return;	
 				}
 			}
@@ -1263,7 +1294,8 @@ void midi_bluetooth_handle_data() {
 				midi_send_control_change(0xB3, 14, 10); 	// Break
 			}
 		}
-		
+
+		finished_processing = true;		
 		return;			
 	}
 
@@ -1276,7 +1308,9 @@ void midi_bluetooth_handle_data() {
 			{
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
-					params->ghost_intensity = 0.843;							
+					params->ghost_intensity = 0.843;	
+
+					finished_processing = true;
 					return;
 				}
 			}
@@ -1290,13 +1324,17 @@ void midi_bluetooth_handle_data() {
 				if (enable_midi_drums)	{	
 					ghost_parameters_t *params = ghost_note_parameters();
 					params->ghost_intensity = 0.0;					
+					
+					finished_processing = true;
 					return;
 				}
 			}
 		}			
+		finished_processing = true;
 		return;			
 	}
-				
+
+	finished_processing = true;				
 }
 
 void stop_chord() {
