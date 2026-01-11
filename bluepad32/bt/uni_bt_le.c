@@ -902,22 +902,24 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
 		if (ll_have_fired && ll_cannot_fire) {
-			ll_have_fired = false;			
+			ll_have_fired = false;	
+
+			left = 1;
+			midi_bluetooth_handle_data();			
 						
 			if (chord_sent) {
 				chord_sent = false;
 			}
 
-			if (right) {
+			/*if (right) {
 				midi_bluetooth_handle_data();		// strum neutral		
 			}
 			
 			if (left) {				
 				midi_bluetooth_handle_data();		// strum neutral		
-			}
+			}*/
 						
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
-			return;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);;
 		}	
 
 		if (event_data[4] == 2) {
