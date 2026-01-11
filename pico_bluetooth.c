@@ -1035,7 +1035,7 @@ void midi_bluetooth_handle_data() {
 		return;		
 	}		
 
-	if (mbut3 != config) {	// config/menu options
+	if (mbut3 != config) {											// config/menu options
 		config = mbut3;
 		
 		if (mbut3) 	{

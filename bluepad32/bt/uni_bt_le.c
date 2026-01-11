@@ -1133,21 +1133,25 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			
 			if (chord_selected) 
 			{
-				if (event_data[4] == 128) {
-					but1 = 0; green = 0; but3 = 0; blue = 0;			// reset 3m
+				if (but1 && but3) {
+					but1 = 0; but3 = 0;									// reset 3m
 					but0 = 1; red = 0;
 					mbut3 = 1; config = 0;								// ample guitar
 				}
 				else
 					
-				if (event_data[4] == 0) {
-					but2 = 0; yellow = 0; but0 = 0; red = 0;			// reset 7b
-					but1 = 1; green = 0;
-					mbut3 = 1; config = 0;								// arranger
+				if (but0 && but2) {
+					but2 = 0; but0 = 0;									// reset 7b
+					but4 = 1; orange = 0;
+					mbut3 = 1; config = 0;								// modx
 				}				
 				else {				
 					but6 = 1; pitch = 0;			
 				}
+			}
+			else {
+				but1 = 1; green = 0;
+				mbut3 = 1; config = 0;									// arranger				
 			}
 		}
 			
