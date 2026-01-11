@@ -761,7 +761,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     UNUSED(channel);
     UNUSED(size);
 
-	static bool chord_sent;
+	static bool chord_sent = false;
 	static int query_state;
 		
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
@@ -769,7 +769,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 	bool chord_selected = false;
 	bool paddle_moved = false;	
-	bool style_disable_toggle = false;
 	
 	uint8_t event_data[16];
 	uint8_t liberlive_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};	
@@ -912,6 +911,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			return;
 		}	
 
 		if (event_data[4] == 2) {

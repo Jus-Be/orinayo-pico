@@ -24,6 +24,7 @@
 #endif
 
 extern looper_status_t looper_status;
+
 bool strum_neutral = true;
 bool style_started = false;
 bool enable_style_play = false;
@@ -37,29 +38,29 @@ bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 bool gamepad_guitar_connected = false;
 
-uint8_t but0;
-uint8_t but1;
-uint8_t but2;
-uint8_t but3;
-uint8_t but4; 
-uint8_t but6;
-uint8_t but7;   
-uint8_t but9;
+uint8_t but0 = 0;
+uint8_t but1 = 0;
+uint8_t but2 = 0;
+uint8_t but3 = 0;
+uint8_t but4 = 0; 
+uint8_t but6 = 0;
+uint8_t but7 = 0;   
+uint8_t but9 = 0;
 
-uint8_t mbut0;
-uint8_t mbut1;
-uint8_t mbut2;
-uint8_t mbut3;
+uint8_t mbut0 = 0;
+uint8_t mbut1 = 0;
+uint8_t mbut2 = 0;
+uint8_t mbut3 = 0;
 
-uint8_t dpad_left;	
-uint8_t dpad_right;
-uint8_t dpad_up;
-uint8_t dpad_down;
+uint8_t dpad_left = 0;	
+uint8_t dpad_right = 0;
+uint8_t dpad_up = 0;
+uint8_t dpad_down = 0;
 
-bool joy_up;  
-bool joy_down;  
-bool knob_up; 
-bool knob_down; 
+bool joy_up = false;  
+bool joy_down = false;  
+bool knob_up = false; 
+bool knob_down = false; 
 
 uint8_t green = 0;
 uint8_t red = 0;
