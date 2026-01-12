@@ -775,7 +775,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 	static int query_state;
 	static int current_tempo = 0;
-	static bool message_sent = false;
 		
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
@@ -918,12 +917,11 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 			ll_have_fired = false;	
 
-			if (message_sent) {
-				message_sent = false;
-				left = 1; green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
-				midi_bluetooth_handle_data();	
-				return;
-			}
+			left = dpad_left ? 1 : 0; 
+			right = dpad_right ? 1 : 0;				
+			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
+			midi_bluetooth_handle_data();	
+			return;
 		}	
 
 		// detect tempo changes
@@ -1203,8 +1201,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_cannot_fire = true;
 			
 			midi_bluetooth_handle_data();						
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-			message_sent = true;			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}	
     }
 }
