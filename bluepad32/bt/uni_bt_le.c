@@ -944,9 +944,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_have_fired = false;	
 
 			left = 1;
-			midi_bluetooth_handle_data();			
-						
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);;
+			midi_bluetooth_handle_data();									
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+			return;
 		}	
 		
 		// detect config changes - tap tempo pressed
