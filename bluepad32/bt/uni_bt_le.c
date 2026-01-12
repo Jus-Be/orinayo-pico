@@ -775,12 +775,13 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 	static int query_state;
 	static int current_tempo = 0;
+	static bool message_sent = false;
 		
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
 
 	bool chord_selected = false;
-	bool handling_required = false;	
+	bool handling_required = false;
 	
 	uint8_t event_data[16];
 	uint8_t liberlive_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};	
@@ -917,9 +918,12 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 			ll_have_fired = false;	
 
-			left = 1; green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
-			midi_bluetooth_handle_data();	
-			return;
+			if (message_sent) {
+				message_sent = false;
+				left = 1; green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
+				midi_bluetooth_handle_data();	
+				return;
+			}
 		}	
 
 		// detect tempo changes
@@ -1199,7 +1203,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_cannot_fire = true;
 			
 			midi_bluetooth_handle_data();						
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+			message_sent = true;			
 		}	
     }
 }
