@@ -881,24 +881,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	else
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {
-		if (gamepad_guitar_connected || !finished_processing) return;
+		if (gamepad_guitar_connected) return;
 			
 		memcpy(event_data, value, value_length);
-						
-		// detect paddle neutral
-		
-		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
-		
-		if (ll_have_fired && ll_cannot_fire) {
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
-			ll_have_fired = false;	
-
-			left = dpad_left ? 1 : 0; 
-			right = dpad_right ? 1 : 0;				
-			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
-			midi_bluetooth_handle_data();	
-			return;
-		}	
 
 		joy_up = false;  
 		joy_down = false;  
@@ -924,6 +909,20 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		mbut2 = 0;
 		mbut3 = 0;
 		
+		// detect paddle neutral
+		
+		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
+		
+		if (ll_have_fired && ll_cannot_fire) {
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			ll_have_fired = false;	
+
+			left = 1; 			
+			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
+			midi_bluetooth_handle_data();	
+			return;
+		}	
+		
 		// detect tempo changes
 		
 		if (event_data[7] != current_tempo) {
@@ -935,23 +934,21 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		
 		// detect key change
 
-		if ( event_data[5] == 0) {	// paddle is neutral
-			uint8_t old_key = transpose;
-			
-			if (event_data[1] == 0) transpose = 0;	// C
-			if (event_data[1] == 1) transpose = 2;	// D
-			if (event_data[1] == 2) transpose = 4;	// E
-			if (event_data[1] == 3) transpose = 5;	// F
-			if (event_data[1] == 4) transpose = 7;	// G
-			if (event_data[1] == 5) transpose = 9;	// A
-			if (event_data[1] == 6) transpose = 11;	// B
-						
-			if (old_key != transpose) 
-			{
-				if (enable_seqtrak) midi_seqtrak_key(transpose);
-			}
-		}
+		uint8_t old_key = transpose;
 		
+		if (event_data[1] == 0) transpose = 0;	// C
+		if (event_data[1] == 1) transpose = 2;	// D
+		if (event_data[1] == 2) transpose = 4;	// E
+		if (event_data[1] == 3) transpose = 5;	// F
+		if (event_data[1] == 4) transpose = 7;	// G
+		if (event_data[1] == 5) transpose = 9;	// A
+		if (event_data[1] == 6) transpose = 11;	// B
+					
+		if (old_key != transpose && event_data[5] == 0) 
+		{
+			if (enable_seqtrak) midi_seqtrak_key(transpose);
+		}
+
 		// detect config changes - tap tempo pressed		
 
 		if (event_data[1] == 16 && event_data[5] == 0) 

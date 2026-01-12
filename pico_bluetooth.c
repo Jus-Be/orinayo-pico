@@ -1384,7 +1384,7 @@ void play_chord(bool on, bool up) {
 	uint8_t chord_note = 0;
 	uint8_t chord_type = 0;	
 	uint8_t bass_note = 0;		
-	uint8_t base = 24;	
+	uint8_t base = 0;	
 	bool handled = false;	
 		
 	base = 24 + transpose;
