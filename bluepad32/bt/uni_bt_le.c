@@ -882,7 +882,24 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {
 		if (gamepad_guitar_connected || !finished_processing) return;
+			
+		memcpy(event_data, value, value_length);
+						
+		// detect paddle neutral
 		
+		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
+		
+		if (ll_have_fired && ll_cannot_fire) {
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			ll_have_fired = false;	
+
+			left = dpad_left ? 1 : 0; 
+			right = dpad_right ? 1 : 0;				
+			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
+			midi_bluetooth_handle_data();	
+			return;
+		}	
+
 		joy_up = false;  
 		joy_down = false;  
 		knob_up = false; 
@@ -906,24 +923,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		mbut1 = 0;
 		mbut2 = 0;
 		mbut3 = 0;
-	
-		memcpy(event_data, value, value_length);
-						
-		// detect paddle neutral
 		
-		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
-		
-		if (ll_have_fired && ll_cannot_fire) {
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
-			ll_have_fired = false;	
-
-			left = dpad_left ? 1 : 0; 
-			right = dpad_right ? 1 : 0;				
-			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
-			midi_bluetooth_handle_data();	
-			return;
-		}	
-
 		// detect tempo changes
 		
 		if (event_data[7] != current_tempo) {
