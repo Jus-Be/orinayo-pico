@@ -917,7 +917,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_have_fired = false;	
 
 			left = 1; green = 0; red = 0;
-			midi_bluetooth_handle_data();									
+			midi_bluetooth_handle_data();	
 			return;
 		}	
 
