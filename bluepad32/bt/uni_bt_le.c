@@ -93,8 +93,15 @@ void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
 void midi_bluetooth_handle_data();
+void midi_modx_tempo(int tempo);
+void midi_modx_key(uint8_t key);
+void midi_seqtrak_arp();
+void midi_seqtrak_key(uint8_t key);
+void midi_seqtrak_tempo(int tempo);
 
 extern int applied_velocity;
+extern int transpose;
+
 extern uint8_t but0;
 extern uint8_t but1;
 extern uint8_t but2;
@@ -147,6 +154,7 @@ extern uint8_t logo_knob_up;
 extern uint8_t logo_knob_down;
 
 extern int active_strum_pattern;
+extern bool enable_seqtrak;
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
@@ -765,6 +773,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 	static bool chord_sent = false;
 	static int query_state;
+	static int current_tempo = 0;
 		
 	uint32_t value_length = gatt_event_notification_get_value_length(packet);
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
@@ -897,7 +906,37 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		mbut2 = 0;
 		mbut3 = 0;
 	
-		memcpy(event_data, value, value_length);			
+		memcpy(event_data, value, value_length);
+
+		// detect tempo changes
+		
+		if (event_data[7] != current_tempo) {
+			current_tempo = event_data[7];
+			
+			if (enable_seqtrak) midi_seqtrak_tempo(current_tempo);
+			if (enable_modx) 	midi_modx_tempo(current_tempo);			
+		}
+		
+		// detect key change
+
+		if ( event_data[5] == 0) {	// paddle is neutral
+			uint8_t old_key = transpose;
+			
+			if (event_data[1] == 0) transpose = 0;	// C
+			if (event_data[1] == 1) transpose = 2;	// D
+			if (event_data[1] == 2) transpose = 4;	// E
+			if (event_data[1] == 3) transpose = 5;	// F
+			if (event_data[1] == 4) transpose = 7;	// G
+			if (event_data[1] == 5) transpose = 9;	// A
+			if (event_data[1] == 6) transpose = 11;	// B
+						
+			if (old_key != transpose) 
+			{
+				if (enable_seqtrak) midi_seqtrak_key(transpose);
+			}
+		}
+						
+		// detect paddle neutral
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
 		
@@ -910,17 +949,11 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (chord_sent) {
 				chord_sent = false;
 			}
-
-			/*if (right) {
-				midi_bluetooth_handle_data();		// strum neutral		
-			}
-			
-			if (left) {				
-				midi_bluetooth_handle_data();		// strum neutral		
-			}*/
 						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);;
 		}	
+		
+		// detect key press
 
 		if (event_data[4] == 2) {
 			but2 = 1; yellow = 0;		// 7b			
