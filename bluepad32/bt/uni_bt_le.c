@@ -924,7 +924,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		// detect config changes - tap tempo pressed
 
 		
-		if (event_data[1] >= 16 && event_data[5] == 0) {	
+		/*if (event_data[1] >= 16 && event_data[5] == 0) {	
 			handling_required = true;		
 			mbut3 = 1; config = 0;
 
@@ -938,7 +938,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 			midi_bluetooth_handle_data();
 			return;
-		}
+		*/}
 
 		
 		// detect strum style - - stop/config pressed
