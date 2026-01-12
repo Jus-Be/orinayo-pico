@@ -1238,7 +1238,7 @@ void midi_bluetooth_handle_data() {
 		if (dpad_right) {
 			strum_neutral = false;				
 			if (!enable_auto_hold) stop_chord();
-			play_chord(true, true, green, red, yellow, blue, orange);
+			play_chord(true, true);
 			
 		} else {
 			strum_neutral = true;
@@ -1264,7 +1264,7 @@ void midi_bluetooth_handle_data() {
 		if (dpad_left) 	{
 			strum_neutral = false;
 			if (!enable_auto_hold) stop_chord();			
-			play_chord(true, false, green, red, yellow, blue, orange);
+			play_chord(true, false);
 			
 		} else {
 			strum_neutral = true;
