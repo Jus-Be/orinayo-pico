@@ -956,7 +956,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		
 		// detect config changes - tap tempo pressed		
 
-		if (event_data[1] >= 16 && event_data[5] == 0) 
+		if (event_data[1] == 16 && event_data[5] == 0) 
 		{
 			if (event_data[4] == 2)   config_guitar(1);
 			if (event_data[4] == 4)   config_guitar(2);
