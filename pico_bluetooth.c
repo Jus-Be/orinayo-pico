@@ -129,8 +129,8 @@ void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 void midi_process_state(uint64_t start_us);
 void midi_bluetooth_handle_data();
-
-void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void config_guitar(uint8_t mode);
+void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
 
@@ -1009,62 +1009,12 @@ void midi_bluetooth_handle_data() {
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 			
-			if (green && red) {
-				guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
-				midi_send_program_change(0xC0, guitar_pc_code);	
-			}
-			else
-			
-			if (green) {  
-				enable_arranger_mode = !enable_arranger_mode;
-				enable_style_play = enable_arranger_mode;
-			
-				if (enable_arranger_mode) {				
-					midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
-					midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
-					
-					midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
-					midi_send_control_change(0xB0, 7, 100); // set default volume	
-				}						
-			}
-			else
-				
-			if (red) {
-				enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
-				enable_style_play = enable_ample_guitar;
-				
-				midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-				midi_send_note(0x90, 86, 127);
-			}
-			else
-				
-			if (yellow) {				
-				if (enable_midi_drums) {
-					looper_clear_all_tracks();								// Midi drums looper
-				}
-				enable_midi_drums = !enable_midi_drums;
-			}
-			else
-				
-			if (blue) {				
-				enable_seqtrak = !enable_seqtrak;
-				enable_style_play = enable_seqtrak;				
-				
-				if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
-					midi_seqtrak_mute(7, true);
-					midi_seqtrak_mute(9, true);						
-				}
-			}
-			else
-				
-			if (orange) {				
-				enable_modx = !enable_modx;
-				enable_style_play = enable_modx;					
-				
-				if (enable_modx) {						// set default scene 1
-					midi_send_control_change(0xB3, 92, 0);						
-				}
-			}
+			if (green && red) config_guitar(6);
+			if (green) config_guitar(1);		
+			if (red) config_guitar(2);			
+			if (yellow) config_guitar(3);		
+			if (blue) config_guitar(4);			
+			if (orange) config_guitar(5);							
 		}
 
 		finished_processing = true;		
@@ -1307,7 +1257,6 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;		
 		return;
 	}	
-	
 
 	if (dpad_left != left) { 	// Strum down
 		left = dpad_left;
@@ -1371,7 +1320,67 @@ int compUp(const void *a, const void *b) {
     return (*(uint8_t *)a - *(uint8_t *)b);
 }
 
-void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange) {
+void config_guitar(uint8_t mode) {
+	
+	if (mode == 6) {
+		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
+		midi_send_program_change(0xC0, guitar_pc_code);	
+	}
+	else
+
+	if (mode == 1) {  
+		enable_arranger_mode = !enable_arranger_mode;
+		enable_style_play = enable_arranger_mode;
+
+		if (enable_arranger_mode) {				
+			midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
+			midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
+			
+			midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
+			midi_send_control_change(0xB0, 7, 100); // set default volume	
+		}						
+	}
+	else
+		
+	if (mode == 2) {
+		enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
+		enable_style_play = enable_ample_guitar;
+		
+		midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
+		midi_send_note(0x90, 86, 127);
+	}
+	else
+		
+	if (mode == 3) {				
+		if (enable_midi_drums) {
+			looper_clear_all_tracks();								// Midi drums looper
+		}
+		enable_midi_drums = !enable_midi_drums;
+	}
+	else
+		
+	if (mode == 4) {				
+		enable_seqtrak = !enable_seqtrak;
+		enable_style_play = enable_seqtrak;				
+		
+		if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
+			midi_seqtrak_mute(7, true);
+			midi_seqtrak_mute(9, true);						
+		}
+	}
+	else
+		
+	if (mode == 5) {				
+		enable_modx = !enable_modx;
+		enable_style_play = enable_modx;					
+		
+		if (enable_modx) {						// set default scene 1
+			midi_send_control_change(0xB3, 92, 0);						
+		}
+	}
+}
+
+void play_chord(bool on, bool up) {
 	uint8_t chord_note = 0;
 	uint8_t chord_type = 0;	
 	uint8_t bass_note = 0;		

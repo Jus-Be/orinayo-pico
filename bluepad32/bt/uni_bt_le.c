@@ -98,6 +98,7 @@ void midi_modx_key(uint8_t key);
 void midi_seqtrak_arp();
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
+void config_guitar(uint8_t mode);
 
 extern int applied_velocity;
 extern int transpose;
@@ -916,7 +917,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 			ll_have_fired = false;	
 
-			left = 1; green = 0; red = 0;
+			left = 1; green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
 			midi_bluetooth_handle_data();	
 			return;
 		}	
@@ -947,7 +948,20 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			{
 				if (enable_seqtrak) midi_seqtrak_key(transpose);
 			}
-		}	
+		}
+		
+		// detect config changes - tap tempo pressed		
+
+		if (event_data[1] >= 16 && event_data[5] == 0) 
+		{
+			if (event_data[4] == 2)   config_guitar(1);
+			if (event_data[4] == 4)   config_guitar(2);
+			if (event_data[4] == 8)   config_guitar(3);
+			if (event_data[4] == 16)  config_guitar(4);
+			if (event_data[4] == 32)  config_guitar(5);							
+			if (event_data[4] == 64)  config_guitar(6);
+			if (event_data[4] == 128) {}			
+		}		
 				
 		// detect strum style - - stop/config pressed
 		
@@ -965,23 +979,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		}
 		else
 
-/*			
-		// detect config changes - tap tempo pressed
-		
-		if (event_data[1] >= 16 && event_data[5] == 0) {	
-			handling_required = true;		
-			mbut3 = 1; config = 0;
-
-			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// ketron/giglad/yamaha arranger
-			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// ample guitar	
-			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// internal arranger
-			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// seqtrak
-			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// modx						
-			if (event_data[4] == 64)  {}						// nothing
-			if (event_data[4] == 128) {}						// nothing	
-		}
-		else			
-*/	
 		// detect key press
 
 		if (event_data[4] == 2) {
@@ -1196,14 +1193,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}							
 
 		}
-/*
-		else
-			
-		if (event_data[1] >= 16 && event_data[5] == 0 && chord_selected) {	
-			handling_required = true;		
-			mbut3 = 1; config = 0;
-		}			
-*/
+
 		if (handling_required && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
