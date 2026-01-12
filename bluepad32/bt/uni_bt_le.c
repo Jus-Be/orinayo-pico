@@ -1196,13 +1196,14 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}							
 
 		}
+/*
 		else
 			
 		if (event_data[1] >= 16 && event_data[5] == 0 && chord_selected) {	
 			handling_required = true;		
 			mbut3 = 1; config = 0;
 		}			
-			
+*/
 		if (handling_required && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
