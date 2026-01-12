@@ -155,6 +155,7 @@ extern uint8_t logo_knob_down;
 
 extern int active_strum_pattern;
 extern bool enable_seqtrak;
+extern bool enable_modx;
 
 // Temporal space for SDP in BLE
 static uint8_t hid_descriptor_storage[HID_MAX_DESCRIPTOR_LEN * CONFIG_BLUEPAD32_MAX_DEVICES];
@@ -771,7 +772,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     UNUSED(channel);
     UNUSED(size);
 
-	static bool chord_sent = false;
 	static int query_state;
 	static int current_tempo = 0;
 		
@@ -779,7 +779,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	const uint8_t *value = gatt_event_notification_get_value(packet);	
 
 	bool chord_selected = false;
-	bool paddle_moved = false;	
+	bool handling_required = false;	
 	
 	uint8_t event_data[16];
 	uint8_t liberlive_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};	
@@ -946,12 +946,40 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			left = 1;
 			midi_bluetooth_handle_data();			
 						
-			if (chord_sent) {
-				chord_sent = false;
-			}
-						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);;
 		}	
+		
+		// detect config changes - tap tempo pressed
+		
+		if (event_data[1] >= 16 && event_data[5] == 0) {	
+			handling_required = true;		
+			mbut3 = 1; config = 0;
+
+			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// ketron/giglad/yamaha arranger
+			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// ample guitar	
+			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// internal arranger
+			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// seqtrak
+			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// modx						
+			if (event_data[4] == 64)  {}						// nothing
+			if (event_data[4] == 128) {}						// nothing				
+		}
+		else
+		
+		// detect strum style - - stop/config pressed
+		
+		if (event_data[5] == 64 ) {		// guitar play mode selection
+			handling_required = true;
+			but6 = 1; pitch = 0;				
+			
+			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// full chord up/down
+			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// chord up/root note down	
+			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// root note up/down
+			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// 3rd note up/root note down
+			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// 5th note up/root note down							
+			if (event_data[4] == 64)  {}						// nothing
+			if (event_data[4] == 128) {}						// nothing	
+		}
+		else		
 		
 		// detect key press
 
@@ -1099,7 +1127,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		
 						
 		if (event_data[5] == 15) {			// Paddle A+B
-			paddle_moved = true;	
+			handling_required = true;	
 
 			if (event_data[10] < 48) { // UP
 				mbut0 = 1; logo = 0;
@@ -1114,7 +1142,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		else							
 		
 		if (event_data[5] == 12) {			// Paddle A
-			paddle_moved = true;	
+			handling_required = true;	
 			
 			if (event_data[9] < 48) { // UP
 				applied_velocity = (50 - event_data[9]) / 50;
@@ -1142,7 +1170,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		else
 			
 		if (event_data[5] == 3) {			// Paddle B
-			paddle_moved = true;	
+			handling_required = true;	
 
 			if (event_data[10] < 48) { // UP
 				applied_velocity = (50 - event_data[10]) / 50;							
@@ -1167,42 +1195,13 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}							
 
 		}
-		else
-
-		if (event_data[5] == 64 ) {		// guitar play mode selection	
-			paddle_moved = true;
 			
-			if (chord_selected) 
-			{
-				if (event_data[4] == 128) {
-					but1 = 0; but3 = 0;	green = 0; blue = 0;			// reset 3m
-					but0 = 1; red = 0;
-					mbut3 = 1; config = 0;								// ample guitar
-				}
-				else
-					
-				if (event_data[4] == 2) {
-					but2 = 0; but0 = 0;	yellow = 0; red = 0;			// reset 7b
-					but4 = 1; orange = 0;
-					mbut3 = 1; config = 0;								// modx
-				}				
-				else {				
-					but6 = 1; pitch = 0;			
-				}
-			}
-			else {
-				but1 = 1; green = 0;
-				mbut3 = 1; config = 0;									// arranger				
-			}
-		}
-			
-		if (paddle_moved && !ll_have_fired) {			
+		if (handling_required && !ll_have_fired) {			
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
 			midi_bluetooth_handle_data();						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
-			chord_sent = true;
 		}	
     }
 }
