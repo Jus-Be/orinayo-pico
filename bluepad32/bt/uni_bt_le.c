@@ -907,6 +907,57 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		mbut3 = 0;
 	
 		memcpy(event_data, value, value_length);
+						
+		// detect paddle neutral
+		
+		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
+		
+		if (ll_have_fired && ll_cannot_fire) {
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			ll_have_fired = false;	
+
+			left = 1;
+			midi_bluetooth_handle_data();									
+			return;
+		}	
+		
+		// detect config changes - tap tempo pressed
+
+		
+		if (event_data[1] >= 16 && event_data[5] == 0) {	
+			handling_required = true;		
+			mbut3 = 1; config = 0;
+
+			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// ketron/giglad/yamaha arranger
+			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// ample guitar	
+			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// internal arranger
+			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// seqtrak
+			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// modx						
+			if (event_data[4] == 64)  {}						// nothing
+			if (event_data[4] == 128) {}						// nothing	
+
+			midi_bluetooth_handle_data();
+			return;
+		}
+
+		
+		// detect strum style - - stop/config pressed
+		
+		if (event_data[5] == 64 ) {		// guitar play mode selection
+			handling_required = true;
+			but6 = 1; pitch = 0;				
+			
+			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// full chord up/down
+			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// chord up/root note down	
+			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// root note up/down
+			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// 3rd note up/root note down
+			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// 5th note up/root note down							
+			if (event_data[4] == 64)  {}						// nothing
+			if (event_data[4] == 128) {}						// nothing	
+			
+			midi_bluetooth_handle_data();
+			return;			
+		}	
 
 		// detect tempo changes
 		
@@ -934,54 +985,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			{
 				if (enable_seqtrak) midi_seqtrak_key(transpose);
 			}
-		}
-						
-		// detect paddle neutral
-		
-		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
-		
-		if (ll_have_fired && ll_cannot_fire) {
-			ll_have_fired = false;	
-
-			left = 1;
-			midi_bluetooth_handle_data();									
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
-			return;
-		}	
-		
-		// detect config changes - tap tempo pressed
-
-/*		
-		if (event_data[1] >= 16 && event_data[5] == 0) {	
-			handling_required = true;		
-			mbut3 = 1; config = 0;
-
-			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// ketron/giglad/yamaha arranger
-			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// ample guitar	
-			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// internal arranger
-			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// seqtrak
-			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// modx						
-			if (event_data[4] == 64)  {}						// nothing
-			if (event_data[4] == 128) {}						// nothing				
-		}
-		else
-		
-		// detect strum style - - stop/config pressed
-		
-		if (event_data[5] == 64 ) {		// guitar play mode selection
-			handling_required = true;
-			but6 = 1; pitch = 0;				
-			
-			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// full chord up/down
-			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// chord up/root note down	
-			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// root note up/down
-			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// 3rd note up/root note down
-			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// 5th note up/root note down							
-			if (event_data[4] == 64)  {}						// nothing
-			if (event_data[4] == 128) {}						// nothing	
-		}
-		else		
-*/		
+		}		
+	
 		// detect key press
 
 		if (event_data[4] == 2) {
