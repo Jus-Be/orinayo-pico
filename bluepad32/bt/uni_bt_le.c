@@ -1321,7 +1321,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		}
 	}
 
-    if (name[0] == 'P' && name[1] == 'o' && name[2] == 'c' && name[3] == 'k' && name[4] == 'e' && name[5] == 't' && name[6] == ' ' && name[7] == 'M' && name[8] == 'a' && name[9] == 's' && name[10] == 't' && name[11] == 'e' && name[12] == 'r')
+    if (name[0] == 'P' && name[1] == 'o' && name[2] == 'c' && name[3] == 'k' && name[4] == 'e' && name[5] == 't')
 	{	
 		if (!pocket_master_enabled) {
 			pocket_master_enabled = true;
