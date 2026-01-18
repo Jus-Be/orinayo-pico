@@ -1322,7 +1322,7 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 	
-	if (mode == 6) {
+	if (mode == 6) {										// toggle guitar from ellectric to acoustic
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 	}

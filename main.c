@@ -67,7 +67,6 @@ extern int active_neck_pos;
 extern int seqtrak_chord;
 
 extern bool style_started;
-extern bool orinayo_enabled;
 extern bool enable_ample_guitar;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
@@ -149,27 +148,24 @@ int main() {
 	uart_set_fifo_enabled(UART_ID, true);
 	uart_set_translate_crlf(UART_ID, false);	
 	
-    while (true) 
-	{
-		if (!orinayo_enabled) {
-			tud_task(); // tinyusb device task
+    while (true) {
+		tud_task(); // tinyusb device task
+		
+		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+		
+		while (tud_midi_available()) {
+			uint8_t packet[4] = {0};
 			
-			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
+			tud_midi_packet_read(packet);
 			
-			while (tud_midi_available()) {
-				uint8_t packet[4] = {0};
-				
-				tud_midi_packet_read(packet);
-				
-				uint8_t status = packet[1];
-				uint8_t channel = status & 0x0F;
-				uint8_t message = status & 0xF0;
-				
-				if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
-			}	
+			uint8_t status = packet[1];
+			uint8_t channel = status & 0x0F;
+			uint8_t message = status & 0xF0;
 			
-			note_scheduler_dispatch_pending();	
-		}			
+			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
+		}	
+		
+		note_scheduler_dispatch_pending();				
     }
 	
     //cancel_repeating_timer(&timer);	
@@ -228,9 +224,7 @@ void midi_modx_key(uint8_t key) {
 	msg[10] = 0x40 + key;
 	msg[11] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 12);	
-	}	
+	midi_n_stream_write(0, 0, msg, 12);	
 }
 
 void midi_modx_arp_octave(uint8_t octave) {
@@ -250,9 +244,7 @@ void midi_modx_arp_octave(uint8_t octave) {
 	msg[10] = 0x40 + octave;
 	msg[11] = 0xF7;	
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 12);	
-	}	
+	midi_n_stream_write(0, 0, msg, 12);		
 }
 
 void midi_modx_arp(bool on) {
@@ -272,9 +264,7 @@ void midi_modx_arp(bool on) {
 	msg[10] = on ? 1 : 0;
 	msg[11] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 12);	
-	}	
+	midi_n_stream_write(0, 0, msg, 12);		
 }
 
 void midi_modx_arp_hold(uint8_t part, bool on) {
@@ -295,9 +285,7 @@ void midi_modx_arp_hold(uint8_t part, bool on) {
 	msg[11] = on ? 2 : 1;
 	msg[12] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 13);	
-	}	
+	midi_n_stream_write(0, 0, msg, 13);		
 }
 
 void midi_modx_arp_realtime(uint8_t part, bool on) {
@@ -318,9 +306,7 @@ void midi_modx_arp_realtime(uint8_t part, bool on) {
 	msg[11] = on ? 0 : 1;
 	msg[12] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 13);	
-	}	
+	midi_n_stream_write(0, 0, msg, 13);		
 }
 
 void midi_modx_tempo(int tempo) {
@@ -341,9 +327,7 @@ void midi_modx_tempo(int tempo) {
 	msg[11] = tempo % 128;
 	msg[12] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 13);	
-	}	
+	midi_n_stream_write(0, 0, msg, 13);	
 }
 
 void midi_seqtrak_arp_octave(uint8_t track, int octave) {
@@ -362,9 +346,7 @@ void midi_seqtrak_arp_octave(uint8_t track, int octave) {
 	msg[9] = 0x40 + octave;	// 0x3D - 0x43 (-3 to +3)
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 11);	
-	}	
+	midi_n_stream_write(0, 0, msg, 11);	
 }
 
 void midi_seqtrak_tempo(int tempo) {
@@ -384,9 +366,7 @@ void midi_seqtrak_tempo(int tempo) {
 	msg[10] = tempo % 128;
 	msg[11] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 12);	
-	}	
+	midi_n_stream_write(0, 0, msg, 12);	
 }
 
 void midi_seqtrak_key(uint8_t key) {
@@ -405,9 +385,7 @@ void midi_seqtrak_key(uint8_t key) {
 	msg[9] = key;
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 11);	
-	}	
+	midi_n_stream_write(0, 0, msg, 11);	
 }
 
 void midi_seqtrak_mute(uint8_t track, bool mute) {
@@ -426,9 +404,7 @@ void midi_seqtrak_mute(uint8_t track, bool mute) {
 	msg[9] = mute ? 0x7D : 0;
 	msg[10] = 0xF7;
 	
-	if (!orinayo_enabled) {
-		midi_n_stream_write(0, 0, msg, 11);	
-	}	
+	midi_n_stream_write(0, 0, msg, 11);	
 }
 
 void midi_seqtrak_pattern(uint8_t pattern) {
@@ -446,18 +422,15 @@ void midi_seqtrak_pattern(uint8_t pattern) {
 	msg[8] = 0x0F;
 	msg[9] = pattern;
 	msg[10] = 0xF7;
-	
-	if (!orinayo_enabled) 
-	{			
-		for (int i=0; i<7; i++) {						
-			msg[7] = 0x50 + i;
-			midi_n_stream_write(0, 0, msg, 11);	
-		}
+				
+	for (int i=0; i<7; i++) {						
+		msg[7] = 0x50 + i;
+		midi_n_stream_write(0, 0, msg, 11);	
 	}	
 }
 
 void midi_seqtrak_arp() {
-	if (!enable_seqtrak || orinayo_enabled) return;	
+	if (!enable_seqtrak) return;	
 	
 	// config bass arp on track 8 and 10		
 	uint8_t template = get_arp_template();
@@ -493,12 +466,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	msg[1] = note;
 	msg[2] = velocity;   
 		
-	if (orinayo_enabled) {
-		send_ble_midi(msg, 3);	 // no midi
-	}
-	else {
-		midi_n_stream_write(0, 0, msg, 3);			
-	}
+	midi_n_stream_write(0, 0, msg, 3);			
 }
 
 void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value)
@@ -519,11 +487,7 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 	msg[0] = command;
 	msg[1] = code;
 		
-	if (orinayo_enabled) {
-		send_ble_midi(msg, 2);	
-	} else {
-		midi_n_stream_write(0, 0, msg, 2);		
-	}
+	midi_n_stream_write(0, 0, msg, 2);		
 }
 
 void midi_start_stop(bool start)
@@ -531,11 +495,9 @@ void midi_start_stop(bool start)
 	uint8_t msg[1];	
 	msg[0] = start ? 0xFA : 0xFC;	
 
-	if (!orinayo_enabled) {	
-		midi_n_stream_write(0, 0, msg, 1);	
-		msg[0] = 0xF8;	
-		midi_n_stream_write(0, 0, msg, 1);			
-	}
+	midi_n_stream_write(0, 0, msg, 1);	
+	msg[0] = 0xF8;	
+	midi_n_stream_write(0, 0, msg, 1);			
 }
 
 void midi_yamaha_start_stop(int8_t code, bool on)
@@ -548,9 +510,7 @@ void midi_yamaha_start_stop(int8_t code, bool on)
 	msg[4] = on ? 0x7F : 0x00;	
 	msg[5] = 0xF7;
 
-	if (!orinayo_enabled) {	
-		midi_n_stream_write(0, 0, msg, 6);	
-	}
+	midi_n_stream_write(0, 0, msg, 6);	
 }
 
 void midi_yamaha_arr(uint8_t code, bool on) {
@@ -565,9 +525,7 @@ void midi_yamaha_arr(uint8_t code, bool on) {
 	msg[5] = on ? 0x7F : 0x00;
 	msg[6] = 0xF7;
 
-	if (!orinayo_enabled) {		
-		midi_n_stream_write(0, 0, msg, 7);	
-	}
+	midi_n_stream_write(0, 0, msg, 7);	
 }
 
 void midi_ketron_arr(uint8_t code, bool on) {
@@ -583,9 +541,7 @@ void midi_ketron_arr(uint8_t code, bool on) {
 	msg[6] = on ? 0x7F : 0x00;
 	msg[7] = 0xF7;
 
-	if (!orinayo_enabled) {		
-		midi_n_stream_write(0, 0, msg, 8);	
-	}
+	midi_n_stream_write(0, 0, msg, 8);	
 }
 
 void midi_ketron_footsw(uint8_t code, bool on) {
@@ -601,10 +557,9 @@ void midi_ketron_footsw(uint8_t code, bool on) {
 	msg[6] = on ? 0x7F : 0x00;
 	msg[7] = 0xF7;
 
-	if (!orinayo_enabled) {		
-		midi_n_stream_write(0, 0, msg, 8);	
-	}
+	midi_n_stream_write(0, 0, msg, 8);	
 }
+
 void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 	uint8_t command = 0x90;
 	uint8_t msg[3];	
@@ -612,24 +567,21 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 	msg[0] = command + 3;
 	msg[1] = note;
 	msg[2] = velocity;   
-		
-	if (!orinayo_enabled) 
+
+	if (enable_seqtrak) 
 	{
-		if (enable_seqtrak) 
-		{
-			if (enable_bass_track) {
-				msg[0] = command + 7;						// AWM2 Synth (CH8)
-				midi_n_stream_write(0, 0, msg, 3);	
-			}
-			
-			if (enable_chord_track) {
-				msg[0] = command + 9;						// DX Synth (CH10)
-				midi_n_stream_write(0, 0, msg, 3);	
-			}				
-			
-		} else {
-			midi_n_stream_write(0, 0, msg, 3);			
+		if (enable_bass_track) {
+			msg[0] = command + 7;						// AWM2 Synth (CH8)
+			midi_n_stream_write(0, 0, msg, 3);	
 		}
+		
+		if (enable_chord_track) {
+			msg[0] = command + 9;						// DX Synth (CH10)
+			midi_n_stream_write(0, 0, msg, 3);	
+		}				
+		
+	} else {
+		midi_n_stream_write(0, 0, msg, 3);			
 	}	
 }
 

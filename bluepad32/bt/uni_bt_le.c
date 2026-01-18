@@ -75,7 +75,7 @@
 #include "uni_log.h"
 #include "uni_property.h"
 
-bool orinayo_enabled = false;
+bool pocket_master_enabled = false;
 bool liberlive_enabled = false;
 
 static bool is_scanning;
@@ -784,7 +784,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 	
 	uint8_t event_data[16];
 	uint8_t liberlive_name[16] = {0x00, 0x00, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};	
-	uint8_t orinayo_name[16] = {0xBE, 0xB5, 0x48, 0x3E, 0x36, 0xE1, 0x46, 0x88, 0xB7, 0xF5, 0xEA, 0x07, 0x36, 0x1B, 0x26, 0xA8};				
+	uint8_t pocket_master_name[16] = {0x77, 0x72, 0xE5, 0xDB, 0x38, 0x68, 0x41, 0x12, 0xA1, 0xA9, 0xF2, 0x66, 0x9D, 0x10, 0x6B, 0xF3};	
 			
     uint8_t type_of_packet;	
     type_of_packet = hci_event_packet_get_type(packet);
@@ -815,8 +815,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			else
 				
-			if (orinayo_enabled) {	// "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, orinayo_name);																		
+			if (pocket_master_enabled) {	// "7772e5db-3868-4112-a1a9-f2669d106bf3"
+				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, pocket_master_name);																		
 			}
 		}
 		else		
@@ -849,9 +849,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			}
 			else
 				
-			if (orinayo_enabled) {
-				uint8_t midi_data[3] = {0x90, 0x48, 0x7F};
-				send_ble_midi(midi_data, 3);
+			if (pocket_master_enabled) {
+
 				query_state = 2;	
 			}
 		}
@@ -1234,8 +1233,8 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 			} 
 			else
 				
-			if (orinayo_enabled) {	// "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-				uint8_t service_name[16] = {0x4F, 0xAF, 0xC2, 0x01, 0x1F, 0xB5, 0x45, 0x9E, 0x8F, 0xCC, 0xC5, 0xC9, 0xC3, 0x31, 0x91, 0x4B} ;			
+			if (pocket_master_enabled) {	// "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
+				uint8_t service_name[16] = {0x03, 0xB8, 0x0E, 0x5A, 0xED, 0xE8, 0x4B, 0x33, 0xA7, 0x51, 0x6C, 0xE3, 0x4E, 0xC4, 0xC7, 0x00} ;			
 				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);			
 			} 			
 			else {	
@@ -1324,8 +1323,8 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 
     if (appearance == 0x880 || (name[0] == 'O' && name[1] == 'r' && name[2] == 'i' && name[3] == 'n' && name[4] == 'a' && name[5] == 'y' && name[6] == 'o')) 
 	{	
-		if (!orinayo_enabled) {
-			orinayo_enabled = true;
+		if (!pocket_master_enabled) {
+			pocket_master_enabled = true;
 			hog_connect(addr, addr_type);	
 			return;	
 		}
@@ -1396,7 +1395,7 @@ void uni_bt_le_on_hci_disconnection_complete(uint16_t channel, const uint8_t* pa
     ARG_UNUSED(size);
 
 	liberlive_enabled = false;
-	orinayo_enabled = false;	
+	pocket_master_enabled = false;	
     resume_scanning_hint();
 }
 
