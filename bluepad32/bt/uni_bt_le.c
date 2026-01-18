@@ -1321,14 +1321,14 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		}
 	}
 
-    if (name[0] == 'S' && name[1] == 'o' && name[2] == 'n' && name[3] == 'i' && name[4] == 'c')
-	{	
+    //if (name[0] == 'S' && name[1] == 'o' && name[2] == 'n' && name[3] == 'i' && name[4] == 'c')
+	//{	
 		if (!sonic_master_enabled) {
 			sonic_master_enabled = true;
 			hog_connect(addr, addr_type);	
 			return;	
 		}
-	}
+	//}
 	
     if (uni_hid_device_get_instance_for_address(addr)) {
         // Ignore, address already found
