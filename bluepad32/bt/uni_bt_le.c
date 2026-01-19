@@ -1311,6 +1311,15 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
+
+    if (name[0] == 'P' && name[1] == 'o' && name[2] == 'c' && name[3] == 'k' && name[4] == 'e' && name[5] == 't' && name[6] == ' ' && name[7] == 'M' && name[8] == 'a' && name[9] == 's' && name[10] == 't' && name[11] == 'e' && name[12] == 'r' && name[13] == ' ' && name[14] == 'B' && name[15] == 'L' && name[16] == 'E')
+	{	
+		if (!sonic_master_enabled) {
+			sonic_master_enabled = true;
+			hog_connect(addr, addr_type);	
+			return;	
+		}
+	}
 		
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') 
 	{
@@ -1320,15 +1329,6 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 			return;	
 		}
 	}
-
-    //if (name[0] == 'S' && name[1] == 'o' && name[2] == 'n' && name[3] == 'i' && name[4] == 'c')
-	//{	
-		if (!sonic_master_enabled) {
-			sonic_master_enabled = true;
-			hog_connect(addr, addr_type);	
-			return;	
-		}
-	//}
 	
     if (uni_hid_device_get_instance_for_address(addr)) {
         // Ignore, address already found
