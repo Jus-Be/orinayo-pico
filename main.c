@@ -57,8 +57,8 @@ void pico_set_led(bool led_on) {
 // UART settings
 #define UART_ID uart0
 #define BAUD_RATE 31250
-#define UART_TX_PIN 12
-#define UART_RX_PIN 13
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1
 #define GPIO_FUNC_UART 2
 
 extern int style_section;
