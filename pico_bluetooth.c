@@ -1297,21 +1297,30 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
-	if (mode == 9) {										// reverb - delay
-		midi_send_control_change(0xB0, 80, 7);				// type - delay
-		midi_send_control_change(0xB0, 91, 0x5F);			// send level
+	if (mode == 9) {										
+		midi_send_control_change(0xB0, 80, 7);				// reverb - delay
+		midi_send_control_change(0xB0, 91, 64);	
+		
+		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
+		midi_send_control_change(0xB0, 93, 0);
 	}
 	else
 		
-	if (mode == 8) {										// reverb - hall
-		midi_send_control_change(0xB0, 80, 4);				// type - hall
-		midi_send_control_change(0xB0, 91, 0x5F);			// send level
+	if (mode == 8) {										
+		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
+		midi_send_control_change(0xB0, 91, 10);	
+		
+		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
+		midi_send_control_change(0xB0, 93, 64);
 	}
 	else
 		
-	if (mode == 7) {										// chorus
-		midi_send_control_change(0xB0, 81, 3);				// type
-		midi_send_control_change(0xB0, 93, 0x5F);			// send level
+	if (mode == 7) {										
+		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
+		midi_send_control_change(0xB0, 91, 64);	
+		
+		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
+		midi_send_control_change(0xB0, 93, 0);				
 	}
 	else
 		
