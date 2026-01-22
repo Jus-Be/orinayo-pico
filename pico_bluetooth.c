@@ -1311,12 +1311,12 @@ void config_guitar(uint8_t mode) {
 	if (mode == 9) {	
 		midi_send_program_change(0xC0, guitar_pc_code);		
 		midi_send_control_change(0xB0, 80, 7);				// reverb - delay
-		midi_send_control_change(0xB0, 91, 64);	
+		midi_send_control_change(0xB0, 91, 96);	
 		
 		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
 		midi_send_control_change(0xB0, 93, 10);
 		
-		dream_set_delay(looper_status.bpm);
+		//dream_set_delay(looper_status.bpm);
 	}
 	else
 		
