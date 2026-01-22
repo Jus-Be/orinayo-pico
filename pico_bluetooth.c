@@ -368,7 +368,7 @@ void midi_bluetooth_handle_data() {
 		orange = but4;
 	}
 
-	if (but6 != pitch) {		// prev section/style
+	if (but6 != pitch) {									// strum selection
 		pitch = but6;
 
 		if (but6 && (up || down)) {	// reset transpose
@@ -524,42 +524,7 @@ void midi_bluetooth_handle_data() {
 		else {		
 			
 			if (but6) {
-				old_style = style_section;
-				style_section--;
-				if (style_section < 0) style_section = 7;
-			}
-
-			if (enable_midi_drums)	
-			{
-				if (but6 && looper_status.state == LOOPER_STATE_PLAYING) {
-					//ghost_parameters_t *params = ghost_note_parameters();
-					//params->ghost_intensity = 0.843;	
-					//storage_store_tracks();						
-				}							
-			}	
-			else
-				
-			if (enable_seqtrak) 
-			{
-				if (but6) {
-					midi_seqtrak_arp();
-					midi_seqtrak_pattern(style_section % 6);				
-				}
-			}
-			else
-				
-			if (enable_modx) 
-			{
-				if (but6) {
-					uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
-					midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
-				}
-			}
-			else
-
-			if (enable_arranger_mode) {
-				midi_ketron_arr(3 + (style_section % 4), but6 ? true : false);
-				midi_yamaha_arr(0x10 + (style_section % 4), but6 ? true : false);						
+				stop_chord();						// kill any sustained notes
 			}
 		}	
 		
@@ -569,7 +534,6 @@ void midi_bluetooth_handle_data() {
 			else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
 			else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
 			else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
-			else midi_send_control_change(0xB3, 14, 127); 			// Previous Style
 		}			
 
 		finished_processing = true;
@@ -596,13 +560,13 @@ void midi_bluetooth_handle_data() {
 
 	// handle actions
 
-	if (but9 != start)  {	// unused because start button clashes with axis (knob_up/knob_down)
+	if (but9 != start)  {									// unused because start button clashes with axis (knob_up/knob_down)
 		start = but9;
 		finished_processing = true;	
 		return;			
 	}						
 
-	if (dpad_up != up) {	// transpose down
+	if (dpad_up != up) {									// transpose down
 		up = dpad_up;
 
 		if (dpad_up) {
@@ -616,7 +580,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (dpad_down != down) {	// transpose up
+	if (dpad_down != down) {								// transpose up
 		down = dpad_down;
 		
 		if (dpad_down) {
@@ -703,12 +667,18 @@ void midi_bluetooth_handle_data() {
 					} 
 					else
 						
-					if (enable_modx) {					
+					if (enable_modx) {	
+						if (green) midi_send_control_change(0xB3, 92, 0); 			// scene n
+						else if (red) midi_send_control_change(0xB3, 92, 16); 						
+						else if (yellow) midi_send_control_change(0xB3, 92, 32); 				
+						else if (blue) midi_send_control_change(0xB3, 92, 48); 	
+						else if (orange) midi_send_control_change(0xB3, 92, 64); 	
+
 						midi_modx_arp(true);
 					}
 					else 
 					
-					if (enable_arranger_mode) {
+					if (enable_arranger_mode) {					// yamaha or ketron
 						midi_yamaha_start_stop(0x7A, true);							
 					}
 					else {
@@ -737,7 +707,11 @@ void midi_bluetooth_handle_data() {
 					else
 						
 					if (enable_modx) {
-						midi_modx_arp(false);				
+						if (green || red || yellow || blue || orange) {
+							midi_send_control_change(0xB3, 92, 112);		// scene 8
+							sleep_ms(3000);								
+						}
+						midi_modx_arp(false);						
 					}						
 					else 
 					
@@ -763,15 +737,13 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	if (mbut1 != starpower) { // next style/section	
-		bool style_selected = false;
+	if (mbut1 != starpower) { 								// Style selection
 		starpower = mbut1;			
 		if (mbut1) old_style = style_section;
 
 		if (green) 
 		{
 			if (mbut1) {
-				style_selected = true;
 				style_section = 0;
 			}
 		}
@@ -780,7 +752,6 @@ void midi_bluetooth_handle_data() {
 		if (red) 
 		{
 			if (mbut1) {
-				style_selected = true;
 				style_section = 1;
 			}
 		}
@@ -789,7 +760,6 @@ void midi_bluetooth_handle_data() {
 		if (yellow) 
 		{
 			if (mbut1) {
-				style_selected = true;
 				style_section = 2;
 			}
 		}				
@@ -798,17 +768,17 @@ void midi_bluetooth_handle_data() {
 		if (blue) 
 		{
 			if (mbut1) {
-				style_selected = true;
 				style_section = 3;
 			}
 		}
 		else
 
-		if (orange) 
+		if (orange) 						// PREV
 		{
 			if (mbut1) {
-				style_selected = true;
-				style_section = 7;
+				style_section--;
+				if (style_section < 0) style_section = 7;
+				midi_send_control_change(0xB3, 14, 127); 		// Previous Style					
 			}
 		}
 		else 
@@ -816,6 +786,7 @@ void midi_bluetooth_handle_data() {
 		if (mbut1) {
 			style_section++;
 			if (style_section > 7) style_section = 0;
+			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}			
 		
 		if (enable_midi_drums)	
@@ -860,7 +831,6 @@ void midi_bluetooth_handle_data() {
 			else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
 			else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
 			else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
-			else midi_send_control_change(0xB3, 14, 65); 			// Next Style
 		}			
 
 		finished_processing = true;		
@@ -1003,18 +973,20 @@ void midi_bluetooth_handle_data() {
 		return;		
 	}		
 
-	if (mbut3 != config) {											// config/menu options
+	if (mbut3 != config) {									// config/menu options
 		config = mbut3;
 		
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 			
 			if (green && red) config_guitar(6);
-			if (green) config_guitar(1);		
-			if (red) config_guitar(2);			
-			if (yellow) config_guitar(3);		
-			if (blue) config_guitar(4);			
-			if (orange) config_guitar(5);							
+			else if (red && yellow) config_guitar(7);
+			
+			else if (green) config_guitar(1);		
+			else if (red) config_guitar(2);			
+			else if (yellow) config_guitar(3);		
+			else if (blue) config_guitar(4);			
+			else if (orange) config_guitar(5);							
 		}
 
 		finished_processing = true;		
@@ -1105,7 +1077,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}
 
-	if (joy_down != joystick_down) {	// unused
+	if (joy_down != joystick_down) {						// unused
 		joystick_down = joy_down;	
 
 		finished_processing = true;
@@ -1197,7 +1169,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (knob_down != logo_knob_down) {	// unused
+	if (knob_down != logo_knob_down) {						// unused
 		logo_knob_down = knob_down;	
 
 		if (red) 
@@ -1232,7 +1204,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (dpad_right != right) {	// strum up
+	if (dpad_right != right) {								// strum up
 		right = dpad_right;	
 
 		if (dpad_right) {
@@ -1258,7 +1230,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}	
 
-	if (dpad_left != left) { 	// Strum down
+	if (dpad_left != left) { 								// Strum down
 		left = dpad_left;
 		
 		if (dpad_left) 	{
@@ -1321,8 +1293,14 @@ int compUp(const void *a, const void *b) {
 }
 
 void config_guitar(uint8_t mode) {
-	
-	if (mode == 6) {										// toggle guitar from ellectric to acoustic
+
+	if (mode == 7) {										// chorus
+		midi_send_control_change(0xB3, 81, 3);				// type
+		midi_send_control_change(0xB3, 93, 5F);				// send level
+	}
+	else
+		
+	if (mode == 6) {										// toggle guitar from electric to acoustic
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 	}
