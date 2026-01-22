@@ -208,7 +208,7 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 
 void dream_set_delay(int tempo) {
-	uint8_t rate = (tempo / 120) * 40;
+	uint8_t rate = 1;
 	
 	uint8_t msg[11];	
 	msg[0] = 0xF0;
