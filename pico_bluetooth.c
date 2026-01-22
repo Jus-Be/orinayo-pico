@@ -837,7 +837,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (mbut2 != menu) {
+	if (mbut2 != menu) {									// menu - select registrations/style groups
 		if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 		menu = mbut2;
 
@@ -973,14 +973,17 @@ void midi_bluetooth_handle_data() {
 		return;		
 	}		
 
-	if (mbut3 != config) {									// config/menu options
+	if (mbut3 != config) {									// config options
 		config = mbut3;
 		
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 			
 			if (green && red) config_guitar(6);
+			
 			else if (red && yellow) config_guitar(7);
+			else if (yellow && blue) config_guitar(8);
+			else if (blue && orange) config_guitar(9);
 			
 			else if (green) config_guitar(1);		
 			else if (red) config_guitar(2);			
@@ -1294,9 +1297,21 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
+	if (mode == 9) {										// reverb - delay
+		midi_send_control_change(0xB0, 80, 7);				// type - delay
+		midi_send_control_change(0xB0, 91, 0x5F);			// send level
+	}
+	else
+		
+	if (mode == 8) {										// reverb - hall
+		midi_send_control_change(0xB0, 80, 4);				// type - hall
+		midi_send_control_change(0xB0, 91, 0x5F);			// send level
+	}
+	else
+		
 	if (mode == 7) {										// chorus
-		midi_send_control_change(0xB3, 81, 3);				// type
-		midi_send_control_change(0xB3, 93, 0x5F);				// send level
+		midi_send_control_change(0xB0, 81, 3);				// type
+		midi_send_control_change(0xB0, 93, 0x5F);			// send level
 	}
 	else
 		
