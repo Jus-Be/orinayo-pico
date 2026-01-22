@@ -1296,7 +1296,7 @@ void config_guitar(uint8_t mode) {
 
 	if (mode == 7) {										// chorus
 		midi_send_control_change(0xB3, 81, 3);				// type
-		midi_send_control_change(0xB3, 93, 5F);				// send level
+		midi_send_control_change(0xB3, 93, 0x5F);				// send level
 	}
 	else
 		
