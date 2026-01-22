@@ -218,7 +218,7 @@ void dream_set_delay(int tempo) {
 	msg[4] = 0x12;
 	msg[5] = 0x40; 
 	msg[6] = 0x01;
-	msg[7] = 0x35;
+	msg[7] = 0x3C;
 	msg[8] = rate;
 	msg[9] = 0x00;	
 	msg[10] = 0xF7;
