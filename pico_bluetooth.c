@@ -133,6 +133,7 @@ void config_guitar(uint8_t mode);
 void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
+void dream_set_delay(int tempo);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -1002,6 +1003,8 @@ void midi_bluetooth_handle_data() {
 		if (green) 
 		{
 			if (joy_up) {
+				dream_set_delay(80);
+				
 				if (enable_midi_drums) 	looper_update_bpm(80);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(80);
 				if (enable_modx) 		midi_modx_tempo(80);					
@@ -1012,6 +1015,8 @@ void midi_bluetooth_handle_data() {
 		if (red) 
 		{
 			if (joy_up) {
+				dream_set_delay(96);
+				
 				if (enable_midi_drums) 	looper_update_bpm(96);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(96);
 				if (enable_modx) 		midi_modx_tempo(96);					
@@ -1022,6 +1027,8 @@ void midi_bluetooth_handle_data() {
 		if (yellow) 
 		{
 			if (joy_up) {
+				dream_set_delay(100);
+				
 				if (enable_midi_drums) 	looper_update_bpm(100);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(100);
 				if (enable_modx) 		midi_modx_tempo(100);					
@@ -1032,6 +1039,8 @@ void midi_bluetooth_handle_data() {
 		if (blue) 
 		{
 			if (joy_up) {
+				dream_set_delay(110);
+				
 				if (enable_midi_drums) 	looper_update_bpm(110);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(110);
 				if (enable_modx) 		midi_modx_tempo(110);					
@@ -1042,6 +1051,8 @@ void midi_bluetooth_handle_data() {
 		if (orange) 
 		{
 			if (joy_up) {
+				dream_set_delay(120);
+				
 				if (enable_midi_drums) 	looper_update_bpm(120);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(120);
 				if (enable_modx) 		midi_modx_tempo(120);					
@@ -1296,26 +1307,31 @@ int compUp(const void *a, const void *b) {
 }
 
 void config_guitar(uint8_t mode) {
-
-	if (mode == 9) {										
+	
+	if (mode == 9) {	
+		midi_send_program_change(0xC0, guitar_pc_code);		
 		midi_send_control_change(0xB0, 80, 7);				// reverb - delay
 		midi_send_control_change(0xB0, 91, 64);	
 		
 		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
-		midi_send_control_change(0xB0, 93, 0);
+		midi_send_control_change(0xB0, 93, 10);
+		
+		dream_set_delay(looper_status.bpm);
 	}
 	else
 		
-	if (mode == 8) {										
+	if (mode == 8) {
+		midi_send_program_change(0xC0, guitar_pc_code);			
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
-		midi_send_control_change(0xB0, 91, 10);	
+		midi_send_control_change(0xB0, 91, 64);	
 		
 		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
 		midi_send_control_change(0xB0, 93, 64);
 	}
 	else
 		
-	if (mode == 7) {										
+	if (mode == 7) {
+		midi_send_program_change(0xC0, guitar_pc_code);			
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
 		midi_send_control_change(0xB0, 91, 64);	
 		

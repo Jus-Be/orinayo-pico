@@ -103,6 +103,7 @@ void midi_modx_arp(bool on);
 void midi_modx_arp_hold(uint8_t part, bool on);
 void midi_modx_arp_realtime(uint8_t part, bool on);
 void midi_modx_arp_octave(uint8_t octave);
+void dream_set_delay(int tempo);
 
 uint8_t get_arp_template(void);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -206,9 +207,27 @@ void tud_resume_cb(void)
 // MIDI Tasks
 //--------------------------------------------------------------------+
 
+void dream_set_delay(int tempo) {
+	uint8_t rate = (60 / tempo / 2) * 127;
+	
+	uint8_t msg[11];	
+	msg[0] = 0xF0;
+	msg[1] = 0x41;
+	msg[2] = 0x00;   
+	msg[3] = 0x42;
+	msg[4] = 0x12;
+	msg[5] = 0x40; 
+	msg[6] = 0x01;
+	msg[7] = 0x34;
+	msg[8] = rate;
+	msg[9] = 0x00;	
+	msg[10] = 0xF7;
+	
+	midi_n_stream_write(0, 0, msg, 11);		
+}
 
 void midi_modx_key(uint8_t key) {
-	if (!enable_modx) return;	
+	if (!enable_modx) return;
 	
 	uint8_t msg[12];	
 	msg[0] = 0xF0;
