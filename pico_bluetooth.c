@@ -1310,11 +1310,11 @@ void config_guitar(uint8_t mode) {
 	
 	if (mode == 9) {	
 		midi_send_program_change(0xC0, guitar_pc_code);		
-		midi_send_control_change(0xB0, 80, 5);				// reverb - plate
+		midi_send_control_change(0xB0, 80, 4);				// reverb - plate
 		midi_send_control_change(0xB0, 91, 96);	
 		
 		midi_send_control_change(0xB0, 81, 6);				// chorus - short delay		
-		midi_send_control_change(0xB0, 93, 96);
+		midi_send_control_change(0xB0, 93, 64);
 		
 		dream_set_delay(looper_status.bpm);
 	}
