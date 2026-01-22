@@ -223,7 +223,7 @@ void dream_set_delay(int tempo) {
 	msg[9] = 0x00;	
 	msg[10] = 0xF7;
 	
-	midi_n_stream_write(0, 0, msg, 11);		
+	//midi_n_stream_write(0, 0, msg, 11);		
 }
 
 void midi_modx_key(uint8_t key) {
