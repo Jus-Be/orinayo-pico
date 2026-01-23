@@ -264,7 +264,11 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   // You can reject the connection by returning an error.
-  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);  	
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+  
+  midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
+  midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
+  
   return UNI_ERROR_SUCCESS;
 }
 
@@ -1366,9 +1370,6 @@ void config_guitar(uint8_t mode) {
 		enable_style_play = enable_arranger_mode;
 
 		if (enable_arranger_mode) {				
-			midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords) 
-			midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default
-			
 			midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
 			midi_send_control_change(0xB0, 7, 100); // set default volume	
 		}						
