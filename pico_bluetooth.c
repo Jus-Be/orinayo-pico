@@ -1314,7 +1314,7 @@ void config_guitar(uint8_t mode) {
 		midi_send_control_change(0xB0, 91, 64);	
 		
 		midi_send_control_change(0xB0, 81, 3);				// chorus - short delay		
-		midi_send_control_change(0xB0, 93, 64);
+		midi_send_control_change(0xB0, 93, 0);
 		
 		dream_set_delay(looper_status.bpm);
 	}
