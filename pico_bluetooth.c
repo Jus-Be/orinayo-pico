@@ -347,9 +347,10 @@ void midi_bluetooth_handle_data() {
   
 	// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 
-	// first get button state
+	uint8_t ketron_code;
+	uint8_t yamaha_code;
 			
-	if (but1 != green) {
+	if (but1 != green) {									// detect buttons
 		green = but1;
 	}
 
@@ -541,9 +542,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}
 
-	// handle direct key change (D, E, F, G, A)
-
-	if (but7 != song_key)  {	
+	if (but7 != song_key)  {								// transpose direct	- handle direct key change (D, E, F, G, A)
 		song_key = but7;
 
 		if (but7) {
@@ -558,8 +557,6 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;		
 		return;			
 	}
-
-	// handle actions
 
 	if (but9 != start)  {									// unused because start button clashes with axis (knob_up/knob_down)
 		start = but9;
@@ -595,10 +592,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	uint8_t ketron_code;
-	uint8_t yamaha_code;
-
-	if (mbut0 != logo) {
+	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
 		
 		if (enable_midi_drums) 
@@ -710,9 +704,12 @@ void midi_bluetooth_handle_data() {
 					if (enable_modx) {
 						if (green || red || yellow || blue || orange) {
 							midi_send_control_change(0xB3, 92, 112);		// scene 8
-							sleep_ms(3000);								
+							sleep_ms(4000);	
+							midi_modx_arp(false);							
+							midi_send_control_change(0xB3, 92, 0); 							
+						} else {
+							midi_modx_arp(false);						
 						}
-						midi_modx_arp(false);						
 					}						
 					else 
 					
@@ -997,7 +994,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (joy_up != joystick_up) {
+	if (joy_up != joystick_up) {							// style control - fill, tempo
 		joystick_up = joy_up;
 		
 		if (green) 
@@ -1098,7 +1095,7 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (knob_up != logo_knob_up) {
+	if (knob_up != logo_knob_up) {							// style controle - break, drum beat control
 		logo_knob_up = knob_up;	
 
 		if (red) 
