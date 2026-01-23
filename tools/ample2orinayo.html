@@ -1,0 +1,51 @@
+<html>
+<head>
+</head>
+<script>
+window.addEventListener("load",  function() {
+	const button = document.querySelector("button");
+	const input = document.querySelector("#xml");
+	const output = document.querySelector("#array");	
+	
+	button.addEventListener("click", function() {
+		const style = [[0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0], [0,0,0]];
+		const parser = new DOMParser();
+		const xmlDoc = parser.parseFromString(input.value, "text/xml");	
+		const nodes = xmlDoc.getElementsByTagName("Note");
+		
+		for (node of nodes) {
+			const begin = parseInt(node.getAttribute("Begin")) - 1;
+			let end = parseInt(node.getAttribute("End"));
+			if (end == 16) end = 0;
+			const note = node.getAttribute("Note");
+			const velocity = node.getAttribute("Velocity");
+			
+			style[begin][0] = note;
+			style[end][1] = note;	
+			style[begin][2] = velocity;			
+		}
+
+		let array = "{";
+		
+		for (let i=0; i<16; i++) {
+			array += `{${style[i][0]}, ${style[i][1]}, ${style[i][2]}}, `
+		}
+		array += "},"
+		
+		console.debug("output", style);
+		output.value = array;
+	});
+});	
+</script>
+<body>
+<table><tr>
+	<td style=wdth:50%>
+		<textarea style=width:500px;height:500px id=xml></textarea>
+	</td>
+	<td style=wdth:50%>
+		<textarea style=width:500px;height:500px id=array></textarea>
+	</td>	
+</tr></table>
+<button>Process</button>
+</body>
+</html>
