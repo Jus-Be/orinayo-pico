@@ -1310,6 +1310,7 @@ int compUp(const void *a, const void *b) {
 void config_guitar(uint8_t mode) {
 	
 	if (mode == 9) {										// Delay FX	
+		enable_style_play = true;	
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad	
@@ -1328,6 +1329,7 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 8) {										// Chorus + Reverb FX
+		enable_style_play = true;	
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad		
@@ -1344,12 +1346,13 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 7) {										// Reverb FX
+		enable_style_play = true;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad	
-		midi_send_control_change(0xB1, 7, 32);		
+		midi_send_control_change(0xB1, 7, 48);		
 		midi_send_program_change(0xC2, 99);					// FX4
-		midi_send_control_change(0xB2, 7, 24);		
+		midi_send_control_change(0xB2, 7, 36);		
 			
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
 		midi_send_control_change(0xB0, 91, 64);	
