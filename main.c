@@ -222,9 +222,9 @@ void dream_set_delay(int tempo) {
 	msg[8] = rate;
 	msg[9] = 0x00;	
 	msg[10] = 0xF7;	
-	//midi_n_stream_write(0, 0, msg, 11);	
+	midi_n_stream_write(0, 0, msg, 11);	
 
-	msg[7] = 0x3D;
+	//msg[7] = 0x3D;
 	//midi_n_stream_write(0, 0, msg, 11);		
 }
 
