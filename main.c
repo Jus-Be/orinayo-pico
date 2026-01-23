@@ -476,7 +476,6 @@ uint8_t get_arp_template(void) {
 	return 15;	
 }
 
-
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
 	if (enable_seqtrak) channel = 8;
@@ -490,8 +489,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	midi_n_stream_write(0, 0, msg, 3);			
 }
 
-void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value)
-{
+void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value) {
 	uint8_t msg[3];	
 	
 	msg[0] = command;
@@ -501,8 +499,7 @@ void midi_send_control_change(uint8_t command, uint8_t controller, uint8_t value
 	midi_n_stream_write(0, 0, msg, 3);			
 }
 
-void midi_send_program_change(uint8_t command, uint8_t code)
-{
+void midi_send_program_change(uint8_t command, uint8_t code) {
 	uint8_t msg[2];	
 	
 	msg[0] = command;
@@ -511,8 +508,7 @@ void midi_send_program_change(uint8_t command, uint8_t code)
 	midi_n_stream_write(0, 0, msg, 2);		
 }
 
-void midi_start_stop(bool start)
-{
+void midi_start_stop(bool start) {
 	uint8_t msg[1];	
 	msg[0] = start ? 0xFA : 0xFC;	
 
@@ -521,8 +517,7 @@ void midi_start_stop(bool start)
 	midi_n_stream_write(0, 0, msg, 1);			
 }
 
-void midi_yamaha_start_stop(int8_t code, bool on)
-{
+void midi_yamaha_start_stop(int8_t code, bool on) {
 	uint8_t msg[6];	
 	msg[0] = 0xF0;
 	msg[1] = 0x43; 
@@ -602,7 +597,15 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 		}				
 		
 	} else {
-		midi_n_stream_write(0, 0, msg, 3);			
+		midi_n_stream_write(0, 0, msg, 3);	// CH 4
+
+		if (!enable_ample_guitar && !enable_seqtrak && !enable_midi_drums && !enable_modx) {
+			msg[0] = command + 2;
+			midi_n_stream_write(0, 0, msg, 3);	// CH 3	
+
+			msg[0] = command + 1;
+			midi_n_stream_write(0, 0, msg, 3);	// CH 2		
+		}
 	}	
 }
 

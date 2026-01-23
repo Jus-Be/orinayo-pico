@@ -1305,8 +1305,14 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 	
-	if (mode == 9) {	
-		midi_send_program_change(0xC0, guitar_pc_code);		
+	if (mode == 9) {										// Delay FX	
+		midi_send_program_change(0xC0, guitar_pc_code);	
+		
+		midi_send_program_change(0xC1, 89);					// warm pad	
+		midi_send_control_change(0xB1, 7, 32);			
+		midi_send_program_change(0xC2, 99);					// FX4
+		midi_send_control_change(0xB2, 7, 24);			
+		
 		midi_send_control_change(0xB0, 80, 7);				// reverb - pan delay
 		midi_send_control_change(0xB0, 91, 64);	
 		
@@ -1317,8 +1323,14 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 8) {
-		midi_send_program_change(0xC0, guitar_pc_code);			
+	if (mode == 8) {										// Chorus + Reverb FX
+		midi_send_program_change(0xC0, guitar_pc_code);	
+		
+		midi_send_program_change(0xC1, 89);					// warm pad		
+		midi_send_control_change(0xB1, 7, 32);		
+		midi_send_program_change(0xC2, 99);					// FX4
+		midi_send_control_change(0xB2, 7, 24);		
+		
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
 		midi_send_control_change(0xB0, 91, 64);	
 		
@@ -1327,8 +1339,14 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 7) {
-		midi_send_program_change(0xC0, guitar_pc_code);			
+	if (mode == 7) {										// Reverb FX
+		midi_send_program_change(0xC0, guitar_pc_code);	
+		
+		midi_send_program_change(0xC1, 89);					// warm pad	
+		midi_send_control_change(0xB1, 7, 32);		
+		midi_send_program_change(0xC2, 99);					// FX4
+		midi_send_control_change(0xB2, 7, 24);		
+			
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
 		midi_send_control_change(0xB0, 91, 64);	
 		
