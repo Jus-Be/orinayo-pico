@@ -708,12 +708,10 @@ void midi_bluetooth_handle_data() {
 					if (enable_modx) {
 						if (green || red || yellow || blue || orange) {
 							midi_send_control_change(0xB3, 92, 112);		// scene 8
-							sleep_ms(4000);	
-							midi_modx_arp(false);							
-							midi_send_control_change(0xB3, 92, 0); 							
-						} else {
-							midi_modx_arp(false);						
+							sleep_ms(6000);								
 						}
+
+						midi_modx_arp(false);						
 					}						
 					else 
 					
@@ -1748,9 +1746,9 @@ void play_chord(bool on, bool up) {
 						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
-						midi_send_program_change(0xC0, 33);						
+						if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 33);						
 						midi_send_note(0x90, note, 120);
-						midi_send_program_change(0xC0, guitar_pc_code);	
+						if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);	
 						
 						old_midinotes[0] = note;						
 					}					
@@ -1979,7 +1977,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compUp);
 			
 			if (start_action == 83) {	// mute
-				midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -1989,7 +1987,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 83) {	// normal
-				midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		} 
 		else
@@ -2000,7 +1998,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compDown);
 			
 			if (start_action == 79 || start_action == 81) {	// mute
-				midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -2010,7 +2008,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
-				midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		}
 		else
