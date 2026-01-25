@@ -96,6 +96,12 @@ extern "C" {
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                   1
 #define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN       CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN
 
+// Audio device descriptor and buffer size configuration
+#define AUDIO_FUNCTION_DESCRIPTOR_LENGTH             64
+#define STANDARD_AS_DESCRIPTOR_COUNT                 1
+#define AUDIO_CLASS_CTRL_BUF_SIZE                    128
+#define AUDIO_EP_IN_MAX_SIZE                         512
+
 
 #ifdef __cplusplus
 }
