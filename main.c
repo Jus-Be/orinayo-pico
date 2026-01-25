@@ -11,14 +11,13 @@
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 #include "bsp/board.h"
-#include "main.h"
+#include "tusb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
 #include "storage.h"
 #include "looper.h"
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
-#include "audio_output.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -143,9 +142,6 @@ int main() {
 	looper_schedule_step_timer();
     note_scheduler_init();
 	
-	// Initialize USB audio output
-	audio_output_init();
-	
 	// set UART speed.
 	uart_init(UART_ID, BAUD_RATE);
 	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
@@ -155,7 +151,6 @@ int main() {
 	
     while (true) {
 		tud_task(); // tinyusb device task
-		audio_output_task(); // USB audio task
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
