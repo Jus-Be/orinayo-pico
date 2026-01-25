@@ -23,6 +23,11 @@ extern "C" {
 #define CFG_TUD_AUDIO_FUNC_N_AS_INT      2
 #define CFG_TUD_AUDIO_FUNC_EP_IN_SZ      192
 
+#define TUD_AUDIO_DESC_LEN 0x64 
+#define TUD_AUDIO_NUM_AS_INT_DESC 2
+#define TUD_AUDIO_CTRL_BUF_SIZE 64
+#define TUD_AUDIO_EP_IN_MAX_SIZE 192
+
 // Audio configuration
 #define AUDIO_SAMPLE_RATE 48000
 #define AUDIO_CHANNELS 2
