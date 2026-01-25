@@ -34,6 +34,19 @@
 #define _PID_MAP(itf, n)  ( (CFG_TUD_##itf) << (n) )
 #define USB_PID           (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) | \
                            _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4) | _PID_MAP(AUDIO, 5) )
+						   
+// Audio FIFO size - stereo 48kHz 16-bit = 192 bytes/ms
+#define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX   2
+#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX           2
+#define CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN                (48 * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX * 4)
+#define CFG_TUD_AUDIO_FUNC_1_CHANNEL_PER_FIFO_TX     2
+#define CFG_TUD_AUDIO_ENABLE_EP_IN                   1
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN       CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN	
+
+#define CFG_TUD_AUDIO_FUNC_TOTAL_LEN   768
+#define CFG_TUD_AUDIO_N_AS_INT         1
+#define CFG_TUD_AUDIO_CTRL_BUF_SIZE    64
+#define CFG_TUD_AUDIO_EP_SZ_IN         192					   
 
 //--------------------------------------------------------------------+
 // Device Descriptors
