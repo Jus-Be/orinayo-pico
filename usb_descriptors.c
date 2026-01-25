@@ -23,6 +23,8 @@
  *
  */
 
+#include "usb_descriptors.h"
+#include "audio_output.h"
 #include "tusb.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
@@ -34,6 +36,8 @@
 #define _PID_MAP(itf, n)  ( (CFG_TUD_##itf) << (n) )
 #define USB_PID           (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) | \
                            _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4) | _PID_MAP(AUDIO, 5) )					   
+
+#define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX                    2  
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -98,8 +102,8 @@ uint8_t const desc_fs_configuration[] =
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
   // Audio interface - stereo microphone (output from Pico to host)
-  TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(ITF_NUM_AUDIO_CONTROL, 6, 0x80 | EPNUM_AUDIO_IN),
-
+  TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(ITF_NUM_AUDIO_CONTROL, 4, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX*8, 0x80 | USB_EPNUM_AUDIO, CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX),
+};
   // Interface number, string index, EP Out & EP In address, EP size
   TUD_MIDI_DESCRIPTOR(ITF_NUM_MIDI, 0, EPNUM_MIDI, 0x80 | EPNUM_MIDI, 64)
 };
@@ -111,7 +115,7 @@ uint8_t const desc_hs_configuration[] =
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
   // Audio interface - stereo microphone (output from Pico to host)
-  TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(ITF_NUM_AUDIO_CONTROL, 6, 0x80 | EPNUM_AUDIO_IN),
+  TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(ITF_NUM_AUDIO_CONTROL, 4, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX*8, 0x80 | USB_EPNUM_AUDIO, CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX),  
 
   // Interface number, string index, EP Out & EP In address, EP size
   TUD_MIDI_DESCRIPTOR(ITF_NUM_MIDI, 0, EPNUM_MIDI, 0x80 | EPNUM_MIDI, 512)
