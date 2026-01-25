@@ -81,34 +81,11 @@ extern "C" {
 #define CFG_TUD_MSC             0
 #define CFG_TUD_HID             0 
 #define CFG_TUD_MIDI            1 
-#define CFG_TUD_AUDIO           1
 #define CFG_TUD_VENDOR          0
-
-#define CFG_TUD_AUDIO_FUNC_1_N_AS_INT		 2
-#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX 	 192
-#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ 192
-#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX   192
-#define CFG_TUD_AUDIO_FUNC_1_DESC_LEN 		 2
-#define CFG_TUD_AUDIO_FUNC_1_CTRL_BUF_SZ 	 0x64
 
 // MIDI FIFO size of TX and RX
 #define CFG_TUD_MIDI_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_MIDI_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
-
-// Audio FIFO size - stereo 48kHz 16-bit = 192 bytes/ms
-#define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX   2
-#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX           2
-#define CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN                (48 * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX * 4)
-#define CFG_TUD_AUDIO_FUNC_1_CHANNEL_PER_FIFO_TX     2
-#define CFG_TUD_AUDIO_ENABLE_EP_IN                   1
-#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN       CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN
-
-// Audio device descriptor and buffer size configuration
-#define AUDIO_FUNCTION_DESCRIPTOR_LENGTH             64
-#define STANDARD_AS_DESCRIPTOR_COUNT                 1
-#define AUDIO_CLASS_CTRL_BUF_SIZE                    128
-#define AUDIO_EP_IN_MAX_SIZE                         512
-
 
 #ifdef __cplusplus
 }
