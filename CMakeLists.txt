@@ -65,3 +65,12 @@ set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
+
+target_compile_definitions(bluepad32 PUBLIC
+	CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX =  2
+	CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX         =  2
+	CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN              = 768
+	CFG_TUD_AUDIO_FUNC_1_CHANNEL_PER_FIFO_TX   =  2
+	CFG_TUD_AUDIO_ENABLE_EP_IN                 =  1
+	CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN     =  768
+)
