@@ -5,14 +5,13 @@
  */
 
 #include <stdio.h>
-#include "main.h"
 #include "pico/cyw43_arch.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 #include "bsp/board.h"
-#include "tusb.h"
+#include "main.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
 #include "storage.h"
