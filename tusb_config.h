@@ -96,10 +96,6 @@ extern "C" {
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                   1
 #define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN       CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN
 
-#define CFG_TUD_AUDIO_FUNC_TOTAL_LEN   768
-#define CFG_TUD_AUDIO_N_AS_INT         1
-#define CFG_TUD_AUDIO_CTRL_BUF_SIZE    64
-#define CFG_TUD_AUDIO_EP_SZ_IN         192	
 
 #ifdef __cplusplus
 }
