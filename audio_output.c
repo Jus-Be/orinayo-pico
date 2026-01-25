@@ -11,6 +11,7 @@
 
 // Audio buffer configuration
 #define AUDIO_BUFFER_SIZE 512  // Number of sample frames in buffer
+#define AUDIO_SAMPLES_PER_PACKET (CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN / (AUDIO_CHANNELS * AUDIO_BYTES_PER_SAMPLE))
 
 // Internal audio buffer (stereo interleaved)
 static int16_t audio_buffer[AUDIO_BUFFER_SIZE * AUDIO_CHANNELS];
@@ -149,12 +150,13 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport, uint8_t itf, uint8_t ep_in, u
     (void) cur_alt_setting;
 
     // Generate audio samples - for now, generate a simple test tone
-    int16_t samples[CFG_TUD_AUDIO_FUNC_1_EP_SZ_IN / (AUDIO_CHANNELS * AUDIO_BYTES_PER_SAMPLE)];
+    int16_t samples[AUDIO_SAMPLES_PER_PACKET * AUDIO_CHANNELS];
+    uint32_t num_frames = AUDIO_SAMPLES_PER_PACKET;
     
     if (generate_test_tone)
     {
         // Generate 440Hz sine wave test tone
-        for (uint32_t i = 0; i < sizeof(samples) / sizeof(samples[0]) / AUDIO_CHANNELS; i++)
+        for (uint32_t i = 0; i < num_frames; i++)
         {
             float t = (float)test_tone_phase / AUDIO_SAMPLE_RATE;
             int16_t sample = (int16_t)(sin(2.0f * 3.14159f * 440.0f * t) * 8192.0f);
@@ -172,7 +174,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport, uint8_t itf, uint8_t ep_in, u
     else
     {
         // Read from buffer if available
-        for (uint32_t i = 0; i < sizeof(samples) / sizeof(samples[0]) / AUDIO_CHANNELS; i++)
+        for (uint32_t i = 0; i < num_frames; i++)
         {
             if (audio_buffer_read_pos != audio_buffer_write_pos)
             {
