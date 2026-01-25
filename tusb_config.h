@@ -84,6 +84,12 @@ extern "C" {
 #define CFG_TUD_AUDIO           1
 #define CFG_TUD_VENDOR          0
 
+#define TINYUSB_AUDIO_MAX_EP_IN_SZ     192
+#define TUD_AUDIO_DESC_LEN              0x64
+#define TUD_AUDIO_AS_INT_DESC_CNT       2
+#define CFG_TUD_AUDIO_CTRL_BUF_SIZE     64
+#define CFG_TUD_AUDIO_EP_SZ_IN          192
+
 // MIDI FIFO size of TX and RX
 #define CFG_TUD_MIDI_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_MIDI_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
