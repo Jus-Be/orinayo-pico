@@ -973,7 +973,7 @@ void midi_bluetooth_handle_data() {
 		return;		
 	}		
 
-	if (mbut3 != config) {									// config options
+	if (mbut3 != config) {									// config options - select arranger/keyboard/sound module
 		config = mbut3;
 		
 		if (mbut3) 	{

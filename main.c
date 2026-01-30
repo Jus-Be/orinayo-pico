@@ -209,6 +209,9 @@ void tud_resume_cb(void)
 
 void dream_set_delay(int tempo) {
 	uint8_t rate = (60000 / tempo / 128 / 4) % 128;
+	int check_sum = (rate % 128)
+	check_sum = 128 - check_sum;
+	if (check_sum == 128) check_sum = 0;
 	
 	uint8_t msg[11];	
 	msg[0] = 0xF0;
@@ -220,7 +223,7 @@ void dream_set_delay(int tempo) {
 	msg[6] = 0x01;
 	msg[7] = 0x35;
 	msg[8] = rate;
-	msg[9] = 0x00;	
+	msg[9] = check_sum;	
 	msg[10] = 0xF7;	
 	midi_n_stream_write(0, 0, msg, 11);	
 
