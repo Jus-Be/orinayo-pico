@@ -1756,6 +1756,10 @@ void play_chord(bool on, bool up) {
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
+	
+	if (handled && last_chord_note != chord_note && enable_rclooper) {		// trigger chord loop
+		if (seqtrak_chord > 0) midi_send_control_change(0xB3, 20 + seqtrak_chord, 127); 						
+	}					
 
 	if (handled) {
 		last_chord_note = chord_note;
@@ -1770,13 +1774,9 @@ void play_chord(bool on, bool up) {
 		}
 		
 		if (handled) 
-		{
+		{			
 			if (up || (active_strum_pattern == 0) || strum_last_chord) 
 			{	
-				if (enable_rclooper) {		// trigger chord loop
-					if (seqtrak_chord > 0) midi_send_control_change(0xB3, 20 + seqtrak_chord, 127); 						
-				}
-					
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{	
 					if (style_section != old_style) {
