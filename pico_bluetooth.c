@@ -30,6 +30,8 @@ bool style_started = false;
 bool enable_style_play = false;
 bool enable_auto_hold = false;
 bool enable_seqtrak = false;
+bool enable_dream_midi = false;
+bool enable_rclooper = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
 bool enable_chord_track = true;
@@ -578,6 +580,13 @@ void midi_bluetooth_handle_data() {
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
 		
+		if (enable_rclooper)
+		{
+			if (mbut2) {
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key
+			}
+		}
+		
 		finished_processing = true;		
 		return;			
 	}
@@ -591,6 +600,13 @@ void midi_bluetooth_handle_data() {
 			if (enable_seqtrak) midi_seqtrak_key(transpose);
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
+		
+		if (enable_rclooper)
+		{
+			if (mbut2) {
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key
+			}
+		}		
 		
 		finished_processing = true;		
 		return;
@@ -652,12 +668,18 @@ void midi_bluetooth_handle_data() {
 			
 			if (enable_arranger_mode) midi_ketron_arr(ketron_code, mbut0 ? true : false);
 			
-			if (!style_started) {
+			if (!style_started) 
+			{
 				if (yamaha_code != 127) {
 					if (enable_arranger_mode) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 				} 
 				
-				if (mbut0) {						
+				if (mbut0) {
+					if (enable_rclooper) {
+						midi_send_control_change(0xB3, 68, 127); 						
+					}
+					else
+						
 					if (enable_seqtrak) {
 						midi_seqtrak_mute(7, false);
 						midi_seqtrak_mute(9, false);
@@ -696,6 +718,11 @@ void midi_bluetooth_handle_data() {
 				}
 				
 				if (mbut0) {
+					if (enable_rclooper) {
+						midi_send_control_change(0xB3, 68, 127); 						
+					}
+					else
+						
 					if (enable_seqtrak) {	
 						midi_seqtrak_mute(7, true);
 						midi_seqtrak_mute(9, true);	
@@ -798,6 +825,15 @@ void midi_bluetooth_handle_data() {
 			}				
 		}
 		else
+			
+		if (enable_rclooper) 
+		{
+			if (mbut1) 
+			{			
+				midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
+			}
+		}
+		else		
 			
 		if (enable_seqtrak) 
 		{
@@ -943,7 +979,15 @@ void midi_bluetooth_handle_data() {
 				style_group = 4;
 			}
 		}
-
+		
+		if (enable_rclooper)
+		{
+			if (mbut2) {
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key				
+			}
+		}
+		else
+	
 		if (enable_seqtrak) 
 		{
 			if (mbut2) {
@@ -978,9 +1022,14 @@ void midi_bluetooth_handle_data() {
 		
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
+
+			if (green && yellow) config_guitar(10);		
+			else if (red && blue) config_guitar(11);
+			else if (yellow && orange) config_guitar(12);
+			else if (green && blue) config_guitar(13);
+			else if (red && orange) config_guitar(14);			
 			
-			if (green && red) config_guitar(6);
-			
+			else if (green && red) config_guitar(6);		
 			else if (red && yellow) config_guitar(7);
 			else if (yellow && blue) config_guitar(8);
 			else if (blue && orange) config_guitar(9);
@@ -1002,8 +1051,7 @@ void midi_bluetooth_handle_data() {
 		if (green) 
 		{
 			if (joy_up) {
-				dream_set_delay(80);
-				
+				if (enable_dream_midi)  dream_set_delay(80);	
 				if (enable_midi_drums) 	looper_update_bpm(80);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(80);
 				if (enable_modx) 		midi_modx_tempo(80);					
@@ -1014,8 +1062,7 @@ void midi_bluetooth_handle_data() {
 		if (red) 
 		{
 			if (joy_up) {
-				dream_set_delay(96);
-				
+				if (enable_dream_midi)  dream_set_delay(96);					
 				if (enable_midi_drums) 	looper_update_bpm(96);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(96);
 				if (enable_modx) 		midi_modx_tempo(96);					
@@ -1026,8 +1073,7 @@ void midi_bluetooth_handle_data() {
 		if (yellow) 
 		{
 			if (joy_up) {
-				dream_set_delay(100);
-				
+				if (enable_dream_midi)  dream_set_delay(100);				
 				if (enable_midi_drums) 	looper_update_bpm(100);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(100);
 				if (enable_modx) 		midi_modx_tempo(100);					
@@ -1038,8 +1084,7 @@ void midi_bluetooth_handle_data() {
 		if (blue) 
 		{
 			if (joy_up) {
-				dream_set_delay(110);
-				
+				if (enable_dream_midi)  dream_set_delay(110);	
 				if (enable_midi_drums) 	looper_update_bpm(110);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(110);
 				if (enable_modx) 		midi_modx_tempo(110);					
@@ -1050,8 +1095,7 @@ void midi_bluetooth_handle_data() {
 		if (orange) 
 		{
 			if (joy_up) {
-				dream_set_delay(120);
-				
+				if (enable_dream_midi)  dream_set_delay(120);					
 				if (enable_midi_drums) 	looper_update_bpm(120);
 				if (enable_seqtrak) 	midi_seqtrak_tempo(120);
 				if (enable_modx) 		midi_modx_tempo(120);					
@@ -1075,6 +1119,39 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		else
+			
+		if (enable_rclooper) 
+		{	
+			if (joy_up) 
+			{
+				if (green) {
+					midi_send_control_change(0xB3, 66, 127); 	
+					sleep_ms(1000);	
+					midi_send_control_change(0xB3, 64, 127); 					
+				}
+				else
+					
+				if (red) {
+					midi_send_control_change(0xB3, 67, 127); 	
+					sleep_ms(1000);	
+					midi_send_control_change(0xB3, 65, 127); 					
+				}				
+				else
+					
+				if (yellow) {
+					midi_send_control_change(0xB3, 64, 127); 	
+					sleep_ms(1000);	
+					midi_send_control_change(0xB3, 66, 127); 					
+				}					
+				else
+					
+				if (blue) {
+					midi_send_control_change(0xB3, 65, 127); 	
+					sleep_ms(1000);	
+					midi_send_control_change(0xB3, 67, 127); 					
+				}					
+			}
+		}		
 
 		if (enable_arranger_mode && style_started) {
 			midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
@@ -1307,8 +1384,20 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 	
+	if (mode == 10) {										// RC 600 Looper
+		enable_rclooper = !enable_rclooper;
+		
+		enable_style_play = enable_rclooper;				
+		
+		if (enable_rclooper)  {
+
+		}			
+	}
+	else
+	
 	if (mode == 9) {										// Delay FX	
-		enable_style_play = true;	
+		enable_style_play = true;
+		enable_dream_midi = true;		
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad	
@@ -1328,6 +1417,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 8) {										// Chorus + Reverb FX
 		enable_style_play = true;	
+		enable_dream_midi = true;		
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad		
@@ -1345,6 +1435,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 7) {										// Reverb FX
 		enable_style_play = true;
+		enable_dream_midi = true;		
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_program_change(0xC1, 89);					// warm pad	
@@ -1361,12 +1452,13 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 6) {										// toggle guitar from electric to acoustic
+		enable_dream_midi = true;	
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 	}
 	else
 
-	if (mode == 1) {  
+	if (mode == 1) {  										// Arranger (ketron, giglad)
 		enable_arranger_mode = !enable_arranger_mode;
 		enable_style_play = enable_arranger_mode;
 
@@ -1377,7 +1469,7 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 2) {
+	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 				// Ample Guitar VST mode
 		enable_style_play = enable_ample_guitar;
 		
@@ -1386,7 +1478,7 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 3) {				
+	if (mode == 3) {										// MIDI Ghost drummer		
 		if (enable_midi_drums) {
 			looper_clear_all_tracks();								// Midi drums looper
 		}
@@ -1394,7 +1486,7 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 4) {				
+	if (mode == 4) {										// SeqTrak			
 		enable_seqtrak = !enable_seqtrak;
 		enable_style_play = enable_seqtrak;				
 		
@@ -1405,7 +1497,7 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 5) {				
+	if (mode == 5) {										// MODX/Montage
 		enable_modx = !enable_modx;
 		enable_style_play = enable_modx;					
 		
@@ -1680,7 +1772,11 @@ void play_chord(bool on, bool up) {
 		if (handled) 
 		{
 			if (up || (active_strum_pattern == 0) || strum_last_chord) 
-			{										
+			{	
+				if (enable_rclooper) {		// trigger chord loop
+					if (seqtrak_chord > 0) midi_send_control_change(0xB3, 20 + seqtrak_chord, 127); 						
+				}
+					
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{	
 					if (style_section != old_style) {
