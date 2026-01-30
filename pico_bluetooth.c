@@ -583,7 +583,7 @@ void midi_bluetooth_handle_data() {
 		if (enable_rclooper)
 		{
 			if (mbut2) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
 			}
 		}
 		
@@ -604,7 +604,7 @@ void midi_bluetooth_handle_data() {
 		if (enable_rclooper)
 		{
 			if (mbut2) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
 			}
 		}		
 		
@@ -983,7 +983,7 @@ void midi_bluetooth_handle_data() {
 		if (enable_rclooper)
 		{
 			if (mbut2) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose, 127);	// Jump to memory location of style in correct key				
+				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key				
 			}
 		}
 		else
