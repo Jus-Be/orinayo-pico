@@ -1392,7 +1392,7 @@ void config_guitar(uint8_t mode) {
 		enable_style_play = enable_rclooper;				
 		
 		if (enable_rclooper)  {
-
+			config_guitar(7);	// default guitar settings
 		}			
 	}
 	else
