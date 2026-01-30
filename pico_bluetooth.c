@@ -582,7 +582,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (enable_rclooper)
 		{
-			if (mbut2) {
+			if (dpad_up) {
 				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
 			}
 		}
@@ -603,7 +603,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (enable_rclooper)
 		{
-			if (mbut2) {
+			if (dpad_down) {
 				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
 			}
 		}		
@@ -829,8 +829,10 @@ void midi_bluetooth_handle_data() {
 		if (enable_rclooper) 
 		{
 			if (mbut1) 
-			{			
-				midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
+			{		
+				if (style_started) {
+					midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
+				}
 			}
 		}
 		else		
@@ -1757,7 +1759,7 @@ void play_chord(bool on, bool up) {
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
-	if (handled && last_chord_note != chord_note && enable_rclooper) {		// trigger chord loop
+	if (handled && last_chord_note != chord_note && enable_rclooper && style_started) {		// trigger chord loop
 		if (seqtrak_chord > 0) midi_send_control_change(0xB3, 20 + seqtrak_chord, 127); 						
 	}					
 
