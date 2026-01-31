@@ -397,6 +397,10 @@ void midi_bluetooth_handle_data() {
 		{
 			if (but6) {
 				enable_chord_track = !enable_chord_track;
+				
+				if (enable_rclooper) {
+					midi_send_control_change(0xB3, enable_chord_track ? 70 : 71, 127);
+				}
 			}
 		}
 		else				
