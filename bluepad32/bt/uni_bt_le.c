@@ -908,6 +908,20 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		mbut2 = 0;
 		mbut3 = 0;
 		
+
+		// detect config changes - tap tempo pressed		
+
+		if (event_data[1] == 16 && event_data[5] == 0) 
+		{
+			if (event_data[4] == 2)   config_guitar(1);
+			else if (event_data[4] == 4)   config_guitar(2);
+			else if (event_data[4] == 8)   config_guitar(3);
+			else if (event_data[4] == 16)  config_guitar(4);
+			else if (event_data[4] == 32)  config_guitar(5);							
+			else if (event_data[4] == 64)  config_guitar(6);
+			else if (event_data[4] == 128) {}			
+		}		
+		
 		// detect paddle neutral
 		
 		ll_cannot_fire = (event_data[5] == 0); // when paddle in neutral
@@ -936,29 +950,16 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		uint8_t old_key = transpose;
 		
 		if (event_data[1] == 0) transpose = 0;	// C
-		if (event_data[1] == 1) transpose = 2;	// D
-		if (event_data[1] == 2) transpose = 4;	// E
-		if (event_data[1] == 3) transpose = 5;	// F
-		if (event_data[1] == 4) transpose = 7;	// G
-		if (event_data[1] == 5) transpose = 9;	// A
-		if (event_data[1] == 6) transpose = 11;	// B
+		else if (event_data[1] == 1) transpose = 2;		// D
+		else if (event_data[1] == 2) transpose = 4;		// E
+		else if (event_data[1] == 3) transpose = 5;		// F
+		else if (event_data[1] == 4) transpose = 7;		// G
+		else if (event_data[1] == 5) transpose = 9;		// A
+		else if (event_data[1] == 6) transpose = 11;	// B
 					
 		if (old_key != transpose && event_data[5] == 0) 
 		{
 			if (enable_seqtrak) midi_seqtrak_key(transpose);
-		}
-
-		// detect config changes - tap tempo pressed		
-
-		if (event_data[1] == 16 && event_data[5] == 0) 
-		{
-			if (event_data[4] == 2)   config_guitar(1);
-			if (event_data[4] == 4)   config_guitar(2);
-			if (event_data[4] == 8)   config_guitar(3);
-			if (event_data[4] == 16)  config_guitar(4);
-			if (event_data[4] == 32)  config_guitar(5);							
-			if (event_data[4] == 64)  config_guitar(6);
-			if (event_data[4] == 128) {}			
 		}		
 				
 		// detect strum style - - stop/config pressed
@@ -967,13 +968,13 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			handling_required = true;
 			but6 = 1; pitch = 0;				
 			
-			if (event_data[4] == 2)   {but1 = 1; green = 0;}	// full chord up/down
-			if (event_data[4] == 4)   {but0 = 1; red = 0;}		// chord up/root note down	
-			if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// root note up/down
-			if (event_data[4] == 16)  {but3 = 1; blue = 0;}		// 3rd note up/root note down
-			if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// 5th note up/root note down							
-			if (event_data[4] == 64)  {}						// nothing
-			if (event_data[4] == 128) {}						// nothing			
+			if (event_data[4] == 2)   	   {but1 = 1; green = 0;}	// full chord up/down
+			else if (event_data[4] == 4)   {but0 = 1; red = 0;}		// chord up/root note down	
+			else if (event_data[4] == 8)   {but2 = 1; yellow = 0;}	// root note up/down
+			else if (event_data[4] == 16)  {but3 = 1; blue = 0;}	// 3rd note up/root note down
+			else if (event_data[4] == 32)  {but4 = 1; orange = 0;}	// 5th note up/root note down							
+			else if (event_data[4] == 64)  {}						// nothing
+			else if (event_data[4] == 128) {}						// nothing			
 		}
 		else
 
