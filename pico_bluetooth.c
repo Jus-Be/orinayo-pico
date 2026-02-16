@@ -48,6 +48,7 @@ uint8_t but3 = 0;
 uint8_t but4 = 0; 
 uint8_t but6 = 0;
 uint8_t but7 = 0;   
+uint8_t but8 = 0;
 uint8_t but9 = 0;
 
 uint8_t mbut0 = 0;
@@ -300,16 +301,16 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	but4 = (ctl->gamepad.buttons >> 4) & 0x01; 
 	but6 = (ctl->gamepad.buttons >> 6) & 0x01;   
 	but7 = (ctl->gamepad.buttons >> 7) & 0x01;   
+	but8 = (ctl->gamepad.buttons >> 8) & 0x01; 	
 	but9 = (ctl->gamepad.buttons >> 9) & 0x01;	
 	
 	dpad_left = ctl->gamepad.dpad & 0x02;	
 	dpad_right = ctl->gamepad.dpad & 0x01;
 	dpad_up = ctl->gamepad.dpad & 0x04;	
-	//dpad_down = ctl->gamepad.dpad & 0x08;	
-	mbut1 = ctl->gamepad.dpad & 0x08;
+	dpad_down = ctl->gamepad.dpad & 0x08;	
 	
 	mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
-	//mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
+	mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
 	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
 	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
 
@@ -773,13 +774,13 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	if (mbut1 != starpower) { 								// Style selection
-		starpower = mbut1;			
-		if (mbut1) old_style = style_section;
+	if (but8 != starpower) { 								// Style selection
+		starpower = but8;			
+		if (but8) old_style = style_section;
 
 		if (green) 
 		{
-			if (mbut1) {
+			if (but8) {
 				style_section = 0;
 			}
 		}
@@ -787,7 +788,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (red) 
 		{
-			if (mbut1) {
+			if (but8) {
 				style_section = 1;
 			}
 		}
@@ -795,7 +796,7 @@ void midi_bluetooth_handle_data() {
 
 		if (yellow) 
 		{
-			if (mbut1) {
+			if (but8) {
 				style_section = 2;
 			}
 		}				
@@ -803,7 +804,7 @@ void midi_bluetooth_handle_data() {
 
 		if (blue) 
 		{
-			if (mbut1) {
+			if (but8) {
 				style_section = 3;
 			}
 		}
@@ -811,7 +812,7 @@ void midi_bluetooth_handle_data() {
 
 		if (orange) 						// PREV
 		{
-			if (mbut1) {
+			if (but8) {
 				style_section--;
 				if (style_section < 0) style_section = 7;
 				midi_send_control_change(0xB3, 14, 127); 		// Previous Style					
@@ -819,7 +820,7 @@ void midi_bluetooth_handle_data() {
 		}
 		else 
 		
-		if (mbut1) {
+		if (but8) {
 			style_section++;
 			if (style_section > 7) style_section = 0;
 			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
@@ -827,7 +828,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (enable_midi_drums)	
 		{
-			if (mbut1 && looper_status.state == LOOPER_STATE_PLAYING) {	
+			if (but8 && looper_status.state == LOOPER_STATE_PLAYING) {	
 				//ghost_parameters_t *params = ghost_note_parameters();
 				//params->ghost_intensity = 0.843;	
 				//storage_store_tracks();						
@@ -837,7 +838,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_rclooper) 
 		{
-			if (mbut1) 
+			if (but8) 
 			{		
 				if (style_started) {
 					midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
@@ -848,7 +849,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_seqtrak) 
 		{
-			if (mbut1) 
+			if (but8) 
 			{
 				if (style_started) {
 					midi_seqtrak_arp();
@@ -860,7 +861,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_modx) 
 		{
-			if (mbut1) {
+			if (but8) {
 				uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
 				midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
 			}
@@ -868,11 +869,11 @@ void midi_bluetooth_handle_data() {
 		else 
 		
 		if (enable_arranger_mode) {	
-			midi_ketron_arr(3 + (style_section % 4), mbut1 ? true : false);
-			midi_yamaha_arr(0x10 + (style_section % 4), mbut1 ? true : false);	
+			midi_ketron_arr(3 + (style_section % 4), but8 ? true : false);
+			midi_yamaha_arr(0x10 + (style_section % 4), but8 ? true : false);	
 		}	
 
-		if (mbut1) {
+		if (but8) {
 			if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
 			else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
 			else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
