@@ -304,11 +304,12 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	
 	dpad_left = ctl->gamepad.dpad & 0x02;	
 	dpad_right = ctl->gamepad.dpad & 0x01;
-	dpad_up = ctl->gamepad.dpad & 0x04;
-	dpad_down = ctl->gamepad.dpad & 0x08;	
+	dpad_up = ctl->gamepad.dpad & 0x04;	
+	//dpad_down = ctl->gamepad.dpad & 0x08;	
+	mbut1 = ctl->gamepad.dpad & 0x08;
 	
 	mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
-	mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
+	//mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
 	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
 	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
 
