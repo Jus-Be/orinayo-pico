@@ -560,10 +560,10 @@ void midi_bluetooth_handle_data() {
 		return;
 	}
 
-	if (but5 != song_key)  {								// transpose direct	- handle direct key change (D, E, F, G, A)
-		song_key = but5;
+	if (but7 != song_key)  {								// transpose direct	- handle direct key change (D, E, F, G, A)
+		song_key = but7;
 
-		if (but5) {
+		if (but7) {
 			transpose = 0;
 			
 			if (green) 	transpose = 2;		// D
@@ -581,7 +581,7 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;	
 		return;			
 	}						
-
+/*
 	if (dpad_up != up) {									// transpose down
 		up = dpad_up;
 
@@ -602,11 +602,11 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;		
 		return;			
 	}
-
-	if (dpad_down != down) {								// transpose up
-		down = dpad_down;
+*/
+	if (dpad_up != up) {								// transpose up
+		up = dpad_up;
 		
-		if (dpad_down) {
+		if (dpad_up) {
 			transpose++;
 			if (transpose > 11) transpose = 0;	
 			if (enable_seqtrak) midi_seqtrak_key(transpose);
@@ -615,7 +615,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (enable_rclooper)
 		{
-			if (dpad_down) {
+			if (dpad_up) {
 				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
 			}
 		}		
@@ -776,13 +776,13 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	if (but7 != starpower) { 								// Style selection
-		starpower = but7;			
-		if (but7) old_style = style_section;
+	if (dpad_down != starpower) { 								// Style selection
+		starpower = dpad_down;			
+		if (dpad_down) old_style = style_section;
 
 		if (green) 
 		{
-			if (but7) {
+			if (dpad_down) {
 				style_section = 0;
 			}
 		}
@@ -790,7 +790,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (red) 
 		{
-			if (but7) {
+			if (dpad_down) {
 				style_section = 1;
 			}
 		}
@@ -798,7 +798,7 @@ void midi_bluetooth_handle_data() {
 
 		if (yellow) 
 		{
-			if (but7) {
+			if (dpad_down) {
 				style_section = 2;
 			}
 		}				
@@ -806,7 +806,7 @@ void midi_bluetooth_handle_data() {
 
 		if (blue) 
 		{
-			if (but7) {
+			if (dpad_down) {
 				style_section = 3;
 			}
 		}
@@ -814,7 +814,7 @@ void midi_bluetooth_handle_data() {
 
 		if (orange) 						// PREV
 		{
-			if (but7) {
+			if (dpad_down) {
 				style_section--;
 				if (style_section < 0) style_section = 7;
 				midi_send_control_change(0xB3, 14, 127); 		// Previous Style					
@@ -822,7 +822,7 @@ void midi_bluetooth_handle_data() {
 		}
 		else 
 		
-		if (but7) {
+		if (dpad_down) {
 			style_section++;
 			if (style_section > 7) style_section = 0;
 			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
@@ -830,7 +830,7 @@ void midi_bluetooth_handle_data() {
 		
 		if (enable_midi_drums)	
 		{
-			if (but7 && looper_status.state == LOOPER_STATE_PLAYING) {	
+			if (dpad_down && looper_status.state == LOOPER_STATE_PLAYING) {	
 				//ghost_parameters_t *params = ghost_note_parameters();
 				//params->ghost_intensity = 0.843;	
 				//storage_store_tracks();						
@@ -840,7 +840,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_rclooper) 
 		{
-			if (but7) 
+			if (dpad_down) 
 			{		
 				if (style_started) {
 					midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
@@ -851,7 +851,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_seqtrak) 
 		{
-			if (but7) 
+			if (dpad_down) 
 			{
 				if (style_started) {
 					midi_seqtrak_arp();
@@ -863,7 +863,7 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_modx) 
 		{
-			if (but7) {
+			if (dpad_down) {
 				uint8_t modx_scenes[8] = {0, 16, 32, 48, 64, 80, 96, 112};
 				midi_send_control_change(0xB3, 92, modx_scenes[style_section % 8]);
 			}
@@ -871,11 +871,11 @@ void midi_bluetooth_handle_data() {
 		else 
 		
 		if (enable_arranger_mode) {	
-			midi_ketron_arr(3 + (style_section % 4), but7 ? true : false);
-			midi_yamaha_arr(0x10 + (style_section % 4), but7 ? true : false);	
+			midi_ketron_arr(3 + (style_section % 4), dpad_down ? true : false);
+			midi_yamaha_arr(0x10 + (style_section % 4), dpad_down ? true : false);	
 		}	
 
-		if (but7) {
+		if (dpad_down) {
 			if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
 			else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
 			else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
