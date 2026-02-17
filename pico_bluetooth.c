@@ -32,6 +32,7 @@ bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
 bool enable_rclooper = false;
+bool enable_synth = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
 bool enable_chord_track = true;
@@ -875,6 +876,15 @@ void midi_bluetooth_handle_data() {
 		}
 		else
 			
+		if (enable_synth) 
+		{
+			if (dpad_down) 
+			{
+				midi_send_program_change(0xC0, style_section % 8);
+			}
+		}			
+		else
+			
 		if (enable_rclooper) 
 		{
 			if (dpad_down) 
@@ -910,15 +920,15 @@ void midi_bluetooth_handle_data() {
 		if (enable_arranger_mode) {	
 			midi_ketron_arr(3 + (style_section % 4), dpad_down ? true : false);
 			midi_yamaha_arr(0x10 + (style_section % 4), dpad_down ? true : false);	
-		}	
-
-		if (dpad_down) {
-			if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
-			else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
-			else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
-			else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
-			else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
-		}			
+			
+			if (dpad_down) {
+				if (green) midi_send_control_change(0xB3, 14, 1); 		// Style select -1
+				else if (red) midi_send_control_change(0xB3, 14, 2); 	// Style select -2					
+				else if (yellow) midi_send_control_change(0xB3, 14, 3); // Style select -3						
+				else if (blue) midi_send_control_change(0xB3, 14, 4); 	// Style select -4	
+				else if (orange) midi_send_control_change(0xB3, 14, 5); // Style select -5
+			}			
+		}				
 
 		finished_processing = true;		
 		return;			
@@ -1434,10 +1444,19 @@ int compUp(const void *a, const void *b) {
 }
 
 void config_guitar(uint8_t mode) {
-	
-	if (mode == 10) {										// RC 600 Looper
-		enable_rclooper = !enable_rclooper;
+
+	if (mode == 11) {										// Behringer Synth
+		enable_synth = !enable_synth;
+		enable_style_play = !enable_synth;				
 		
+		if (enable_synth)  {
+
+		}			
+	}
+	else
+		
+	if (mode == 10) {										// RC 600 Looper
+		enable_rclooper = !enable_rclooper
 		enable_style_play = enable_rclooper;				
 		
 		if (enable_rclooper)  {
@@ -1844,7 +1863,7 @@ void play_chord(bool on, bool up) {
 					int strum_index = active_strum_pattern;
 					
 					if (active_strum_pattern > 1) {
-						strum_index = active_strum_pattern + ((style_section % 4) * 3);
+						strum_index = active_strum_pattern + ((style_section % 4) * 3);	// use 4 style variations to cover arps 3-14
 					}
 					
 					int play_pattern = strum_last_chord ? 0 : strum_index;	// select default strum for strum_last_chord
@@ -1903,9 +1922,9 @@ void play_chord(bool on, bool up) {
 						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
-						if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 33);						
+						if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, 33);						
 						midi_send_note(0x90, note, 120);
-						if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);	
+						if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, guitar_pc_code);	
 						
 						old_midinotes[0] = note;						
 					}					
@@ -2134,7 +2153,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compUp);
 			
 			if (start_action == 83) {	// mute
-				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -2144,7 +2163,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 83) {	// normal
-				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		} 
 		else
@@ -2155,7 +2174,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compDown);
 			
 			if (start_action == 79 || start_action == 81) {	// mute
-				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -2165,7 +2184,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
-				if (!enable_modx && !enable_seqtrak) midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		}
 		else
