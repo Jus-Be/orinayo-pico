@@ -1844,7 +1844,7 @@ void play_chord(bool on, bool up) {
 					int strum_index = active_strum_pattern;
 					
 					if (active_strum_pattern > 1) {
-						strum_index = active_strum_pattern + ((style_section % 4) * 3)
+						strum_index = active_strum_pattern + ((style_section % 4) * 3);
 					}
 					
 					int play_pattern = strum_last_chord ? 0 : strum_index;	// select default strum for strum_last_chord
