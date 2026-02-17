@@ -873,15 +873,6 @@ void midi_bluetooth_handle_data() {
 				//params->ghost_intensity = 0.843;	
 				//storage_store_tracks();						
 			}				
-		}
-		else
-			
-		if (enable_synth) 
-		{
-			if (dpad_down) 
-			{
-				midi_send_program_change(0xC0, style_section % 8);
-			}
 		}			
 		else
 			
@@ -1047,6 +1038,15 @@ void midi_bluetooth_handle_data() {
 				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key				
 			}
 		}
+		else
+			
+		if (enable_synth) 
+		{
+			if (mbut2) 
+			{
+				midi_send_program_change(0xC0, style_group); // select synth patch
+			}
+		}		
 		else
 	
 		if (enable_seqtrak) 
