@@ -1456,7 +1456,7 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 10) {										// RC 600 Looper
-		enable_rclooper = !enable_rclooper
+		enable_rclooper = !enable_rclooper;
 		enable_style_play = enable_rclooper;				
 		
 		if (enable_rclooper)  {
