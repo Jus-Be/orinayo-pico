@@ -151,6 +151,7 @@ int main() {
 
 	// setup UART1 
 	m5audio_init();
+	m5audio_play();
 	
     while (true) {
 		tud_task(); // tinyusb device task
