@@ -142,12 +142,15 @@ int main() {
 	looper_schedule_step_timer();
     note_scheduler_init();
 	
-	// set UART speed.
+	// set UART0 speed.
 	uart_init(UART_ID, BAUD_RATE);
 	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	uart_set_fifo_enabled(UART_ID, true);
-	uart_set_translate_crlf(UART_ID, false);	
+	uart_set_translate_crlf(UART_ID, false);
+
+	// setup UART1 
+	m5audio_init();
 	
     while (true) {
 		tud_task(); // tinyusb device task
