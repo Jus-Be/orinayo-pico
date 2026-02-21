@@ -157,11 +157,11 @@ int main() {
     //sleep_ms(500);	
 	
     m5audio_play_track(1);
-    sleep_ms(8000);	
+    sleep_ms(2000);	
 	m5audio_play_track(2);
-    sleep_ms(8000);	
+    sleep_ms(2000);	
 	m5audio_play_track(3);
-    sleep_ms(8000);	
+    sleep_ms(2000);	
 	m5audio_play_track(4);
 	
 	//m5audio_play();	
