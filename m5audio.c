@@ -1,17 +1,14 @@
 /*
- * M5Stack Audio Player (U197) – N9301 protocol driver
+ * M5Stack Audio Player (U197) driver
+ * Compatible with https://github.com/m5stack/M5Unit-AudioPlayer
  *
- * The N9301 uses a fixed-length 10-byte serial frame:
+ * Protocol frame format (variable length):
  *
- *   Byte  0 : 0x7E  (start)
- *   Byte  1 : 0xFF  (version)
- *   Byte  2 : 0x06  (data length, always 6)
- *   Byte  3 : CMD   (command)
- *   Byte  4 : 0x00  (feedback disabled)
- *   Byte  5 : para1 (parameter high byte)
- *   Byte  6 : para2 (parameter low byte)
- *   Bytes 7–8 : two's-complement checksum of bytes 1–6
- *   Byte  9 : 0xEF  (end)
+ *   Byte  0     : CMD              (command)
+ *   Byte  1     : ~CMD & 0xFF      (one's complement of command)
+ *   Byte  2     : LEN              (number of data bytes that follow)
+ *   Bytes 3..N  : data bytes       (LEN bytes)
+ *   Byte  N+1   : checksum         (sum of all preceding bytes, & 0xFF)
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,60 +19,37 @@
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 
-/* ---- N9301 protocol constants ------------------------------------------- */
-
-#define N9301_START    0x7E
-#define N9301_VERSION  0xFF
-#define N9301_LENGTH   0x06
-#define N9301_FEEDBACK 0x00
-#define N9301_END      0xEF
-
-/* N9301 command codes */
-#define N9301_CMD_PLAY_NEXT    0x01
-#define N9301_CMD_PLAY_PREV    0x02
-#define N9301_CMD_PLAY_TRACK   0x03
-#define N9301_CMD_VOL_UP       0x04
-#define N9301_CMD_VOL_DOWN     0x05
-#define N9301_CMD_SET_VOLUME   0x06
-#define N9301_CMD_SET_EQ       0x07
-#define N9301_CMD_PLAY_FOLDER  0x0F
-#define N9301_CMD_STOP         0x16
-#define N9301_CMD_RESET        0x0C
-#define N9301_CMD_PLAY         0x0D
-#define N9301_CMD_PAUSE        0x0E
+/* Maximum number of data bytes per frame and total frame buffer size */
+#define AUDIOPLAYER_MAX_DATA    32
+#define AUDIOPLAYER_FRAME_SIZE  (4 + AUDIOPLAYER_MAX_DATA)  /* cmd + ~cmd + len + data + checksum */
 
 /* ---- Internal helpers ---------------------------------------------------- */
 
 /*
- * Build and transmit a 10-byte N9301 frame.
+ * Build and transmit a variable-length frame.
  *
- *   cmd   : command byte
- *   para1 : high byte of the 16-bit parameter
- *   para2 : low  byte of the 16-bit parameter
+ *   cmd     : command byte
+ *   data    : pointer to the data bytes
+ *   datalen : number of data bytes (capped at AUDIOPLAYER_MAX_DATA)
  */
-static void n9301_send(uint8_t cmd, uint8_t para1, uint8_t para2) {
-    uint8_t frame[10];
-
-    frame[0] = N9301_START;
-    frame[1] = N9301_VERSION;
-    frame[2] = N9301_LENGTH;
-    frame[3] = cmd;
-    frame[4] = N9301_FEEDBACK;
-    frame[5] = para1;
-    frame[6] = para2;
-
-    /* Two's-complement checksum of bytes 1–6 */
-    uint16_t sum = 0;
-    for (int i = 1; i <= 6; i++) {
-        sum += frame[i];
+static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
+    uint8_t frame[AUDIOPLAYER_FRAME_SIZE];
+    if (datalen > AUDIOPLAYER_MAX_DATA) {
+        datalen = AUDIOPLAYER_MAX_DATA;
     }
-    uint16_t checksum = (~sum) + 1u;
-    frame[7] = (uint8_t)((checksum >> 8) & 0xFF);
-    frame[8] = (uint8_t)(checksum & 0xFF);
 
-    frame[9] = N9301_END;
+    frame[0] = cmd;
+    frame[1] = (~cmd) & 0xFF;
+    frame[2] = (uint8_t)datalen;
 
-    for (int i = 0; i < 10; i++) {
+    uint8_t sum = frame[0] + frame[1] + frame[2];
+    for (size_t i = 0; i < datalen; i++) {
+        frame[3 + i] = data[i];
+        sum += data[i];
+    }
+    frame[3 + datalen] = sum & 0xFF;
+
+    for (size_t i = 0; i < 4 + datalen; i++) {
         while (!uart_is_writable(M5AUDIO_UART_ID)) { /* wait */ }
         uart_putc(M5AUDIO_UART_ID, frame[i]);
     }
@@ -94,62 +68,59 @@ void m5audio_init(void) {
 }
 
 void m5audio_play(void) {
-    n9301_send(N9301_CMD_PLAY, 0x00, 0x00);
+    uint8_t data[] = {0x01};
+    audioplayer_send(0x04, data, 1);
 }
 
 void m5audio_pause(void) {
-    n9301_send(N9301_CMD_PAUSE, 0x00, 0x00);
+    uint8_t data[] = {0x02};
+    audioplayer_send(0x04, data, 1);
 }
 
 void m5audio_stop(void) {
-    n9301_send(N9301_CMD_STOP, 0x00, 0x00);
+    uint8_t data[] = {0x03};
+    audioplayer_send(0x04, data, 1);
 }
 
 void m5audio_next(void) {
-    n9301_send(N9301_CMD_PLAY_NEXT, 0x00, 0x00);
+    uint8_t data[] = {0x05};
+    audioplayer_send(0x04, data, 1);
 }
 
 void m5audio_prev(void) {
-    n9301_send(N9301_CMD_PLAY_PREV, 0x00, 0x00);
+    uint8_t data[] = {0x04};
+    audioplayer_send(0x04, data, 1);
 }
 
 void m5audio_play_track(uint16_t track) {
     if (track < 1 || track > 3000) {
         return;
     }
-    n9301_send(N9301_CMD_PLAY_TRACK,
-               (uint8_t)((track >> 8) & 0xFF),
-               (uint8_t)(track & 0xFF));
-}
-
-void m5audio_play_folder(uint8_t folder, uint8_t file) {
-    if (folder < 1 || folder > 99 || file < 1) {
-        return;
-    }
-    n9301_send(N9301_CMD_PLAY_FOLDER, folder, file);
+    uint8_t data[] = {0x06,
+                      (uint8_t)((track >> 8) & 0xFF),
+                      (uint8_t)(track & 0xFF)};
+    audioplayer_send(0x04, data, 3);
 }
 
 void m5audio_set_volume(uint8_t volume) {
     if (volume > M5AUDIO_VOLUME_MAX) {
         volume = M5AUDIO_VOLUME_MAX;
     }
-    n9301_send(N9301_CMD_SET_VOLUME, 0x00, volume);
+    uint8_t data[] = {0x01, volume};
+    audioplayer_send(0x06, data, 2);
 }
 
 void m5audio_volume_up(void) {
-    n9301_send(N9301_CMD_VOL_UP, 0x00, 0x00);
+    uint8_t data[] = {0x02};
+    audioplayer_send(0x06, data, 1);
 }
 
 void m5audio_volume_down(void) {
-    n9301_send(N9301_CMD_VOL_DOWN, 0x00, 0x00);
+    uint8_t data[] = {0x03};
+    audioplayer_send(0x06, data, 1);
 }
 
-void m5audio_set_eq(m5audio_eq_t eq) {
-    n9301_send(N9301_CMD_SET_EQ, 0x00, (uint8_t)eq);
-}
-
-void m5audio_reset(void) {
-    n9301_send(N9301_CMD_RESET, 0x00, 0x00);
-    /* Allow the module time to complete its reset */
-    sleep_ms(500);
+void m5audio_set_play_mode(m5audio_play_mode_t mode) {
+    uint8_t data[] = {0x01, (uint8_t)mode};
+    audioplayer_send(0x0B, data, 2);
 }
