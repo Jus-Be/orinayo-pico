@@ -16,6 +16,7 @@
 #include "async_timer.h"
 #include "storage.h"
 #include "looper.h"
+#include "m5audio.h"
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
 
