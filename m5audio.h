@@ -1,6 +1,7 @@
 /*
  * M5Stack Audio Player (U197) API
- * Based on the N9301 serial protocol over UART1 (GPIO 4=TX, GPIO 5=RX).
+ * Compatible with https://github.com/m5stack/M5Unit-AudioPlayer
+ * Communicates over UART1 (GPIO 4=TX, GPIO 5=RX) at 9600 baud.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,19 +20,20 @@
 #define M5AUDIO_VOLUME_MIN  0
 #define M5AUDIO_VOLUME_MAX  30
 
-/* Equalizer presets for m5audio_set_eq() */
+/* Playback loop mode presets for m5audio_set_play_mode() */
 typedef enum {
-    M5AUDIO_EQ_NORMAL  = 0,
-    M5AUDIO_EQ_POP     = 1,
-    M5AUDIO_EQ_ROCK    = 2,
-    M5AUDIO_EQ_JAZZ    = 3,
-    M5AUDIO_EQ_CLASSIC = 4,
-    M5AUDIO_EQ_BASS    = 5,
-} m5audio_eq_t;
+    M5AUDIO_PLAY_MODE_ALL_LOOP    = 0,  /* Play all tracks in order, loop after finishing */
+    M5AUDIO_PLAY_MODE_SINGLE_LOOP = 1,  /* Loop the current track */
+    M5AUDIO_PLAY_MODE_FOLDER_LOOP = 2,  /* Loop all tracks in the current folder */
+    M5AUDIO_PLAY_MODE_RANDOM      = 3,  /* Play tracks randomly from the entire disk */
+    M5AUDIO_PLAY_MODE_SINGLE_STOP = 4,  /* Play current track once and stop */
+    M5AUDIO_PLAY_MODE_ALL_ONCE    = 5,  /* Play all tracks in order once, then stop */
+    M5AUDIO_PLAY_MODE_FOLDER_ONCE = 6,  /* Play all tracks in the current folder once, then stop */
+} m5audio_play_mode_t;
 
 /*
  * Initialise UART1 at 9600 baud on GPIO 4 (TX) and GPIO 5 (RX) and
- * prepare the N9301 audio module.  Must be called before any other
+ * prepare the audio module.  Must be called before any other
  * m5audio_* function.
  */
 void m5audio_init(void);
@@ -54,18 +56,10 @@ void m5audio_prev(void);
 /*
  * Play a specific track by its 1-based index (1–3000).
  * The index corresponds to the order in which files are stored on the
- * SD card / flash of the audio module.
+ * SD card of the audio module.
  * Values outside [1, 3000] are silently ignored.
  */
 void m5audio_play_track(uint16_t track);
-
-/*
- * Play a file inside a numbered folder.
- *   folder : folder number (1–99)
- *   file   : file number   (1–255)
- * Values outside these ranges are silently ignored.
- */
-void m5audio_play_folder(uint8_t folder, uint8_t file);
 
 /*
  * Set the output volume.
@@ -80,10 +74,7 @@ void m5audio_volume_up(void);
 void m5audio_volume_down(void);
 
 /*
- * Select an equalizer preset.
- * eq must be one of the m5audio_eq_t values.
+ * Set the playback loop mode.
+ * mode must be one of the m5audio_play_mode_t values.
  */
-void m5audio_set_eq(m5audio_eq_t eq);
-
-/* Reset the audio module. */
-void m5audio_reset(void);
+void m5audio_set_play_mode(m5audio_play_mode_t mode);
