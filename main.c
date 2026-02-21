@@ -154,11 +154,17 @@ int main() {
 	m5audio_init();
 
 	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
-    sleep_ms(500);		
-    m5audio_play_track(1);
-    //sleep_ms(500);		
-	//m5audio_play();	
+    sleep_ms(500);	
 	
+    m5audio_play_track(1);
+    sleep_ms(8000);	
+	m5audio_play_track(2);
+    sleep_ms(8000);	
+	m5audio_play_track(3);
+    sleep_ms(8000);	
+	m5audio_play_track(4);
+	
+	//m5audio_play();	
     //sleep_ms(500);		
 	//m5audio_repeat_at_time(0, 0, 0, 8);	
 	
