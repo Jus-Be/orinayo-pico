@@ -67,6 +67,12 @@ void m5audio_init(void) {
     sleep_ms(500);
 }
 
+void m5audio_select_audio_num(uint16_t audio_num) {
+    uint8_t data[] = {0x16, (uint8_t)((audio_num >> 8) & 0xFF), (uint8_t)(audio_num & 0xFF)};
+    audioplayer_send(0x04, data, 3);
+    sleep_ms(600);
+}
+
 void m5audio_repeat_at_time(uint8_t start_min, uint8_t start_sec, uint8_t end_min, uint8_t end_sec) {
     uint8_t data[] = {0x00, start_min, start_sec, end_min, end_sec};
     audioplayer_send(0x08, data, 5);
