@@ -2090,12 +2090,12 @@ void midi_process_state(uint64_t start_us) {
 		auto_chord_midinotes[i] = mute_midinotes[i];
 	}
 	
-	midi_current_step = (midi_current_step + 1) % 16;
+	midi_current_step = (midi_current_step + 1) % 128; // 8 bars of of 16 (1/16) beats per bar
 	
 	if (enable_midi_drums && active_strum_pattern == 0 && (enable_auto_hold || !strum_neutral)) {
-		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][0];
-		uint8_t stop_action = strum_styles[style_group % 5][style_section % 5][midi_current_step][1];
-		uint8_t velocity = strum_styles[style_group % 5][style_section % 5][midi_current_step][2];
+		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][0];
+		uint8_t stop_action = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][1];
+		uint8_t velocity = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][2];
 				
 		// stop chord strum notes
 		
