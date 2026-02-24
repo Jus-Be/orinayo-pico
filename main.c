@@ -646,7 +646,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			}
 			else
 				
-			if (enable_midi_drums && basic_chord > 0 && old_p1 != p1 && old_p2 != p2 && old_p3 != p3) {
+			if (enable_midi_drums && basic_chord > 0 && (old_p1 != p1 || old_p2 != p2 || old_p3 != p3)) {
 				m5audio_play_track(basic_chord);
 			}
 			
@@ -698,7 +698,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			}
 			else
 				
-			if (enable_midi_drums && basic_chord > 0 && old_p1 != p1 && old_p2 != p2 && old_p3 != p3 && old_p4 != p4) {
+			if (enable_midi_drums && basic_chord > 0 && (old_p1 != p1 || old_p2 != p2 || old_p3 != p3 || old_p4 != p4)) {
 				m5audio_play_track(basic_chord);
 			}	
 
