@@ -62,6 +62,7 @@ void pico_set_led(bool led_on) {
 #define UART_RX_PIN 1
 #define GPIO_FUNC_UART 2
 
+extern int midi_current_step;
 extern int style_section;
 extern int active_strum_pattern;
 extern int active_neck_pos;
@@ -152,8 +153,8 @@ int main() {
 
 	// setup UART1 
 	m5audio_init();
-	m5audio_select_audio_num(4);
-	m5audio_repeat_at_time(0, 0, 0, 9);	
+	//m5audio_select_audio_num(4);
+	//m5audio_repeat_at_time(0, 0, 0, 9);	
 	
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
 	//m5audio_play();	
@@ -175,7 +176,11 @@ int main() {
 			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}	
 		
-		note_scheduler_dispatch_pending();				
+		note_scheduler_dispatch_pending();	
+		
+		if (midi_current_step == 0) {
+			m5audio_play_track(4);
+		}
     }
 	
     //cancel_repeating_timer(&timer);	
