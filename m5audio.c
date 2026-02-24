@@ -43,10 +43,12 @@ static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
     frame[2] = (uint8_t)datalen;
 
     uint8_t sum = frame[0] + frame[1] + frame[2];
+	
     for (size_t i = 0; i < datalen; i++) {
         frame[3 + i] = data[i];
         sum += data[i];
     }
+	
     frame[3 + datalen] = sum & 0xFF;
 
     for (size_t i = 0; i < 4 + datalen; i++) {
@@ -100,7 +102,7 @@ void m5audio_pause(void) {
 void m5audio_stop(void) {
     uint8_t data[] = {0x03};
     audioplayer_send(0x04, data, 1);
-    //sleep_ms(500);	
+    sleep_ms(500);	
 }
 
 void m5audio_next(void) {
@@ -119,11 +121,9 @@ void m5audio_play_track(uint16_t track) {
     if (track < 1 || track > 3000) {
         return;
     }
-    uint8_t data[] = {0x06,
-                      (uint8_t)((track >> 8) & 0xFF),
-                      (uint8_t)(track & 0xFF)};
+    uint8_t data[] = {0x06, (uint8_t)((track >> 8) & 0xFF), (uint8_t)(track & 0xFF)};
     audioplayer_send(0x04, data, 3);
-    //sleep_ms(500);	
+    sleep_ms(500);	
 }
 
 void m5audio_set_volume(uint8_t volume) {
