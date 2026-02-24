@@ -1551,9 +1551,10 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 3) {										// MIDI Ghost drummer		
 		if (enable_midi_drums) {
-			looper_clear_all_tracks();								// Midi drums looper
+			looper_clear_all_tracks();						// Midi drums looper
 		}
 		enable_midi_drums = !enable_midi_drums;
+		enable_style_play = enable_midi_drums;	
 	}
 	else
 		

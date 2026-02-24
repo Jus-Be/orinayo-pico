@@ -669,7 +669,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			else
 				
 			if (enable_midi_drums) {
-				//m5audio_stop();
+				m5audio_stop();
 			}			
 		}
 	}
@@ -722,7 +722,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			else
 				
 			if (enable_midi_drums) {
-				//m5audio_stop();
+				m5audio_stop();
 			}			
 		}
 	}
