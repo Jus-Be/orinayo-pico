@@ -160,8 +160,6 @@ int main() {
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
 	//m5audio_play();
 
-	int track = -1;
-	
     while (true) {
 		tud_task(); // tinyusb device task
 		
@@ -180,12 +178,6 @@ int main() {
 		}	
 		
 		note_scheduler_dispatch_pending();	
-		
-		if (midi_current_step == 0) {
-			track = (track + 1) % 4;
-			m5audio_play_track(track + 1);
-			//m5audio_repeat_at_time(0, 8, 0, 15);
-		}
     }
 	
     //cancel_repeating_timer(&timer);	

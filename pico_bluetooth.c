@@ -18,6 +18,7 @@
 #include "looper.h"
 #include "storage.h"
 #include "ghost_note.h"
+#include "m5audio.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
@@ -2085,12 +2086,18 @@ void midi_process_state(uint64_t start_us) {
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		
 	uint8_t auto_chord_midinotes[6] = {0};
+	static int track = -1;
 	
 	for (int i=0; i<6; i++) {
 		auto_chord_midinotes[i] = mute_midinotes[i];
 	}
 	
 	midi_current_step = (midi_current_step + 1) % 128; // 8 bars of of 16 (1/16) beats per bar
+	
+	if (midi_current_step == 1) {
+		track = (track + 1) % 4;
+		m5audio_play_track(track + 1);
+	}	
 	
 	if (enable_midi_drums && active_strum_pattern == 0 && (enable_auto_hold || !strum_neutral)) {
 		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][0];
