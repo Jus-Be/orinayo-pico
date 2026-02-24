@@ -154,7 +154,7 @@ int main() {
 	// setup UART1 
 	m5audio_init();
 	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);
-	m5audio_play_track(5);	
+	//m5audio_play_track(5);	
 	
 	//m5audio_select_audio_num(5);
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
@@ -647,7 +647,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			}
 			else
 				
-			if (enable_midi_drums && basic_chord > 0)) {
+			if (enable_midi_drums && basic_chord > 0) {
 				m5audio_play_track(basic_chord);
 			}
 			
