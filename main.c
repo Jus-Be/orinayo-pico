@@ -153,11 +153,14 @@ int main() {
 
 	// setup UART1 
 	m5audio_init();
-	m5audio_select_audio_num(5);
-	//m5audio_repeat_at_time(0, 0, 0, 9);	
+	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	
+	//m5audio_select_audio_num(5);
+	//m5audio_repeat_at_time(0, 0, 0, 9);		
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
-	//m5audio_play();	
+	//m5audio_play();
+
+	int track = -1;
 	
     while (true) {
 		tud_task(); // tinyusb device task
@@ -179,8 +182,9 @@ int main() {
 		note_scheduler_dispatch_pending();	
 		
 		if (midi_current_step == 0) {
-			//m5audio_play_track(1);
-			m5audio_repeat_at_time(0, 8, 0, 15);
+			track = (track + 1) % 4;
+			m5audio_play_track(track + 1);
+			//m5audio_repeat_at_time(0, 8, 0, 15);
 		}
     }
 	
