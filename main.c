@@ -647,7 +647,13 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {	// sampler only with strum mode or full band
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
-			}			
+			}
+			else
+				
+			if (enable_midi_drums) {
+				m5audio_play_track(basic_chord);
+			}
+		
 			
 		} else {
 			midi_send_chord_note( old_p1, 0);
@@ -658,6 +664,11 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x8A, basic_chord + 59, 0};
 				midi_n_stream_write(0, 0, msg, 3);
+			}	
+			else
+				
+			if (enable_midi_drums) {
+				m5audio_play_track(basic_chord);
 			}			
 		}
 	}
@@ -690,6 +701,11 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
 			}
+			else
+				
+			if (enable_midi_drums) {
+				m5audio_play_track(basic_chord);
+			}			
 			
 		} else {
 			midi_send_chord_note( old_p1, 0);
@@ -700,6 +716,11 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x8A, basic_chord + 59, 0};
 				midi_n_stream_write(0, 0, msg, 3);
+			}	
+			else
+				
+			if (enable_midi_drums) {
+				m5audio_play_track(basic_chord);
 			}			
 		}
 	}
