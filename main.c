@@ -180,7 +180,7 @@ int main() {
 		
 		if (midi_current_step == 0) {
 			//m5audio_play_track(1);
-			m5audio_repeat_at_time(0, 8, 0, 16);
+			m5audio_repeat_at_time(0, 8, 0, 15);
 		}
     }
 	
