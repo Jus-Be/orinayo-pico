@@ -711,7 +711,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				if (basic_chord == 2) m5audio_repeat_at_time(0, 48, 1, 36);				
 				if (basic_chord == 3) m5audio_repeat_at_time(1, 36, 2, 24);
 				if (basic_chord == 4) m5audio_repeat_at_time(2, 24, 3, 12);
-				if (basic_chord == 5) m5audio_repeat_at_time(3, 12, 4, 00);22222				
+				if (basic_chord == 5) m5audio_repeat_at_time(3, 12, 4, 00);				
 			}	
 
 			old_p1 = p1;
