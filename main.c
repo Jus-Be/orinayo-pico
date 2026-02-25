@@ -154,8 +154,8 @@ int main() {
 	// setup UART1 
 	m5audio_init();
 	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);
-	//m5audio_play_track(5);	
 	
+	//m5audio_play_track(5);		
 	//m5audio_select_audio_num(1);
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
@@ -641,11 +641,6 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
 			}
-			else
-				
-			if (enable_midi_drums && basic_chord > 0) {
-				m5audio_play_track(basic_chord);
-			}
 			
 			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
 			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
@@ -665,12 +660,7 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x8A, basic_chord + 59, 0};
 				midi_n_stream_write(0, 0, msg, 3);
-			}	
-			else
-				
-			if (enable_midi_drums) {
-				//m5audio_stop();
-			}			
+			}				
 		}
 	}
 }
@@ -691,12 +681,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
-			}
-			else
-				
-			if (enable_midi_drums && basic_chord > 0) {
-				m5audio_play_track(basic_chord);			
-			}				
+			}			
 			
 			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
 			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
@@ -718,12 +703,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x8A, basic_chord + 59, 0};
 				midi_n_stream_write(0, 0, msg, 3);
-			}	
-			else
-				
-			if (enable_midi_drums) {
-				//m5audio_stop();
-			}			
+			}				
 		}
 	}
 }

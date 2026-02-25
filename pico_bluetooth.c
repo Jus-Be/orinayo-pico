@@ -40,6 +40,7 @@ bool enable_chord_track = true;
 bool enable_bass_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
+bool enable_backing_tracks = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 
@@ -642,7 +643,8 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 */
-	if (dpad_up != up) {								// transpose up
+
+	if (dpad_up != up) {									// transpose up
 		up = dpad_up;
 		
 		if (dpad_up) {
@@ -665,6 +667,17 @@ void midi_bluetooth_handle_data() {
 
 	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
+		
+		if (enable_backing_tracks) 
+		{
+			if (mbut0) {
+				if (!style_started) {
+					m5audio_play_track(style_group + 1);
+				} else {
+					m5audio_stop();
+				}
+			}
+		}
 		
 		if (enable_midi_drums) 
 		{
@@ -815,7 +828,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	if (dpad_down != starpower) { 								// Style selection
+	if (dpad_down != starpower) { 							// Style selection
 		starpower = dpad_down;			
 		if (dpad_down) old_style = style_section;
 
@@ -930,6 +943,62 @@ void midi_bluetooth_handle_data() {
 		if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 		menu = mbut2;
 
+		if (green && red && yellow) 
+		{
+			if (mbut2) {
+				style_group = 19;
+			}
+		}
+		else
+			
+		if (red && yellow && blue) 
+		{
+			if (mbut2) {
+				style_group = 18;
+			}
+		}
+		else
+			
+		if (yellow && blue && orange) 
+		{
+			if (mbut2) {
+				style_group = 17;
+			}
+		}
+		else
+			
+		if (green && yellow && blue) 
+		{
+			if (mbut2) {
+				style_group = 16;
+			}
+		}
+		else
+			
+		if (red && blue && orange) 
+		{
+			if (mbut2) {
+				style_group = 15;
+			}
+		}
+		else
+			
+		if (red && orange) 
+		{
+			if (mbut2) {
+				style_group = 14;
+			}
+		}
+		else
+
+		if (green && orange) 
+		{
+			if (mbut2) {
+				style_group = 13;
+			}
+		}
+		else		
+
 		if (green && yellow) 
 		{
 			if (mbut2) {
@@ -954,7 +1023,7 @@ void midi_bluetooth_handle_data() {
 		}				
 		else
 			
-		if (green && yellow) 
+		if (green && blue) 
 		{
 			if (mbut2) {
 				style_group = 9;	
@@ -992,6 +1061,7 @@ void midi_bluetooth_handle_data() {
 				style_group = 5;
 			}
 		}
+
 		else
 			
 		if (green) 
@@ -1446,6 +1516,11 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
+	if (mode == 12) {										// play audio file as backing track
+		enable_backing_tracks = !enable_backing_tracks;
+	}
+	else
+		
 	if (mode == 11) {										// Behringer Synth
 		enable_synth = !enable_synth;
 		enable_style_play = !enable_synth;				
