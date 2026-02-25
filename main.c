@@ -637,10 +637,6 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 				p3 = (p3 % 12) + ((p3  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
-			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
-			midi_send_chord_note( p3, enable_ample_guitar ? 100 : 127);		
-			
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {	// sampler only with strum mode or full band
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
@@ -650,6 +646,10 @@ void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3) {
 			if (enable_midi_drums && basic_chord > 0) {
 				m5audio_play_track(basic_chord);
 			}
+			
+			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
+			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
+			midi_send_chord_note( p3, enable_ample_guitar ? 100 : 127);		
 			
 			old_p1 = p1;
 			old_p2 = p2;
@@ -688,11 +688,6 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				p4 = (p4 % 12) + ((p4  % 12) <  (p1 % 12) ? 48 : 36);
 			}
 			
-			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
-			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
-			midi_send_chord_note( p3, enable_ample_guitar ? 100 : 127);
-			midi_send_chord_note( p4, enable_ample_guitar ? 100 : 127);	
-			
 			if (enable_seqtrak && basic_chord > 0 && (active_strum_pattern == 0 || style_started)) {
 				uint8_t msg[3] = {0x9A, basic_chord + 59, 127};
 				midi_n_stream_write(0, 0, msg, 3);
@@ -701,7 +696,12 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 				
 			if (enable_midi_drums && basic_chord > 0) {
 				m5audio_play_track(basic_chord);			
-			}	
+			}				
+			
+			midi_send_chord_note( p1, enable_ample_guitar ? 100 : 127);
+			midi_send_chord_note( p2, enable_ample_guitar ? 100 : 127);
+			midi_send_chord_note( p3, enable_ample_guitar ? 100 : 127);
+			midi_send_chord_note( p4, enable_ample_guitar ? 100 : 127);	
 
 			old_p1 = p1;
 			old_p2 = p2;
