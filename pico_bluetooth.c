@@ -38,6 +38,7 @@ bool enable_arranger_mode = false;
 bool enable_modx = false;
 bool enable_chord_track = true;
 bool enable_bass_track = true;
+bool enable_drum_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
 bool enable_backing_tracks = false;
@@ -434,6 +435,25 @@ void midi_bluetooth_handle_data() {
 				enable_auto_hold = !enable_auto_hold;
 				midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
 			}					
+		}
+		else
+
+		if (green && blue) 
+		{
+			if (but6) {
+				enable_drum_track = !enable_drum_track;
+				
+				if (enable_backing_tracks) {
+					m5audio_set_volume(enable_drum_track ? 20 : 0);
+				}
+				
+			}				
+		}
+		else
+
+		if (red && orange) 
+		{
+			
 		}
 		else
 
