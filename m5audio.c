@@ -123,7 +123,7 @@ void m5audio_play_track(uint16_t track) {
     }
     uint8_t data[] = {0x06, (uint8_t)((track >> 8) & 0xFF), (uint8_t)(track & 0xFF)};
     audioplayer_send(0x04, data, 3);
-    sleep_ms(1000);	
+    sleep_ms(500);	
 }
 
 void m5audio_set_volume(uint8_t volume) {
