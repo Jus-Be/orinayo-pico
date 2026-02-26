@@ -41,7 +41,8 @@ bool enable_bass_track = true;
 bool enable_drum_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
-bool enable_backing_tracks = false;
+bool enable_audio_drums = false;
+bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 
@@ -443,7 +444,7 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				enable_drum_track = !enable_drum_track;
 				
-				if (enable_backing_tracks) {
+				if (enable_audio_drums) {
 					m5audio_set_volume(enable_drum_track ? 20 : 0);
 				}
 				
@@ -687,6 +688,17 @@ void midi_bluetooth_handle_data() {
 
 	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
+
+		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
+		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 109, 112, 51}; 		// 	/drums/nn.mp3	
+		
+		audio_pad_name[6] = (uint8_t)(style_group / 10);
+		audio_pad_name[7] = (uint8_t)(style_group % 10);
+		audio_pad_name[9] = (uint8_t)(transpose / 10);
+		audio_pad_name[10] = (uint8_t)(transpose % 10);	
+
+		audio_drum_name[7] = (uint8_t)(style_group / 10);
+		audio_drum_name[8] = (uint8_t)(style_group % 10);		
 		
 		if (enable_midi_drums) 
 		{
@@ -702,17 +714,21 @@ void midi_bluetooth_handle_data() {
 					//ghost_parameters_t *params = ghost_note_parameters();						
 					//params->ghost_intensity = 0.843;	
 					
-					if (enable_backing_tracks) 	{
-						m5audio_play_track((style_group * 12) + transpose + 1);
-					}					
+					if (enable_worship_pads) 	{
+						m5audio_play_audio_by_name(audio_pad_name, 15);
+					}
+					else
 					
+					if (enable_audio_drums) 	{
+						m5audio_play_audio_by_name(audio_drum_name, 13);
+					}					
 				} 
 				else 
 				
 				if (looper_status.state == LOOPER_STATE_PLAYING) {
 					looper_status.state = LOOPER_STATE_WAITING;
 					
-					if (enable_backing_tracks) 	{					
+					if (enable_worship_pads || enable_audio_drums) 	{					
 						m5audio_stop();
 					}					
 				}	
@@ -758,9 +774,14 @@ void midi_bluetooth_handle_data() {
 				
 				if (mbut0) 
 				{
-					if (enable_backing_tracks) 	{
-						m5audio_play_track((style_group * 12) + transpose + 1);
+					if (enable_worship_pads) {
+						m5audio_play_audio_by_name(audio_pad_name, 15);
 					}
+					else
+					
+					if (enable_audio_drums) 	{
+						m5audio_play_audio_by_name(audio_drum_name, 13);
+					}					
 					else
 						
 					if (enable_rclooper) {
@@ -807,7 +828,7 @@ void midi_bluetooth_handle_data() {
 				
 				if (mbut0) 
 				{
-					if (enable_backing_tracks) 	{					
+					if (enable_worship_pads || enable_audio_drums) 	{					
 						m5audio_stop();
 					}
 					else
@@ -910,7 +931,7 @@ void midi_bluetooth_handle_data() {
 			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
 
-		if (enable_backing_tracks) {
+		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
 		}		
 		
@@ -1550,8 +1571,13 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
-	if (mode == 12) {										// play audio file as backing track
-		enable_backing_tracks = !enable_backing_tracks;
+	if (mode == 13) {										// play audio file as audio drum/percussion
+		enable_audio_drums = !enable_audio_drums;
+	}
+	else
+		
+	if (mode == 12) {										// play audio file as worship pad in selected song key
+		enable_worship_pads = !enable_worship_pads;
 	}
 	else
 		

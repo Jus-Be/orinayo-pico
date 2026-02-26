@@ -78,3 +78,10 @@ void m5audio_volume_down(void);
  * mode must be one of the m5audio_play_mode_t values.
  */
 void m5audio_set_play_mode(m5audio_play_mode_t mode);
+
+/*
+ * @brief Plays an audio file by its name.
+ *
+ * @param name Audio file name
+ */
+void m5audio_play_audio_by_name(const String& name);
