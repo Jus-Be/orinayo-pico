@@ -692,13 +692,13 @@ void midi_bluetooth_handle_data() {
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
 		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 		// 	/drums/nn.wav	
 		
-		audio_pad_name[6] = (uint8_t)(style_group / 10);
-		audio_pad_name[7] = (uint8_t)(style_group % 10);
-		audio_pad_name[9] = (uint8_t)(transpose / 10);
-		audio_pad_name[10] = (uint8_t)(transpose % 10);	
+		audio_pad_name[6] = (uint8_t)(style_group / 10) + 48;
+		audio_pad_name[7] = (uint8_t)(style_group % 10) + 48;
+		audio_pad_name[9] = (uint8_t)(transpose / 10) + 48;
+		audio_pad_name[10] = (uint8_t)(transpose % 10) + 48;	
 
-		audio_drum_name[7] = (uint8_t)(style_group / 10);
-		audio_drum_name[8] = (uint8_t)(style_group % 10);		
+		audio_drum_name[7] = (uint8_t)(style_group / 10) + 48;
+		audio_drum_name[8] = (uint8_t)(style_group % 10) + 48;		
 		
 		if (enable_midi_drums) 
 		{
