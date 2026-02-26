@@ -692,7 +692,7 @@ void midi_bluetooth_handle_data() {
 		{
 			if (mbut0) {
 				if (!style_started) {
-					m5audio_play_track(style_group + 1);
+					m5audio_play_track((style_group * 12) + transpose + 1);
 				} else {
 					m5audio_stop();
 				}
@@ -875,7 +875,7 @@ void midi_bluetooth_handle_data() {
 			}
 		}				
 		else
-
+			
 		if (blue) 
 		{
 			if (dpad_down) {
@@ -898,7 +898,11 @@ void midi_bluetooth_handle_data() {
 			style_section++;
 			if (style_section > 7) style_section = 0;
 			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
-		}			
+		}	
+
+		if (enable_backing_tracks) {
+			m5audio_set_volume((style_section * 3) + 9);				// max audio player volume = 30
+		}		
 		
 		if (enable_midi_drums)	
 		{

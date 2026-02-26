@@ -153,13 +153,13 @@ int main() {
 
 	// setup UART1 
 	m5audio_init();
-	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);
+	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
 	m5audio_set_volume(20);
 	
 	//m5audio_play_track(5);		
 	//m5audio_select_audio_num(1);
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
-	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);		
+	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	//m5audio_play();
 
     while (true) {
