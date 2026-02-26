@@ -117,7 +117,7 @@ void m5audio_prev(void) {
     sleep_ms(100);	
 }
 
-void m5audio_play_audio_by_name(uint8_t *name, size_t name_len)) {
+void m5audio_play_audio_by_name(uint8_t *name, size_t name_len) {
     uint8_t data[32];  // Ensure enough space
     data[0] = 0x07;
 	

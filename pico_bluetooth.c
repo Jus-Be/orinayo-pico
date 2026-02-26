@@ -690,7 +690,7 @@ void midi_bluetooth_handle_data() {
 		logo = mbut0;
 
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
-		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 109, 112, 51}; 		// 	/drums/nn.mp3	
+		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 		// 	/drums/nn.wav	
 		
 		audio_pad_name[6] = (uint8_t)(style_group / 10);
 		audio_pad_name[7] = (uint8_t)(style_group % 10);

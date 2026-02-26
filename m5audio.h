@@ -84,4 +84,4 @@ void m5audio_set_play_mode(m5audio_play_mode_t mode);
  *
  * @param name Audio file name
  */
-void m5audio_play_audio_by_name(const String& name);
+void m5audio_play_audio_by_name(uint8_t *name, size_t name_len);
