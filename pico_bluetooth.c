@@ -688,17 +688,6 @@ void midi_bluetooth_handle_data() {
 	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
 		
-		if (enable_backing_tracks) 
-		{
-			if (mbut0) {
-				if (!style_started) {
-					m5audio_play_track((style_group * 12) + transpose + 1);
-				} else {
-					m5audio_stop();
-				}
-			}
-		}
-		
 		if (enable_midi_drums) 
 		{
 			if (mbut0) {
@@ -711,12 +700,21 @@ void midi_bluetooth_handle_data() {
 					looper_status.state = LOOPER_STATE_PLAYING;
 					
 					//ghost_parameters_t *params = ghost_note_parameters();						
-					//params->ghost_intensity = 0.843;							
+					//params->ghost_intensity = 0.843;	
+					
+					if (enable_backing_tracks) 	{
+						m5audio_play_track((style_group * 12) + transpose + 1);
+					}					
+					
 				} 
 				else 
 				
 				if (looper_status.state == LOOPER_STATE_PLAYING) {
 					looper_status.state = LOOPER_STATE_WAITING;
+					
+					if (enable_backing_tracks) 	{					
+						m5audio_stop();
+					}					
 				}	
 			}					
 		} 
@@ -758,7 +756,13 @@ void midi_bluetooth_handle_data() {
 					if (enable_arranger_mode) midi_yamaha_arr(yamaha_code, mbut0 ? true : false);	
 				} 
 				
-				if (mbut0) {
+				if (mbut0) 
+				{
+					if (enable_backing_tracks) 	{
+						m5audio_play_track((style_group * 12) + transpose + 1);
+					}
+					else
+						
 					if (enable_rclooper) {
 						midi_send_control_change(0xB3, 68, 127); 						
 					}
@@ -801,7 +805,13 @@ void midi_bluetooth_handle_data() {
 					if (enable_arranger_mode) midi_yamaha_arr(0x20 + yamaha_code, mbut0 ? true : false);	
 				}
 				
-				if (mbut0) {
+				if (mbut0) 
+				{
+					if (enable_backing_tracks) 	{					
+						m5audio_stop();
+					}
+					else
+					
 					if (enable_rclooper) {
 						midi_send_control_change(0xB3, 68, 127); 						
 					}
@@ -901,7 +911,7 @@ void midi_bluetooth_handle_data() {
 		}	
 
 		if (enable_backing_tracks) {
-			m5audio_set_volume((style_section * 3) + 9);				// max audio player volume = 30
+			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
 		}		
 		
 		if (enable_midi_drums)	
