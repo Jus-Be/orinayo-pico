@@ -83,7 +83,7 @@ void m5audio_repeat_at_time(uint8_t start_min, uint8_t start_sec, uint8_t end_mi
 
 void m5audio_end_repeat() {
     uint8_t data[] = {0x01};
-    sendCommand(0x08, data, 1);
+    audioplayer_send(0x08, data, 1);
     sleep_ms(100);
 }
 
@@ -117,11 +117,11 @@ void m5audio_prev(void) {
     sleep_ms(100);	
 }
 
-void m5audio_play_audio_by_name(uint8_t *name, size_t name_len) {
+void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
     uint8_t data[32];  // Ensure enough space
     data[0] = 0x07;
 	
-    for (size_t i = 0; i < name_len; i++) {
+    for (uint8_t i = 0; i < name_len; i++) {
         data[i + 1] = name[i];
     }
     audioplayer_send(0x04, data, name_len + 1);
