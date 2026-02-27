@@ -147,6 +147,7 @@ void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
 void dream_set_delay(int tempo);
+void trigger_sp404_loop(uint8_t command, int chord, uint8_t velocity);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -2273,7 +2274,7 @@ void play_chord(bool on, bool up) {
 	} 		
 }
 
-void trigger_sp404_loop(uint8_t command, int chord, unit8_t velocity) {
+void trigger_sp404_loop(uint8_t command, int chord, uint8_t velocity) {
 	uint8_t sp404_chord = (uint8_t) (chord / 256);
 	uint8_t sp404_bass = (uint8_t) ((chord % 256) / 16);			
 	uint8_t sp404_type = (uint8_t) ((chord % 256) % 16);
