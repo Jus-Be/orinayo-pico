@@ -33,6 +33,7 @@ bool enable_auto_hold = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
 bool enable_rclooper = false;
+bool enable_sp404mk2 = false;
 bool enable_synth = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -774,6 +775,11 @@ void midi_bluetooth_handle_data() {
 				
 				if (mbut0) 
 				{
+					if (enable_sp404mk2) {
+						midi_send_note(0x90, 35 + 14, 120);		// .\01\SAMPLE\1-14-085.wav
+					}
+					else
+						
 					if (enable_worship_pads) {
 						m5audio_play_audio_by_name(audio_pad_name, 15);
 					}
@@ -828,6 +834,11 @@ void midi_bluetooth_handle_data() {
 				
 				if (mbut0) 
 				{
+					if (enable_sp404mk2) {
+						midi_send_note(0x90, 35 + 9, 120);		// .\01\SAMPLE\1-09-085.wav
+					}
+					else
+						
 					if (enable_worship_pads || enable_audio_drums) 	{					
 						m5audio_stop();
 					}
@@ -1571,6 +1582,12 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
+	if (mode == 14) {
+		enable_sp404mk2 = !enable_sp404mk2;					// Roland SP404 MK2
+		enable_style_play = !enable_sp404mk2;		
+	}
+	else
+		
 	if (mode == 13) {										// play audio file as audio drum/percussion
 		enable_audio_drums = !enable_audio_drums;
 	}
