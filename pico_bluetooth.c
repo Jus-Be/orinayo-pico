@@ -776,7 +776,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{
 					if (enable_sp404mk2) {
-						midi_send_note(0x90, 35 + 14, 120);		// .\01\SAMPLE\1-14-085.wav
+						midi_send_note(0x90, 35 + 13, 120);		// .\01\SAMPLE\1-14-085.wav
 					}
 					else
 						
@@ -835,7 +835,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{
 					if (enable_sp404mk2) {
-						midi_send_note(0x90, 35 + 9, 120);		// .\01\SAMPLE\1-09-085.wav
+						midi_send_note(0x90, 35 + 8, 120);		// .\01\SAMPLE\1-09-085.wav
 					}
 					else
 						
@@ -945,7 +945,15 @@ void midi_bluetooth_handle_data() {
 		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
 		}		
-		
+
+		if (enable_sp404mk2)	
+		{
+			if (dpad_down) {	
+				midi_send_note(0x90, 35 + style_section, 120);						
+			}				
+		}			
+		else
+			
 		if (enable_midi_drums)	
 		{
 			if (dpad_down && looper_status.state == LOOPER_STATE_PLAYING) {	
