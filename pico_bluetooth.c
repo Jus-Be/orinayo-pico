@@ -615,7 +615,7 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				stop_chord();						// kill any sustained notes
 				
-				if (enable_sp404mk2) {		
+				if (enable_sp404mk2 && style_started) {		
 					midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
 					midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
 				}				
@@ -973,7 +973,7 @@ void midi_bluetooth_handle_data() {
 
 		if (enable_sp404mk2)	
 		{
-			if (dpad_down) {				
+			if (dpad_down && style_started) {				
 				// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
 				// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
 				// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
@@ -2318,6 +2318,51 @@ void trigger_sp404_loop(int chord) {
 			midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
 			midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);										
 		}
+	}
+	else
+
+	if ((sp404_chord + transpose - 1) % 12 == 2) 
+	{					
+		if (sp404_type == 0) {			
+			sp404_bass_note = 46;				// .\01\IN\BMIN_D.wav  	.\01\SAMPLE\8-07-085.wav
+			sp404_bass_cmd = 0x97;
+			
+			if (style_section % 2 == 0) {
+				sp404_chord_note = 50;			// .\01\IN\A\MIN_D.wav 	.\01\SAMPLE\3-03-085.wav
+				sp404_chord_cmd = 0x92;				
+			}
+			
+			if (style_section % 2 == 1) {
+				sp404_chord_note = 42;			// .\01\IN\B\MIN_D.wav 	.\01\SAMPLE\4-11-085.wav
+				sp404_chord_cmd = 0x93;				
+			}
+														
+			midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
+			midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);										
+				
+		}	
+	}
+	else
+
+	if ((sp404_chord + transpose - 1) % 12 == 4) 
+	{					
+		if (sp404_type == 0) {			
+			sp404_bass_note = 47;				// .\01\IN\BMIN_E.wav  	.\01\SAMPLE\8-08-085.wav
+			sp404_bass_cmd = 0x97;
+			
+			if (style_section % 2 == 0) {
+				sp404_chord_note = 51;			// .\01\IN\A\MIN_E.wav 	.\01\SAMPLE\3-04-085.wav
+				sp404_chord_cmd = 0x92;				
+			}
+			
+			if (style_section % 2 == 1) {
+				sp404_chord_note = 43;			// .\01\IN\B\MIN_E.wav 	.\01\SAMPLE\4-12-085.wav
+				sp404_chord_cmd = 0x93;				
+			}
+														
+			midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
+			midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);											
+		}	
 	}
 	else
 
