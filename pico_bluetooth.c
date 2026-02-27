@@ -848,7 +848,7 @@ void midi_bluetooth_handle_data() {
 						midi_send_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
 
 						if (last_advanced_chord > 0) {
-							sp404_loop(0x80, last_advanced_chord, 0);			
+							trigger_sp404_loop(0x80, last_advanced_chord, 0);			
 						}						
 					}
 					else
@@ -2073,9 +2073,9 @@ void play_chord(bool on, bool up) {
 		if (handled && last_advanced_chord != advanced_chord && style_started) 
 		{
 			if (last_advanced_chord > 0) {
-				sp404_loop(0x80, last_advanced_chord, 0);			
+				trigger_sp404_loop(0x80, last_advanced_chord, 0);			
 			}
-			sp404_loop(0x90, advanced_chord, 120);
+			trigger_sp404_loop(0x90, advanced_chord, 120);
 			
 			last_advanced_chord = advanced_chord;			
 		}
