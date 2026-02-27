@@ -615,9 +615,10 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				stop_chord();						// kill any sustained notes
 				
-				if (enable_sp404mk2 && style_started) {		
+				if (enable_sp404mk2 && style_started && sp404_chord_note > 0) {		
 					midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
 					midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
+					sp404_chord_note = 0;
 				}				
 			}
 		}	
@@ -796,6 +797,7 @@ void midi_bluetooth_handle_data() {
 						// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
 						
 						midi_send_note(0x90, 37, 120);		// .\01\SAMPLE\1-14-085.wav
+						sp404_chord_note = 0;
 					}
 					else
 						
@@ -856,8 +858,11 @@ void midi_bluetooth_handle_data() {
 					if (enable_sp404mk2) {
 						midi_send_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
 
-						midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
-						midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);					
+						if (sp404_chord_note > 0) {
+							midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
+							midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
+							sp404_chord_note = 0;						
+						}
 					}
 					else
 						
