@@ -2323,7 +2323,7 @@ void trigger_sp404_loop(int chord) {
 
 	if ((sp404_chord + transpose - 1) % 12 == 2) 
 	{					
-		if (sp404_type == 0) {			
+		if (sp404_type == 1) {			
 			sp404_bass_note = 46;				// .\01\IN\BMIN_D.wav  	.\01\SAMPLE\8-07-085.wav
 			sp404_bass_cmd = 0x97;
 			
@@ -2346,7 +2346,7 @@ void trigger_sp404_loop(int chord) {
 
 	if ((sp404_chord + transpose - 1) % 12 == 4) 
 	{					
-		if (sp404_type == 0) {			
+		if (sp404_type == 1) {			
 			sp404_bass_note = 47;				// .\01\IN\BMIN_E.wav  	.\01\SAMPLE\8-08-085.wav
 			sp404_bass_cmd = 0x97;
 			
