@@ -845,6 +845,10 @@ void midi_bluetooth_handle_data() {
 				{
 					if (enable_sp404mk2) {
 						midi_send_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
+
+						if (last_advanced_chord > 0) {
+							sp404_loop(0x80, last_advanced_chord, 0);			
+						}						
 					}
 					else
 						
@@ -2065,59 +2069,14 @@ void play_chord(bool on, bool up) {
 		
 	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
 	{		
-		if (handled && last_advanced_chord != advanced_chord && style_started) {
-			last_advanced_chord = advanced_chord;
-
-			uint8_t sp404_chord = (uint8_t) (advanced_chord / 256);
-			uint8_t sp404_bass = (uint8_t) ((advanced_chord % 256) / 16);			
-			uint8_t sp404_type = (uint8_t) ((advanced_chord % 256) % 16);
+		if (handled && last_advanced_chord != advanced_chord && style_started) 
+		{
+			if (last_advanced_chord > 0) {
+				sp404_loop(0x80, last_advanced_chord, 0);			
+			}
+			sp404_loop(0x90, advanced_chord, 120);
 			
-			// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
-			// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
-			// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51			
-
-			if ((sp404_chord + transpose - 1) % 12 == 0)
-			{
-				if (sp404_type == 0) 
-				{
-					if (style_section % 2 == 0) midi_send_note(0x91, 44, 120);	// .\01\IN\A\MAJ_C.wav 	.\01\SAMPLE\2-05-085.wav
-					if (style_section % 2 == 1) midi_send_note(0x92, 36, 120);	// .\01\IN\B\MAJ_C.wav 	.\01\SAMPLE\3-13-085.wav	
-					midi_send_note(0x96, 40, 120);								// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav			
-				}
-			}
-			else
-
-			if ((sp404_chord + transpose - 1) % 12 == 5) 
-			{					
-				if (sp404_type == 0) 
-				{
-					if (style_section % 2 == 0) midi_send_note(0x91, 41, 120);	// .\01\IN\A\MAJ_F.wav 	.\01\SAMPLE\2-10-085.wav
-					if (style_section % 2 == 1) midi_send_note(0x93, 49, 120);	// .\01\IN\B\MAJ_F.wav 	.\01\SAMPLE\4-02-085.wav	
-					midi_send_note(0x96, 37, 120);								// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav						
-				}	
-			}
-			else
-
-			if ((sp404_chord + transpose - 1) % 12 == 7) 
-			{				
-				if (sp404_type == 0) 
-				{
-					if (style_section % 2 == 0) midi_send_note(0x91, 43, 120);	// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
-					if (style_section % 2 == 1) midi_send_note(0x93, 51, 120);	// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav	
-					midi_send_note(0x96, 39, 120);								// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav					
-				}				
-			}
-			else
-
-			if ((sp404_chord + transpose - 1) % 12 == 9) 
-			{				
-				if (sp404_type == 1) 
-				{
-					if (style_section % 2 == 0) midi_send_note(0x91, 37, 120);	// .\01\IN\A\MIN_A.wav 	.\01\SAMPLE\2-14-085.wav
-					if (style_section % 2 == 1) midi_send_note(0x93, 45, 120);	// .\01\IN\B\MIN_A.wav 	.\01\SAMPLE\4-06-085.wav	
-					midi_send_note(0x97, 49, 120);								// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav					
-				}				
-			}			
+			last_advanced_chord = advanced_chord;			
 		}
 	}		
 
@@ -2312,6 +2271,60 @@ void play_chord(bool on, bool up) {
 			}
 		}
 	} 		
+}
+
+void trigger_sp404_loop(uint8_t command, int chord, unit8_t velocity) {
+	uint8_t sp404_chord = (uint8_t) (chord / 256);
+	uint8_t sp404_bass = (uint8_t) ((chord % 256) / 16);			
+	uint8_t sp404_type = (uint8_t) ((chord % 256) % 16);
+	
+	// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+	// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+	// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51			
+
+	if ((sp404_chord + transpose - 1) % 12 == 0)
+	{
+		if (sp404_type == 0) 
+		{
+			if (style_section % 2 == 0) midi_send_note(command + 1, 44, velocity);	// .\01\IN\A\MAJ_C.wav 	.\01\SAMPLE\2-05-085.wav
+			if (style_section % 2 == 1) midi_send_note(command + 2, 36, velocity);	// .\01\IN\B\MAJ_C.wav 	.\01\SAMPLE\3-13-085.wav	
+			midi_send_note(command + 6, 40, velocity);								// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav			
+		}
+	}
+	else
+
+	if ((sp404_chord + transpose - 1) % 12 == 5) 
+	{					
+		if (sp404_type == 0) 
+		{
+			if (style_section % 2 == 0) midi_send_note(command + 1, 41, velocity);	// .\01\IN\A\MAJ_F.wav 	.\01\SAMPLE\2-10-085.wav
+			if (style_section % 2 == 1) midi_send_note(command + 3, 49, velocity);	// .\01\IN\B\MAJ_F.wav 	.\01\SAMPLE\4-02-085.wav	
+			midi_send_note(command + 6, 37, velocity);								// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav						
+		}	
+	}
+	else
+
+	if ((sp404_chord + transpose - 1) % 12 == 7) 
+	{				
+		if (sp404_type == 0) 
+		{
+			if (style_section % 2 == 0) midi_send_note(command + 1, 43, velocity);	// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
+			if (style_section % 2 == 1) midi_send_note(command + 3, 51, velocity);	// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav	
+			midi_send_note(command + 6, 39, velocity);								// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav					
+		}				
+	}
+	else
+
+	if ((sp404_chord + transpose - 1) % 12 == 9) 
+	{				
+		if (sp404_type == 1) 
+		{
+			if (style_section % 2 == 0) midi_send_note(command + 1, 37, velocity);	// .\01\IN\A\MIN_A.wav 	.\01\SAMPLE\2-14-085.wav
+			if (style_section % 2 == 1) midi_send_note(command + 3, 45, velocity);	// .\01\IN\B\MIN_A.wav 	.\01\SAMPLE\4-06-085.wav	
+			midi_send_note(command + 7, 49, velocity);								// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav					
+		}				
+	}			
+	
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
