@@ -75,6 +75,7 @@ extern bool enable_seqtrak;
 extern bool enable_chord_track;
 extern bool enable_bass_track;
 extern bool enable_modx;
+extern bool enable_sp404mk2;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;

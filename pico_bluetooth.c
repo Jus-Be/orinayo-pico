@@ -106,9 +106,11 @@ int style_group = 0;
 int old_style = -1;
 int ample_old_key = 0;
 int basic_chord = 0;
+int advanced_chord = 0;
 int last_chord_note = 0;
 int last_chord_type = 0;
 int last_basic_chord = 0;
+int last_advanced_chord = 0;
 int transpose = 0; 
 int midi_current_step = 0;
 
@@ -1767,6 +1769,7 @@ void play_chord(bool on, bool up) {
 
 	if (yellow && blue && orange && red) {
 		basic_chord = 4;	
+		advanced_chord = 0x610;
 		
 		if (enable_style_play) midi_play_slash_chord(on, base - 12, base + 5, base + 9, base + 12);		
 		chord_note = (base + 5);	
@@ -1779,6 +1782,7 @@ void play_chord(bool on, bool up) {
 
 	if (yellow && blue && orange && green) 	{
 		basic_chord = 5;
+		advanced_chord = 0x810;
 		
 		if (enable_style_play) midi_play_slash_chord(on, base - 12, base + 7, base + 11, base + 14);
 		chord_note = (base + 7);	
@@ -1790,7 +1794,9 @@ void play_chord(bool on, bool up) {
 	// -- B
 
 	if (red && yellow && blue && green) {
-		basic_chord = 0;		
+		basic_chord = 0;
+		advanced_chord = 0xCC0;
+		
 		if (enable_style_play) midi_play_chord(on, base - 1, base + 3, base + 6);	
 		chord_note = (base - 1);		
 		handled = true;			
@@ -1799,7 +1805,9 @@ void play_chord(bool on, bool up) {
 
 	if (red && yellow && green)     // Ab
 	{	
-		basic_chord = 0;	
+		basic_chord = 0;
+		advanced_chord = 0x990;
+		
 		if (enable_style_play) midi_play_chord(on, base - 4, base, base + 3);
 		chord_note = (base - 4);		
 		handled = true;				
@@ -1808,7 +1816,9 @@ void play_chord(bool on, bool up) {
 
 	if (red && yellow && blue)     // A
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0xAA0;
+		
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 13, base + 16);
 		chord_note = (base - 3);		
 		handled = true;		
@@ -1817,7 +1827,9 @@ void play_chord(bool on, bool up) {
 
 	if (blue && yellow && green)     // E
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0x550;
+		
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 8, base + 11);
 		chord_note = (base - 8);		
 		handled = true;		
@@ -1827,7 +1839,9 @@ void play_chord(bool on, bool up) {
 
 	if (blue && red && orange)     // Eb
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0x440;
+		
 		if (enable_style_play) midi_play_chord(on, base - 9, base + 7, base + 10);
 		chord_note = (base - 9);		
 		handled = true;		
@@ -1836,7 +1850,9 @@ void play_chord(bool on, bool up) {
 
 	if (yellow && blue && orange)    // F/G
 	{
-		basic_chord = 4;		
+		basic_chord = 4;	
+		advanced_chord = 0x680;
+		
 		if (enable_style_play) midi_play_slash_chord(on, base - 17, base + 5, base + 9, base + 12);
 		chord_note = (base + 5);
 		bass_note = base - 17;			
@@ -1846,7 +1862,9 @@ void play_chord(bool on, bool up) {
 
 	if (red && yellow)     // Bb
 	{
-		basic_chord = 7;			
+		basic_chord = 7;
+		advanced_chord = 0xBB0;
+		
 		if (enable_style_play) midi_play_chord(on, base - 2, base + 2, base + 5);
 		chord_note = (base - 2);		
 		handled = true;			
@@ -1855,7 +1873,9 @@ void play_chord(bool on, bool up) {
 
 	if (green && yellow)     // Gsus
 	{
-		basic_chord = 5;			
+		basic_chord = 5;
+		advanced_chord = 0x882;
+		
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 12, base + 14);
 		chord_note = (base - 5);	
 		chord_type = 2;
@@ -1865,7 +1885,9 @@ void play_chord(bool on, bool up) {
 
 	if (orange && yellow)     // Csus
 	{
-		basic_chord = 1;		
+		basic_chord = 1;	
+		advanced_chord = 0x112;
+		
 		if (enable_style_play) midi_play_chord(on, base, base + 5, base + 7);
 		chord_note = (base);	
 		chord_type = 2;
@@ -1875,7 +1897,9 @@ void play_chord(bool on, bool up) {
 
 	if (yellow && blue)    // C/E
 	{
-		basic_chord = 1;			
+		basic_chord = 1;	
+		advanced_chord = 0x150;
+		
 		if (enable_style_play) midi_play_slash_chord(on, base - 20, base, base + 4, base + 7);
 		chord_note = (base);
 		bass_note = base - 20;	
@@ -1885,7 +1909,9 @@ void play_chord(bool on, bool up) {
 
 	if (green && red)     // G/B
 	{
-		basic_chord = 5;		
+		basic_chord = 5;
+		advanced_chord = 0x8C0;
+		
 		if (enable_style_play) midi_play_slash_chord(on, base - 13, base + 7, base + 11, base + 14);
 		chord_note = (base + 7);
 		bass_note = base - 13;			
@@ -1895,7 +1921,9 @@ void play_chord(bool on, bool up) {
 
 	if (blue && orange)     // F/A
 	{
-		basic_chord = 4;		
+		basic_chord = 4;	
+		advanced_chord = 0x6A0;
+		
 		if (enable_style_play) midi_play_slash_chord(on, base - 15, base + 5, base + 9, base + 12);
 		chord_note = (base + 5);
 		bass_note = base - 15;			
@@ -1905,7 +1933,9 @@ void play_chord(bool on, bool up) {
 
 	if (green && blue)     // Em
 	{
-		basic_chord = 3;			
+		basic_chord = 3;
+		advanced_chord = 0x551;
+		
 		if (enable_style_play) midi_play_chord(on, base - 8, base + 7, base + 11);
 		chord_note = (base - 8);	
 		chord_type = 1;		
@@ -1915,7 +1945,9 @@ void play_chord(bool on, bool up) {
 
 	if (orange && red)   // Fm
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0x661;
+		
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 8, base + 12);
 		chord_note = (base - 7);	
 		chord_type = 1;
@@ -1925,7 +1957,9 @@ void play_chord(bool on, bool up) {
 
 	if (green && orange)     // Gm
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0x881;
+		
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 10, base + 14);
 		chord_note = (base - 5);	
 		chord_type = 1;
@@ -1935,7 +1969,9 @@ void play_chord(bool on, bool up) {
 
 	if (red && blue)     // D
 	{
-		basic_chord = 0;			
+		basic_chord = 0;
+		advanced_chord = 0x330;
+		
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 6, base + 9);
 		chord_note = (base + 2);	
 		handled = true;			
@@ -1944,7 +1980,9 @@ void play_chord(bool on, bool up) {
 
 	if (yellow)    // C
 	{
-		basic_chord = 1;		
+		basic_chord = 1;	
+		advanced_chord = 0x110;
+		
 		if (enable_style_play) midi_play_chord(on, base, base + 4, base + 7);
 		chord_note = (base);	
 		handled = true;	
@@ -1953,7 +1991,9 @@ void play_chord(bool on, bool up) {
 
 	if (blue)      // Dm
 	{
-		basic_chord = 2;			
+		basic_chord = 2;
+		advanced_chord = 0x331;
+		
 		if (enable_style_play) midi_play_chord(on, base + 2, base + 5, base + 9);
 		chord_note = (base + 2);	
 		chord_type = 1;		
@@ -1963,7 +2003,9 @@ void play_chord(bool on, bool up) {
 
 	if (orange)   // F
 	{
-		basic_chord = 4;			
+		basic_chord = 4;
+		advanced_chord = 0x660;
+		
 		if (enable_style_play) midi_play_chord(on, base - 7, base + 9, base + 12);
 		chord_note = (base - 7);	
 		handled = true;		
@@ -1972,7 +2014,9 @@ void play_chord(bool on, bool up) {
 
 	if (green)     // G
 	{
-		basic_chord = 5;			
+		basic_chord = 5;
+		advanced_chord = 0x880;
+		
 		if (enable_style_play) midi_play_chord(on, base - 5, base + 11, base + 14);
 		chord_note = (base - 5);			
 		handled = true;		
@@ -1981,7 +2025,9 @@ void play_chord(bool on, bool up) {
 
 	if (red)     // Am
 	{
-		basic_chord = 6;			
+		basic_chord = 6;
+		advanced_chord = 0xAA1;
+		
 		if (enable_style_play) midi_play_chord(on, base - 3, base + 12, base + 16);
 		chord_note = (base - 3);	
 		chord_type = 1;			
@@ -2004,13 +2050,65 @@ void play_chord(bool on, bool up) {
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
-	if (handled && last_basic_chord != basic_chord && style_started) {
-		last_basic_chord = basic_chord;
-		
-		if (enable_rclooper) {				// trigger chord loop on rc600
+	if (enable_rclooper) 	// trigger chord loop on rc600
+	{					
+		if (handled && last_basic_chord != basic_chord && style_started) {
+			last_basic_chord = basic_chord;
+			
 			if (basic_chord > 0) midi_send_control_change(0xB3, 20 + basic_chord, 127); 						
 		}
-	}					
+	}		
+	else
+		
+	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
+	{		
+		if (handled && last_advanced_chord != advanced_chord && style_started) {
+			last_advanced_chord = advanced_chord;
+
+			uint8_t sp404_chord = (uint8_t) (advanced_chord / 256);
+			uint8_t sp404_bass = (uint8_t) ((advanced_chord % 256) / 16);			
+			uint8_t sp404_type = (uint8_t) ((advanced_chord % 256) % 16);
+			
+			// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+			// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+			// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51			
+
+			if ((sp404_chord + transpose - 1) % 12 == 0)
+			{
+				if (sp404_type == 0) 
+				{
+					if (style_section % 2 == 0) midi_send_note(0x91, 44, 120);	// .\01\IN\A\MAJ_C.wav 	.\01\SAMPLE\2-05-085.wav
+					if (style_section % 2 == 1) midi_send_note(0x92, 36, 120);	// .\01\IN\B\MAJ_C.wav 	.\01\SAMPLE\3-13-085.wav	
+					midi_send_note(0x96, 40, 120);								// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav			
+				}
+			}
+			else
+
+			if ((sp404_chord + transpose - 1) % 12 == 5) 
+			{				
+					
+				if (sp404_type == 0) 
+				{
+					if (style_section % 2 == 0) midi_send_note(0x91, 41, 120);	// .\01\IN\A\MAJ_F.wav 	.\01\SAMPLE\2-10-085.wav
+					if (style_section % 2 == 1) midi_send_note(0x93, 49, 120);	// .\01\IN\B\MAJ_F.wav 	.\01\SAMPLE\4-02-085.wav	
+					midi_send_note(0x96, 37, 120);								// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav						
+				}	
+			}
+			else
+
+			if ((sp404_chord + transpose - 1) % 12 == 7) 
+			{				
+					
+				if (sp404_type == 0) 
+				{
+					if (style_section % 2 == 0) midi_send_note(0x91, 43, 120);	// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
+					if (style_section % 2 == 1) midi_send_note(0x93, 51, 120);	// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav	
+					midi_send_note(0x96, 37, 120);								// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav					
+				}				
+			}
+			
+		}
+	}		
 
 	if (handled) {
 		last_chord_note = chord_note;
