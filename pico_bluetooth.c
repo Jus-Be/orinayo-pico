@@ -691,6 +691,9 @@ void midi_bluetooth_handle_data() {
 
 	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
+		
+		last_basic_chord = 0;
+		last_advanced_chord = 0;
 
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
 		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 		// 	/drums/nn.wav	
@@ -2085,8 +2088,7 @@ void play_chord(bool on, bool up) {
 			else
 
 			if ((sp404_chord + transpose - 1) % 12 == 5) 
-			{				
-					
+			{					
 				if (sp404_type == 0) 
 				{
 					if (style_section % 2 == 0) midi_send_note(0x91, 41, 120);	// .\01\IN\A\MAJ_F.wav 	.\01\SAMPLE\2-10-085.wav
@@ -2098,15 +2100,24 @@ void play_chord(bool on, bool up) {
 
 			if ((sp404_chord + transpose - 1) % 12 == 7) 
 			{				
-					
 				if (sp404_type == 0) 
 				{
 					if (style_section % 2 == 0) midi_send_note(0x91, 43, 120);	// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
 					if (style_section % 2 == 1) midi_send_note(0x93, 51, 120);	// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav	
-					midi_send_note(0x96, 37, 120);								// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav					
+					midi_send_note(0x96, 39, 120);								// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav					
 				}				
 			}
-			
+			else
+
+			if ((sp404_chord + transpose - 1) % 12 == 9) 
+			{				
+				if (sp404_type == 1) 
+				{
+					if (style_section % 2 == 0) midi_send_note(0x91, 37, 120);	// .\01\IN\A\MIN_A.wav 	.\01\SAMPLE\2-14-085.wav
+					if (style_section % 2 == 1) midi_send_note(0x93, 45, 120);	// .\01\IN\B\MIN_A.wav 	.\01\SAMPLE\4-06-085.wav	
+					midi_send_note(0x97, 49, 120);								// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav					
+				}				
+			}			
 		}
 	}		
 
