@@ -2078,7 +2078,7 @@ void play_chord(bool on, bool up) {
 		
 	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
 	{		
-		if (handled && last_advanced_chord != advanced_chord && style_started) 		{
+		if (handled && (last_advanced_chord != advanced_chord || style_change_requested) && style_started) 		{
 			last_advanced_chord = advanced_chord;	
 			
 			midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
@@ -2309,6 +2309,9 @@ void trigger_sp404_loop(int chord) {
 	uint8_t sp404_bass = (uint8_t) ((chord % 256) / 16);			
 	uint8_t sp404_type = (uint8_t) ((chord % 256) % 16);
 	
+	uint8_t old_bass_note = sp404_bass_note;
+	uint8_t old_chord_note = sp404_chord_note;
+	
 	// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
 	// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
 	// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51			
@@ -2338,7 +2341,7 @@ void trigger_sp404_loop(int chord) {
 	}
 	else
 
-	if ((sp404_chord + transpose - 1) % 12 == 2) 
+	if ((sp404_chord + transpose - 1) % 12 == 2) 	// D
 	{					
 		if (sp404_type == 1) {			
 			sp404_bass_note = 46;				// .\01\IN\BMIN_D.wav  	.\01\SAMPLE\8-07-085.wav
@@ -2357,7 +2360,7 @@ void trigger_sp404_loop(int chord) {
 	}
 	else
 
-	if ((sp404_chord + transpose - 1) % 12 == 4) 
+	if ((sp404_chord + transpose - 1) % 12 == 4) 	// E
 	{					
 		if (sp404_type == 1) {			
 			sp404_bass_note = 47;				// .\01\IN\BMIN_E.wav  	.\01\SAMPLE\8-08-085.wav
@@ -2443,9 +2446,14 @@ void trigger_sp404_loop(int chord) {
 			}
 		}				
 	}			
-			
-	midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
-	midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);	
+	
+	if (old_bass_note != sp404_bass_note) {
+		midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);	
+	}
+	
+	if (old_chord_note = sp404_chord_note) {
+		midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
+	}	
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
