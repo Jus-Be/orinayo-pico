@@ -46,6 +46,7 @@ bool enable_audio_drums = false;
 bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
+bool style_change_requested = false;
 
 uint8_t but0 = 0;
 uint8_t but1 = 0;
@@ -978,19 +979,8 @@ void midi_bluetooth_handle_data() {
 
 		if (enable_sp404mk2)	
 		{
-			if (dpad_down && style_started) {				
-				// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
-				// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
-				// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
-
-				if (style_section == 0) 		midi_send_note(0x90, 48, 120);	
-				else if (style_section == 1) 	midi_send_note(0x90, 49, 120);
-				else if (style_section == 2) 	midi_send_note(0x90, 50, 120);
-				else if (style_section == 3) 	midi_send_note(0x90, 51, 120);
-				else if (style_section == 4) 	midi_send_note(0x90, 44, 120);
-				else if (style_section == 5) 	midi_send_note(0x90, 45, 120);
-				else if (style_section == 6) 	midi_send_note(0x90, 46, 120);
-				else if (style_section == 7) 	midi_send_note(0x90, 47, 120);				
+			if (dpad_down && style_started) {
+				style_change_requested = true;						
 			}				
 		}			
 		else
@@ -2092,7 +2082,24 @@ void play_chord(bool on, bool up) {
 			midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
 			midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
 			
-			trigger_sp404_loop(advanced_chord);		
+			trigger_sp404_loop(advanced_chord);	
+
+			if (style_change_requested) {
+				style_change_requested = false;
+				
+				// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+				// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+				// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
+
+				if (style_section == 0) 		midi_send_note(0x90, 48, 120);	
+				else if (style_section == 1) 	midi_send_note(0x90, 49, 120);
+				else if (style_section == 2) 	midi_send_note(0x90, 50, 120);
+				else if (style_section == 3) 	midi_send_note(0x90, 51, 120);
+				else if (style_section == 4) 	midi_send_note(0x90, 44, 120);
+				else if (style_section == 5) 	midi_send_note(0x90, 45, 120);
+				else if (style_section == 6) 	midi_send_note(0x90, 46, 120);
+				else if (style_section == 7) 	midi_send_note(0x90, 47, 120);					
+			}
 		}
 	}		
 
