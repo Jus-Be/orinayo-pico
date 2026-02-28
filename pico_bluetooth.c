@@ -2541,7 +2541,7 @@ void trigger_sp404_loop() {
 		else
 			
 		if (sp404_type == 1) {
-			sp404_bass_note = 41;				// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav								
+			sp404_bass_note = 49;				// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav								
 			sp404_bass_cmd = 0x97;
 			
 			if (style_section % 2 == 0) {
