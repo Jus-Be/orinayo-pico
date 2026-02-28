@@ -2334,6 +2334,22 @@ void trigger_sp404_loop() {
 		}
 		else
 			
+		if (sp404_type == 1) {			
+			sp404_bass_note = 44;				// .\01\IN\BMIN_C.wav  	.\01\SAMPLE\8-05-085.wav
+			sp404_bass_cmd = 0x97;
+			
+			if (style_section % 2 == 0) {
+				sp404_chord_note = 48;			// .\01\IN\A\MIN_C.wav 	.\01\SAMPLE\3-01-085.wav
+				sp404_chord_cmd = 0x92;				
+			}
+			else
+			if (style_section % 2 == 1) {
+				sp404_chord_note = 40;			// .\01\IN\B\MIN_C.wav 	.\01\SAMPLE\4-09-085.wav
+				sp404_chord_cmd = 0x93;				
+			}
+		}
+		else
+			
 		if (sp404_type == 2) {						// sus4	
 			sp404_bass_note = 40;		
 			sp404_bass_cmd = 0x96;					// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav
@@ -2344,7 +2360,29 @@ void trigger_sp404_loop() {
 	else
 
 	if ((sp404_chord + transpose - 1) % 12 == 2) 	// D
-	{					
+	{
+		if (sp404_type == 0)						// maj
+		{
+			sp404_bass_note = 42;		
+			sp404_bass_cmd = 0x96;					// .\01\IN\BMAJ_D.wav  	.\01\SAMPLE\7-11-085.wav
+
+			if ((sp404_bass + transpose - 1) % 12 == 6) {	
+				sp404_bass_note = 44;		
+				sp404_bass_cmd = 0x98;				// .\01\IN\BROOT_F#.wav	.\01\SAMPLE\9-05-085.wav
+			} 							
+			
+			if (style_section % 2 == 0) {
+				sp404_chord_cmd = 0x91;				// .\01\IN\A\MAJ_D.wav 	.\01\SAMPLE\2-07-085.wav		
+				sp404_chord_note = 46;	
+			}									
+			else
+			if (style_section % 2 == 1) {
+				sp404_chord_cmd = 0x92;				// .\01\IN\B\MAJ_D.wav 	.\01\SAMPLE\3-15-085.wav		
+				sp404_chord_note = 38;				
+			}																
+		}
+		else
+			
 		if (sp404_type == 1) {			
 			sp404_bass_note = 46;				// .\01\IN\BMIN_D.wav  	.\01\SAMPLE\8-07-085.wav
 			sp404_bass_cmd = 0x97;
@@ -2359,6 +2397,14 @@ void trigger_sp404_loop() {
 				sp404_chord_cmd = 0x93;				
 			}
 		}	
+		else
+			
+		if (sp404_type == 2) {						// sus4	
+			sp404_bass_note = 42;		
+			sp404_bass_cmd = 0x96;					// .\01\IN\BMAJ_D.wav  	.\01\SAMPLE\7-11-085.wav
+			sp404_chord_note = 38;			
+			sp404_chord_cmd = 0x95;					// .\01\IN\SUS_D.wav   	.\01\SAMPLE\6-15-085.wav		
+		}		
 	}
 	else
 
