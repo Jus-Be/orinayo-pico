@@ -2312,7 +2312,7 @@ void trigger_sp404_loop() {
 
 	if ((sp404_chord + transpose - 1) % 12 == 0)	// C
 	{
-		if (sp404_type == 0)		
+		if (sp404_type == 0)						// maj
 		{
 			sp404_bass_note = 40;		
 			sp404_bass_cmd = 0x96;					// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav
@@ -2331,6 +2331,14 @@ void trigger_sp404_loop() {
 				sp404_chord_cmd = 0x92;				// .\01\IN\B\MAJ_C.wav 	.\01\SAMPLE\3-13-085.wav		
 				sp404_chord_note = 36;				
 			}																
+		}
+		else
+			
+		if (sp404_type == 2) {						// sus4	
+			sp404_bass_note = 40;		
+			sp404_bass_cmd = 0x96;					// .\01\IN\BMAJ_C.wav  	.\01\SAMPLE\7-09-085.wav
+			sp404_chord_note = 36;			
+			sp404_chord_cmd = 0x95;					// .\01\IN\SUS_C.wav   	.\01\SAMPLE\6-13-085.wav		
 		}		
 	}
 	else
@@ -2380,10 +2388,21 @@ void trigger_sp404_loop() {
 			sp404_bass_note = 40;					// .\01\IN\BMAJ_F.wav  	.\01\SAMPLE\7-14-085.wav
 			sp404_bass_cmd = 0x96;
 			
+			if ((sp404_bass + transpose - 1) % 12 == 0) {	
+				sp404_bass_note = 48;		
+				sp404_bass_cmd = 0x98;				// .\01\IN\BROOT_C.wav 	.\01\SAMPLE\9-01-085.wav
+			} 
+			else
+			if ((sp404_bass + transpose - 1) % 12 == 7) {	
+				sp404_bass_note = 47;		
+				sp404_bass_cmd = 0x98;				// .\01\IN\BROOT_G.wav    .\01\SAMPLE\9-08-085.wav
+			}
+			else
 			if ((sp404_bass + transpose - 1) % 12 == 9) {	
 				sp404_bass_note = 37;		
 				sp404_bass_cmd = 0x97;				// .\01\IN\BROOT_A.wav 	.\01\SAMPLE\8-14-085.wav
-			} 				
+			}				
+			
 			
 			if (style_section % 2 == 0) {
 				sp404_chord_note = 41;				// .\01\IN\A\MAJ_F.wav 	.\01\SAMPLE\2-10-085.wav
@@ -2404,7 +2423,12 @@ void trigger_sp404_loop() {
 		{
 			sp404_bass_note = 39;				// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav				
 			sp404_bass_cmd = 0x96;
-			
+
+			if ((sp404_bass + transpose - 1) % 12 == 0) {	
+				sp404_bass_note = 48;		
+				sp404_bass_cmd = 0x98;				// .\01\IN\BROOT_C.wav 	.\01\SAMPLE\9-01-085.wav
+			} 
+			else			
 			if ((sp404_bass + transpose - 1) % 12 == 11) {	
 				sp404_bass_note = 38;		
 				sp404_bass_cmd = 0x97;				// .\01\IN\BROOT_B.wav 	.\01\SAMPLE\8-15-085.wav
@@ -2419,7 +2443,15 @@ void trigger_sp404_loop() {
 				sp404_chord_note = 51;			// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav
 				sp404_chord_cmd = 0x93;				
 			}			
-		}				
+		}
+		else
+			
+		if (sp404_type == 2) {						// sus4	
+			sp404_bass_cmd = 0x96;		
+			sp404_bass_note = 39;					// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav				
+			sp404_chord_note = 51;			
+			sp404_chord_cmd = 0x96;					// .\01\IN\SUS_G.wav      .\01\SAMPLE\7-04-085.wav	
+		}		
 	}
 	else
 
