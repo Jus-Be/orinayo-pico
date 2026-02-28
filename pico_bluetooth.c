@@ -800,9 +800,13 @@ void midi_bluetooth_handle_data() {
 						// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
 						
 						midi_send_note(0x90, 37, 120);		// .\01\SAMPLE\1-14-085.wav
-						sp404_chord_note = 0;
-						style_section = 0;
 						style_change_requested = true;
+						style_section = 0;
+						
+						sp404_chord_note = 0;
+						sp404_chord_cmd = 0;
+						sp404_bass_note = 0;
+						sp404_bass_cmd = 0;						
 					}
 					else
 						
@@ -866,7 +870,11 @@ void midi_bluetooth_handle_data() {
 						if (sp404_chord_note > 0) {
 							midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
 							midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
-							sp404_chord_note = 0;						
+							
+							sp404_chord_note = 0;
+							sp404_chord_cmd = 0;
+							sp404_bass_note = 0;
+							sp404_bass_cmd = 0;						
 						}
 					}
 					else
@@ -2467,7 +2475,7 @@ void trigger_sp404_loop() {
 	{				
 		if (sp404_type == 0) 	
 		{
-			sp404_bass_note = 39;				// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav				
+			sp404_bass_note = 39;					// .\01\IN\BMAJ_G.wav  	.\01\SAMPLE\7-16-085.wav				
 			sp404_bass_cmd = 0x96;
 
 			if ((sp404_bass + transpose - 1) % 12 == 0) {	
@@ -2481,12 +2489,12 @@ void trigger_sp404_loop() {
 			}
 			
 			if (style_section % 2 == 0) {
-				sp404_chord_note = 43;			// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
+				sp404_chord_note = 43;				// .\01\IN\A\MAJ_G.wav 	.\01\SAMPLE\2-12-085.wav
 				sp404_chord_cmd = 0x91;				
 			}
 			else
 			if (style_section % 2 == 1) {
-				sp404_chord_note = 51;			// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav
+				sp404_chord_note = 51;				// .\01\IN\B\MAJ_G.wav 	.\01\SAMPLE\4-04-085.wav
 				sp404_chord_cmd = 0x93;				
 			}			
 		}
@@ -2502,9 +2510,36 @@ void trigger_sp404_loop() {
 	else
 
 	if ((sp404_chord + transpose - 1) % 12 == 9) 	// A
-	{				
+	{	
+		if (sp404_type == 0) 	
+		{
+			sp404_bass_note = 45;					// .\01\IN\BMAJ_A.wav  	.\01\SAMPLE\7-06-085.wav				
+			sp404_bass_cmd = 0x96;
+
+			if ((sp404_bass + transpose - 1) % 12 == 2) {	
+				sp404_bass_note = 50;		
+				sp404_bass_cmd = 0x98;				// .\01\IN\BROOT_D.wav 	.\01\SAMPLE\9-03-085.wav
+			} 
+			else			
+			if ((sp404_bass + transpose - 1) % 12 == 1) {	
+				sp404_bass_note = 39;		
+				sp404_bass_cmd = 0x97;				// .\01\IN\BROOT_C#.wav	.\01\SAMPLE\8-16-085.wav
+			}
+			
+			if (style_section % 2 == 0) {
+				sp404_chord_note = 49;				// .\01\IN\A\MAJ_A.wav 	.\01\SAMPLE\2-02-085.wav
+				sp404_chord_cmd = 0x91;				
+			}
+			else
+			if (style_section % 2 == 1) {
+				sp404_chord_note = 41;				// .\01\IN\B\MAJ_A.wav 	.\01\SAMPLE\3-10-085.wav
+				sp404_chord_cmd = 0x92;				
+			}			
+		}
+		else
+			
 		if (sp404_type == 1) {
-			sp404_bass_note = 49;				// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav								
+			sp404_bass_note = 41;				// .\01\IN\BMIN_A.wav  	.\01\SAMPLE\8-02-085.wav								
 			sp404_bass_cmd = 0x97;
 			
 			if (style_section % 2 == 0) {
@@ -2516,7 +2551,15 @@ void trigger_sp404_loop() {
 				sp404_chord_note = 45;			// .\01\IN\B\MIN_A.wav 	.\01\SAMPLE\4-06-085.wav
 				sp404_chord_cmd = 0x93;				
 			}
-		}				
+		}
+		else
+			
+		if (sp404_type == 2) {						// sus4	
+			sp404_bass_note = 45;					// .\01\IN\BMAJ_A.wav  	.\01\SAMPLE\7-06-085.wav				
+			sp404_bass_cmd = 0x96;			
+			sp404_chord_note = 41;			
+			sp404_chord_cmd = 0x95;					// .\01\IN\SUS_A.wav   	.\01\SAMPLE\6-10-085.wav
+		}		
 	}			
 	
 	if (sp404_old_bass_note != sp404_bass_note || sp404_old_bass_cmd != sp404_bass_cmd) { 
