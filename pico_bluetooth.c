@@ -115,8 +115,8 @@ int sp404_chord_note = 0;
 int sp404_bass_note = 0;
 int sp404_chord_cmd = 0;
 int sp404_bass_cmd = 0;
-int sp404_old_bass_note = -1;
-int sp404_old_chord_note = -1;
+int sp404_old_bass_note = 0;
+int sp404_old_chord_note = 0;
 int transpose = 0; 
 int midi_current_step = 0;
 
@@ -2078,10 +2078,7 @@ void play_chord(bool on, bool up) {
 		
 	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
 	{		
-		if (handled && (style_change_requested || sp404_old_bass_note != sp404_bass_note || sp404_old_chord_note != sp404_chord_note) && style_started) 		{			
-			midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
-			midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
-			
+		if (handled && style_started) 		{				
 			trigger_sp404_loop(advanced_chord);	
 
 			if (style_change_requested) {
@@ -2306,6 +2303,9 @@ void trigger_sp404_loop(int chord) {
 	uint8_t sp404_chord = (uint8_t) (chord / 256);
 	uint8_t sp404_bass = (uint8_t) ((chord % 256) / 16);			
 	uint8_t sp404_type = (uint8_t) ((chord % 256) % 16);
+	
+	sp404_old_bass_note = sp404_bass_note;	
+	sp404_old_chord_note = sp404_chord_note;
 		
 	// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
 	// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
@@ -2443,12 +2443,12 @@ void trigger_sp404_loop(int chord) {
 	}			
 	
 	if (sp404_old_bass_note != sp404_bass_note) { 
-		sp404_old_bass_note = sp404_bass_note;	
+		midi_send_note(sp404_old_bass_note, sp404_bass_note, velocity);
 		midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);	
 	}
 	
-	if (sp404_old_chord_note != sp404_chord_note) {
-		sp404_old_chord_note = sp404_chord_note;		
+	if (sp404_old_chord_note != sp404_chord_note) {	
+		midi_send_note(sp404_old_chord_note, sp404_chord_note, velocity);	
 		midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
 	}	
 }
