@@ -803,10 +803,10 @@ void midi_bluetooth_handle_data() {
 						style_change_requested = true;
 						style_section = 0;
 						
-						sp404_chord_note = sp404_old_chord_note;
-						sp404_chord_cmd = sp404_old_chord_cmd;
-						sp404_bass_note = sp404_old_bass_note;
-						sp404_bass_cmd = sp404_old_bass_cmd;						
+						sp404_chord_note = 0;
+						sp404_chord_cmd = 0;
+						sp404_bass_note = 0;
+						sp404_bass_cmd = 0;						
 					}
 					else
 						
@@ -868,14 +868,16 @@ void midi_bluetooth_handle_data() {
 						midi_send_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
 
 						if (sp404_old_chord_note > 0) {
-							midi_send_note(sp404_old_chord_cmd, sp404_old_chord_note, 120);	// stop current loop
-							midi_send_note(sp404_old_bass_cmd, sp404_old_bass_note, 120);
-							
-							sp404_chord_note = sp404_old_chord_note;
-							sp404_chord_cmd = sp404_old_chord_cmd;
-							sp404_bass_note = sp404_old_bass_note;
-							sp404_bass_cmd = sp404_old_bass_cmd;						
+							midi_send_note(sp404_old_chord_cmd, sp404_old_chord_note, 120);
+							sp404_old_chord_note = 0;
+							sp404_old_chord_cmd = 0;							
 						}
+
+						if (sp404_old_bass_note > 0) {						
+							midi_send_note(sp404_old_bass_cmd, sp404_old_bass_note, 120);
+							sp404_old_bass_note = 0;
+							sp404_old_bass_cmd = 0;							
+						}						
 					}
 					else
 						
