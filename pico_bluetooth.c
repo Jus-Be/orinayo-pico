@@ -111,11 +111,12 @@ int advanced_chord = 0;
 int last_chord_note = 0;
 int last_chord_type = 0;
 int last_basic_chord = 0;
-int last_advanced_chord = 0;
 int sp404_chord_note = 0;
 int sp404_bass_note = 0;
 int sp404_chord_cmd = 0;
 int sp404_bass_cmd = 0;
+int sp404_old_bass_note = -1;
+int sp404_old_chord_note = -1;
 int transpose = 0; 
 int midi_current_step = 0;
 
@@ -705,7 +706,6 @@ void midi_bluetooth_handle_data() {
 		logo = mbut0;
 		
 		last_basic_chord = 0;
-		last_advanced_chord = 0;
 
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
 		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 		// 	/drums/nn.wav	
@@ -2078,9 +2078,7 @@ void play_chord(bool on, bool up) {
 		
 	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
 	{		
-		if (handled && (last_advanced_chord != advanced_chord || style_change_requested) && style_started) 		{
-			last_advanced_chord = advanced_chord;	
-			
+		if (handled && (style_change_requested || sp404_old_bass_note != sp404_bass_note || sp404_old_chord_note != sp404_chord_note) && style_started) 		{			
 			midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
 			midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
 			
@@ -2308,10 +2306,7 @@ void trigger_sp404_loop(int chord) {
 	uint8_t sp404_chord = (uint8_t) (chord / 256);
 	uint8_t sp404_bass = (uint8_t) ((chord % 256) / 16);			
 	uint8_t sp404_type = (uint8_t) ((chord % 256) % 16);
-	
-	uint8_t old_bass_note = sp404_bass_note;
-	uint8_t old_chord_note = sp404_chord_note;
-	
+		
 	// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
 	// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
 	// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51			
@@ -2447,11 +2442,13 @@ void trigger_sp404_loop(int chord) {
 		}				
 	}			
 	
-	if (old_bass_note != sp404_bass_note) {
+	if (sp404_old_bass_note != sp404_bass_note) { 
+		sp404_old_bass_note = sp404_bass_note;	
 		midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);	
 	}
 	
-	if (old_chord_note = sp404_chord_note) {
+	if (sp404_old_chord_note != sp404_chord_note) {
+		sp404_old_chord_note = sp404_chord_note;		
 		midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
 	}	
 }
