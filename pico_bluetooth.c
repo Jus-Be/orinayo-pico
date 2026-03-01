@@ -2382,7 +2382,7 @@ void trigger_sp404_loop() {
 		sp404_bass_note = pad2midi[samples[bass_sample][0][1]];	
 		sp404_bass_cmd = 0x90 + samples[bass_sample][0][0] - 1;		
 		sp404_chord_note = pad2midi[samples[chord_sample][7][1]];			
-		sp404_chord_cmd = 0x90 + samples[chord_sample][7][0] - 1;	}		
+		sp404_chord_cmd = 0x90 + samples[chord_sample][7][0] - 1;		
 	}
 
 	
