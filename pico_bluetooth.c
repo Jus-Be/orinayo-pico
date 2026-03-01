@@ -2342,46 +2342,46 @@ void trigger_sp404_loop() {
 	uint8_t chord_sample = (sp404_chord + transpose - 1) % 12;	
 
 	if (sp404_type == 0) {												// Bass in major
-		sp404_bass_note = pad2midi[samples[bass_sample][0][1]];	
+		sp404_bass_note = pad2midi[samples[bass_sample][0][1] - 1];	
 		sp404_bass_cmd = 0x90 + samples[bass_sample][0][0] - 1;							
 
 		if (bass_sample != chord_sample) {								// Bass in root
-			sp404_bass_note = pad2midi[samples[bass_sample][1][1]];			
+			sp404_bass_note = pad2midi[samples[bass_sample][1][1] - 1];			
 			sp404_bass_cmd = 0x90 + samples[bass_sample][1][0] - 1;	
 		} 			
 		
 		// Chords
 		
 		if (style_section % 2 == 0) {									// C-1
-			sp404_chord_note = pad2midi[samples[chord_sample][2][1]];			
+			sp404_chord_note = pad2midi[samples[chord_sample][2][1] - 1];			
 			sp404_chord_cmd = 0x90 + samples[chord_sample][2][0] - 1;	
 		}									
 		else
 		if (style_section % 2 == 1) {									// C-2
-			sp404_chord_note = pad2midi[samples[chord_sample][3][1]];			
+			sp404_chord_note = pad2midi[samples[chord_sample][3][1] - 1];			
 			sp404_chord_cmd = 0x90 + samples[chord_sample][3][0] - 1;			
 		}																
 	}
 	else		
 	if (sp404_type == 1) {												// Bass in minor		
-		sp404_bass_note = pad2midi[samples[bass_sample][4][1]];	
+		sp404_bass_note = pad2midi[samples[bass_sample][4][1] - 1];	
 		sp404_bass_cmd = 0x90 + samples[bass_sample][4][0] - 1;	
 		
 		if (style_section % 2 == 0) {
-			sp404_chord_note = pad2midi[samples[chord_sample][5][1]];			
+			sp404_chord_note = pad2midi[samples[chord_sample][5][1] - 1];			
 			sp404_chord_cmd = 0x90 + samples[chord_sample][5][0] - 1;						
 		}
 		else
 		if (style_section % 2 == 1) {
-			sp404_chord_note = pad2midi[samples[chord_sample][6][1]];			
+			sp404_chord_note = pad2midi[samples[chord_sample][6][1] - 1];			
 			sp404_chord_cmd = 0x90 + samples[chord_sample][6][0] - 1;						
 		}
 	}
 	else		
 	if (sp404_type == 2) {												// Sus4	
-		sp404_bass_note = pad2midi[samples[bass_sample][0][1]];	
+		sp404_bass_note = pad2midi[samples[bass_sample][0][1] - 1];	
 		sp404_bass_cmd = 0x90 + samples[bass_sample][0][0] - 1;		
-		sp404_chord_note = pad2midi[samples[chord_sample][7][1]];			
+		sp404_chord_note = pad2midi[samples[chord_sample][7][1] - 1];			
 		sp404_chord_cmd = 0x90 + samples[chord_sample][7][0] - 1;		
 	}
 
