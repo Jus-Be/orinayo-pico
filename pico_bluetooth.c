@@ -2144,7 +2144,7 @@ void play_chord(bool on, bool up) {
 				else {	
 					int strum_index = active_strum_pattern;
 					
-					if (active_strum_pattern > 1) {
+					if (active_strum_pattern > 1 && active_neck_pos > 1) {
 						strum_index = active_strum_pattern + ((style_section % 4) * 3);	// use 4 style variations to cover arps 3-14
 					}
 					
@@ -2204,9 +2204,9 @@ void play_chord(bool on, bool up) {
 						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
-						if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, 33);						
+						if (!enable_modx && !enable_seqtrak && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, 33);						
 						midi_send_note(0x90, note, 120);
-						if (!enable_modx && !enable_seqtrak && !enable_synth) midi_send_program_change(0xC0, guitar_pc_code);	
+						if (!enable_modx && !enable_seqtrak && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, guitar_pc_code);	
 						
 						old_midinotes[0] = note;						
 					}					
@@ -2323,7 +2323,7 @@ void trigger_sp404_loop() {
 	uint8_t pad2midi[16] = {48, 49, 50, 51, 44, 45, 46, 47, 40, 41, 42, 43, 36, 37, 38, 39};
 	
 	uint8_t samples[12][9][2] = 
-	{	// BMaj,   BRoot,    MajA,	   MajB,     Bmin,   MinA,     MinB,    Sus4
+	{	// BMaj,   BRoot,    MajA,	 MajB,    Bmin,   MinA,     MinB,    Sus4
 		{{7, 9},  {9, 1},  {2, 5},  {3, 13}, {8, 5}, {3, 1},  {4, 9},  {6, 13}},	// C
 		{{7, 8},  {8, 16}, {2, 4},  {3, 12}, {8, 4}, {2, 16}, {4, 8},  {6, 12}},	// C#
 		{{7, 11}, {9, 3},  {2, 7},  {3, 15}, {8, 7}, {3, 3},  {4, 11}, {6, 15}},	// D
