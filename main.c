@@ -508,7 +508,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
 
 	if (enable_seqtrak) channel = 8;
-	if (enable_sp404mk2) channel = 15;
+	if (enable_sp404mk2) channel = 14;
 	
 	uint8_t msg[3];	
 	

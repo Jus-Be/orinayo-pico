@@ -1654,7 +1654,11 @@ void config_guitar(uint8_t mode) {
 
 	if (mode == 14) {
 		enable_sp404mk2 = !enable_sp404mk2;					// Roland SP404 MK2
-		enable_style_play = !enable_sp404mk2;		
+		enable_style_play = !enable_sp404mk2;
+
+		if (enable_sp404mk2) {
+			midi_send_program_change(0xCE, guitar_pc_code);	// Midi channel 14 (ignored by sp404mk2)
+		}
 	}
 	else
 		
