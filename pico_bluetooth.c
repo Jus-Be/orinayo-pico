@@ -1657,7 +1657,7 @@ void config_guitar(uint8_t mode) {
 		enable_style_play = !enable_sp404mk2;
 
 		if (enable_sp404mk2) {
-			midi_send_program_change(0xCE, guitar_pc_code);	// Midi channel 14 (ignored by sp404mk2)
+
 		}
 	}
 	else
