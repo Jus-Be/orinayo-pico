@@ -107,6 +107,7 @@ void midi_modx_arp_hold(uint8_t part, bool on);
 void midi_modx_arp_realtime(uint8_t part, bool on);
 void midi_modx_arp_octave(uint8_t octave);
 void dream_set_delay(int tempo);
+void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 uint8_t get_arp_template(void);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -493,9 +494,21 @@ uint8_t get_arp_template(void) {
 	return 15;	
 }
 
+void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
+	uint8_t msg[3];	
+	
+	msg[0] = command;
+	msg[1] = note;
+	msg[2] = velocity;   
+		
+	midi_n_stream_write(0, 0, msg, 3);			
+}
+
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
+
 	if (enable_seqtrak) channel = 8;
+	if (enable_sp404mk2) channel = 15;
 	
 	uint8_t msg[3];	
 	

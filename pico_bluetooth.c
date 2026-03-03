@@ -160,7 +160,8 @@ void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
 void dream_set_delay(int tempo);
-void trigger_sp404_loop();
+void sp404_trigger_loop();
+void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -625,8 +626,8 @@ void midi_bluetooth_handle_data() {
 				stop_chord();						// kill any sustained notes
 				
 				if (enable_sp404mk2 && style_started && sp404_chord_note > 0) {		
-					midi_send_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
-					midi_send_note(sp404_bass_cmd, sp404_bass_note, 120);
+					sp404_midi_note(sp404_chord_cmd, sp404_chord_note, 120);	// stop current loop
+					sp404_midi_note(sp404_bass_cmd, sp404_bass_note, 120);
 					sp404_old_chord_note = 0;
 					sp404_old_bass_note = 0;					
 				}				
@@ -806,7 +807,7 @@ void midi_bluetooth_handle_data() {
 						// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
 						
 						sp404_drum_note = 37;
-						midi_send_note(0x90, sp404_drum_note, 120);		// .\01\SAMPLE\1-14-085.wav	
+						sp404_midi_note(0x90, sp404_drum_note, 120);		// .\01\SAMPLE\1-14-085.wav	
 						sp404_old_drum_note = sp404_drum_note;
 						
 						style_change_requested = true;
@@ -874,22 +875,22 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{
 					if (enable_sp404mk2) {
-						midi_send_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
+						sp404_midi_note(0x90, 40, 120);		// .\01\SAMPLE\1-09-085.wav
 
 						if (sp404_old_chord_note > 0) {
-							midi_send_note(sp404_old_chord_cmd, sp404_old_chord_note, 120);
+							sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, 120);
 							sp404_old_chord_note = 0;
 							sp404_old_chord_cmd = 0;							
 						}
 
 						if (sp404_old_bass_note > 0) {						
-							midi_send_note(sp404_old_bass_cmd, sp404_old_bass_note, 120);
+							sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, 120);
 							sp404_old_bass_note = 0;
 							sp404_old_bass_cmd = 0;							
 						}
 
 						if (sp404_old_drum_note > 0) {
-							midi_send_note(0x90, sp404_old_drum_note, 120);
+							sp404_midi_note(0x90, sp404_old_drum_note, 120);
 							sp404_old_drum_note = 0;
 						}
 		
@@ -2107,7 +2108,7 @@ void play_chord(bool on, bool up) {
 	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
 	{		
 		if (handled && style_started && on) {				
-			trigger_sp404_loop();	
+			sp404_trigger_loop();	
 
 			if (style_change_requested) {
 				style_change_requested = false;
@@ -2117,7 +2118,7 @@ void play_chord(bool on, bool up) {
 				// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
 				
 				if (sp404_old_drum_note > 0) {
-					midi_send_note(0x90, sp404_old_drum_note, 120);
+					sp404_midi_note(0x90, sp404_old_drum_note, 120);
 				}				
 
 				if (style_section == 0) 		sp404_drum_note = 48;	
@@ -2130,7 +2131,7 @@ void play_chord(bool on, bool up) {
 				else if (style_section == 7) 	sp404_drum_note = 47;	
 
 				
-				midi_send_note(0x90, sp404_drum_note, 120);
+				sp404_midi_note(0x90, sp404_drum_note, 120);
 				sp404_old_drum_note = sp404_drum_note;
 				
 			}
@@ -2147,11 +2148,6 @@ void play_chord(bool on, bool up) {
 		if (!handled && active_strum_pattern > 1 && active_neck_pos > 1) {	// play strum of last chord for ample guitar arppergio noises and non bass notes
 			handled = true;
 			strum_last_chord = true;
-		}
-		
-		if (enable_sp404mk2) {	// TODO
-			
-			return;
 		}
 		
 		if (handled) 
@@ -2335,7 +2331,7 @@ void play_chord(bool on, bool up) {
 	} 		
 }
 
-void trigger_sp404_loop() {
+void sp404_trigger_loop() {
 	uint8_t velocity = 120;
 	uint8_t sp404_chord = (uint8_t) (advanced_chord / 256);
 	uint8_t sp404_bass = (uint8_t) ((advanced_chord % 256) / 16);			
@@ -2412,17 +2408,17 @@ void trigger_sp404_loop() {
 
 	
 	if (sp404_old_bass_note != sp404_bass_note || sp404_old_bass_cmd != sp404_bass_cmd) { 
-		if (sp404_old_bass_note != 0) midi_send_note(sp404_old_bass_cmd, sp404_old_bass_note, velocity);
+		if (sp404_old_bass_note != 0) sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, velocity);
 		
-		midi_send_note(sp404_bass_cmd, sp404_bass_note, velocity);
+		sp404_midi_note(sp404_bass_cmd, sp404_bass_note, velocity);
 		sp404_old_bass_cmd = sp404_bass_cmd;			
 		sp404_old_bass_note = sp404_bass_note;		
 	}
 	
 	if (sp404_old_chord_note != sp404_chord_note || sp404_old_chord_cmd != sp404_chord_cmd) {	
-		if (sp404_old_chord_note != 0) midi_send_note(sp404_old_chord_cmd, sp404_old_chord_note, velocity);	
+		if (sp404_old_chord_note != 0) sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, velocity);	
 		
-		midi_send_note(sp404_chord_cmd, sp404_chord_note, velocity);
+		sp404_midi_note(sp404_chord_cmd, sp404_chord_note, velocity);
 		sp404_old_chord_cmd	= sp404_chord_cmd;		
 		sp404_old_chord_note = sp404_chord_note;	
 	}	
