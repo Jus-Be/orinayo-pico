@@ -634,7 +634,7 @@ void midi_bluetooth_handle_data() {
 			}
 		}	
 		
-		if (but6) {
+		if (but6 && !enable_sp404mk2) {
 			if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
 			else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
 			else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
