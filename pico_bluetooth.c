@@ -2123,7 +2123,6 @@ void play_chord(bool on, bool up) {
 				
 				if (sp404_old_drum_note > 0) {
 					sp404_midi_note(0x90, sp404_old_drum_note, 120);
-					if (!enable_drum_track) sp404_old_drum_note = 0;
 				}				
 
 				if (style_section == 0) 		sp404_drum_note = 48;	
@@ -2135,10 +2134,8 @@ void play_chord(bool on, bool up) {
 				else if (style_section == 6) 	sp404_drum_note = 46;
 				else if (style_section == 7) 	sp404_drum_note = 47;	
 
-				if (enable_drum_track) {
-					sp404_midi_note(0x90, sp404_drum_note, 120);
-					sp404_old_drum_note = sp404_drum_note;
-				}
+				sp404_midi_note(0x90, sp404_drum_note, 120);
+				sp404_old_drum_note = sp404_drum_note;
 				
 			}
 		}
@@ -2412,27 +2409,22 @@ void sp404_trigger_loop() {
 		sp404_chord_cmd = 0x90 + samples[chord_sample][7][0] - 1;		
 	}
 
-	if (enable_bass_track) 
-	{
-		if (sp404_old_bass_note != sp404_bass_note || sp404_old_bass_cmd != sp404_bass_cmd) { 
-			if (sp404_old_bass_note != 0) sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, velocity);
-			
-			sp404_midi_note(sp404_bass_cmd, sp404_bass_note, velocity);
-			sp404_old_bass_cmd = sp404_bass_cmd;			
-			sp404_old_bass_note = sp404_bass_note;		
-		}
+	
+	if (sp404_old_bass_note != sp404_bass_note || sp404_old_bass_cmd != sp404_bass_cmd) { 
+		if (sp404_old_bass_note != 0) sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, velocity);
+		
+		sp404_midi_note(sp404_bass_cmd, sp404_bass_note, velocity);
+		sp404_old_bass_cmd = sp404_bass_cmd;			
+		sp404_old_bass_note = sp404_bass_note;		
 	}
-
-	if (enable_chord_track) 
-	{	
-		if (sp404_old_chord_note != sp404_chord_note || sp404_old_chord_cmd != sp404_chord_cmd) {	
-			if (sp404_old_chord_note != 0) sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, velocity);	
-			
-			sp404_midi_note(sp404_chord_cmd, sp404_chord_note, velocity);
-			sp404_old_chord_cmd	= sp404_chord_cmd;		
-			sp404_old_chord_note = sp404_chord_note;	
-		}	
-	}
+	
+	if (sp404_old_chord_note != sp404_chord_note || sp404_old_chord_cmd != sp404_chord_cmd) {	
+		if (sp404_old_chord_note != 0) sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, velocity);	
+		
+		sp404_midi_note(sp404_chord_cmd, sp404_chord_note, velocity);
+		sp404_old_chord_cmd	= sp404_chord_cmd;		
+		sp404_old_chord_note = sp404_chord_note;	
+	}	
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
