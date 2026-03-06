@@ -471,7 +471,7 @@ void midi_bluetooth_handle_data() {
 				else 
 					
 				if (enable_sp404mk2) {
-					sp404_old_drum_note = 0;
+					//sp404_old_drum_note = 0;
 				}
 				
 			}				
@@ -495,7 +495,7 @@ void midi_bluetooth_handle_data() {
 				else 
 					
 				if (enable_sp404mk2) {
-					sp404_old_chord_note = 0;
+					//sp404_old_chord_note = 0;
 				}				
 			}
 		}
@@ -507,7 +507,7 @@ void midi_bluetooth_handle_data() {
 				enable_bass_track = !enable_bass_track;	
 					
 				if (enable_sp404mk2) {
-					sp404_old_bass_note = 0;
+					//sp404_old_bass_note = 0;
 				}				
 			}
 		}
