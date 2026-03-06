@@ -123,9 +123,9 @@ int sp404_old_bass_note = 0;
 int sp404_old_chord_note = 0;
 int sp404_old_bass_cmd = 0;
 int sp404_old_chord_cmd = 0;
-int sp404_drum_velocity = 100;
+int sp404_drum_velocity = 120;
 int sp404_bass_velocity = 127;
-int sp404_chord_velocity = 120;
+int sp404_chord_velocity = 100;
 
 int transpose = 0; 
 int midi_current_step = 0;
