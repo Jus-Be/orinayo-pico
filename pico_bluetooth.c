@@ -470,8 +470,12 @@ void midi_bluetooth_handle_data() {
 				}
 				else 
 					
-				if (enable_sp404mk2) {
-					//sp404_old_drum_note = 0;
+				if (enable_sp404mk2) 
+				{
+					if (!enable_drum_track) {
+						sp404_midi_note(0x90, sp404_old_drum_note, 10);
+						sp404_old_drum_note = 0;
+					}
 				}
 				
 			}				
@@ -494,8 +498,12 @@ void midi_bluetooth_handle_data() {
 				}
 				else 
 					
-				if (enable_sp404mk2) {
-					//sp404_old_chord_note = 0;
+				if (enable_sp404mk2) 
+				{
+					if (!enable_chord_track) {	
+						sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, 10);					
+						sp404_old_chord_note = 0;
+					]
 				}				
 			}
 		}
@@ -506,8 +514,12 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				enable_bass_track = !enable_bass_track;	
 					
-				if (enable_sp404mk2) {
-					//sp404_old_bass_note = 0;
+				if (enable_sp404mk2) 
+				{
+					if (!enable_bass_track) {	
+						sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, 10);					
+						sp404_old_bass_note = 0;
+					]
 				}				
 			}
 		}
