@@ -125,7 +125,7 @@ int sp404_old_bass_cmd = 0;
 int sp404_old_chord_cmd = 0;
 int sp404_drum_velocity = 120;
 int sp404_bass_velocity = 127;
-int sp404_chord_velocity = 90;
+int sp404_chord_velocity = 80;
 
 int transpose = 0; 
 int midi_current_step = 0;
@@ -525,8 +525,11 @@ void midi_bluetooth_handle_data() {
 		}
 		else
 
-		if (yellow && orange) {
-			if (but6) enable_style_play = !enable_style_play;	// toggle chord generation
+		if (yellow && orange) 
+		{
+			if (but6 && !enable_sp404mk2) {
+				enable_style_play = !enable_style_play;	// toggle chord generation
+			}
 		}				
 		else
 
@@ -655,10 +658,10 @@ void midi_bluetooth_handle_data() {
 				stop_chord();						// kill any sustained notes
 				
 				if (enable_sp404mk2 && style_started && sp404_chord_note > 0) {		
-					sp404_midi_note(sp404_chord_cmd, sp404_chord_note, enable_chord_track ? sp404_chord_velocity : 10);	// stop current loop
-					sp404_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sp404_bass_velocity : 10);
-					sp404_old_chord_note = 0;
-					sp404_old_bass_note = 0;					
+					//sp404_midi_note(sp404_chord_cmd, sp404_chord_note, enable_chord_track ? sp404_chord_velocity : 10);	// stop current loop
+					//sp404_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sp404_bass_velocity : 10);
+					//sp404_old_chord_note = 0;
+					//sp404_old_bass_note = 0;					
 				}				
 			}
 		}	
