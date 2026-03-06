@@ -125,7 +125,7 @@ int sp404_old_bass_cmd = 0;
 int sp404_old_chord_cmd = 0;
 int sp404_drum_velocity = 120;
 int sp404_bass_velocity = 127;
-int sp404_chord_velocity = 100;
+int sp404_chord_velocity = 90;
 
 int transpose = 0; 
 int midi_current_step = 0;
@@ -468,6 +468,11 @@ void midi_bluetooth_handle_data() {
 				if (enable_audio_drums) {
 					m5audio_set_volume(enable_drum_track ? 20 : 0);
 				}
+				else 
+					
+				if (enable_sp404mk2) {
+					sp404_old_drum_note = 0;
+				}
 				
 			}				
 		}
@@ -487,6 +492,11 @@ void midi_bluetooth_handle_data() {
 				if (enable_rclooper) {
 					midi_send_control_change(0xB3, enable_chord_track ? 70 : 71, 127);
 				}
+				else 
+					
+				if (enable_sp404mk2) {
+					sp404_old_chord_note = 0;
+				}				
 			}
 		}
 		else				
@@ -494,7 +504,11 @@ void midi_bluetooth_handle_data() {
 		if (red && blue) 	
 		{				
 			if (but6) {
-				enable_bass_track = !enable_bass_track;									
+				enable_bass_track = !enable_bass_track;	
+					
+				if (enable_sp404mk2) {
+					sp404_old_bass_note = 0;
+				}				
 			}
 		}
 		else
