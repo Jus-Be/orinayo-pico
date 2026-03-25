@@ -10,7 +10,7 @@
 #include "pico/flash.h"
 
 #ifndef GHOST_FLASH_BANK_STORAGE_OFFSET
-#define GHOST_FLASH_BANK_STORAGE_OFFSET (256 * 1024)
+#define GHOST_FLASH_BANK_STORAGE_OFFSET ((4 * 1024 * 1024) - (4096 * 4))
 #endif
 
 #define MAGIC_HEADER "GHST"
@@ -70,8 +70,10 @@ bool storage_store_preferences(void) {
 bool storage_load_preferences(void) {
     const storage_preference_t *data = (const storage_preference_t *)(XIP_BASE + GHOST_FLASH_BANK_STORAGE_OFFSET);
 
-    if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0)
+    if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0) {
+		storage_erase_tracks();
         return false;
+	}
 	
 	enable_ample_guitar = data->preferences[0];
 	enable_midi_drums 	= data->preferences[1];
