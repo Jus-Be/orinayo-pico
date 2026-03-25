@@ -159,6 +159,7 @@ void midi_yamaha_arr(uint8_t code, bool on);
 void midi_process_state(uint64_t start_us);
 void midi_bluetooth_handle_data();
 void config_guitar(uint8_t mode);
+void config_ample_guitar();
 void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
@@ -335,6 +336,8 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   
   //midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
   midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
+  
+  config_ample_guitar();
   
   return UNI_ERROR_SUCCESS;
 }
@@ -1800,10 +1803,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 		// Ample Guitar VST mode
-		enable_style_play = enable_ample_guitar;
-		
-		midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-		midi_send_note(0x90, 86, 127);
+		config_ample_guitar();
 	}
 	else
 		
@@ -1837,6 +1837,13 @@ void config_guitar(uint8_t mode) {
 	}
 	
 	storage_store_preferences();
+}
+
+void config_ample_guitar() {
+	enable_style_play = enable_ample_guitar;
+	
+	midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
+	midi_send_note(0x90, 86, 127);	
 }
 
 void play_chord(bool on, bool up) {
