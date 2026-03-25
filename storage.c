@@ -10,7 +10,7 @@
 #include "pico/flash.h"
 
 #ifndef GHOST_FLASH_BANK_STORAGE_OFFSET
-#define GHOST_FLASH_BANK_STORAGE_OFFSET ((4 * 1024 * 1024) - (4096 * 4))
+#define GHOST_FLASH_BANK_STORAGE_OFFSET ((4 * 1024 * 1024) - (FLASH_SECTOR_SIZE * 4))
 #endif
 
 #define MAGIC_HEADER "GHST"
@@ -47,6 +47,13 @@ static void flash_bank_perform_operation(void *param) {
     } else {
         flash_range_program(mop->p0, (const uint8_t *)mop->p1, FLASH_PAGE_SIZE);
     }
+}
+
+
+bool storage_erase_tracks(void) {
+    mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
+    flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
+    return true;
 }
 
 bool storage_store_preferences(void) {
@@ -99,12 +106,6 @@ bool storage_load_tracks(void) {
             tracks[t].pattern[i] = data->pattern[t][i];
         }
     }
-    return true;
-}
-
-bool storage_erase_tracks(void) {
-    mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
-    flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
     return true;
 }
 
