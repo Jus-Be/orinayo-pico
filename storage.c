@@ -10,7 +10,7 @@
 #include "pico/flash.h"
 
 #ifndef GHOST_FLASH_BANK_STORAGE_OFFSET
-#define GHOST_FLASH_BANK_STORAGE_OFFSET (2 * 1024 * 1024)
+#define GHOST_FLASH_BANK_STORAGE_OFFSET (3 * 1024 * 1024)
 #endif
 
 #define MAGIC_HEADER "GHST"
@@ -18,7 +18,7 @@
 
 typedef struct {
     uint32_t magic;	
-    bool preferences[FLASH_PAGE_SIZE];
+    bool preferences[16];
 } storage_preference_t;
 
 typedef struct {

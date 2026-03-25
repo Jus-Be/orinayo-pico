@@ -335,7 +335,7 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
   
   //midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
-  midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
+  //midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
   
   config_ample_guitar();
   
