@@ -17,6 +17,7 @@
 #define NUM_TRACKS 4
 
 typedef struct {
+    uint32_t magic;	
     bool preferences[FLASH_PAGE_SIZE];
 } storage_preference_t;
 
@@ -52,6 +53,8 @@ bool storage_store_preferences(void) {
     uint8_t storage[FLASH_PAGE_SIZE];
     storage_preference_t *data = (storage_preference_t *)&storage;	
 
+    memcpy(&data->magic, MAGIC_HEADER, sizeof(data->magic));
+	
 	data->preferences[0] = enable_ample_guitar;
 	data->preferences[1] = enable_midi_drums;
 	data->preferences[2] = enable_seqtrak;
@@ -66,6 +69,9 @@ bool storage_store_preferences(void) {
 
 bool storage_load_preferences(void) {
     const storage_preference_t *data = (const storage_preference_t *)(XIP_BASE + GHOST_FLASH_BANK_STORAGE_OFFSET);
+
+    if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0)
+        return false;
 	
 	enable_ample_guitar = data->preferences[0];
 	enable_midi_drums 	= data->preferences[1];
