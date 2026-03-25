@@ -1835,6 +1835,8 @@ void config_guitar(uint8_t mode) {
 			midi_send_control_change(0xB3, 92, 0);						
 		}
 	}
+	
+	storage_store_preferences();
 }
 
 void play_chord(bool on, bool up) {

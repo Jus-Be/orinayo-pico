@@ -10,3 +10,5 @@
 bool storage_load_tracks(void);
 bool storage_erase_tracks(void);
 bool storage_store_tracks(void);
+bool storage_store_preferences(void);
+bool storage_load_preferences(void);

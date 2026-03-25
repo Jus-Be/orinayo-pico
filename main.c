@@ -138,7 +138,8 @@ int main() {
 	bluetooth_init();
 	
 	tud_task();	
-	storage_load_tracks();		
+	//storage_load_tracks();
+	storage_load_preferences();	
 
     //struct repeating_timer timer;	
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
