@@ -39,6 +39,15 @@ extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
 
+static void flash_bank_perform_operation(void *param) {
+    const mutation_operation_t *mop = (const mutation_operation_t *)param;
+    if (mop->op_is_erase) {
+        flash_range_erase(mop->p0, FLASH_SECTOR_SIZE);
+    } else {
+        flash_range_program(mop->p0, (const uint8_t *)mop->p1, FLASH_PAGE_SIZE);
+    }
+}
+
 bool storage_store_preferences(void) {
     uint8_t storage[FLASH_PAGE_SIZE];
     storage_preference_t *data = (storage_preference_t *)&storage;	
@@ -64,15 +73,6 @@ bool storage_load_preferences(void) {
 	enable_modx 		= data->preferences[3];
 	enable_sp404mk2 	= data->preferences[4];
     return true;
-}
-
-static void flash_bank_perform_operation(void *param) {
-    const mutation_operation_t *mop = (const mutation_operation_t *)param;
-    if (mop->op_is_erase) {
-        flash_range_erase(mop->p0, FLASH_SECTOR_SIZE);
-    } else {
-        flash_range_program(mop->p0, (const uint8_t *)mop->p1, FLASH_PAGE_SIZE);
-    }
 }
 
 bool storage_load_tracks(void) {
