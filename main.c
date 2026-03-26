@@ -77,6 +77,7 @@ extern bool enable_chord_track;
 extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
+extern bool preferences_changed;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -128,12 +129,12 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 }
 
 int main() {
-    int rc = pico_led_init();
-    hard_assert(rc == PICO_OK);
-	
     stdio_init_all();	
 	flash_safe_execute_core_init();	
-	
+
+    int rc = pico_led_init();
+    hard_assert(rc == PICO_OK);
+		
     board_init();
     tusb_init();	
 	
@@ -184,7 +185,12 @@ int main() {
 			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}	
 		
-		note_scheduler_dispatch_pending();	
+		note_scheduler_dispatch_pending();
+
+		if (preferences_changed) {
+			preferences_changed = false;
+			storage_store_preferences();
+		}
     }
 	
     //cancel_repeating_timer(&timer);	

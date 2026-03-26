@@ -48,6 +48,7 @@ bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 bool style_change_requested = false;
+bool preferences_changed = false;
 
 uint8_t but0 = 0;
 uint8_t but1 = 0;
@@ -1833,6 +1834,7 @@ void config_guitar(uint8_t mode) {
 	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 		// Ample Guitar VST mode
 		config_ample_guitar();
+		preferences_changed = true;
 	}
 	else
 		
@@ -1864,8 +1866,6 @@ void config_guitar(uint8_t mode) {
 			midi_send_control_change(0xB3, 92, 0);						
 		}
 	}
-	
-	storage_store_preferences();
 }
 
 void config_ample_guitar() {
