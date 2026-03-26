@@ -1823,6 +1823,9 @@ void config_guitar(uint8_t mode) {
 		enable_dream_midi = true;	
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
+		
+		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
+		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 			
 	}
 	else
 
@@ -1886,6 +1889,8 @@ void config_seqtrak() {
 
 void config_midi_drums() {
 	enable_style_play = enable_midi_drums;	
+	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
+	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
 }
 
 void config_arranger() {
