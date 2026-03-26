@@ -63,6 +63,8 @@ bool storage_erase_tracks(void) {
 }
 
 bool storage_store_preferences(void) {
+	storage_erase_tracks();
+	
     uint8_t storage[FLASH_PAGE_SIZE];
     storage_preference_t *data = (storage_preference_t *)&storage;	
 
@@ -86,7 +88,6 @@ bool storage_load_preferences(void) {
 	midi_send_note(0x93, 44, 44);
 	
     if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0) {
-		storage_erase_tracks();
         return false;
 	}
 	
