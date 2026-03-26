@@ -138,8 +138,6 @@ int main() {
 	bluetooth_init();
 	
 	tud_task();	
-	//storage_load_tracks();
-	storage_load_preferences();	
 
     //struct repeating_timer timer;	
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
@@ -164,6 +162,9 @@ int main() {
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	//m5audio_play();
+	
+	//storage_load_tracks();
+	storage_load_preferences();		
 
     while (true) {
 		tud_task(); // tinyusb device task
