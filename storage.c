@@ -40,7 +40,7 @@ extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
 
-//void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 static void flash_bank_perform_operation(void *param) {
     const mutation_operation_t *mop = (const mutation_operation_t *)param;
@@ -51,7 +51,7 @@ static void flash_bank_perform_operation(void *param) {
         flash_range_program(mop->p0, (const uint8_t *)mop->p1, FLASH_PAGE_SIZE);
     }
 	
-	//midi_send_note(0x96, 66, 66);	
+	midi_send_note(0x96, 66, 66);	
 }
 
 
@@ -59,7 +59,7 @@ bool storage_erase_tracks(void) {
     mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
     //flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
 	flash_bank_perform_operation(&erase);
-	//midi_send_note(0x92, 33, 33);	
+	midi_send_note(0x92, 33, 33);	
     return true;
 }
 
@@ -79,7 +79,7 @@ bool storage_store_preferences(void) {
 	
     flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
 	//flash_bank_perform_operation(&program);
-	//midi_send_note(0x95, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);
+	midi_send_note(0x95, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);
     return true;
 }
 
@@ -97,7 +97,7 @@ bool storage_load_preferences(void) {
 	enable_modx 		= data->preferences[3];
 	enable_sp404mk2 	= data->preferences[4];
 	
-	//midi_send_note(0x94, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);	
+	midi_send_note(0x94, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);	
     return true;
 }
 
