@@ -77,9 +77,8 @@ bool storage_store_preferences(void) {
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
-    if (PICO_OK != flash_safe_execute(flash_bank_perform_operation, &program, 1000)) {
-		flash_bank_perform_operation(&program);
-	}
+    flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+	//flash_bank_perform_operation(&program);
 	//midi_send_note(0x95, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);
     return true;
 }

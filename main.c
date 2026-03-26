@@ -10,6 +10,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
+#include "pico/flash.h"
 #include "bsp/board.h"
 #include "tusb.h"
 #include "pico_bluetooth.h"
@@ -162,6 +163,8 @@ int main() {
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	//m5audio_play();	
+	
+	flash_safe_execute_core_init();
 
     while (true) {
 		tud_task(); // tinyusb device task
