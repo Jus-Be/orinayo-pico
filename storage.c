@@ -85,7 +85,6 @@ bool storage_store_preferences(void) {
 	cyw43_arch_deinit();
 	flash_bank_perform_operation(&program);	
 	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, enable_ample_guitar ? 127 : 0);
-	cyw43_arch_init();	
     return true;
 }
 

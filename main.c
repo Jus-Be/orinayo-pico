@@ -190,6 +190,7 @@ int main() {
 		if (preferences_changed) {
 			preferences_changed = false;
 			storage_store_preferences();
+			bluetooth_init();
 		}
     }
 	
