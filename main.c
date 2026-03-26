@@ -128,6 +128,8 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 }
 
 int main() {
+	flash_safe_execute_core_init();
+	
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	
@@ -163,8 +165,7 @@ int main() {
 	//m5audio_repeat_at_time(0, 0, 0, 9);		
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	//m5audio_play();	
-	
-	flash_safe_execute_core_init();
+
 
     while (true) {
 		tud_task(); // tinyusb device task
