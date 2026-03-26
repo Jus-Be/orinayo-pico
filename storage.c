@@ -77,15 +77,15 @@ bool storage_store_preferences(void) {
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
-    flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+    uint8_t err = flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
 	//flash_bank_perform_operation(&program);
-	midi_send_note(0x95, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);
+	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, err);
     return true;
 }
 
 bool storage_load_preferences(void) {
     const storage_preference_t *data = (const storage_preference_t *)(XIP_BASE + GHOST_FLASH_BANK_STORAGE_OFFSET);
-	//midi_send_note(0x93, 44, 44);
+	midi_send_note(0x93, 44, 44);
 	
     if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0) {
         return false;
