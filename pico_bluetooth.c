@@ -1866,7 +1866,11 @@ void config_sp404mk2() {
 	enable_style_play = !enable_sp404mk2;
 
 	if (enable_sp404mk2) {
-
+		enable_ample_guitar 	= false;
+		enable_midi_drums 		= false;
+		enable_seqtrak 			= false;
+		enable_modx 			= false;
+		enable_arranger_mode 	= false;
 	}	
 }
 
@@ -1874,7 +1878,12 @@ void config_modx() {
 	enable_style_play = enable_modx;					
 	
 	if (enable_modx) {						// set default scene 1
-		midi_send_control_change(0xB3, 92, 0);						
+		midi_send_control_change(0xB3, 92, 0);	
+		enable_ample_guitar 	= false;
+		enable_midi_drums 		= false;
+		enable_seqtrak 			= false;
+		enable_sp404mk2 		= false;
+		enable_arranger_mode 	= false;		
 	}	
 }
 
@@ -1883,14 +1892,29 @@ void config_seqtrak() {
 	
 	if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
 		midi_seqtrak_mute(7, true);
-		midi_seqtrak_mute(9, true);						
+		midi_seqtrak_mute(9, true);	
+
+		enable_ample_guitar 	= false;
+		enable_midi_drums 		= false;
+		enable_modx 			= false;
+		enable_sp404mk2 		= false;
+		enable_arranger_mode 	= false;		
 	}
 }
 
 void config_midi_drums() {
 	enable_style_play = enable_midi_drums;	
-	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
-	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
+	
+	if (enable_midi_drums) {								// initially mute seqtrak arpeggiator
+		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
+		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
+
+		enable_ample_guitar 	= false;
+		enable_modx 			= false;
+		enable_seqtrak 			= false;		
+		enable_sp404mk2 		= false;
+		enable_arranger_mode 	= false;		
+	}		
 }
 
 void config_arranger() {
@@ -1899,6 +1923,12 @@ void config_arranger() {
 	if (enable_arranger_mode) {				
 		midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
 		midi_send_control_change(0xB0, 7, 100); 		// set default volume	
+		
+		enable_ample_guitar 	= false;
+		enable_midi_drums 		= false;		
+		enable_modx 			= false;
+		enable_seqtrak 			= false;		
+		enable_sp404mk2 		= false;		
 	}	
 }
 
@@ -1906,7 +1936,16 @@ void config_ample_guitar() {
 	enable_style_play = enable_ample_guitar;
 	
 	midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-	midi_send_note(0x90, 86, 127);	
+
+	if (enable_ample_guitar) {		
+		midi_send_note(0x90, 86, 127);
+
+		enable_midi_drums 		= false;		
+		enable_modx 			= false;
+		enable_seqtrak 			= false;		
+		enable_sp404mk2 		= false;
+		enable_arranger_mode 	= false;		
+	}
 }
 
 void play_chord(bool on, bool up) {
