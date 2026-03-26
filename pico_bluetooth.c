@@ -1837,6 +1837,8 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 		// Ample Guitar VST mode
+
+		midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
 		config_ample_guitar();
 	}
 	else
@@ -1935,9 +1937,8 @@ void config_arranger() {
 void config_ample_guitar() {
 	enable_style_play = enable_ample_guitar;
 	
-	midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-
-	if (enable_ample_guitar) {		
+	if (enable_ample_guitar) {	
+		midi_send_note(0x90, 97, 127);	// set strum mode on by default
 		midi_send_note(0x90, 86, 127);
 
 		enable_midi_drums 		= false;		
