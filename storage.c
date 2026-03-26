@@ -58,7 +58,7 @@ bool storage_erase_tracks(void) {
     mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
     //flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
 	flash_bank_perform_operation(&erase);
-	midi_send_note(0x97, 77, 77);	
+	midi_send_note(0x92, 22, 22);	
     return true;
 }
 
@@ -83,7 +83,8 @@ bool storage_store_preferences(void) {
 
 bool storage_load_preferences(void) {
     const storage_preference_t *data = (const storage_preference_t *)(XIP_BASE + GHOST_FLASH_BANK_STORAGE_OFFSET);
-
+	midi_send_note(0x93, 33, 33);
+	
     if (memcmp(&data->magic, MAGIC_HEADER, sizeof(data->magic)) != 0) {
 		storage_erase_tracks();
         return false;

@@ -1327,26 +1327,27 @@ void midi_bluetooth_handle_data() {
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 
-			if (green && red && yellow) config_guitar(15);		
-			else if (red && yellow && blue) config_guitar(16);		
-			else if (yellow && blue && orange) config_guitar(17);	
+			if (green && red && yellow) config_guitar(15);			// Worship Pads
+			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
+			else if (yellow && blue && orange) config_guitar(17);	//
 			
-			else if (green && yellow) config_guitar(10);		
-			else if (red && blue) config_guitar(11);
-			else if (yellow && orange) config_guitar(12);
-			else if (green && blue) config_guitar(13);
-			else if (red && orange) config_guitar(14);			
+			else if (green && yellow) config_guitar(10);			// RC-600 Looper	
+			else if (red && blue) config_guitar(11);				// Akai MPC Sample
+			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
-			else if (green && red) config_guitar(6);		
-			else if (red && yellow) config_guitar(7);
-			else if (yellow && blue) config_guitar(8);
-			else if (blue && orange) config_guitar(9);
+			else if (green && blue) config_guitar(13);				// Behringer JT-Micro Synth
+			else if (red && orange) config_guitar(14);				//
 			
-			else if (green) config_guitar(1);		
-			else if (red) config_guitar(2);			
-			else if (yellow) config_guitar(3);		
-			else if (blue) config_guitar(4);			
-			else if (orange) config_guitar(5);							
+			else if (green && red) config_guitar(6);				// Acoustic/Electric
+			else if (red && yellow) config_guitar(7);				// Guitar Midi FX1
+			else if (yellow && blue) config_guitar(8);				// Guitar Midi FX2
+			else if (blue && orange) config_guitar(9);				// Guitar Midi Fx3
+			
+			else if (green) config_guitar(1);						// Ketron	
+			else if (red) config_guitar(2);							// Ample
+			else if (yellow) config_guitar(3);						// Dream MIDI Drums
+			else if (blue) config_guitar(4);						// Seqtrak
+			else if (orange) config_guitar(5);						// MODX				
 		}
 
 		finished_processing = true;		
@@ -1713,12 +1714,12 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 13) {
-		enable_mpc_sample = !enable_mpc_sample;				// Akai MPC Sample
-		enable_style_play = !enable_mpc_sample;
+		enable_synth = !enable_synth;						// Behringer JT-Micro Synth
+		enable_style_play = !enable_synth;				
+		
+		if (enable_synth)  {
 
-		if (enable_mpc_sample) {
-
-		}
+		}					
 	}	
 	else
 		
@@ -1732,13 +1733,14 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 11) {										// Behringer Synth
-		enable_synth = !enable_synth;
-		enable_style_play = !enable_synth;				
-		
-		if (enable_synth)  {
+	if (mode == 11) {										
+		enable_mpc_sample = !enable_mpc_sample;				// Akai MPC Sample
+		enable_style_play = !enable_mpc_sample;
 
-		}			
+		if (enable_mpc_sample) {
+
+		}
+
 	}
 	else
 		
@@ -1820,8 +1822,8 @@ void config_guitar(uint8_t mode) {
 		enable_style_play = enable_arranger_mode;
 
 		if (enable_arranger_mode) {				
-			midi_send_program_change(0xC0, guitar_pc_code);		// jazz guitar on channel 1	
-			midi_send_control_change(0xB0, 7, 100); // set default volume	
+			midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
+			midi_send_control_change(0xB0, 7, 100); 		// set default volume	
 		}						
 	}
 	else
@@ -1845,7 +1847,7 @@ void config_guitar(uint8_t mode) {
 		enable_seqtrak = !enable_seqtrak;
 		enable_style_play = enable_seqtrak;				
 		
-		if (enable_seqtrak) {					// initially mute seqtrak arpeggiator
+		if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
 			midi_seqtrak_mute(7, true);
 			midi_seqtrak_mute(9, true);						
 		}
