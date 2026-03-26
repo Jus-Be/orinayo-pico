@@ -20,6 +20,7 @@
 #include "m5audio.h"
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
+#include "pico/bootrom.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -190,7 +191,7 @@ int main() {
 		if (preferences_changed) {
 			preferences_changed = false;
 			storage_store_preferences();
-			bluetooth_init();
+			rom_reboot(0, 0, 0); 
 		}
     }
 	
