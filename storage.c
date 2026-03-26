@@ -8,6 +8,7 @@
 #include "hardware/flash.h"
 #include "looper.h"
 #include "pico/flash.h"
+#include <pico/cyw43_arch.h>
 
 #ifndef GHOST_FLASH_BANK_STORAGE_OFFSET
 #define GHOST_FLASH_BANK_STORAGE_OFFSET (PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE * 8))
@@ -78,11 +79,13 @@ bool storage_store_preferences(void) {
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
-    int32_t result = flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
-	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, result == PICO_OK ? 91 : (result == PICO_ERROR_NOT_PERMITTED ? 92 : (result == PICO_ERROR_TIMEOUT ? 93 : 94)));
+    //int32_t result = flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+	//midi_send_note(0x95, enable_ample_guitar ? 127 : 0, result == PICO_OK ? 91 : (result == PICO_ERROR_NOT_PERMITTED ? 92 : (result == PICO_ERROR_TIMEOUT ? 93 : 94)));
 
-	//flash_bank_perform_operation(&program);	
-	//midi_send_note(0x95, enable_ample_guitar ? 127 : 0, enable_ample_guitar ? 127 : 0);
+	cyw43_arch_deinit();
+	flash_bank_perform_operation(&program);	
+	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, enable_ample_guitar ? 127 : 0);
+	cyw43_arch_init();	
     return true;
 }
 
