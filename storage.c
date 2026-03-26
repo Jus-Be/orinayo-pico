@@ -56,7 +56,8 @@ static void flash_bank_perform_operation(void *param) {
 
 bool storage_erase_tracks(void) {
     mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
-    flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
+    //flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
+	flash_bank_perform_operation(&erase);
 	midi_send_note(0x97, 77, 77);	
     return true;
 }
@@ -74,7 +75,8 @@ bool storage_store_preferences(void) {
 	data->preferences[4] = enable_sp404mk2;
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
-    flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+    //flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+	flash_bank_perform_operation(&program);
 	midi_send_note(0x95, 55, 55);
     return true;
 }

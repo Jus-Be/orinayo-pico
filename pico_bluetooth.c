@@ -34,6 +34,7 @@ bool enable_seqtrak = false;
 bool enable_dream_midi = false;
 bool enable_rclooper = false;
 bool enable_sp404mk2 = false;
+bool enable_mpc_sample = false;
 bool enable_synth = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -1326,7 +1327,11 @@ void midi_bluetooth_handle_data() {
 		if (mbut3) 	{
 			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
 
-			if (green && yellow) config_guitar(10);		
+			if (green && red && yellow) config_guitar(15);		
+			else if (red && yellow && blue) config_guitar(16);		
+			else if (yellow && blue && orange) config_guitar(17);	
+			
+			else if (green && yellow) config_guitar(10);		
 			else if (red && blue) config_guitar(11);
 			else if (yellow && orange) config_guitar(12);
 			else if (green && blue) config_guitar(13);
@@ -1687,23 +1692,43 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
-	if (mode == 14) {
+	if (mode == 17) {										// Unused
+
+	}
+	else
+		
+	if (mode == 16) {										// play audio file as audio drum/percussion
+		enable_audio_drums = !enable_audio_drums;
+	}
+	else
+		
+	if (mode == 15) {										// play audio file as worship pad in selected song key
+		enable_worship_pads = !enable_worship_pads;
+	}
+	else
+		
+	if (mode == 14) {										// Unused
+
+	}
+	else
+		
+	if (mode == 13) {
+		enable_mpc_sample = !enable_mpc_sample;				// Akai MPC Sample
+		enable_style_play = !enable_mpc_sample;
+
+		if (enable_mpc_sample) {
+
+		}
+	}	
+	else
+		
+	if (mode == 12) {
 		enable_sp404mk2 = !enable_sp404mk2;					// Roland SP404 MK2
 		enable_style_play = !enable_sp404mk2;
 
 		if (enable_sp404mk2) {
 
 		}
-	}
-	else
-		
-	if (mode == 13) {										// play audio file as audio drum/percussion
-		enable_audio_drums = !enable_audio_drums;
-	}
-	else
-		
-	if (mode == 12) {										// play audio file as worship pad in selected song key
-		enable_worship_pads = !enable_worship_pads;
 	}
 	else
 		
