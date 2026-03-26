@@ -67,7 +67,12 @@ bool storage_store_preferences(void) {
     storage_preference_t *data = (storage_preference_t *)&storage;	
 
     memcpy(&data->magic, MAGIC_HEADER, sizeof(data->magic));
-    memcpy(&data->preferences[0], enable_ample_guitar, 1);	
+	
+	data->preferences[0] = enable_ample_guitar;
+	data->preferences[1] = enable_midi_drums;
+	data->preferences[2] = enable_seqtrak;
+	data->preferences[3] = enable_modx;
+	data->preferences[4] = enable_sp404mk2;
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
     //flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
