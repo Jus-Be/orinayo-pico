@@ -163,6 +163,8 @@ int main() {
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
 	//m5audio_play();
 	
+	sleep_ms(2000);		
+	
 	//storage_load_tracks();
 	storage_load_preferences();		
 
