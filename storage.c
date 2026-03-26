@@ -19,7 +19,7 @@
 
 typedef struct {
     uint32_t magic;	
-    bool preferences[FLASH_PAGE_SIZE - 4];
+    uint8_t preferences[FLASH_PAGE_SIZE - 4];
 } storage_preference_t;
 
 typedef struct {
@@ -33,6 +33,7 @@ typedef struct {
     uintptr_t p1;
 } mutation_operation_t;
 
+extern bool enable_arranger_mode;
 extern bool enable_ample_guitar;
 extern bool enable_midi_drums;
 extern bool enable_seqtrak;
@@ -40,6 +41,8 @@ extern bool enable_chord_track;
 extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
+
+extern uint8_t guitar_pc_code;
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
@@ -76,6 +79,8 @@ bool storage_store_preferences(void) {
 	data->preferences[2] = enable_seqtrak;
 	data->preferences[3] = enable_modx;
 	data->preferences[4] = enable_sp404mk2;
+	data->preferences[5] = enable_arranger_mode;
+	data->preferences[6] = guitar_pc_code;
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
@@ -98,11 +103,13 @@ bool storage_load_preferences(void) {
         return false;
 	}
 	
-	enable_ample_guitar = data->preferences[0];
-	enable_midi_drums 	= data->preferences[1];
-	enable_seqtrak 		= data->preferences[2];
-	enable_modx 		= data->preferences[3];
-	enable_sp404mk2 	= data->preferences[4];
+	enable_ample_guitar 	= data->preferences[0];
+	enable_midi_drums 		= data->preferences[1];
+	enable_seqtrak 			= data->preferences[2];
+	enable_modx 			= data->preferences[3];
+	enable_sp404mk2 		= data->preferences[4];
+	enable_arranger_mode 	= data->preferences[5];
+	guitar_pc_code			= data->preferences[6];
 	
 	midi_send_note(0x94, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);	
     return true;

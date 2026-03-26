@@ -99,9 +99,9 @@ uint8_t joystick_up = 0;
 uint8_t joystick_down = 0;  
 uint8_t logo_knob_up = 0;  
 uint8_t logo_knob_down = 0; 	
+uint8_t guitar_pc_code = 26;
 
 int applied_velocity = 100;
-int guitar_pc_code = 26;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -162,6 +162,11 @@ void midi_process_state(uint64_t start_us);
 void midi_bluetooth_handle_data();
 void config_guitar(uint8_t mode);
 void config_ample_guitar();
+void config_arranger();
+void config_midi_drums();
+void config_modx();
+void config_seqtrak();
+void config_sp404mk2();
 void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
@@ -342,6 +347,11 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	//storage_load_tracks();
 	storage_load_preferences();	  
 	config_ample_guitar();
+	config_arranger();
+	config_midi_drums();
+	config_modx();
+	config_seqtrak();	
+	config_sp404mk2();	
   
   return UNI_ERROR_SUCCESS;
 }
@@ -1728,11 +1738,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 12) {
 		enable_sp404mk2 = !enable_sp404mk2;					// Roland SP404 MK2
-		enable_style_play = !enable_sp404mk2;
-
-		if (enable_sp404mk2) {
-
-		}
+		config_sp404mk2();
 	}
 	else
 		
@@ -1822,12 +1828,7 @@ void config_guitar(uint8_t mode) {
 
 	if (mode == 1) {  										// Arranger (ketron, giglad)
 		enable_arranger_mode = !enable_arranger_mode;
-		enable_style_play = enable_arranger_mode;
-
-		if (enable_arranger_mode) {				
-			midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
-			midi_send_control_change(0xB0, 7, 100); 		// set default volume	
-		}						
+		config_arranger();						
 	}
 	else
 		
@@ -1842,29 +1843,58 @@ void config_guitar(uint8_t mode) {
 			looper_clear_all_tracks();						// Midi drums looper
 		}
 		enable_midi_drums = !enable_midi_drums;
-		enable_style_play = enable_midi_drums;	
+		config_midi_drums();	
 	}
 	else
 		
 	if (mode == 4) {										// SeqTrak			
 		enable_seqtrak = !enable_seqtrak;
-		enable_style_play = enable_seqtrak;				
-		
-		if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
-			midi_seqtrak_mute(7, true);
-			midi_seqtrak_mute(9, true);						
-		}
+		config_seqtrak();
 	}
 	else
 		
 	if (mode == 5) {										// MODX/Montage
 		enable_modx = !enable_modx;
-		enable_style_play = enable_modx;					
-		
-		if (enable_modx) {						// set default scene 1
-			midi_send_control_change(0xB3, 92, 0);						
-		}
+		config_modx();
 	}
+}
+
+void config_sp404mk2() {
+	enable_style_play = !enable_sp404mk2;
+
+	if (enable_sp404mk2) {
+
+	}	
+}
+
+void config_modx() {
+	enable_style_play = enable_modx;					
+	
+	if (enable_modx) {						// set default scene 1
+		midi_send_control_change(0xB3, 92, 0);						
+	}	
+}
+
+void config_seqtrak() {
+	enable_style_play = enable_seqtrak;				
+	
+	if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
+		midi_seqtrak_mute(7, true);
+		midi_seqtrak_mute(9, true);						
+	}
+}
+
+void config_midi_drums() {
+	enable_style_play = enable_midi_drums;	
+}
+
+void config_arranger() {
+	enable_style_play = enable_arranger_mode;
+
+	if (enable_arranger_mode) {				
+		midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
+		midi_send_control_change(0xB0, 7, 100); 		// set default volume	
+	}	
 }
 
 void config_ample_guitar() {
