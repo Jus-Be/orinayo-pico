@@ -191,7 +191,7 @@ int main() {
 		if (preferences_changed) {
 			preferences_changed = false;
 			storage_store_preferences();
-			rom_reboot(0, 0, 0); 
+			rom_reboot(0, 0, 0, 0); 
 		}
     }
 	
