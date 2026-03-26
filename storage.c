@@ -42,8 +42,9 @@ extern bool enable_sp404mk2;
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
-static void flash_bank_perform_operation(void *param) {
+static void __no_inline_not_in_flash_func(flash_bank_perform_operation)(void *param) {
     const mutation_operation_t *mop = (const mutation_operation_t *)param;
+	
     if (mop->op_is_erase) {
         flash_range_erase(mop->p0, FLASH_SECTOR_SIZE);
     } else {
@@ -57,8 +58,8 @@ static void flash_bank_perform_operation(void *param) {
 
 bool storage_erase_tracks(void) {
     mutation_operation_t erase = {.op_is_erase = true, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET};
-    //flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
-	flash_bank_perform_operation(&erase);
+    flash_safe_execute(flash_bank_perform_operation, &erase, UINT32_MAX);
+	//flash_bank_perform_operation(&erase);
 	midi_send_note(0x92, 33, 33);	
     return true;
 }
@@ -77,8 +78,8 @@ bool storage_store_preferences(void) {
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
-    //uint8_t err = flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
-	flash_bank_perform_operation(&program);
+    flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
+	//flash_bank_perform_operation(&program);
 	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, 66);
     return true;
 }
