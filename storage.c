@@ -18,7 +18,7 @@
 
 typedef struct {
     uint32_t magic;	
-    uint8_t preferences[FLASH_PAGE_SIZE - 4];
+    bool preferences[FLASH_PAGE_SIZE - 4];
 } storage_preference_t;
 
 typedef struct {
