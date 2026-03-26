@@ -82,9 +82,11 @@ bool storage_store_preferences(void) {
     //int32_t result = flash_safe_execute(flash_bank_perform_operation, &program, UINT32_MAX);
 	//midi_send_note(0x95, enable_ample_guitar ? 127 : 0, result == PICO_OK ? 91 : (result == PICO_ERROR_NOT_PERMITTED ? 92 : (result == PICO_ERROR_TIMEOUT ? 93 : 94)));
 
-	cyw43_arch_deinit();
+	cyw43_arch_deinit();						// SHUTDOWN Bluetooth
+	
 	flash_bank_perform_operation(&program);	
 	midi_send_note(0x95, enable_ample_guitar ? 127 : 0, enable_ample_guitar ? 127 : 0);
+	cyw43_arch_init();		
     return true;
 }
 

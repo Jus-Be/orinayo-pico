@@ -353,7 +353,6 @@ static const uni_property_t* pico_bluetooth_get_property(uni_property_idx_t idx)
 
 static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controller_t* ctl) { 
 	if (!gamepad_guitar_connected) return;
-	if (preferences_changed) return;
 	
 	uint8_t axis_x = ctl->gamepad.axis_x / 4;
 	uint8_t axis_y = ctl->gamepad.axis_y / 4;
@@ -1333,7 +1332,7 @@ void midi_bluetooth_handle_data() {
 
 			if (green && red && yellow) config_guitar(15);			// Worship Pads
 			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
-			else if (yellow && blue && orange) config_guitar(17);	//
+			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
 			else if (green && yellow) config_guitar(10);			// RC-600 Looper	
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
@@ -1697,8 +1696,8 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
-	if (mode == 17) {										// Unused
-
+	if (mode == 17) {										// Save Preferences
+		preferences_changed = true;
 	}
 	else
 		
@@ -1835,7 +1834,6 @@ void config_guitar(uint8_t mode) {
 	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 		// Ample Guitar VST mode
 		config_ample_guitar();
-		preferences_changed = true;
 	}
 	else
 		
