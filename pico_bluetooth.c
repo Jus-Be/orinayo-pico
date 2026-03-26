@@ -1694,6 +1694,7 @@ int compUp(const void *a, const void *b) {
 }
 
 void config_guitar(uint8_t mode) {
+	storage_erase_tracks();
 
 	if (mode == 17) {										// Unused
 
