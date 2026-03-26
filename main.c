@@ -128,14 +128,14 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 }
 
 int main() {
-	flash_safe_execute_core_init();
-	
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 	
+    stdio_init_all();	
+	flash_safe_execute_core_init();	
+	
     board_init();
-    tusb_init();
-    stdio_init_all();
+    tusb_init();	
 	
 	sleep_ms(1000);		
 	bluetooth_init();
