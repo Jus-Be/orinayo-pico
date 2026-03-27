@@ -41,6 +41,7 @@ extern bool enable_chord_track;
 extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
+extern bool enable_mpc_sample;
 
 extern uint8_t guitar_pc_code;
 
@@ -81,6 +82,7 @@ bool storage_store_preferences(void) {
 	data->preferences[4] = enable_sp404mk2;
 	data->preferences[5] = enable_arranger_mode;
 	data->preferences[6] = guitar_pc_code;
+	data->preferences[7] = enable_mpc_sample;	
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
@@ -110,6 +112,7 @@ bool storage_load_preferences(void) {
 	enable_sp404mk2 		= data->preferences[4];
 	enable_arranger_mode 	= data->preferences[5];
 	guitar_pc_code			= data->preferences[6];
+	enable_mpc_sample		= data->preferences[7];
 	
 	//midi_send_note(0x94, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);	
     return true;
