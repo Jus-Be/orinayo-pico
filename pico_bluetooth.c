@@ -892,7 +892,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{					
 					if (enable_mpc_sample) {
-						mpc_drum_note = 32;
+						mpc_drum_note = 44;
 						sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-14-085.wav	
 						mpc_old_drum_note = mpc_drum_note;
 						
@@ -978,7 +978,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{
 					if (enable_mpc_sample) {
-						sp404_midi_note(0x94, 33, enable_drum_track ? sp404_drum_velocity : 5);		// .\01\SAMPLE\1-09-085.wav
+						sp404_midi_note(0x94, 45, enable_drum_track ? sp404_drum_velocity : 5);		// .\01\SAMPLE\1-09-085.wav
 
 						if (mpc_old_chord_note > 0) {
 							sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);
@@ -2309,7 +2309,7 @@ void play_chord(bool on, bool up) {
 					sp404_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
 				}				
 
-				mpc_drum_note = 24 + style_section;
+				mpc_drum_note = 36 + style_section;
 				sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
 				mpc_old_drum_note = mpc_drum_note;				
 			}				
@@ -2567,38 +2567,38 @@ void mpc_trigger_loop() {
 	};	
 
 	if (mpc_type == 0) {												// Bass in major 
-		mpc_bass_note = (samples[bass_sample][0] - 3 + 24) % 128;
+		mpc_bass_note = (samples[bass_sample][0] - 3 + 36) % 128;
 
 		if (bass_sample != chord_sample) {								// Bass in root
-			mpc_bass_note = (samples[bass_sample][1] - 3 + 24) % 128;	
+			mpc_bass_note = (samples[bass_sample][1] - 3 + 36) % 128;	
 		} 			
 		
 		// Chords
 		
 		if (style_section % 2 == 0) {									// C-1
-			mpc_chord_note = (samples[chord_sample][2] - 3 + 24) % 128;			
+			mpc_chord_note = (samples[chord_sample][2] - 3 + 36) % 128;			
 		}									
 		else
 		if (style_section % 2 == 1) {									// C-2
-			mpc_chord_note = (samples[chord_sample][3] - 3 + 24) % 128;						
+			mpc_chord_note = (samples[chord_sample][3] - 3 + 36) % 128;						
 		}																
 	}
 	else		
 	if (mpc_type == 1) {												// Bass in minor		
-		mpc_bass_note = (samples[bass_sample][4] - 3 + 24) % 128;	
+		mpc_bass_note = (samples[bass_sample][4] - 3 + 36) % 128;	
 		
 		if (style_section % 2 == 0) {
-			mpc_chord_note = (samples[bass_sample][5] - 3 + 24) % 128;								
+			mpc_chord_note = (samples[bass_sample][5] - 3 + 36) % 128;								
 		}
 		else
 		if (style_section % 2 == 1) {
-			mpc_chord_note = (samples[bass_sample][6] - 3 + 24) % 128;								
+			mpc_chord_note = (samples[bass_sample][6] - 3 + 36) % 128;								
 		}
 	}
 	else		
 	if (mpc_type == 2) {												// Sus4	
-		mpc_bass_note = (samples[chord_sample][0] - 3 + 24) % 128;		
-		mpc_chord_note = (samples[chord_sample][7] - 3 + 24) % 128;				
+		mpc_bass_note = (samples[chord_sample][0] - 3 + 36) % 128;		
+		mpc_chord_note = (samples[chord_sample][7] - 3 + 36) % 128;				
 	}
 
 	
