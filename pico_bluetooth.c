@@ -899,8 +899,8 @@ void midi_bluetooth_handle_data() {
 						style_change_requested = true;
 						style_section = 0;
 						
-						mpc_chord_note = 0;
-						mpc_bass_note = 0;						
+						//mpc_chord_note = 0;
+						//mpc_bass_note = 0;						
 					}
 					else
 						
@@ -2601,17 +2601,15 @@ void mpc_trigger_loop() {
 		mpc_chord_note = (samples[chord_tonic][7] - 3 + 36) % 128;				
 	}
 
-	
+
 	if (mpc_old_bass_note != mpc_bass_note) { 
-		if (mpc_old_bass_note != 0) sp404_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 5);
-		
+		sp404_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 5);		
 		sp404_midi_note(0x94, mpc_bass_note, enable_bass_track ? mpc_bass_velocity : 5);			
 		mpc_old_bass_note = mpc_bass_note;		
 	}
 	
 	if (mpc_old_chord_note != mpc_chord_note) {	
-		if (mpc_old_chord_note != 0) sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);	
-		
+		sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);	
 		sp404_midi_note(0x94, mpc_chord_note, enable_chord_track ? mpc_chord_velocity : 5);		
 		mpc_old_chord_note = mpc_chord_note;	
 	}	
