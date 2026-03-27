@@ -357,7 +357,8 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	//midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
   
 	//storage_load_tracks();			
-	//storage_load_preferences();	
+	
+	storage_load_preferences();	
 	
 	config_ample_guitar();
 	config_arranger();
@@ -982,7 +983,7 @@ void midi_bluetooth_handle_data() {
 
 						if (mpc_old_chord_note > -1) {
 							sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);
-							mpc_old_chord_note = -1							
+							mpc_old_chord_note = -1;						
 						}
 
 						if (mpc_old_bass_note > -1) {						
