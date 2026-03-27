@@ -889,7 +889,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{					
 					if (enable_mpc_sample) {
-						mpc_drum_note = 33;
+						mpc_drum_note = 32;
 						sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-14-085.wav	
 						mpc_old_drum_note = mpc_drum_note;
 						
@@ -975,7 +975,7 @@ void midi_bluetooth_handle_data() {
 				if (mbut0) 
 				{
 					if (enable_mpc_sample) {
-						sp404_midi_note(0x94, 34, enable_drum_track ? sp404_drum_velocity : 5);		// .\01\SAMPLE\1-09-085.wav
+						sp404_midi_note(0x94, 33, enable_drum_track ? sp404_drum_velocity : 5);		// .\01\SAMPLE\1-09-085.wav
 
 						if (mpc_old_chord_note > 0) {
 							sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);
@@ -2603,11 +2603,11 @@ void mpc_trigger_loop() {
 		// Chords
 		
 		if (style_section % 2 == 0) {									// C-1
-			mpc_chord_note = (samples[bass_sample][2] - 3 + 24) % 128;			
+			mpc_chord_note = (samples[chord_sample][2] - 3 + 24) % 128;			
 		}									
 		else
 		if (style_section % 2 == 1) {									// C-2
-			mpc_chord_note = (samples[bass_sample][3] - 3 + 24) % 128;						
+			mpc_chord_note = (samples[chord_sample][3] - 3 + 24) % 128;						
 		}																
 	}
 	else		
@@ -2624,8 +2624,8 @@ void mpc_trigger_loop() {
 	}
 	else		
 	if (mpc_type == 2) {												// Sus4	
-		mpc_bass_note = (samples[bass_sample][0] - 3 + 24) % 128;		
-		mpc_chord_note = (samples[bass_sample][7] - 3 + 24) % 128;				
+		mpc_bass_note = (samples[chord_sample][0] - 3 + 24) % 128;		
+		mpc_chord_note = (samples[chord_sample][7] - 3 + 24) % 128;				
 	}
 
 	
