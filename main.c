@@ -78,6 +78,7 @@ extern bool enable_chord_track;
 extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
+extern bool enable_mpc_sample;
 extern bool preferences_changed;
 
 static uint32_t old_p1 = 0;
@@ -520,12 +521,20 @@ void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
 
-	if (enable_seqtrak) channel = 8;
+	if (enable_seqtrak) {
+		channel = 8;
+	}
+	else
 	
 	if (enable_sp404mk2) {
 		channel = 15;
 		note = (note % 24) + 36;
 		velocity = 127;
+	}
+	else
+		
+	if (enable_mpc_sample) {
+		return;
 	}
 	
 	uint8_t msg[3];	
