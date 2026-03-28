@@ -352,9 +352,8 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	// You can reject the connection by returning an error.
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
-
-	midi_send_program_change(0xC3, 120);		// silence on channel 4 (chords)   
-	//midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default  
+  
+	midi_send_control_change(0xB3, 11, 0); 	// don't play pads by default  
   
 	//storage_load_tracks();			
 	
@@ -1936,18 +1935,16 @@ void config_guitar(uint8_t mode) {
 
 void config_mpc_sample() {		
 	enable_style_play = !enable_mpc_sample;
-
-	if (enable_mpc_sample) {
-		midi_send_control_change(0xB4, 11, 0);  // silet sample trigger channel
-	}	
+	
+	midi_send_control_change(0xB4, 11, enable_mpc_sample ? 0 : 127);  								// silent sample trigger channel 5	
+	if (enable_mpc_sample) midi_send_program_change(0xC0, guitar_pc_code);							// channel 1 used for guitar melody
 }
 
 void config_sp404mk2() {
 	enable_style_play = !enable_sp404mk2;
-
-	if (enable_sp404mk2) {
-		
-	}	
+	
+	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, enable_sp404mk2 ? 0 : 127); // silence sample trigger channels 1-10
+	if (enable_sp404mk2) midi_send_program_change(0xCE, guitar_pc_code);							// channel 15 used for guitar melody
 }
 
 void config_modx() {
