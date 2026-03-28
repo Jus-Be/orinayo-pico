@@ -1938,7 +1938,7 @@ void config_mpc_sample() {
 	enable_style_play = !enable_mpc_sample;
 
 	if (enable_mpc_sample) {
-		midi_send_program_change(0xC4, 120);		// silence on channel 5 (sample triggers) 
+		midi_send_control_change(0xB4, 11, 0);  // silet sample trigger channel
 	}	
 }
 
