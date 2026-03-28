@@ -528,8 +528,6 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	
 	if (enable_sp404mk2) {
 		channel = 14;
-		note = (note % 24) + 36;
-		velocity = 127;
 	}
 	else
 		
