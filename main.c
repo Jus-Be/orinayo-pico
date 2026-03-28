@@ -534,7 +534,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	else
 		
 	if (enable_mpc_sample) {
-		return;
+		channel = 0;
 	}
 	
 	uint8_t msg[3];	
