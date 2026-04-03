@@ -1400,7 +1400,7 @@ void midi_bluetooth_handle_data() {
 		}
 		else {
 			if (mbut2) {
-				midi_send_control_change(0xB3, 15, style_group + 1); 		// select style group
+				midi_send_control_change(0xB3, 15, style_group + 1);// select style group
 			}							
 		}
 			
@@ -1412,7 +1412,7 @@ void midi_bluetooth_handle_data() {
 		config = mbut3;
 		
 		if (mbut3) 	{
-			midi_play_chord(false, 0, 0, 0);	// reset chord  keys
+			midi_play_chord(false, 0, 0, 0);						// reset chord  keys
 
 			if (green && red && yellow) config_guitar(15);			// Worship Pads
 			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
@@ -1553,6 +1553,20 @@ void midi_bluetooth_handle_data() {
 			midi_ketron_arr(0x07 + (style_section % 4), joy_up ? true : false);	// 	Fill
 			midi_yamaha_arr(0x10 + (style_section % 4), joy_up ? true : false);				
 		}
+		else
+			
+		if (enable_sp404mk2 || enable_mpc_sample)	
+		{
+			if (joy_up && style_started) 
+			{
+				if (enable_mpc_sample) {
+					mpc_drum_note = 36 + (style_section % 4) + 10;				// FILA - FILD
+					sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-14-085.wav						
+				}
+				
+				style_change_requested = true;						
+			}				
+		}		
 		else {				
 			if (joy_up) {
 				midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
@@ -1645,6 +1659,20 @@ void midi_bluetooth_handle_data() {
 			midi_ketron_arr(0x0B + (style_section % 4), knob_up ? true : false);	// 	return	
 			midi_yamaha_arr(0x18, knob_up ? true : false);				
 		}
+		else
+			
+		if (enable_sp404mk2 || enable_mpc_sample)	
+		{
+			if (knob_up && style_started) 
+			{
+				if (enable_mpc_sample) {
+					mpc_drum_note = 36 + (style_section % 2) + 14; 					// BRK1 & BRKB
+					sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-14-085.wav						
+				}
+				
+				style_change_requested = true;						
+			}				
+		}				
 		else {				
 			if (knob_up) {
 				midi_send_control_change(0xB3, 14, 10); 	// Break
