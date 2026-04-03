@@ -486,7 +486,7 @@ void midi_bluetooth_handle_data() {
 		{
 			if (but6) {
 				enable_auto_hold = !enable_auto_hold;
-				midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
+				if (enable_modx) midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
 			}					
 		}
 		else
@@ -518,6 +518,7 @@ void midi_bluetooth_handle_data() {
 					}
 				}
 				
+				style_change_requested = true;
 			}				
 		}
 		else
@@ -553,7 +554,9 @@ void midi_bluetooth_handle_data() {
 						sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, 10);					
 						sp404_old_chord_note = 0;
 					}
-				}				
+				}
+				
+				style_change_requested = true;
 			}
 		}
 		else				
@@ -578,7 +581,9 @@ void midi_bluetooth_handle_data() {
 						sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, 10);					
 						sp404_old_bass_note = 0;
 					}
-				}				
+				}
+
+				style_change_requested = true;
 			}
 		}
 		else
