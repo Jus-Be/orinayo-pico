@@ -1568,7 +1568,7 @@ void midi_bluetooth_handle_data() {
 					if (sp404_old_drum_note > 0) {
 						sp404_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
 					}					
-					sp404_drum_note = (style_section % 4) == 0 ? 41 : ((style_section % 4) == 1 ? 42 : ((style_section % 4) == 2 ? 43 : 36)) 											// BRK1 & BRKB
+					sp404_drum_note = (style_section % 4) == 0 ? 41 : ((style_section % 4) == 1 ? 42 : ((style_section % 4) == 2 ? 43 : 36)); 											// BRK1 & BRKB
 					sp404_midi_note(0x90, sp404_drum_note, enable_drum_track ? sp404_drum_velocity : 5);		
 					sp404_old_drum_note = sp404_drum_note;
 				}
