@@ -516,9 +516,7 @@ void midi_bluetooth_handle_data() {
 						sp404_midi_note(0x90, sp404_old_drum_note, 10);
 						sp404_old_drum_note = 0;
 					}
-				}
-				
-				style_change_requested = true;
+				}				
 			}				
 		}
 		else
@@ -554,9 +552,7 @@ void midi_bluetooth_handle_data() {
 						sp404_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, 10);					
 						sp404_old_chord_note = 0;
 					}
-				}
-				
-				style_change_requested = true;
+				}				
 			}
 		}
 		else				
@@ -581,9 +577,7 @@ void midi_bluetooth_handle_data() {
 						sp404_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, 10);					
 						sp404_old_bass_note = 0;
 					}
-				}
-
-				style_change_requested = true;
+				}				
 			}
 		}
 		else
