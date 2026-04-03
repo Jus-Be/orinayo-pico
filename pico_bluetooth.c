@@ -1559,6 +1559,21 @@ void midi_bluetooth_handle_data() {
 		{
 			if (joy_up && style_started) 
 			{
+				if (enable_sp404mk2) 
+				{
+					// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+					// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+					// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
+					
+					if (sp404_old_drum_note > 0) {
+						sp404_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
+					}					
+					sp404_drum_note = (style_section % 4) == 0 ? 41 : ((style_section % 4) == 1 ? 42 : ((style_section % 4) == 2 ? 43 : 36)) 											// BRK1 & BRKB
+					sp404_midi_note(0x90, sp404_drum_note, enable_drum_track ? sp404_drum_velocity : 5);		
+					sp404_old_drum_note = sp404_drum_note;
+				}
+				else
+					
 				if (enable_mpc_sample) 
 				{
 					if (mpc_old_drum_note > -1) {
@@ -1670,6 +1685,21 @@ void midi_bluetooth_handle_data() {
 		{
 			if (knob_up && style_started) 
 			{
+				if (enable_sp404mk2) 
+				{
+					// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+					// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+					// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
+					
+					if (sp404_old_drum_note > 0) {
+						sp404_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
+					}					
+					sp404_drum_note = 38 + (style_section % 2); 											// BRK1 & BRKB
+					sp404_midi_note(0x90, sp404_drum_note, enable_drum_track ? sp404_drum_velocity : 5);		
+					sp404_old_drum_note = sp404_drum_note;
+				}
+				else
+					
 				if (enable_mpc_sample) 
 				{
 					if (mpc_old_drum_note > -1) {
@@ -1678,7 +1708,7 @@ void midi_bluetooth_handle_data() {
 					mpc_drum_note = 36 + (style_section % 2) + 14; 											// BRK1 & BRKB
 					sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		
 					mpc_old_drum_note = mpc_drum_note;
-				}
+				}				
 				
 				style_change_requested = true;						
 			}				
