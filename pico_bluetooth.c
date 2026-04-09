@@ -19,6 +19,7 @@
 #include "storage.h"
 #include "ghost_note.h"
 #include "m5audio.h"
+#include "bt_link_key_store.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
@@ -292,9 +293,6 @@ static void pico_bluetooth_init(int argc, const char** argv) {
 static void pico_bluetooth_on_init_complete(void) {
   // Safe to call "unsafe" functions since they are called
   // PICO_INFO("Bluetooth initialization complete.\n");
-
-  // Delete stored BT keys for fresh pairing (helpful for initial connection)
-  uni_bt_del_keys_unsafe();
 
   // Start scanning and autoconnect to supported controllers.
   uni_bt_start_scanning_and_autoconnect_safe();
@@ -2816,6 +2814,10 @@ void bluetooth_init(void) {
   // Keep Wi-Fi off but don't fully disable to avoid interfering with Bluetooth
   // cyw43_arch_disable_sta_mode();
   cyw43_arch_disable_ap_mode();
+
+  // Register persistent flash-backed link key DB so paired devices reconnect
+  // automatically after a power cycle.  Must be called before uni_init().
+  gap_set_link_key_db(bt_link_key_store_get_db());
 
   // Must be called before uni_init()
   uni_platform_set_custom(get_my_platform());
