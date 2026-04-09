@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/Jus-Be/orinayo-pico/actions/workflows/build.yml/badge.svg)](https://github.com/Jus-Be/orinayo-pico/actions/workflows/build.yml)
 
-Firmware for the **Raspberry Pi Pico 2 W** that acts as a Bluetooth-to-MIDI gateway, turning Guitar Hero-style controllers and BLE MIDI devices into professional MIDI control surfaces. Connect wirelessly to your controller and output MIDI simultaneously over USB (to a DAW) and hardware UART (to a synthesizer).
+Firmware for the **Raspberry Pi Pico 2 W** that acts as a Bluetooth-to-MIDI gateway, turning Bluetooth Classic (HID over L2CAP) and BLE devices into professional MIDI control surfaces. Connect wirelessly to your controller and output MIDI simultaneously over USB (to a DAW) and hardware UART (to a synthesizer).
 
 https://github.com/user-attachments/assets/bf5d0bad-dd6a-400b-bc92-5dadf5c17ba5
 
@@ -115,3 +115,14 @@ Detailed documentation is available in the [`wiki/`](wiki/README.md) directory:
   - [MIDI Implementation Chart](wiki/10.1-midi-implementation-chart.md)
   - [Configuration Reference](wiki/10.2-configuration-reference.md)
   - [Troubleshooting](wiki/10.3-troubleshooting.md)
+
+## Credits/Inspiration
+-  [Pico MIDI Looper "Ghost" Edition](https://github.com/oyama/pico-midi-looper-ghost)
+
+## Legal & Disclaimer
+This is a general-purpose wireless translation utility.
+- **Trademarks:** Any reference to third-party brands is for **compatibility description** only.
+- **Patents:** This software utilizes Bluetooth Classic (HID over L2CAP) protocols, USB Class Compliant MIDI behavior and original state-switching logic to provide a unique musical interface.
+
+## License
+Licensed under the **Apache License, Version 2.0**.
