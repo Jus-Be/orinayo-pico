@@ -217,7 +217,6 @@ static const btstack_link_key_db_t bt_link_key_db = {
     .iterator_init     = bt_lk_iterator_init,
     .iterator_get_next = bt_lk_iterator_get_next,
     .iterator_done     = bt_lk_iterator_done,
-    .delete_all        = bt_lk_delete_all,
 };
 
 const btstack_link_key_db_t *bt_link_key_store_get_db(void) {
