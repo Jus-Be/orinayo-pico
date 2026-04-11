@@ -13,7 +13,7 @@ jobs:
 
           - name: Build Orinayo firmware
             id: build
-            uses: samyarsadat/Pico-Build-Action@v1
+            uses: deleolajide/Pico-Build-Action
             with:
                 source_dir: "."
 
