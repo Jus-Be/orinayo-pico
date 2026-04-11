@@ -12,6 +12,7 @@ https://github.com/user-attachments/assets/bf5d0bad-dd6a-400b-bc92-5dadf5c17ba5
 
 - **Wireless input** — Bluetooth Classic (HID gamepads) and BLE MIDI devices
 - **Dual MIDI output** — USB MIDI (TinyUSB) and UART MIDI (31,250 baud) simultaneously
+- **USB MIDI host input (PIO USB)** — External USB MIDI devices via GPIO 16 (D+) and GPIO 17 (D-)
 - **Chord generation** — Button combinations map to chords via a 36-chord lookup table (12 roots × major/minor/sus)
 - **32-step drum sequencer** — Record and play back patterns across 14 tracks with algorithmic ghost notes and fills
 - **Tap tempo** — Set BPM by tapping the controller
@@ -56,6 +57,7 @@ Select a mode at runtime using a button combination on the controller — no ref
 
 - **Raspberry Pi Pico 2 W** (RP2350 + CYW43439 — the Pico 2 W specifically, not Pico W)
 - USB cable for power and USB MIDI
+- *(Optional)* USB host wiring for external USB MIDI devices: GPIO 16 (D+) and GPIO 17 (D-)
 - A supported Bluetooth input device (see above)
 - *(Optional)* 220 Ω resistors + 5-pin DIN connector for hardware UART MIDI output
 - *(Optional)* GPIO buttons for looper record/play/tap-tempo control

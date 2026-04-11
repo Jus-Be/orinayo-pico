@@ -115,6 +115,7 @@ void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 uint8_t get_arp_template(void);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
+void usb_host_midi_forward_task(void);
 
 
 
@@ -138,7 +139,21 @@ int main() {
     hard_assert(rc == PICO_OK);
 		
     board_init();
-    tusb_init();	
+	
+	// USB device stack (native USB, RHPort 0)
+	tusb_rhport_init_t dev_init = {
+		.role = TUSB_ROLE_DEVICE,
+		.speed = TUSB_SPEED_AUTO
+	};
+	tusb_init(BOARD_TUD_RHPORT, &dev_init);
+
+	// USB host stack (PIO USB over GPIO16/17, RHPort 1)
+	tusb_rhport_init_t host_init = {
+		.role = TUSB_ROLE_HOST,
+		.speed = TUSB_SPEED_AUTO
+	};
+	tusb_init(BOARD_TUH_RHPORT, &host_init);
+	board_init_after_tusb();
 	
 	sleep_ms(1000);		
 	bluetooth_init();
@@ -172,6 +187,8 @@ int main() {
 
     while (true) {
 		tud_task(); // tinyusb device task
+		tuh_task(); // tinyusb host task
+		usb_host_midi_forward_task();
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
@@ -199,6 +216,39 @@ int main() {
     }
 	
     //cancel_repeating_timer(&timer);	
+}
+
+void usb_host_midi_forward_task(void) {
+	// Data is drained/forwarded in tuh_midi_rx_cb().
+}
+
+void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
+	(void) idx;
+	(void) mount_cb_data;
+}
+
+void tuh_midi_umount_cb(uint8_t idx) {
+	(void) idx;
+}
+
+void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
+	if (xferred_bytes == 0) return;
+
+	uint8_t buffer[48];
+	uint8_t cable_num = 0;
+
+	while (tuh_midi_read_available(idx)) {
+		uint32_t bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer));
+		if (bytes_read == 0) break;
+
+		// Forward host MIDI input to existing outputs (USB device + UART).
+		midi_n_stream_write(0, cable_num, buffer, bytes_read);
+	}
+}
+
+void tuh_midi_tx_cb(uint8_t idx, uint32_t xferred_bytes) {
+	(void) idx;
+	(void) xferred_bytes;
 }
 
 //--------------------------------------------------------------------+
