@@ -10,6 +10,12 @@
 #include "pico/flash.h"
 #include <pico/cyw43_arch.h>
 
+/*
+ * Flash sector layout (relative to end of flash):
+ *   Sector -9 : Bluetooth link keys  – managed by bt_link_key_store.c
+ *   Sector -8 : Game preferences / patterns  (GHOST_FLASH_BANK_STORAGE_OFFSET)
+ *   Sectors -7..-1 : unused headroom within the 8-sector reservation
+ */
 #ifndef GHOST_FLASH_BANK_STORAGE_OFFSET
 #define GHOST_FLASH_BANK_STORAGE_OFFSET (PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE * 8))
 #endif
