@@ -115,7 +115,11 @@ void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 uint8_t get_arp_template(void);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
-void usb_host_midi_forward_task(void);
+
+enum {
+	// Balanced size: enough to batch multiple MIDI packets per callback while keeping stack usage small.
+	HOST_MIDI_RX_BUFFER_SIZE = 48,
+};
 
 
 
@@ -188,7 +192,6 @@ int main() {
     while (true) {
 		tud_task(); // tinyusb device task
 		tuh_task(); // tinyusb host task
-		usb_host_midi_forward_task();
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
@@ -218,10 +221,6 @@ int main() {
     //cancel_repeating_timer(&timer);	
 }
 
-void usb_host_midi_forward_task(void) {
-	// Data is drained/forwarded in tuh_midi_rx_cb().
-}
-
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	(void) idx;
 	(void) mount_cb_data;
@@ -234,15 +233,15 @@ void tuh_midi_umount_cb(uint8_t idx) {
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	if (xferred_bytes == 0) return;
 
-	uint8_t buffer[48];
+	uint8_t buffer[HOST_MIDI_RX_BUFFER_SIZE];
 	uint8_t cable_num = 0;
+	uint32_t bytes_read = 0;
 
-	while (tuh_midi_read_available(idx)) {
-		uint32_t bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer));
-		if (bytes_read == 0) break;
+	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {
 
-		// Forward host MIDI input to existing outputs (USB device + UART).
-		midi_n_stream_write(0, cable_num, buffer, bytes_read);
+		// Interface index 0 is the existing TinyUSB MIDI device output port.
+		uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
+		if (written < bytes_read) break;
 	}
 }
 
@@ -799,10 +798,12 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 }
 
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
-	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
+	uint32_t written = tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
 		uart_putc(UART_ID, buffer[i]);		
 	}
+
+	return written;
 }

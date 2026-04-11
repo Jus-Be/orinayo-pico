@@ -61,7 +61,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE PICO_DEFAULT_PIO_USB_DP_PIN=1
 if (TARGET tinyusb_pico_pio_usb)
     target_link_libraries(${PROJECT_NAME} tinyusb_pico_pio_usb)
 else()
-    message(WARNING "tinyusb_pico_pio_usb target not available; USB host over GPIO pins requires Pico SDK with PIO-USB support.")
+    message(FATAL_ERROR "tinyusb_pico_pio_usb target not available; USB host over GPIO pins requires Pico SDK with PIO-USB support.")
 endif()
 
 # PicoTool binary information

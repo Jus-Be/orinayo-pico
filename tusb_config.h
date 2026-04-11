@@ -123,9 +123,10 @@ extern "C" {
 // Host class enablement.
 #define CFG_TUH_HUB                 1
 #define CFG_TUH_DEVICE_MAX          (3 * CFG_TUH_HUB + 1)
-#define CFG_TUH_MIDI                CFG_TUH_DEVICE_MAX
+#define CFG_TUH_MIDI                1
 
 // Host MIDI buffers.
+// Use host bulk endpoint max size for portability across full/high speed devices.
 #define CFG_TUH_MIDI_RX_BUFSIZE     TUH_EPSIZE_BULK_MAX
 #define CFG_TUH_MIDI_TX_BUFSIZE     TUH_EPSIZE_BULK_MAX
 
