@@ -1,57 +1,25 @@
 name: Pico Build Action
 on: [push]
-
 jobs:
   test_build:
-    name: Build Orinayo
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+      name: Build Orinayo
+      runs-on: ubuntu-latest
+      permissions:
+          contents: read
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake ninja-build build-essential git python3 \
-            gcc-arm-none-eabi libnewlib-arm-none-eabi
+          - name: Build Orinayo firmware
+            id: build
+            uses: samyarsadat/Pico-Build-Action@v1
+            with:
+                source_dir: "."
 
-      - name: Checkout pico-sdk (latest)
-        uses: actions/checkout@v4
-        with:
-          repository: raspberrypi/pico-sdk
-          path: pico-sdk
-          # omit ref to track default branch (latest)
-
-      - name: Show pico-sdk revision (so we can pin later)
-        working-directory: pico-sdk
-        run: |
-          echo "pico-sdk branch: $(git rev-parse --abbrev-ref HEAD)"
-          echo "pico-sdk commit: $(git rev-parse HEAD)"
-
-      - name: Update pico-sdk submodules
-        working-directory: pico-sdk
-        run: |
-          git submodule update --init --recursive
-
-      - name: Configure
-        env:
-          PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
-        run: |
-          cmake -S . -B build -G Ninja
-
-      - name: Build
-        run: |
-          cmake --build build --parallel
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace_artifacts
-          path: |
-            build/**/*.uf2
-            build/**/*.elf
-            build/**/*.map
+          - name: Upload Build Artifacts
+            uses: actions/upload-artifact@v4
+            with:
+                name: workspace_artifacts
+                path: ${{steps.build.outputs.output_dir}}
+            
