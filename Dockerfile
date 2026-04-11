@@ -20,7 +20,7 @@ RUN \
 ENV PICO_SDK_PATH=/project/pico-sdk/
 
 # Copy in our source files
-COPY src/* /project/src/
+COPY ./* /project/src/
 
 # Build project
 RUN \
