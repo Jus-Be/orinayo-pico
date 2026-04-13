@@ -1052,7 +1052,7 @@ void midi_bluetooth_handle_data() {
 					if (enable_arranger_mode) {
 						midi_yamaha_start_stop(0x7D, true);		
 					}	
-					else {
+					else if (!enable_ample_guitar) {
 						if (yellow) midi_send_control_change(0xB3, 3, 66); 		// End-1
 						else if (red) midi_send_control_change(0xB3, 3, 67); 	// End-2						
 						else if (green) midi_send_control_change(0xB3, 3, 68); 	// End-3						
@@ -1115,7 +1115,7 @@ void midi_bluetooth_handle_data() {
 			if (dpad_down) {
 				style_section--;
 				if (style_section < 0) style_section = 7;
-				midi_send_control_change(0xB3, 14, 127); 		// Previous Style					
+				if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 127); 		// Previous Style					
 			}
 		}
 		else 
@@ -1123,8 +1123,10 @@ void midi_bluetooth_handle_data() {
 		if (dpad_down) {
 			style_section++;
 			if (style_section > 7) style_section = 0;
-			midi_send_control_change(0xB3, 14, 65); 			// Next Style			
+			if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
+		
+		
 
 		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
@@ -1397,7 +1399,7 @@ void midi_bluetooth_handle_data() {
 				midi_send_control_change(0xB0, 32, 0); 				// LSB 0 Page 1											
 			}
 		}
-		else {
+		else if (!enable_ample_guitar) {
 			if (mbut2) {
 				midi_send_control_change(0xB3, 15, style_group + 1);// select style group
 			}							
@@ -1586,7 +1588,7 @@ void midi_bluetooth_handle_data() {
 				style_change_requested = true;						
 			}				
 		}		
-		else {				
+		else if (!enable_ample_guitar) {				
 			if (joy_up) {
 				midi_send_control_change(0xB3, 14, 6 + (style_section % 4)); 	// Fill
 			}
@@ -1712,7 +1714,7 @@ void midi_bluetooth_handle_data() {
 				style_change_requested = true;						
 			}				
 		}				
-		else {				
+		else if (!enable_ample_guitar) {				
 			if (knob_up) {
 				midi_send_control_change(0xB3, 14, 10); 	// Break
 			}
