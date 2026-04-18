@@ -1419,7 +1419,8 @@ void midi_bluetooth_handle_data() {
 			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
-			else if (green && yellow) config_guitar(10);			// RC-600 Looper	
+			else if (green && orange) config_guitar(18);			// Reset Preferences	
+			else if (green && yellow) config_guitar(10);			// RC-600 Looper			
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
@@ -1849,6 +1850,21 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
+	if (mode == 18) {										// Reset Preferences
+		enable_arranger_mode 	= false;
+		enable_ample_guitar 	= false;
+		enable_midi_drums 		= false;
+		enable_seqtrak 			= false;
+		enable_chord_track 		= false;
+		enable_bass_track 		= false;
+		enable_modx 			= false;
+		enable_sp404mk2 		= false;
+		enable_mpc_sample 		= false;	
+		
+		preferences_changed 	= true;
+	}
+	else
+		
 	if (mode == 17) {										// Save Preferences
 		preferences_changed = true;
 	}
