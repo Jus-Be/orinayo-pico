@@ -225,18 +225,10 @@ int main() {
 // Device callbacks
 //--------------------------------------------------------------------+
 
-void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
-	(void) idx;
-	(void) mount_cb_data;
-}
-
-void tuh_midi_umount_cb(uint8_t idx) {
-	(void) idx;
-}
-
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	if (xferred_bytes == 0) return;
 
+/*
 	uint8_t buffer[HOST_MIDI_RX_BUFFER_SIZE];
 	uint8_t cable_num = 0;
 	uint32_t bytes_read = 0;
@@ -247,6 +239,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
 		if (written < bytes_read) break;
 	}
+*/	
 }
 
 void tuh_midi_tx_cb(uint8_t idx, uint32_t xferred_bytes) {
