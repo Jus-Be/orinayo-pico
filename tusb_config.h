@@ -34,17 +34,6 @@ extern "C" {
 // COMMON CONFIGURATION
 //--------------------------------------------------------------------
 
-// Board-specific root hub port selection for dual-role mode:
-// - Port 0: native USB device (Pico USB connector)
-// - Port 1: PIO USB host (external D+/D- wiring)
-#ifndef BOARD_TUD_RHPORT
-#define BOARD_TUD_RHPORT 0
-#endif
-
-#ifndef BOARD_TUH_RHPORT
-#define BOARD_TUH_RHPORT 1
-#endif
-
 // defined by compiler flags for flexibility
 #ifndef CFG_TUSB_MCU
 #error CFG_TUSB_MCU must be defined
@@ -60,10 +49,6 @@ extern "C" {
 #ifndef CFG_TUSB_OS
 #define CFG_TUSB_OS                 OPT_OS_PICO
 #endif
-
-// Enable both device + host stacks (dual-role).
-#define CFG_TUD_ENABLED             1
-#define CFG_TUH_ENABLED             1
 
 // CFG_TUSB_DEBUG is defined by compiler in DEBUG build
 // #define CFG_TUSB_DEBUG           0
@@ -81,14 +66,6 @@ extern "C" {
 
 #ifndef CFG_TUSB_MEM_ALIGN
 #define CFG_TUSB_MEM_ALIGN          __attribute__ ((aligned(4)))
-#endif
-
-#ifndef CFG_TUH_MEM_SECTION
-#define CFG_TUH_MEM_SECTION
-#endif
-
-#ifndef CFG_TUH_MEM_ALIGN
-#define CFG_TUH_MEM_ALIGN           __attribute__ ((aligned(4)))
 #endif
 
 //--------------------------------------------------------------------
@@ -109,26 +86,6 @@ extern "C" {
 // MIDI FIFO size of TX and RX
 #define CFG_TUD_MIDI_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_MIDI_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
-
-//--------------------------------------------------------------------
-// HOST CONFIGURATION (USB MIDI host via PIO USB)
-//--------------------------------------------------------------------
-
-// Use PIO-USB as host controller.
-#define CFG_TUH_RPI_PIO_USB         1
-
-// Size of buffer to hold descriptors and other data used for enumeration.
-#define CFG_TUH_ENUMERATION_BUFSIZE 256
-
-// Host class enablement.
-#define CFG_TUH_HUB                 1
-#define CFG_TUH_DEVICE_MAX          (3 * CFG_TUH_HUB + 1)
-#define CFG_TUH_MIDI                1
-
-// Host MIDI buffers.
-// Use host bulk endpoint max size for portability across full/high speed devices.
-#define CFG_TUH_MIDI_RX_BUFSIZE     TUH_EPSIZE_BULK_MAX
-#define CFG_TUH_MIDI_TX_BUFSIZE     TUH_EPSIZE_BULK_MAX
 
 #ifdef __cplusplus
 }

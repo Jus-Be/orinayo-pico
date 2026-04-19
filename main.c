@@ -13,7 +13,6 @@
 #include "pico/flash.h"
 #include "bsp/board.h"
 #include "tusb.h"
-#include "pio_usb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
 #include "storage.h"
@@ -117,10 +116,7 @@ void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 uint8_t get_arp_template(void);
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
 
-enum {
-	// Balanced size: enough to batch multiple MIDI packets per callback while keeping stack usage small.
-	HOST_MIDI_RX_BUFFER_SIZE = 48,
-};
+
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
@@ -143,21 +139,6 @@ int main() {
 		
     board_init();
     tusb_init();	
-	
-	// USB device stack (native USB, RHPort 0)
-	tusb_rhport_init_t dev_init = {
-		.role = TUSB_ROLE_DEVICE,
-		.speed = TUSB_SPEED_AUTO
-	};
-	tusb_init(BOARD_TUD_RHPORT, &dev_init);
-
-	// USB host stack (PIO USB over GPIO16/17, RHPort 1)
-	tusb_rhport_init_t host_init = {
-		.role = TUSB_ROLE_HOST,
-		.speed = TUSB_SPEED_AUTO
-	};
-	tusb_init(BOARD_TUH_RHPORT, &host_init);
-	board_init_after_tusb();	
 	
 	sleep_ms(1000);		
 	bluetooth_init();
@@ -191,7 +172,6 @@ int main() {
 
     while (true) {
 		tud_task(); // tinyusb device task
-		tuh_task(); // tinyusb host task		
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
@@ -224,28 +204,6 @@ int main() {
 //--------------------------------------------------------------------+
 // Device callbacks
 //--------------------------------------------------------------------+
-
-void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
-	if (xferred_bytes == 0) return;
-
-/*
-	uint8_t buffer[HOST_MIDI_RX_BUFFER_SIZE];
-	uint8_t cable_num = 0;
-	uint32_t bytes_read = 0;
-
-	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {
-
-		// Interface index 0 is the existing TinyUSB MIDI device output port.
-		uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
-		if (written < bytes_read) break;
-	}
-*/	
-}
-
-void tuh_midi_tx_cb(uint8_t idx, uint32_t xferred_bytes) {
-	(void) idx;
-	(void) xferred_bytes;
-}
 
 // Invoked when device is mounted
 void tud_mount_cb(void)
@@ -791,12 +749,10 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 }
 
 uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
-	uint32_t written = tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
+	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
 		uart_putc(UART_ID, buffer[i]);		
 	}
-	
-	return written;	
 }
