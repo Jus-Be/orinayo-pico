@@ -25,6 +25,7 @@ set(PICO_BOARD pico2_w)
 
 # Include build functions from the Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+include($ENV{PICO_SDK_PATH}/lib/tinyusb/hw/bsp/family_support.cmake)
 
 # Set project name and C/C++ standards
 string(TIMESTAMP DATEVER "%Y.%m.%d" UTC)

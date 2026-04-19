@@ -13,6 +13,7 @@
 #include "pico/flash.h"
 #include "bsp/board.h"
 #include "tusb.h"
+#include "pio_usb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
 #include "storage.h"
