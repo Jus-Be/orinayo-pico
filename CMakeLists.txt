@@ -43,7 +43,7 @@ add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c m5audio.c)
 
-pico_enable_stdio_usb(${PROJECT_NAME} 1)
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_add_extra_outputs(${PROJECT_NAME})
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
