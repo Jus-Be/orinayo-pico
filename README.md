@@ -125,4 +125,4 @@ This is a general-purpose wireless translation utility.
 - **Patents:** This software utilizes Bluetooth Classic (HID over L2CAP) protocols, USB Class Compliant MIDI behavior and original state-switching logic to provide a unique musical interface.
 
 ## License
-Licensed under the **Apache License, Version 2.0**.
+Licensed under the **Apache License, Version 2.0**
