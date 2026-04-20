@@ -13,7 +13,6 @@
 #include "pico/flash.h"
 #include "bsp/board.h"
 #include "tusb.h"
-#include "midi_host.h"
 #include "pio_usb.h"
 #include "pico_bluetooth.h"
 #include "async_timer.h"
@@ -58,6 +57,14 @@ void pico_set_led(bool led_on) {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
 #endif
 }
+
+typedef struct {
+  uint8_t daddr;
+  uint8_t bInterfaceNumber; // interface number of MIDI streaming
+  uint8_t rx_cable_count;
+  uint8_t tx_cable_count;
+} tuh_midi_mount_cb_t;
+
 
 // UART settings
 #define UART_ID uart0
