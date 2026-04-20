@@ -11,7 +11,7 @@
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 #include "pico/flash.h"
-#include "bsp/board.h"
+//#include "bsp/board.h"
 #include "tusb.h"
 #include "pio_usb.h"
 #include "pico_bluetooth.h"
