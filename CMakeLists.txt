@@ -43,7 +43,6 @@ pico_sdk_init()
 add_subdirectory(${PICO_TINYUSB_PATH} tinyusb_build)
 add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tinyusb tinyusb)
 
 # Add source files 
 add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
