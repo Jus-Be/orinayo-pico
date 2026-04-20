@@ -45,11 +45,6 @@ extern "C" {
 #define BOARD_TUH_RHPORT 1
 #endif
 
-// defined by compiler flags for flexibility
-#ifndef CFG_TUSB_MCU
-#error CFG_TUSB_MCU must be defined
-#endif
-
 #if CFG_TUSB_MCU == OPT_MCU_LPC18XX || CFG_TUSB_MCU == OPT_MCU_LPC43XX || CFG_TUSB_MCU == OPT_MCU_MIMXRT10XX || \
     CFG_TUSB_MCU == OPT_MCU_NUC505 || CFG_TUSB_MCU == OPT_MCU_CXD56
 #define CFG_TUSB_RHPORT0_MODE   (OPT_MODE_DEVICE | OPT_MODE_HIGH_SPEED)
