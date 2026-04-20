@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  *
  */
+ 
+#error "Using CUSTOM config"
 
 #ifndef _TUSB_CONFIG_H_
 #define _TUSB_CONFIG_H_
