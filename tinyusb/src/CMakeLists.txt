@@ -33,9 +33,6 @@ function(tinyusb_sources_get OUTPUT_VAR)
     ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/class/vendor/vendor_host.c
     # typec
     ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/typec/usbc.c
-	# hcd
-    ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/portable/raspberrypi/pio_usb/hcd_pio_usb.c
-    ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/portable/raspberrypi/rp2040/rp2040_usb.c	
     PARENT_SCOPE
     )
 endfunction()
