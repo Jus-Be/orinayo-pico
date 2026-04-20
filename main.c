@@ -123,7 +123,7 @@ void dream_set_delay(int tempo);
 void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 uint8_t get_arp_template(void);
-uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
+void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
 
 enum {
 	// Balanced size: enough to batch multiple MIDI packets per callback while keeping stack usage small.
@@ -251,9 +251,10 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 
 	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {
 
+		// avoid loopback
 		// Interface index 0 is the existing TinyUSB MIDI device output port.
-		uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
-		if (written < bytes_read) break;
+		//uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
+		//if (written < bytes_read) break;
 	}
 }
 
@@ -806,8 +807,9 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
-uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
-	uint32_t written = tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
+void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
+	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
+	tuh_midi_stream_write(itf, cable_num, buffer, bufsize);
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
