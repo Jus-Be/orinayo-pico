@@ -24,12 +24,11 @@ set(PICO_PLATFORM rp2350-arm-s)
 set(PICO_BOARD pico2_w)
 set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb) 
 set(PICO_TINYUSB_PATH ${CMAKE_CURRENT_LIST_DIR}/tinyusb) 
-
-# set(FAMILY rp2040)
+set(FAMILY rp2040)
 
 # Include build functions from the Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
-# include($ENV{PICO_SDK_PATH}/lib/tinyusb/hw/bsp/family_support.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/tinyusb/hw/bsp/family_support.cmake)
 
 # Set project name and C/C++ standards
 string(TIMESTAMP DATEVER "%Y.%m.%d" UTC)
