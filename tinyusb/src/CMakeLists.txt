@@ -38,7 +38,7 @@ function(tinyusb_sources_get OUTPUT_VAR)
     ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/portable/raspberrypi/rp2040/rp2040_usb.c	
     PARENT_SCOPE
     )
-endfunction()/
+endfunction()
 
 # Add tinyusb to a existing target
 function(tinyusb_target_add TARGET)
