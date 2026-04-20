@@ -43,6 +43,11 @@ add_subdirectory(${PICO_TINYUSB_PATH}/src tinyusb_build)
 add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
 
+add_compile_definitions(
+    PICO_DEFAULT_PIO_USB_DP_PIN=16
+    PICO_DEFAULT_PIO_USB_DM_PIN=17
+)
+
 # Add source files 
 add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
 target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PICO_TINYUSB_PATH}/src ${PICO_TINYUSB_PATH}/src/class/audio ${PICO_TINYUSB_PATH}/src/class/midi ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb/src)
