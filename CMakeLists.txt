@@ -24,9 +24,6 @@ set(PICO_PLATFORM rp2350-arm-s)
 set(PICO_BOARD pico2_w)
 set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb) 
 
-add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
-
 # set(FAMILY rp2040)
 
 # Include build functions from the Pico SDK
@@ -41,6 +38,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Initialize the Pico SDK
 pico_sdk_init()
+
+add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
 
 # Add source files 
 add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
