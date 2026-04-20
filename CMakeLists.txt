@@ -48,7 +48,7 @@ target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} $ENV{PICO_
 target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
-add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c m5audio.c midi_host.c)
+add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c m5audio.c $ENV{PICO_SDK_PATH}/lib/tinyusb/src/class/midi/midi_host.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_add_extra_outputs(${PROJECT_NAME})
