@@ -58,13 +58,6 @@ void pico_set_led(bool led_on) {
 #endif
 }
 
-typedef struct {
-  uint8_t daddr;
-  uint8_t bInterfaceNumber; // interface number of MIDI streaming
-  uint8_t rx_cable_count;
-  uint8_t tx_cable_count;
-} tuh_midi_mount_cb_t;
-
 
 // UART settings
 #define UART_ID uart0
