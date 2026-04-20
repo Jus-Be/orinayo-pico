@@ -22,11 +22,11 @@ cmake_minimum_required(VERSION 3.12)
 # Set Pico Board and Pico Platform
 set(PICO_PLATFORM rp2350-arm-s)
 set(PICO_BOARD pico2_w)
-set(FAMILY rp2040)
+# set(FAMILY rp2040)
 
 # Include build functions from the Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
-include($ENV{PICO_SDK_PATH}/lib/tinyusb/hw/bsp/family_support.cmake)
+# include($ENV{PICO_SDK_PATH}/lib/tinyusb/hw/bsp/family_support.cmake)
 
 # Set project name and C/C++ standards
 string(TIMESTAMP DATEVER "%Y.%m.%d" UTC)
