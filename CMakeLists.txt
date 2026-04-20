@@ -39,9 +39,9 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the Pico SDK
 pico_sdk_init()
 
-add_subdirectory(${PICO_TINYUSB_PATH}/src tinyusb_build)
-add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
+add_subdirectory(${PICO_TINYUSB_PATH}/src)
+add_subdirectory(${PICO_PIO_USB_PATH})
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32)
 
 add_compile_definitions(
     PICO_DEFAULT_PIO_USB_DP_PIN=16
@@ -51,7 +51,7 @@ add_compile_definitions(
 # Add source files 
 add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
 target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PICO_TINYUSB_PATH}/src ${PICO_TINYUSB_PATH}/src/class/audio ${PICO_TINYUSB_PATH}/src/class/midi ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb/src)
-target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
+target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c m5audio.c)
@@ -66,7 +66,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PI
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to libraries
-target_link_libraries(${PROJECT_NAME} pico_stdlib pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
