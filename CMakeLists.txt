@@ -28,6 +28,7 @@ set(FAMILY rp2040)
 
 # Include build functions from the Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+include(${PICO_TINYUSB_PATH}/hw/bsp/family_support.cmake)
 include(${PICO_TINYUSB_PATH}/hw/bsp/rp2040/family.cmake)
 
 # Set project name and C/C++ standards
