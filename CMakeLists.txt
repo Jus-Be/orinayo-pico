@@ -51,33 +51,12 @@ add_compile_definitions(
 )
 
 add_library(tinyusb_pico_pio_usb INTERFACE)
-target_sources(tinyusb_device_base INTERFACE
-		${TOP}/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c
-		)
-target_sources(tinyusb_host_base INTERFACE
-		${TOP}/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
-		)
-
-target_sources(tinyusb_pico_pio_usb INTERFACE
-		${PICO_PIO_USB_PATH}/src/pio_usb.c
-		${PICO_PIO_USB_PATH}/src/pio_usb_host.c
-		${PICO_PIO_USB_PATH}/src/pio_usb_device.c
-		${PICO_PIO_USB_PATH}/src/usb_crc.c
-		)
-
-target_include_directories(tinyusb_pico_pio_usb INTERFACE
-		${PICO_PIO_USB_PATH}/src
-		)
-
-target_link_libraries(tinyusb_pico_pio_usb INTERFACE
-		hardware_dma
-		hardware_pio
-		pico_multicore
-		)
-
-target_compile_definitions(tinyusb_pico_pio_usb INTERFACE
-		PIO_USB_USE_TINYUSB
-		)
+target_sources(tinyusb_device_base INTERFACE ${TOP}/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c)
+target_sources(tinyusb_host_base INTERFACE ${TOP}/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c)
+target_sources(tinyusb_pico_pio_usb INTERFACE ${PICO_PIO_USB_PATH}/src/pio_usb.c ${PICO_PIO_USB_PATH}/src/pio_usb_host.c ${PICO_PIO_USB_PATH}/src/pio_usb_device.c ${PICO_PIO_USB_PATH}/src/usb_crc.c)
+target_include_directories(tinyusb_pico_pio_usb INTERFACE ${PICO_PIO_USB_PATH}/src)
+target_link_libraries(tinyusb_pico_pio_usb INTERFACE hardware_dma hardware_pio pico_multicore)
+target_compile_definitions(tinyusb_pico_pio_usb INTERFACE PIO_USB_USE_TINYUSB)
 
 pico_generate_pio_header(tinyusb_pico_pio_usb ${PICO_PIO_USB_PATH}/src/usb_tx.pio)
 pico_generate_pio_header(tinyusb_pico_pio_usb ${PICO_PIO_USB_PATH}/src/usb_rx.pio)
