@@ -39,7 +39,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the Pico SDK
 pico_sdk_init()
 
-add_subdirectory(${PICO_TINYUSB_PATH} tinyusb_build)
+add_subdirectory(${PICO_TINYUSB_PATH}/src tinyusb_build)
 add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
 
