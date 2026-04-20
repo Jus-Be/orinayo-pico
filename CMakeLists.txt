@@ -22,6 +22,11 @@ cmake_minimum_required(VERSION 3.12)
 # Set Pico Board and Pico Platform
 set(PICO_PLATFORM rp2350-arm-s)
 set(PICO_BOARD pico2_w)
+set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb) 
+
+add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb_build)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
+
 # set(FAMILY rp2040)
 
 # Include build functions from the Pico SDK
@@ -40,7 +45,7 @@ pico_sdk_init()
 # Add source files 
 add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
 target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb/src)
-target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
+target_link_libraries(orinayobt pico_stdlib pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_host_rp2350 tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c m5audio.c)
@@ -55,7 +60,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CM
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to libraries
-target_link_libraries(${PROJECT_NAME} pico_stdlib pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_host_rp2350 tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
@@ -66,5 +71,3 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Orinayo")
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32 libbluepad32)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb pico_pio_usb)
