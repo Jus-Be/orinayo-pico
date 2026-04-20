@@ -13,7 +13,6 @@
 #include "pico/flash.h"
 #include "bsp/board.h"
 #include "tusb.h"
-#include "midi.h"
 #include "midi_host.h"
 #include "pio_usb.h"
 #include "pico_bluetooth.h"
