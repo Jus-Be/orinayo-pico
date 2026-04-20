@@ -814,7 +814,5 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
 		uart_putc(UART_ID, buffer[i]);		
-	}
-	
-	return written;	
+	}	
 }
