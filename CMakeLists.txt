@@ -46,6 +46,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32)
 add_compile_definitions(
     PICO_DEFAULT_PIO_USB_DP_PIN=16
     PICO_DEFAULT_PIO_USB_DM_PIN=17
+	CFG_TUH_RPI_PIO_USB=1
 )
 
 # Add source files 
