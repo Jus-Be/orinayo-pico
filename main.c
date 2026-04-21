@@ -145,20 +145,21 @@ int main() {
     hard_assert(rc == PICO_OK);
 		
     board_init();
+    //tusb_init();	
 	
 	// USB device stack (native USB, RHPort 0)
 	tusb_rhport_init_t dev_init = {
 		.role = TUSB_ROLE_DEVICE,
 		.speed = TUSB_SPEED_AUTO
 	};
-	tud_init(BOARD_TUD_RHPORT, &dev_init);
+	tusb_init(BOARD_TUD_RHPORT, &dev_init);
 
 	// USB host stack (PIO USB over GPIO16/17, RHPort 1)
 	tusb_rhport_init_t host_init = {
 		.role = TUSB_ROLE_HOST,
 		.speed = TUSB_SPEED_AUTO
 	};
-	tuh_init(BOARD_TUH_RHPORT, &host_init);
+	tusb_init(BOARD_TUH_RHPORT, &host_init);
 	board_init_after_tusb();	
 	
 	sleep_ms(1000);		
@@ -229,10 +230,12 @@ int main() {
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+	 tuh_midi_read_poll(device_addr);
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
-	(void) idx;
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
