@@ -60,14 +60,12 @@ void pico_set_led(bool led_on) {
 
 
 // UART settings
-#define UART_ID 		uart0
-#define BAUD_RATE 		31250
-#define UART_TX_PIN 	0
-#define UART_RX_PIN 	1
-#define GPIO_FUNC_UART 	2
-#define HOST_PIN_DP 	16
+#define UART_ID uart0
+#define BAUD_RATE 31250
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1
+#define GPIO_FUNC_UART 2
 
-uint8_t dev_addr = 0;
 extern int midi_current_step;
 extern int style_section;
 extern int active_strum_pattern;
@@ -89,6 +87,8 @@ static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
+
+uint8_t device_addr = 0;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
@@ -137,37 +137,30 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
     return true;
 }
 
-void core1_main() {
-    sleep_ms(10);
-    
-    // 1. Initialize PIO-USB hardware
-    static pio_usb_configuration_t config = PIO_USB_DEFAULT_CONFIG;
-    config.pin_dp = HOST_PIN_DP;
-    system_pio_usb_init(&config);
-
-    // 2. Initialize TinyUSB (Both Device and Host)
-    tuh_init(BOARD_TUH_RHPORT);
-
-    while (1) {
-        tuh_task(); // Keeps the Host stack alive
-    }
-}
-
 int main() {
-    set_sys_clock_khz(120000, true); // Required for stable PIO-USB	
     stdio_init_all();	
-
-    // Launch Host stack on Core 1
-    multicore_launch_core1(core1_main);
-	
 	flash_safe_execute_core_init();	
 
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 		
     board_init();
-    // Initialize Device stack on Core 0
-    tud_init(BOARD_TUD_RHPORT);	
+    //tusb_init();	
+	
+	// USB device stack (native USB, RHPort 0)
+	tusb_rhport_init_t dev_init = {
+		.role = TUSB_ROLE_DEVICE,
+		.speed = TUSB_SPEED_AUTO
+	};
+	tusb_init(BOARD_TUD_RHPORT, &dev_init);
+
+	// USB host stack (PIO USB over GPIO16/17, RHPort 1)
+	tusb_rhport_init_t host_init = {
+		.role = TUSB_ROLE_HOST,
+		.speed = TUSB_SPEED_AUTO
+	};
+	tusb_init(BOARD_TUH_RHPORT, &host_init);
+	board_init_after_tusb();	
 	
 	sleep_ms(1000);		
 	bluetooth_init();
@@ -200,7 +193,8 @@ int main() {
 
 
     while (true) {
-		tud_task(); // tinyusb device task	
+		tud_task(); // tinyusb device task
+		tuh_task(); // tinyusb host task		
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
@@ -235,11 +229,11 @@ int main() {
 //--------------------------------------------------------------------+
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
-	dev_addr = idx;
+	device_addr = idx;
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
-	dev_addr = 0;
+	(void) idx;
 }
 
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
@@ -809,7 +803,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
-	tuh_midi_stream_write(dev_addr, cable_num, buffer, bufsize);
+	tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
