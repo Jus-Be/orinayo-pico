@@ -145,27 +145,10 @@ int main() {
     hard_assert(rc == PICO_OK);
 		
     board_init();	
+	tuh_init(BOARD_TUH_RHPORT);
+	tud_init(BOARD_TUD_RHPORT);	
 	
-	// USB device stack (native USB, RHPort 0)
-	tusb_rhport_init_t dev_init = {
-		.role = TUSB_ROLE_DEVICE,
-		.speed = TUSB_SPEED_AUTO
-	};
-	tusb_init(BOARD_TUD_RHPORT, &dev_init);
-
-	// USB host stack (PIO USB over GPIO16/17, RHPort 1)
-	tusb_rhport_init_t host_init = {
-		.role = TUSB_ROLE_HOST,
-		.speed = TUSB_SPEED_AUTO
-	};
-	tusb_init(BOARD_TUH_RHPORT, &host_init);
-	board_init_after_tusb();	
-	
-	
-	//tuh_init(BOARD_TUH_RHPORT);
-	//tud_init(BOARD_TUD_RHPORT);	
-	
-	sleep_ms(1000);		
+	sleep_ms(500);		
 	bluetooth_init();
 	
 	tud_task();	
