@@ -808,7 +808,8 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
-	tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+	//tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+	tuh_midi_packet_write_n(device_addr, buffer, bufsize);
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
