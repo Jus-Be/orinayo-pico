@@ -231,7 +231,6 @@ int main() {
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
-	 tuh_midi_read_poll(device_addr);
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
