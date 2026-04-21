@@ -155,7 +155,7 @@ void core1_main() {
 }
 
 int main() {
-    set_sys_clock_khz(120000, true); // Required for stable PIO-USB	
+    //set_sys_clock_khz(120000, true); // Required for stable PIO-USB	
     stdio_init_all();	
 
     // Launch Host stack on Core 1
