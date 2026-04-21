@@ -137,6 +137,16 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
     return true;
 }
 
+// core1: handle host events
+void core1_main() {
+	sleep_ms(10);
+	tuh_init(BOARD_TUH_RHPORT);
+
+	while (true) {
+		tuh_task(); // tinyusb host task
+	}
+}
+
 int main() {
     stdio_init_all();	
 	flash_safe_execute_core_init();	
@@ -145,16 +155,21 @@ int main() {
     hard_assert(rc == PICO_OK);
 		
     board_init();	
-	tuh_init(BOARD_TUH_RHPORT);
+	
+	multicore_reset_core1();
+	multicore_launch_core1(core1_main);	
+
+	sleep_ms(10);
 	tud_init(BOARD_TUD_RHPORT);	
 	
 	sleep_ms(500);		
 	bluetooth_init();
 	
-	tud_task();	
+	//tud_task();	
 
     //struct repeating_timer timer;	
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
+	
 	async_timer_init();
 	looper_schedule_step_timer();
     note_scheduler_init();
@@ -179,7 +194,6 @@ int main() {
 
 
     while (true) {
-		tuh_task(); // tinyusb host task
 		tud_task(); // tinyusb device task		
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			

@@ -892,7 +892,7 @@ void midi_bluetooth_handle_data() {
 				{					
 					if (enable_mpc_sample) {
 						mpc_drum_note = 44;
-						sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-14-085.wav	
+						sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);		// .\01\SAMPLE\1-09-085.wav	
 						mpc_old_drum_note = mpc_drum_note;
 						
 						style_change_requested = true;
