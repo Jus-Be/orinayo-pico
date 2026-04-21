@@ -118,7 +118,7 @@ extern "C" {
 #define CFG_TUH_ENUMERATION_BUFSIZE 256
 
 // Host class enablement.
-#define CFG_TUH_HUB                 1
+#define CFG_TUH_HUB                 0
 #define CFG_TUH_DEVICE_MAX          (3 * CFG_TUH_HUB + 1)
 #define CFG_TUH_MIDI                1
 #define CFG_TUH_MIDI_STREAM_API		1
