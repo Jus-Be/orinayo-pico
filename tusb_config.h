@@ -37,26 +37,14 @@ extern "C" {
 // Board-specific root hub port selection for dual-role mode:
 // - Port 0: native USB device (Pico USB connector)
 // - Port 1: PIO USB host (external D+/D- wiring)
-#ifndef BOARD_TUD_RHPORT
-#define BOARD_TUD_RHPORT 0
-#endif
 
-#ifndef BOARD_TUH_RHPORT
-#define BOARD_TUH_RHPORT 1
-#endif
-
-#if CFG_TUSB_MCU == OPT_MCU_LPC18XX || CFG_TUSB_MCU == OPT_MCU_LPC43XX || CFG_TUSB_MCU == OPT_MCU_MIMXRT10XX || \
-    CFG_TUSB_MCU == OPT_MCU_NUC505 || CFG_TUSB_MCU == OPT_MCU_CXD56
-#define CFG_TUSB_RHPORT0_MODE   (OPT_MODE_DEVICE | OPT_MODE_HIGH_SPEED)
-#define CFG_TUSB_RHPORT1_MODE 	(OPT_MODE_HOST   | OPT_MODE_FULL_SPEED)
-#else
-#define CFG_TUSB_RHPORT0_MODE     OPT_MODE_DEVICE
-#define CFG_TUSB_RHPORT1_MODE     OPT_MODE_HOST
-#endif
-
-#ifndef CFG_TUSB_OS
+#define BOARD_TUD_RHPORT 			0
+#define BOARD_TUH_RHPORT 			1
+#define CFG_TUSB_RHPORT0_MODE     	OPT_MODE_DEVICE
+#define CFG_TUSB_RHPORT1_MODE     	OPT_MODE_HOST
 #define CFG_TUSB_OS                 OPT_OS_PICO
-#endif
+#define CFG_TUH_RPI_PIO_USB_PORT    1
+#define CFG_TUD_RHPORT              0
 
 // Enable both device + host stacks (dual-role).
 #define CFG_TUD_ENABLED             1
@@ -115,7 +103,7 @@ extern "C" {
 #define CFG_TUH_RPI_PIO_USB         1
 
 // Size of buffer to hold descriptors and other data used for enumeration.
-#define CFG_TUH_ENUMERATION_BUFSIZE 256
+#define CFG_TUH_ENUMERATION_BUFSIZE 1024
 
 // Host class enablement.
 #define CFG_TUH_HUB                 0
