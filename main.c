@@ -89,7 +89,7 @@ static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
-uint8_t device_addr = 0;
+uint8_t device_addr = 255;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
@@ -238,6 +238,7 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
+	device_addr = 255;
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
@@ -808,8 +809,11 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
-	//tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
-	tuh_midi_packet_write_n(device_addr, buffer, bufsize);
+	
+	if (device_addr != 255) {
+		//tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+		tuh_midi_packet_write_n(device_addr, buffer, bufsize);
+	}
 	
 	for (int i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
