@@ -138,28 +138,8 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
     return true;
 }
 
-void core1_main() {
-    sleep_ms(10);
-    
-    // 1. Initialize PIO-USB hardware
-    static pio_usb_configuration_t config = PIO_USB_DEFAULT_CONFIG;
-    config.pin_dp = HOST_PIN_DP;
-    pio_usb_host_init(&config);
-
-    // 2. Initialize TinyUSB (Both Device and Host)
-    tuh_init(BOARD_TUH_RHPORT);
-
-    while (1) {
-        tuh_task(); // Keeps the Host stack alive
-    }
-}
-
 int main() {
-    //set_sys_clock_khz(120000, true); // Required for stable PIO-USB	
     stdio_init_all();	
-
-    // Launch Host stack on Core 1
-    multicore_launch_core1(core1_main);
 	
 	flash_safe_execute_core_init();	
 
@@ -167,16 +147,18 @@ int main() {
     hard_assert(rc == PICO_OK);
 		
     board_init();
-    // Initialize Device stack on Core 0
     tud_init(BOARD_TUD_RHPORT);	
+	
+    static pio_usb_configuration_t config = PIO_USB_DEFAULT_CONFIG;
+    config.pin_dp = HOST_PIN_DP;
+    pio_usb_host_init(&config);
+    tuh_init(BOARD_TUH_RHPORT);	
 	
 	sleep_ms(1000);		
 	bluetooth_init();
 	
 	tud_task();	
 
-    //struct repeating_timer timer;	
-    //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
 	async_timer_init();
 	looper_schedule_step_timer();
     note_scheduler_init();
@@ -202,6 +184,7 @@ int main() {
 
     while (true) {
 		tud_task(); // tinyusb device task	
+        tuh_task(); // Keeps the Host stack alive		
 		
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
