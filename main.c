@@ -11,7 +11,7 @@
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 #include "pico/flash.h"
-//#include "bsp/board.h"
+#include "bsp/board.h"
 #include "tusb.h"
 #include "pio_usb.h"
 #include "pico_bluetooth.h"
@@ -142,8 +142,8 @@ int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 		
-    //board_init();
-    tusb_init();	
+    board_init();
+    //tusb_init();	
 	
 	// USB device stack (native USB, RHPort 0)
 	tusb_rhport_init_t dev_init = {
@@ -158,7 +158,7 @@ int main() {
 		.speed = TUSB_SPEED_AUTO
 	};
 	tusb_init(BOARD_TUH_RHPORT, &host_init);
-	//board_init_after_tusb();	
+	board_init_after_tusb();	
 	
 	sleep_ms(1000);		
 	bluetooth_init();
