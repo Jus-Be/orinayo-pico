@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "pico/cyw43_arch.h"
 #include "pico/multicore.h"
+#include "hardware/clocks.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
@@ -139,7 +140,7 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 
 // core1: handle host events
 void core1_main() {
-	sleep_ms(10);
+	//sleep_ms(10);
 	tuh_init(BOARD_TUH_RHPORT);
 
 	while (true) {
@@ -148,8 +149,10 @@ void core1_main() {
 }
 
 int main() {
-    stdio_init_all();	
-	flash_safe_execute_core_init();	
+	set_sys_clock_khz(120000, true);
+	sleep_ms(10);
+	
+    stdio_init_all();		
 
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
@@ -158,11 +161,12 @@ int main() {
 	
 	multicore_reset_core1();
 	multicore_launch_core1(core1_main);	
+	flash_safe_execute_core_init();	
 
-	sleep_ms(10);
+	//sleep_ms(10);
 	tud_init(BOARD_TUD_RHPORT);	
 	
-	sleep_ms(500);		
+	//sleep_ms(500);		
 	bluetooth_init();
 	
 	//tud_task();	
