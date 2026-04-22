@@ -1067,8 +1067,10 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		
-		if (mbut0) style_started = !style_started;
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);	
+		if (mbut0) {
+			style_started = !style_started;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, style_started);	
+		}
 
 		finished_processing = true;
 		return;
