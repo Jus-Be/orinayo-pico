@@ -812,7 +812,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 	
 	if (device_addr != 255) {
 		tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
-		 tuh_midi_write_flush(device_addr);
+		tuh_midi_write_flush(device_addr);
 	}
 	
 	for (int i=0; i<bufsize; i++) {
