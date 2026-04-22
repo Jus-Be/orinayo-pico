@@ -2694,14 +2694,14 @@ void mpc_trigger_loop() {
 	}
 
 	
-	if (mpc_old_bass_note != mpc_bass_note && enable_auto_hold) { 
+	if (mpc_old_bass_note != mpc_bass_note || enable_auto_hold) { 
 		if (mpc_old_bass_note != 255) sp404_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 5);
 		
 		sp404_midi_note(0x94, mpc_bass_note, enable_bass_track ? mpc_bass_velocity : 5);			
 		mpc_old_bass_note = mpc_bass_note;		
 	}
 	
-	if (mpc_old_chord_note != mpc_chord_note && enable_auto_hold) {	
+	if (mpc_old_chord_note != mpc_chord_note || enable_auto_hold) {	
 		if (mpc_old_chord_note != 255) sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);	
 		
 		sp404_midi_note(0x94, mpc_chord_note, enable_chord_track ? mpc_chord_velocity : 5);		
