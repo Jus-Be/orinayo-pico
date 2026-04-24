@@ -253,17 +253,22 @@ void name_received_cb(tuh_xfer_t* xfer) {
         name[char_count] = '\0';
 		
 		if (name[0] == 'I' && name[1] == 'R' && name[2] == 'I' && name[3] == 'G' && name[4] == ' ' && name[5] == 'K' && name[6] == 'E' && name[7] == 'Y' && name[8] == 'S' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
-	
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
     }
+}
+
+void tuh_mount_cb(uint8_t daddr) {
+    static uint16_t temp_buf[128]; 
+
+    // Request the Product String (the device name)
+    // 0x0409 is the Language ID for English (US)
+    tuh_descriptor_get_product_string(daddr, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
 }
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
-	
-	static uint16_t temp_buf[128]; 	
-	tuh_descriptor_get_product_string(idx, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
+	//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
@@ -847,7 +852,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 		tuh_midi_write_flush(device_addr);
 	}
 	
-	for (int i=0; i<bufsize; i++) {
+	for (uint32_t i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
 		uart_putc(UART_ID, buffer[i]);		
 	}	
