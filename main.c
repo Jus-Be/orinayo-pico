@@ -207,7 +207,7 @@ int main() {
 			tud_midi_packet_read(buffer);
 			
 			if (device_addr != 255) {
-				tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+				tuh_midi_stream_write(device_addr, 0, buffer, bufsize);
 				tuh_midi_write_flush(device_addr);
 			}
 			
@@ -255,9 +255,9 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	uint32_t bytes_read = 0;
 
 	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {	
-		tud_midi_n_stream_write(itf, cable_num, buffer, bytes_read);
+		tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
 		
-		for (int i=0; i<bytes_read; i++) {
+		for (uint32_t i=0; i<bytes_read; i++) {
 			while (!uart_is_writable(UART_ID)){ }	
 			uart_putc(UART_ID, buffer[i]);		
 		}
