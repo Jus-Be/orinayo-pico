@@ -207,11 +207,11 @@ int main() {
 			tud_midi_packet_read(buffer);
 			
 			if (device_addr != 255) {
-				tuh_midi_stream_write(device_addr, 0, buffer, bufsize);
+				tuh_midi_stream_write(device_addr, 0, buffer, 4);
 				tuh_midi_write_flush(device_addr);
 			}
 			
-			for (int i=0; i<bufsize; i++) {
+			for (int i=0; i<4; i++) {
 				while (!uart_is_writable(UART_ID)){ }	
 				uart_putc(UART_ID, buffer[i]);		
 			}
