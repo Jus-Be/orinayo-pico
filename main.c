@@ -783,15 +783,18 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 		}				
 		
 	} else {
-		midi_n_stream_write(0, 0, msg, 3);	// CH 4
+		
+		if (!enable_mpc_sample && !enable_sp404mk2) {
+			midi_n_stream_write(0, 0, msg, 3);	// CH 1
 
-		if (!enable_ample_guitar && !enable_seqtrak && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
-			msg[0] = command + 2;
-			msg[1] = (note % 12) + 48;
-			midi_n_stream_write(0, 0, msg, 3);	// CH 3	
+			if (!enable_ample_guitar && !enable_seqtrak && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
+				msg[0] = command + 2;
+				msg[1] = (note % 12) + 48;
+				midi_n_stream_write(0, 0, msg, 3);	// CH 3	
 
-			msg[0] = command + 1;
-			midi_n_stream_write(0, 0, msg, 3);	// CH 2		
+				msg[0] = command + 1;
+				midi_n_stream_write(0, 0, msg, 3);	// CH 2		
+			}
 		}
 	}	
 }
