@@ -1983,8 +1983,8 @@ void config_guitar(uint8_t mode) {
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
-		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
-		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 			
+		midi_send_program_change(0xC3, 89);					// warm pad on channel 4 (chords)   
+		midi_send_control_change(0xB3, 7, 0); 				// don't play pads by default 			
 	}
 	else
 
@@ -2026,18 +2026,20 @@ void config_guitar(uint8_t mode) {
 void config_mpc_sample() {		
 	enable_style_play = !enable_mpc_sample;
 	
+	midi_send_control_change(0xB4, 11, enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
+	
 	if (enable_mpc_sample) {
-		midi_send_control_change(0xB4, 11, 127);  								// silent sample trigger channel 5	
-		midi_send_program_change(0xC0, guitar_pc_code);							// channel 1 used for guitar melody
+		midi_send_program_change(0xC0, guitar_pc_code);												// channel 1 used for guitar melody
 	}
 }
 
 void config_sp404mk2() {
 	enable_style_play = !enable_sp404mk2;
 	
+	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
+		
 	if (enable_sp404mk2) {
-		for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, 127); // silence sample trigger channels 1-10
-		midi_send_program_change(0xCE, guitar_pc_code);							// channel 15 used for guitar melody
+		midi_send_program_change(0xCE, guitar_pc_code);												// channel 15 used for guitar melody
 	}
 }
 

@@ -240,8 +240,6 @@ int main() {
 
 void name_received_cb(tuh_xfer_t* xfer) {
     if (xfer->result == XFER_RESULT_SUCCESS) {
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);		
-		
         uint16_t* temp_buf = (uint16_t*) xfer->buffer;
         char name[128];
 
@@ -285,11 +283,12 @@ void tuh_mount_cb(uint8_t daddr) {
 
     // Request the Product String (the device name)
     // 0x0409 is the Language ID for English (US)
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
     tuh_descriptor_get_product_string(daddr, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
 }
 
 void tuh_umount_cb(uint8_t daddr) {
-	//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
 }
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
