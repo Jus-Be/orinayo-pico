@@ -237,13 +237,6 @@ int main() {
 // Device callbacks
 //--------------------------------------------------------------------+
 
-void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
-	device_addr = idx;
-	
-	static uint16_t temp_buf[128]; 	
-	tuh_descriptor_get_product_string(idx, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
-}
-
 void name_received_cb(tuh_xfer_t* xfer) {
     if (xfer->result == XFER_RESULT_SUCCESS) {
         uint16_t* temp_buf = (uint16_t*) xfer->buffer;
@@ -264,6 +257,13 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		}
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
     }
+}
+
+void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
+	device_addr = idx;
+	
+	static uint16_t temp_buf[128]; 	
+	tuh_descriptor_get_product_string(idx, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
