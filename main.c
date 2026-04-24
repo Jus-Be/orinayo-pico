@@ -203,15 +203,20 @@ int main() {
 		if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);			
 		
 		while (tud_midi_available()) {
-			uint8_t packet[4] = {0};
+			uint8_t buffer[4] = {0};			
+			tud_midi_packet_read(buffer);
 			
-			tud_midi_packet_read(packet);
+			if (device_addr != 255) {
+				tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+				tuh_midi_write_flush(device_addr);
+			}
 			
-			uint8_t status = packet[1];
-			uint8_t channel = status & 0x0F;
-			uint8_t message = status & 0xF0;
+			for (int i=0; i<bufsize; i++) {
+				while (!uart_is_writable(UART_ID)){ }	
+				uart_putc(UART_ID, buffer[i]);		
+			}
 			
-			if (enable_midi_drums) cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}	
 		
 		note_scheduler_dispatch_pending();
@@ -249,7 +254,14 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	uint8_t cable_num = 0;
 	uint32_t bytes_read = 0;
 
-	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {		
+	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {	
+		tud_midi_n_stream_write(itf, cable_num, buffer, bytes_read);
+		
+		for (int i=0; i<bytes_read; i++) {
+			while (!uart_is_writable(UART_ID)){ }	
+			uart_putc(UART_ID, buffer[i]);		
+		}
+	
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 	}
 }
