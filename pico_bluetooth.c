@@ -2061,7 +2061,7 @@ void config_seqtrak() {
 void config_midi_drums() {
 	enable_style_play = enable_midi_drums;	
 	
-	if (enable_midi_drums) {								// initially mute seqtrak arpeggiator
+	if (enable_midi_drums) {					
 		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
 		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
 	}		

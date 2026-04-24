@@ -249,12 +249,8 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	uint8_t cable_num = 0;
 	uint32_t bytes_read = 0;
 
-	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {
-
-		// avoid loopback
-		// Interface index 0 is the existing TinyUSB MIDI device output port.
-		//uint32_t written = midi_n_stream_write(0, cable_num, buffer, bytes_read);
-		//if (written < bytes_read) break;
+	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {		
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 	}
 }
 
