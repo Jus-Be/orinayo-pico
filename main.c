@@ -256,13 +256,6 @@ void name_received_cb(tuh_xfer_t* xfer) {
 	
 		}
 		
-		midi_send_program_change(0xC0, (uint8_t) name[0]);
-		midi_send_program_change(0xC0, (uint8_t) name[1]);	
-		midi_send_program_change(0xC0, (uint8_t) name[2]);		
-		midi_send_program_change(0xC0, (uint8_t) name[3]);		
-		midi_send_program_change(0xC0, (uint8_t) name[4]);
-		midi_send_program_change(0xC0, (uint8_t) name[14]);
-		
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
     }
 }
