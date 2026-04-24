@@ -252,7 +252,11 @@ void name_received_cb(tuh_xfer_t* xfer) {
         }
         name[char_count] = '\0';
 		
-		if (name[0] == 'i' && name[1] == 'R' && name[2] == 'i' && name[3] == 'g'/* && name[4] == ' ' && name[5] == 'K' && name[6] == 'e' && name[7] == 'y' && name[8] == 's' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O'*/) {		
+		if (name[0] == 'i' && name[1] == 'R' && name[2] == 'i' && name[3] == 'g' && name[4] == ' ' && name[5] == 'K' && name[6] == 'e' && name[7] == 'y' && name[8] == 's' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
+			// Start/stop 	CC23 (0x17, 0x7F)
+			// Next Style	CC22 (0x16, 0x1)
+			// Prev Style	CC22 (0x16, 0x16)
+			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
     }
