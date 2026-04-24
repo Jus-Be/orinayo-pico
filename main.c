@@ -117,6 +117,7 @@ void midi_modx_arp_realtime(uint8_t part, bool on);
 void midi_modx_arp_octave(uint8_t octave);
 void dream_set_delay(int tempo);
 void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
+void config_mpc_sample();
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -239,6 +240,8 @@ int main() {
 
 void name_received_cb(tuh_xfer_t* xfer) {
     if (xfer->result == XFER_RESULT_SUCCESS) {
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);		
+		
         uint16_t* temp_buf = (uint16_t*) xfer->buffer;
         char name[128];
 
@@ -252,6 +255,10 @@ void name_received_cb(tuh_xfer_t* xfer) {
         }
         name[char_count] = '\0';
 		
+		// iRig Keys 2 PRO
+		// MPC Sample
+		// X-TOUCH MINI		
+		
 		if (name[0] == 'i' && name[1] == 'R' && name[2] == 'i' && name[3] == 'g' && name[4] == ' ' && name[5] == 'K' && name[6] == 'e' && name[7] == 'y' && name[8] == 's' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
 			// Start/stop 	CC23 (0x17, 0x7F)
 			// Next Style	CC22 (0x16, 0x1)
@@ -259,6 +266,18 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
+		else
+			
+		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'C' && name[3] == ' ' && name[4] == 'S' && name[5] == 'a' && name[6] == 'm' && name[7] == 'p' && name[8] == 'l' && name[9] == 'e') {		
+			enable_mpc_sample = !enable_mpc_sample;	
+			config_mpc_sample();
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
+		}
+		else
+			
+		if (name[0] == 'X' && name[1] == '-' && name[2] == 'T' && name[3] == 'O' && name[4] == 'U' && name[5] == 'C' && name[6] == 'H' && name[7] == ' ' && name[8] == 'M' && name[9] == 'I' && name[10] == 'N' && name[11] == 'I') {		
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
+		}		
     }
 }
 
@@ -270,9 +289,12 @@ void tuh_mount_cb(uint8_t daddr) {
     tuh_descriptor_get_product_string(daddr, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
 }
 
+void tuh_umount_cb(uint8_t daddr) {
+	//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
+}
+
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
-	//cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
