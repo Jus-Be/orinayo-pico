@@ -269,8 +269,7 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		else
 			
 		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'C' && name[3] == ' ' && name[4] == 'S' && name[5] == 'a' && name[6] == 'm' && name[7] == 'p' && name[8] == 'l' && name[9] == 'e') {		
-			enable_mpc_sample = !enable_mpc_sample;	
-			config_mpc_sample();
+			enable_mpc_sample = true;	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
@@ -295,6 +294,10 @@ void tuh_umount_cb(uint8_t daddr) {
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
+	
+	if (enable_mpc_sample) {
+		config_mpc_sample();
+	}
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
