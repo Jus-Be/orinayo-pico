@@ -2026,7 +2026,7 @@ void config_guitar(uint8_t mode) {
 void config_mpc_sample() {		
 	enable_style_play = !enable_mpc_sample;
 	
-	midi_send_control_change(0xB4, 11, enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
+	midi_send_control_change(0xB4, 11, !enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
 	
 	if (enable_mpc_sample) {
 		midi_send_program_change(0xC0, guitar_pc_code);												// channel 1 used for guitar melody
@@ -2036,7 +2036,7 @@ void config_mpc_sample() {
 void config_sp404mk2() {
 	enable_style_play = !enable_sp404mk2;
 	
-	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
+	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, !enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
 		
 	if (enable_sp404mk2) {
 		midi_send_program_change(0xCE, guitar_pc_code);												// channel 15 used for guitar melody
