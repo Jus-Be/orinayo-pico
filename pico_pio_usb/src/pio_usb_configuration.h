@@ -40,7 +40,7 @@ typedef struct {
     PIO_USB_DP_PIN_DEFAULT, PIO_USB_TX_DEFAULT, PIO_SM_USB_TX_DEFAULT,     \
         PIO_USB_DMA_TX_DEFAULT, PIO_USB_RX_DEFAULT, PIO_SM_USB_RX_DEFAULT, \
         PIO_SM_USB_EOP_DEFAULT, NULL, PIO_USB_DEBUG_PIN_NONE,              \
-        PIO_USB_DEBUG_PIN_NONE, false, PIO_USB_PINOUT_DPDM                 \
+        PIO_USB_DEBUG_PIN_NONE, false, PIO_USB_PINOUT_DMDP                 \
   }
 
 #define PIO_USB_EP_POOL_CNT 32

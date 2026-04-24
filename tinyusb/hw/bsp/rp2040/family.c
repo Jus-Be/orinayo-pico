@@ -51,7 +51,7 @@
 static void max3421_init(void);
 #endif
 
-#define PICO_DEFAULT_PIO_USB_DP_PIN 16
+#define PICO_DEFAULT_PIO_USB_DP_PIN 17
 
 //--------------------------------------------------------------------+
 //
