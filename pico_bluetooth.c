@@ -30,6 +30,7 @@ bool strum_neutral = true;
 bool style_started = false;
 bool enable_style_play = false;
 bool enable_auto_hold = false;
+bool enable_stacatto_mode = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
 bool enable_rclooper = false;
@@ -524,7 +525,9 @@ void midi_bluetooth_handle_data() {
 
 		if (red && orange) 
 		{
-			
+			if (but6) {
+				enable_stacatto_mode = !enable_stacatto_mode;
+			}
 		}
 		else
 
@@ -2696,14 +2699,14 @@ void mpc_trigger_loop() {
 	}
 
 	
-	if (mpc_old_bass_note != mpc_bass_note || !enable_auto_hold) { 
+	if (mpc_old_bass_note != mpc_bass_note || enable_stacatto_mode) { 
 		if (mpc_old_bass_note != 255) sp404_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 5);
 		
 		sp404_midi_note(0x94, mpc_bass_note, enable_bass_track ? mpc_bass_velocity : 5);			
 		mpc_old_bass_note = mpc_bass_note;		
 	}
 	
-	if (mpc_old_chord_note != mpc_chord_note || !enable_auto_hold) {	
+	if (mpc_old_chord_note != mpc_chord_note || enable_stacatto_mode) {	
 		if (mpc_old_chord_note != 255) sp404_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? mpc_chord_velocity : 5);	
 		
 		sp404_midi_note(0x94, mpc_chord_note, enable_chord_track ? mpc_chord_velocity : 5);		
