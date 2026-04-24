@@ -239,7 +239,31 @@ int main() {
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	device_addr = idx;
-	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+	
+	static uint16_t temp_buf[128]; 	
+	tuh_descriptor_get_product_string(idx, 0x0409, temp_buf, sizeof(temp_buf), name_received_cb, 0);
+}
+
+void name_received_cb(tuh_xfer_t* xfer) {
+    if (xfer->result == XFER_RESULT_SUCCESS) {
+        uint16_t* temp_buf = (uint16_t*) xfer->buffer;
+        char name[128];
+
+        // Convert the UTF-16 USB string to a standard C-string (UTF-8/ASCII)
+        // temp_buf[0] contains the length/type info, actual chars start at index 1
+        uint8_t len = (uint8_t)(temp_buf[0] & 0xFF);
+        uint8_t char_count = (len - 2) / 2;
+
+        for (uint8_t i = 0; i < char_count; i++) {
+            name[i] = (char)temp_buf[i + 1];
+        }
+        name[char_count] = '\0';
+		
+		if (name[0] == 'I' && name[1] == 'R' && name[2] == 'I' && name[3] == 'G' && name[4] == ' ' && name[5] == 'K' && name[6] == 'E' && name[7] == 'Y' && name[8] == 'S' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
+	
+		}
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+    }
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
