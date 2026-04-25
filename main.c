@@ -639,14 +639,7 @@ void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	msg[1] = note;
 	msg[2] = velocity;   
 		
-	// dont send sampler pad trigges to synth (only usb host/device)
-	
-	tud_midi_n_stream_write(0, 0, msg, 3);
-	
-	if (device_addr != 255) {
-		tuh_midi_stream_write(device_addr, 0, msg, 3);
-		tuh_midi_write_flush(device_addr);
-	}	
+	midi_n_stream_write(0, 0, msg, 3);		
 }
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {

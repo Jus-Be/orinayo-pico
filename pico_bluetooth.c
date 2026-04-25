@@ -355,9 +355,7 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	// You can reject the connection by returning an error.
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
-  
-	//midi_send_control_change(0xB3, 11, 0); 	// don't play pads by default  
-  
+    
 	//storage_load_tracks();			
 	
 	storage_load_preferences();	
@@ -2053,11 +2051,17 @@ void config_style_play() {
 	midi_send_control_change(0xB3, 7, 0); 
 	midi_send_control_change(0xB3, 11, 0); 	
 
-	if (enable_dream_midi) {
-		midi_send_program_change(0xC1, 89);					// warm pad	
-		midi_send_control_change(0xB1, 7, 32);			
-		midi_send_program_change(0xC2, 99);					// FX4
-		midi_send_control_change(0xB2, 7, 24);		
+	if (enable_dream_midi) 
+	{
+		if (active_strum_pattern > 2) {
+			midi_send_program_change(0xC1, 89);					// warm pad	(blue)
+			midi_send_control_change(0xB1, 7, 32);			
+		}
+		
+		if (active_strum_pattern > 3) {
+			midi_send_program_change(0xC2, 99);					// FX4 (orange)
+			midi_send_control_change(0xB2, 7, 24);		
+		}
 	}		
 }
 
