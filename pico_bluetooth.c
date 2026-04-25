@@ -2052,13 +2052,13 @@ void config_style_play() {
 	
 	if (enable_style_play) 	
 	{	
-		if (active_strum_pattern > 2) {
+		if (active_strum_pattern > 2 || active_strum_pattern == -1) {
 			midi_send_control_change(0xB1, 7, 48);	
 			midi_send_control_change(0xB1, 11, 127);			
 		}
 		
-		if (active_strum_pattern > 3) {
-			midi_send_control_change(0xB2, 7, 24);
+		if (active_strum_pattern > 3 || active_strum_pattern == -1) {
+			midi_send_control_change(0xB2, 7, 36);
 			midi_send_control_change(0xB2, 11, 127);			
 		}
 	}		
