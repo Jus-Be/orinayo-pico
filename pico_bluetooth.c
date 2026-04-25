@@ -1947,8 +1947,7 @@ void config_guitar(uint8_t mode) {
 		midi_send_control_change(0xB0, 81, 0);				// chorus - short delay		
 		midi_send_control_change(0xB0, 93, 0);
 		
-		dream_set_delay(looper_status.bpm);
-		config_style_play();		
+		dream_set_delay(looper_status.bpm);		
 	}
 	else
 		
@@ -1963,9 +1962,7 @@ void config_guitar(uint8_t mode) {
 		midi_send_control_change(0xB0, 91, 64);	
 		
 		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
-		midi_send_control_change(0xB0, 93, 64);
-		
-		config_style_play();		
+		midi_send_control_change(0xB0, 93, 64);		
 	}
 	else
 		
@@ -1980,9 +1977,7 @@ void config_guitar(uint8_t mode) {
 		midi_send_control_change(0xB0, 91, 64);	
 		
 		midi_send_control_change(0xB0, 81, 2);				// chorus - 3		
-		midi_send_control_change(0xB0, 93, 0);				
-		
-		config_style_play();		
+		midi_send_control_change(0xB0, 93, 0);						
 	}
 	else
 		
@@ -2050,17 +2045,16 @@ void config_style_play() {
 	midi_send_program_change(0xC1, 89);					// warm pad	(blue)
 	midi_send_program_change(0xC2, 99);					// FX4 (orange)	
 	midi_send_program_change(0xC3, 89);		
-	
+		
+	midi_send_control_change(0xB1, 7, 0);
+	midi_send_control_change(0xB1, 11, 0); 
+	midi_send_control_change(0xB2, 7, 0);
+	midi_send_control_change(0xB2, 11, 0); 
 	midi_send_control_change(0xB3, 7, 0); 
 	midi_send_control_change(0xB3, 11, 0); 
 	
-	if (enable_dream_midi) 	{
-		midi_send_control_change(0xB1, 7, 0);
-		midi_send_control_change(0xB1, 11, 0); 
-	
-		midi_send_control_change(0xB2, 7, 0);
-		midi_send_control_change(0xB2, 11, 0); 
-	
+	if (enable_style_play) 	
+	{	
 		if (active_strum_pattern > 2) {
 			midi_send_control_change(0xB1, 7, 32);	
 			midi_send_control_change(0xB1, 11, 127);			
