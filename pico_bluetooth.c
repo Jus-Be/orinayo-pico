@@ -356,7 +356,7 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	// You can reject the connection by returning an error.
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
   
-	midi_send_control_change(0xB3, 11, 0); 	// don't play pads by default  
+	//midi_send_control_change(0xB3, 11, 0); 	// don't play pads by default  
   
 	//storage_load_tracks();			
 	
@@ -2060,7 +2060,8 @@ void config_guitar(uint8_t mode) {
 
 void config_style_play() {	
 	midi_send_program_change(0xC3, 89);		
-	midi_send_control_change(0xB3, 11, 0); 
+	midi_send_control_change(0xB3, 7, 0); 
+	midi_send_control_change(0xB3, 11, 0); 	
 }
 
 void config_mpc_sample() {		
