@@ -2062,11 +2062,13 @@ void config_style_play() {
 		midi_send_control_change(0xB2, 11, 0); 
 	
 		if (active_strum_pattern > 2) {
-			midi_send_control_change(0xB1, 7, 32);			
+			midi_send_control_change(0xB1, 7, 32);	
+			midi_send_control_change(0xB1, 11, 127);			
 		}
 		
 		if (active_strum_pattern > 3) {
-			midi_send_control_change(0xB2, 7, 24);		
+			midi_send_control_change(0xB2, 7, 24);
+			midi_send_control_change(0xB2, 11, 127);			
 		}
 	}		
 }
