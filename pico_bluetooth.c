@@ -1937,10 +1937,10 @@ void config_guitar(uint8_t mode) {
 	else
 	
 	if (mode == 9) {										// Delay FX	
+		enable_dream_midi = true;	
 		enable_style_play = true;
 		config_style_play();
-		
-		enable_dream_midi = true;		
+				
 		midi_send_program_change(0xC0, guitar_pc_code);		
 		
 		midi_send_control_change(0xB0, 80, 7);				// reverb - pan delay
@@ -1955,10 +1955,10 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 8) {										// Chorus + Reverb FX
+		enable_dream_midi = true;	
 		enable_style_play = true;
 		config_style_play();
-		
-		enable_dream_midi = true;		
+				
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
@@ -1972,10 +1972,10 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 7) {										// Reverb FX
+		enable_dream_midi = true;	
 		enable_style_play = true;
 		config_style_play();
-		
-		enable_dream_midi = true;		
+			
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
 		midi_send_control_change(0xB0, 80, 4);				// reverb - hall
@@ -1989,10 +1989,10 @@ void config_guitar(uint8_t mode) {
 	else
 		
 	if (mode == 6) {										// toggle guitar from electric to acoustic
+		enable_dream_midi = true;	
 		enable_style_play = true;	
 		config_style_play();
-		
-		enable_dream_midi = true;	
+			
 		guitar_pc_code = (guitar_pc_code == 26) ? 25 : 26;
 		midi_send_program_change(0xC0, guitar_pc_code);	
 		
