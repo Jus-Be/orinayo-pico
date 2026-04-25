@@ -592,7 +592,6 @@ void midi_bluetooth_handle_data() {
 		{
 			if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_synth && !enable_rclooper) {
 				enable_style_play = !enable_style_play;	// toggle chord generation
-				config_style_play();
 			}
 		}				
 		else
@@ -738,6 +737,7 @@ void midi_bluetooth_handle_data() {
 			else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
 		}			
 
+		config_style_play();
 		finished_processing = true;
 		return;
 	}
@@ -2041,28 +2041,25 @@ void config_guitar(uint8_t mode) {
 	}
 }
 
-void config_style_play() {	
+void config_style_play() {
 	midi_send_program_change(0xC1, 89);					// warm pad	(blue)
 	midi_send_program_change(0xC2, 99);					// FX4 (orange)	
 	midi_send_program_change(0xC3, 89);		
 		
-	midi_send_control_change(0xB1, 7, 0);
 	midi_send_control_change(0xB1, 11, 0); 
-	midi_send_control_change(0xB2, 7, 0);
 	midi_send_control_change(0xB2, 11, 0); 
-	midi_send_control_change(0xB3, 7, 0); 
 	midi_send_control_change(0xB3, 11, 0); 
 	
 	if (enable_style_play) 	
 	{	
 		if (active_strum_pattern > 2) {
 			midi_send_control_change(0xB1, 7, 48);	
-			midi_send_control_change(0xB1, 11, 48);			
+			midi_send_control_change(0xB1, 11, 127);			
 		}
 		
 		if (active_strum_pattern > 3) {
 			midi_send_control_change(0xB2, 7, 24);
-			midi_send_control_change(0xB2, 11, 24);			
+			midi_send_control_change(0xB2, 11, 127);			
 		}
 	}		
 }
