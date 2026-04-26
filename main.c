@@ -72,6 +72,7 @@ extern int style_section;
 extern int active_strum_pattern;
 extern int active_neck_pos;
 extern int basic_chord;
+extern int advanced_chord;
 
 extern bool style_started;
 extern bool enable_ample_guitar;
@@ -88,6 +89,15 @@ static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
+
+// 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
+static uint32_t held_notes_mask[4] = {0};
+static int held_note_count = 0;
+
+// MIDI running-status parser state (persists across tuh_midi_rx_cb invocations).
+static uint8_t midi_running_status = 0;
+static uint8_t midi_data0 = 0;
+static int     midi_data_count = 0;
 
 uint8_t device_addr = 255;
 
@@ -304,6 +314,139 @@ void tuh_midi_umount_cb(uint8_t idx) {
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
+// ─── Chord detection helpers ────────────────────────────────────────────────
+
+static void chord_note_on(uint8_t note) {
+    uint32_t bit = 1u << (note & 31);
+    if (!(held_notes_mask[note >> 5] & bit)) {
+        held_notes_mask[note >> 5] |= bit;
+        held_note_count++;
+    }
+}
+
+static void chord_note_off(uint8_t note) {
+    uint32_t bit = 1u << (note & 31);
+    if (held_notes_mask[note >> 5] & bit) {
+        held_notes_mask[note >> 5] &= ~bit;
+        if (held_note_count > 0) held_note_count--;
+    }
+}
+
+// Collect unique pitch classes of all held notes into pcs[]; set *lowest to
+// the lowest held MIDI note number.  Returns the number of unique pitch classes.
+static int chord_collect_pcs(uint8_t pcs[12], uint8_t *lowest) {
+    int count = 0;
+    *lowest = 255;
+    for (int n = 0; n < 128; n++) {
+        if (!(held_notes_mask[n >> 5] & (1u << (n & 31)))) continue;
+        if (*lowest == 255) *lowest = (uint8_t)n;
+        uint8_t pc = (uint8_t)(n % 12);
+        bool dup = false;
+        for (int i = 0; i < count; i++) {
+            if (pcs[i] == pc) { dup = true; break; }
+        }
+        if (!dup && count < 12) pcs[count++] = pc;
+    }
+    return count;
+}
+
+// Returns true when pcs[0..2] is exactly the set {root, root+i0, root+i1} mod 12.
+static bool triad_match(uint8_t root, const uint8_t pcs[3], uint8_t i0, uint8_t i1) {
+    uint8_t t1 = (root + i0) % 12;
+    uint8_t t2 = (root + i1) % 12;
+    int found = 0;
+    for (int i = 0; i < 3; i++) {
+        if (pcs[i] == root || pcs[i] == t1 || pcs[i] == t2) found++;
+    }
+    return found == 3;
+}
+
+// Analyse the currently held notes and print the detected chord whenever 3 or
+// 4 notes are pressed simultaneously.  Recognised chord types:
+//   3-note: major {0,4,7}, minor {0,3,7}, sus4 {0,5,7}
+//   4-note: maj7  {0,4,7,11}; falls back to a slash-chord triad + bass note.
+static void chord_detect(void) {
+    if (held_note_count < 3) return;
+
+    uint8_t pcs[12];
+    uint8_t lowest = 255;
+    int n = chord_collect_pcs(pcs, &lowest);
+    if (n < 3 || n > 4) return;
+
+    const char *chord_name = NULL;
+    uint8_t chord_root = 255;
+
+    if (n == 3) {
+        // Interval tables for triad shapes
+        static const uint8_t ti0[3] = { 4, 3, 5 };   // major, minor, sus4
+        static const uint8_t ti1[3] = { 7, 7, 7 };
+        static const char *const tn[3] = { "maj", "min", "sus4" };
+        for (int t = 0; t < 3 && !chord_name; t++) {
+            for (int r = 0; r < 3 && !chord_name; r++) {
+                if (triad_match(pcs[r], pcs, ti0[t], ti1[t])) {
+                    chord_root = pcs[r];
+                    chord_name = tn[t];
+                }
+            }
+        }
+    } else { // n == 4
+        // Try maj7: {root, root+4, root+7, root+11}
+        for (int r = 0; r < 4 && !chord_name; r++) {
+            uint8_t t1 = (pcs[r] + 4)  % 12;
+            uint8_t t2 = (pcs[r] + 7)  % 12;
+            uint8_t t3 = (pcs[r] + 11) % 12;
+            int found = 0;
+            for (int i = 0; i < 4; i++) {
+                if (pcs[i] == pcs[r] || pcs[i] == t1 ||
+                    pcs[i] == t2      || pcs[i] == t3) found++;
+            }
+            if (found == 4) { chord_root = pcs[r]; chord_name = "maj7"; }
+        }
+        // Fallback: try a triad within any 3-note subset (slash chord)
+        if (!chord_name) {
+            static const uint8_t si0[3] = { 4, 3, 5 };
+            static const uint8_t si1[3] = { 7, 7, 7 };
+            static const char *const sn[3] = { "maj", "min", "sus4" };
+            for (int skip = 0; skip < 4 && !chord_name; skip++) {
+                uint8_t sub[3]; int si = 0;
+                for (int j = 0; j < 4; j++) if (j != skip) sub[si++] = pcs[j];
+                for (int t = 0; t < 3 && !chord_name; t++) {
+                    for (int r = 0; r < 3 && !chord_name; r++) {
+                        if (triad_match(sub[r], sub, si0[t], si1[t])) {
+                            chord_root = sub[r];
+                            chord_name = sn[t];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (chord_name && lowest != 255) {
+        // Map chord type to advanced_chord type nibble (pico_bluetooth.c scheme):
+        //   0 = major  (also used for maj7, which has no dedicated sampler type)
+        //   1 = minor
+        //   2 = sus4
+        uint8_t type = 0;
+        if (strcmp(chord_name, "min") == 0)  type = 1;
+        else if (strcmp(chord_name, "sus4") == 0) type = 2;
+
+        // Encode advanced_chord: high byte = root (1-based), middle nibble =
+        // bass (1-based), low nibble = type.  Mirrors the pico_bluetooth.c scheme.
+        uint8_t root_1based = chord_root + 1;
+        uint8_t bass_1based = (lowest % 12) + 1;
+        advanced_chord = (root_1based * 256) + (bass_1based * 16) + type;
+
+        if (enable_mpc_sample) {
+            mpc_trigger_loop();
+        } else if (enable_sp404mk2) {
+            sp404_trigger_loop();
+        }
+    }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	if (xferred_bytes == 0) return;
 
@@ -316,7 +459,54 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		
 		for (uint32_t i=0; i<bytes_read; i++) {
 			while (!uart_is_writable(UART_ID)){ }	
-			uart_putc(UART_ID, buffer[i]);		
+			uart_putc(UART_ID, buffer[i]);
+
+			// Parse the raw MIDI byte stream to track note on/off events.
+			uint8_t b = buffer[i];
+			if (b & 0x80) {
+				// Status byte.
+				if (b >= 0xF8) {
+					// Real-time message (single byte); does not affect running status.
+					continue;
+				}
+				if (b >= 0xF0) {
+					// System Common message; cancels running status per MIDI spec.
+					midi_running_status = 0;
+					midi_data_count = 0;
+					continue;
+				}
+				// Channel message: update running status; reset data accumulator.
+				midi_running_status = b;
+				midi_data_count = 0;
+			} else {
+				// Data byte — only process Note On / Note Off messages.
+				uint8_t cmd = midi_running_status & 0xF0;
+				if (cmd == 0x80 || cmd == 0x90) {
+					if (midi_data_count == 0) {
+						midi_data0 = b;        // first data byte: note number
+						midi_data_count = 1;
+					} else {
+						// Second data byte: velocity.  Complete the message.
+						uint8_t note     = midi_data0;
+						uint8_t velocity = b;
+						midi_data_count  = 0;  // ready for next running-status pair
+
+						bool note_on = (cmd == 0x90) && (velocity > 0);
+						if (note_on) {
+							chord_note_on(note);
+						} else {
+							chord_note_off(note);
+						}
+						chord_detect();
+					}
+				} else {
+					// Other channel messages: Program Change (0xC0) and Channel
+					// Pressure (0xD0) carry one data byte; all others carry two.
+					uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
+					midi_data_count++;
+					if (midi_data_count >= expected) midi_data_count = 0;
+				}
+			}
 		}
 	
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
