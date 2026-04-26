@@ -72,6 +72,7 @@ extern int style_section;
 extern int active_strum_pattern;
 extern int active_neck_pos;
 extern int basic_chord;
+extern int advanced_chord;
 
 extern bool style_started;
 extern bool enable_ample_guitar;
@@ -315,10 +316,6 @@ void tuh_midi_umount_cb(uint8_t idx) {
 
 // ─── Chord detection helpers ────────────────────────────────────────────────
 
-static const char *const NOTE_NAMES[12] = {
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-};
-
 static void chord_note_on(uint8_t note) {
     uint32_t bit = 1u << (note & 31);
     if (!(held_notes_mask[note >> 5] & bit)) {
@@ -426,10 +423,23 @@ static void chord_detect(void) {
     }
 
     if (chord_name && lowest != 255) {
-        printf("Chord: %s%s  bass=%s\n",
-               NOTE_NAMES[chord_root], chord_name, NOTE_NAMES[lowest % 12]);
-    } else {
-        printf("Chord: unrecognized (%d notes)\n", n);
+        // Map chord type name to advanced_chord type nibble:
+        // 0 = major (also used for maj7), 1 = minor, 2 = sus4
+        uint8_t type = 0;
+        if (chord_name[1] == 'i') type = 1;        // "min"
+        else if (chord_name[1] == 'u') type = 2;   // "sus4"
+
+        // Encode advanced_chord: high byte = root (1-based), middle nibble =
+        // bass (1-based), low nibble = type.  Mirrors the pico_bluetooth.c scheme.
+        uint8_t root_1based = chord_root + 1;
+        uint8_t bass_1based = (lowest % 12) + 1;
+        advanced_chord = (root_1based * 256) + (bass_1based * 16) + type;
+
+        if (enable_mpc_sample) {
+            mpc_trigger_loop();
+        } else if (enable_sp404mk2) {
+            sp404_trigger_loop();
+        }
     }
 }
 
