@@ -423,11 +423,13 @@ static void chord_detect(void) {
     }
 
     if (chord_name && lowest != 255) {
-        // Map chord type name to advanced_chord type nibble:
-        // 0 = major (also used for maj7), 1 = minor, 2 = sus4
+        // Map chord type to advanced_chord type nibble (pico_bluetooth.c scheme):
+        //   0 = major  (also used for maj7, which has no dedicated sampler type)
+        //   1 = minor
+        //   2 = sus4
         uint8_t type = 0;
-        if (chord_name[1] == 'i') type = 1;        // "min"
-        else if (chord_name[1] == 'u') type = 2;   // "sus4"
+        if (strcmp(chord_name, "min") == 0)  type = 1;
+        else if (strcmp(chord_name, "sus4") == 0) type = 2;
 
         // Encode advanced_chord: high byte = root (1-based), middle nibble =
         // bass (1-based), low nibble = type.  Mirrors the pico_bluetooth.c scheme.
