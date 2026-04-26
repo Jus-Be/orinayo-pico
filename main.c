@@ -425,11 +425,11 @@ static void chord_detect(void) {
         }
     }
 
-    if (chord_name) {
+    if (chord_name && lowest != 255) {
         printf("Chord: %s%s  bass=%s\n",
                NOTE_NAMES[chord_root], chord_name, NOTE_NAMES[lowest % 12]);
     } else {
-        printf("Chord: unrecognized (%d notes)\n", held_note_count);
+        printf("Chord: unrecognized (%d notes)\n", n);
     }
 }
 
@@ -457,7 +457,13 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 					// Real-time message (single byte); does not affect running status.
 					continue;
 				}
-				// Update running status; reset data accumulator.
+				if (b >= 0xF0) {
+					// System Common message; cancels running status per MIDI spec.
+					midi_running_status = 0;
+					midi_data_count = 0;
+					continue;
+				}
+				// Channel message: update running status; reset data accumulator.
 				midi_running_status = b;
 				midi_data_count = 0;
 			} else {
@@ -482,9 +488,11 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 						chord_detect();
 					}
 				} else {
-					// Other channel messages: advance data byte counter generically.
+					// Other channel messages: Program Change (0xC0) and Channel
+					// Pressure (0xD0) carry one data byte; all others carry two.
+					uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
 					midi_data_count++;
-					if (midi_data_count >= 2) midi_data_count = 0;
+					if (midi_data_count >= expected) midi_data_count = 0;
 				}
 			}
 		}
