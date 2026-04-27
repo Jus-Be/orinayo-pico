@@ -2427,19 +2427,7 @@ void play_chord(bool on, bool up) {
 	if (enable_mpc_sample)	// trigger chord loop on mpc sample
 	{
 		if (handled && style_started && on) {			
-			mpc_trigger_loop();
-			
-			if (style_change_requested) {
-				style_change_requested = false;
-				
-				if (mpc_old_drum_note != 255) {
-					sp404_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
-				}				
-
-				mpc_drum_note = 36 + style_section;
-				sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
-				mpc_old_drum_note = mpc_drum_note;				
-			}				
+			mpc_trigger_loop();				
 		}
 	}
 	else
@@ -2448,31 +2436,6 @@ void play_chord(bool on, bool up) {
 	{		
 		if (handled && style_started && on) {				
 			sp404_trigger_loop();	
-
-			if (style_change_requested) {
-				style_change_requested = false;
-				
-				// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
-				// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
-				// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
-				
-				if (sp404_old_drum_note > 0) {
-					sp404_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
-				}				
-
-				if (style_section == 0) 		sp404_drum_note = 48;	
-				else if (style_section == 1) 	sp404_drum_note = 49;
-				else if (style_section == 2) 	sp404_drum_note = 50;
-				else if (style_section == 3) 	sp404_drum_note = 51;
-				else if (style_section == 4) 	sp404_drum_note = 44;
-				else if (style_section == 5) 	sp404_drum_note = 45;
-				else if (style_section == 6) 	sp404_drum_note = 46;
-				else if (style_section == 7) 	sp404_drum_note = 47;	
-
-				sp404_midi_note(0x90, sp404_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
-				sp404_old_drum_note = sp404_drum_note;
-				
-			}
 		}
 	}		
 
@@ -2742,6 +2705,19 @@ void mpc_trigger_loop() {
 		sp404_midi_note(0x94, mpc_chord_note, enable_chord_track ? mpc_chord_velocity : 5);		
 		mpc_old_chord_note = mpc_chord_note;	
 	}	
+	
+			
+	if (style_change_requested) {
+		style_change_requested = false;
+		
+		if (mpc_old_drum_note != 255) {
+			sp404_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
+		}				
+
+		mpc_drum_note = 36 + style_section;
+		sp404_midi_note(0x94, mpc_drum_note, enable_drum_track ? mpc_drum_velocity : 5);
+		mpc_old_drum_note = mpc_drum_note;				
+	}	
 }
 
 void sp404_trigger_loop() {
@@ -2835,6 +2811,31 @@ void sp404_trigger_loop() {
 		sp404_midi_note(sp404_chord_cmd, sp404_chord_note, enable_chord_track ? sp404_chord_velocity : 5);
 		sp404_old_chord_cmd	= sp404_chord_cmd;		
 		sp404_old_chord_note = sp404_chord_note;	
+	}
+
+	if (style_change_requested) {
+		style_change_requested = false;
+		
+		// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+		// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+		// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
+		
+		if (sp404_old_drum_note > 0) {
+			sp404_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
+		}				
+
+		if (style_section == 0) 		sp404_drum_note = 48;	
+		else if (style_section == 1) 	sp404_drum_note = 49;
+		else if (style_section == 2) 	sp404_drum_note = 50;
+		else if (style_section == 3) 	sp404_drum_note = 51;
+		else if (style_section == 4) 	sp404_drum_note = 44;
+		else if (style_section == 5) 	sp404_drum_note = 45;
+		else if (style_section == 6) 	sp404_drum_note = 46;
+		else if (style_section == 7) 	sp404_drum_note = 47;	
+
+		sp404_midi_note(0x90, sp404_drum_note, enable_drum_track ? sp404_drum_velocity : 5);
+		sp404_old_drum_note = sp404_drum_note;
+		
 	}	
 }
 

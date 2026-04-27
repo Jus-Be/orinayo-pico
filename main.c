@@ -86,7 +86,7 @@ extern bool enable_mpc_sample;
 extern bool preferences_changed;
 
 extern uint8_t mbut0;
-extern uint8_t mbut1;
+extern uint8_t dpad_down;
 extern uint8_t logo;
 extern uint8_t starpower;
 extern uint8_t orange;
@@ -477,87 +477,89 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		for (uint32_t i=0; i<bytes_read; i++) {
 			while (!uart_is_writable(UART_ID)){ }	
 			uart_putc(UART_ID, buffer[i]);
-
-			// Parse the raw MIDI byte stream to track note on/off events.
-			uint8_t b = buffer[i];
-			if (b & 0x80) {
-				// Status byte.
-				if (b >= 0xF8) {
-					// Real-time message (single byte); does not affect running status.
-					continue;
-				}
-				if (b >= 0xF0) {
-					// System Common message; cancels running status per MIDI spec.
-					midi_running_status = 0;
-					midi_data_count = 0;
-					continue;
-				}
-				// Channel message: update running status; reset data accumulator.
-				midi_running_status = b;
-				midi_data_count = 0;
-			} else {
-				// Data byte — only process Note On / Note Off messages.
-				uint8_t cmd = midi_running_status & 0xF0;
-				
-				if (cmd == 0x80 || cmd == 0x90) 
-				{
-					if (midi_data_count == 0) {
-						midi_data0 = b;        // first data byte: note number
-						midi_data_count = 1;
-					} else {
-						// Second data byte: velocity.  Complete the message.
-						uint8_t note     = midi_data0;
-						uint8_t velocity = b;
-						midi_data_count  = 0;  // ready for next running-status pair
-
-						bool note_on = (cmd == 0x90) && (velocity > 0);
-						if (note_on) {
-							chord_note_on(note);
-						} else {
-							chord_note_off(note);
-						}
-						chord_detect();
+			
+			if (enable_mpc_sample || enable_sp404mk2) {
+				// Parse the raw MIDI byte stream to track note on/off events.
+				uint8_t b = buffer[i];
+				if (b & 0x80) {
+					// Status byte.
+					if (b >= 0xF8) {
+						// Real-time message (single byte); does not affect running status.
+						continue;
 					}
-				}
-				else
+					if (b >= 0xF0) {
+						// System Common message; cancels running status per MIDI spec.
+						midi_running_status = 0;
+						midi_data_count = 0;
+						continue;
+					}
+					// Channel message: update running status; reset data accumulator.
+					midi_running_status = b;
+					midi_data_count = 0;
+				} else {
+					// Data byte — only process Note On / Note Off messages.
+					uint8_t cmd = midi_running_status & 0xF0;
 					
-				if (enable_mpc_sample && cmd == 0xB0) 
-				{				
-					if (midi_data_count == 0) {
-						midi_data0 = b;        			// first data byte: cc command
-						midi_data_count = 1;
-					} else {						
-						uint8_t cc_cmd	= midi_data0;	
-						uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
-						midi_data_count  = 0; 			// ready for next running-status pair
-						
-						if (cc_cmd == 0x17 && cc_value == 0x7F) {			// start/stop
-							mbut0 = 1; logo = 0;
-							midi_bluetooth_handle_data();
-						}
-						else
+					if (cmd == 0x80 || cmd == 0x90) 
+					{
+						if (midi_data_count == 0) {
+							midi_data0 = b;        // first data byte: note number
+							midi_data_count = 1;
+						} else {
+							// Second data byte: velocity.  Complete the message.
+							uint8_t note     = midi_data0;
+							uint8_t velocity = b;
+							midi_data_count  = 0;  // ready for next running-status pair
 
-						if (cc_cmd == 0x16) {			// next /previous style
+							bool note_on = (cmd == 0x90) && (velocity > 0);
+							if (note_on) {
+								chord_note_on(note);
+							} else {
+								chord_note_off(note);
+							}
+							chord_detect();
+						}
+					}
+					else
 						
-							if (cc_value == 0x1) {
-								mbut1 = 1; starpower = 0;	
+					if (cmd == 0xB0) 
+					{				
+						if (midi_data_count == 0) {
+							midi_data0 = b;        			// first data byte: cc command
+							midi_data_count = 1;
+						} else {						
+							uint8_t cc_cmd	= midi_data0;	
+							uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
+							midi_data_count  = 0; 			// ready for next running-status pair
+							
+							if (cc_cmd == 0x17 && cc_value == 0x7F) {			// start/stop
+								mbut0 = 1; logo = 0;
 								midi_bluetooth_handle_data();
 							}
 							else
-								
-							if (cc_value == 0x16) {
-								mbut1 = 1; starpower = 0; orange = 1;
-								midi_bluetooth_handle_data();								
-							}
-						}													
-					}						
-					
-				} else {
-					// Other channel messages: Program Change (0xC0) and Channel
-					// Pressure (0xD0) carry one data byte; all others carry two.
-					uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
-					midi_data_count++;
-					if (midi_data_count >= expected) midi_data_count = 0;
+
+							if (cc_cmd == 0x16) {			// next /previous style
+							
+								if (cc_value == 0x1) {
+									dpad_down = 1; starpower = 0;	
+									midi_bluetooth_handle_data();
+								}
+								else
+									
+								if (cc_value == 0x16) {
+									dpad_down = 1; starpower = 0; orange = 1;
+									midi_bluetooth_handle_data();								
+								}
+							}													
+						}						
+						
+					} else {
+						// Other channel messages: Program Change (0xC0) and Channel
+						// Pressure (0xD0) carry one data byte; all others carry two.
+						uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
+						midi_data_count++;
+						if (midi_data_count >= expected) midi_data_count = 0;
+					}
 				}
 			}
 		}

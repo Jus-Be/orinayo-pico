@@ -1175,7 +1175,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				if (chord_selected) {
 					dpad_right = 1; right = 0;
 				} else {	
-					mbut1 = 1; starpower = 0; orange = 1;	// prev style	
+					dpad_down = 1; starpower = 0; orange = 1;	// prev style	
 				}								
 			}
 			else
@@ -1187,7 +1187,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 					dpad_left = 1;	left = 0;	
 
 				} else {
-					mbut1 = 1; starpower = 0;	// next style																															
+					dpad_down = 1; starpower = 0;	// next style																															
 				}								
 			}							
 
