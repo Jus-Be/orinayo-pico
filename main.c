@@ -567,7 +567,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 								}
 								else
 									
-								if (cc_value == 0x16) {							// previous style
+								if (cc_value == 0x7F) {							// previous style
 									dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
 									midi_bluetooth_handle_data();								
 								}
