@@ -86,7 +86,9 @@ extern bool enable_mpc_sample;
 extern bool preferences_changed;
 
 extern uint8_t mbut0;
+extern uint8_t mbut1;
 extern uint8_t logo;
+extern uint8_t starpower;
 extern uint8_t orange;
 
 static uint32_t old_p1 = 0;
