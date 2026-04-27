@@ -92,6 +92,7 @@ extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
 extern bool preferences_changed;
 
+extern uint8_t but4; 
 extern uint8_t mbut0;
 extern uint8_t dpad_down;
 extern uint8_t logo;
