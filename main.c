@@ -272,6 +272,8 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Next Style	CC22 (0x16, 0x1)
 			// Prev Style	CC22 (0x16, 0x16)
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
+			
+			enable_mpc_sample = true;									// assume MPC is also connected by MIDI			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
 		else
@@ -283,6 +285,15 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		else
 			
 		if (name[0] == 'X' && name[1] == '-' && name[2] == 'T' && name[3] == 'O' && name[4] == 'U' && name[5] == 'C' && name[6] == 'H' && name[7] == ' ' && name[8] == 'M' && name[9] == 'I' && name[10] == 'N' && name[11] == 'I') {		
+			// Dial press    (A) Note On/Off 0x00 - 0x07 (8 buttons)
+			// Buttons       (A) Note On/Off 0x08 - 0x17 (16 buttons)
+			// Dial volume   (A) CC 0xNN 0x00 - 0x7F (NN = 0x01 - 0x08)
+			// Master volume (A) CC 0x09 0x00 - 0x7F
+			// Master volume (B) CC 0x0A 0x00 - 0x7F			
+			// Dial volume   (A) CC 0xNN 0x00 - 0x7F (NN = 0x0B - 0x12)	
+			// Dial press    (B) Note On/Off 0x18 - 0x1F (8 buttons)			
+			// Buttons       (B) Note On/Off 0x20 - 0x2F (16 buttons)
+			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}		
     }
