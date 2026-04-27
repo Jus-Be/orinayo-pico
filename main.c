@@ -97,6 +97,8 @@ extern uint8_t dpad_down;
 extern uint8_t logo;
 extern uint8_t starpower;
 extern uint8_t orange;
+extern bool joy_up; 
+extern uint8_t joystick_up;
 
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
@@ -543,21 +545,28 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
 							midi_data_count  = 0; 			// ready for next running-status pair
 							
-							if (cc_cmd == 0x17 && cc_value == 0x7F) {			// start/stop
-								mbut0 = 1; logo = 0;
-								midi_bluetooth_handle_data();
+							if (cc_cmd == 0x17 && cc_value == 0x7F) {			// data button press
+							
+								if (held_note_count < 3) {						// start/stop
+									mbut0 = 1; logo = 0;
+									midi_bluetooth_handle_data();
+								
+								} else {										// fill
+									joy_up = true; joystick_up = 0;
+									midi_bluetooth_handle_data();									
+								}
 							}
 							else
 
-							if (cc_cmd == 0x16) {			// next /previous style
+							if (cc_cmd == 0x16) {								// data button dial
 							
-								if (cc_value == 0x1) {
+								if (cc_value == 0x1) {							// next style
 									dpad_down = 1; starpower = 0;	
 									midi_bluetooth_handle_data();
 								}
 								else
 									
-								if (cc_value == 0x16) {
+								if (cc_value == 0x16) {							// previous style
 									dpad_down = 1; starpower = 0; orange = 1;
 									midi_bluetooth_handle_data();								
 								}
@@ -565,17 +574,17 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							else
 								
 							if (cc_cmd == 0x0C) {			// drum volume
-								mpc_drum_velocity = cc_value;
+								mpc_drum_velocity = cc_value > 0 ? cc_value : 1;
 							}
 							else
 								
 							if (cc_cmd == 0x0D) {			// bass volume
-								mpc_bass_velocity = cc_value;
+								mpc_bass_velocity = cc_value > 0 ? cc_value : 1;
 							}
 							else
 
 							if (cc_cmd == 0x0E) {			// chord volume
-								mpc_chord_velocity = cc_value;
+								mpc_chord_velocity = cc_value > 0 ? cc_value : 1;
 							}						
 						}						
 						
