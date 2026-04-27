@@ -993,7 +993,7 @@ void midi_bluetooth_handle_data() {
 						}
 
 						if (mpc_old_bass_note != 255) {						
-							1(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 1);
+							sp404_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? mpc_bass_velocity : 1);
 							mpc_old_bass_note = 255;						
 						}
 
