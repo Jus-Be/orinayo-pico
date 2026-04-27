@@ -74,6 +74,13 @@ extern int active_neck_pos;
 extern int basic_chord;
 extern int advanced_chord;
 
+extern uint8_t mpc_drum_velocity;
+extern uint8_t mpc_bass_velocity;
+extern uint8_t mpc_chord_velocity;
+extern uint8_t sp404_drum_velocity;
+extern uint8_t sp404_bass_velocity;
+extern uint8_t sp404_chord_velocity;
+
 extern bool style_started;
 extern bool enable_ample_guitar;
 extern bool enable_midi_drums;
@@ -511,13 +518,17 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							uint8_t velocity = b;
 							midi_data_count  = 0;  // ready for next running-status pair
 
-							bool note_on = (cmd == 0x90) && (velocity > 0);
-							if (note_on) {
-								chord_note_on(note);
-							} else {
-								chord_note_off(note);
+							if (style_started) {
+								bool note_on = (cmd == 0x90) && (velocity > 0);
+								
+								if (note_on) {
+									chord_note_on(note);
+								} else {
+									chord_note_off(note);
+								}
+								
+								chord_detect();
 							}
-							chord_detect();
 						}
 					}
 					else
@@ -550,7 +561,22 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 									dpad_down = 1; starpower = 0; orange = 1;
 									midi_bluetooth_handle_data();								
 								}
-							}													
+							}
+							else
+								
+							if (cc_cmd == 0x0C) {			// drum volume
+								mpc_drum_velocity = cc_value;
+							}
+							else
+								
+							if (cc_cmd == 0x0D) {			// bass volume
+								mpc_bass_velocity = cc_value;
+							}
+							else
+
+							if (cc_cmd == 0x0E) {			// chord volume
+								mpc_chord_velocity = cc_value;
+							}						
 						}						
 						
 					} else {

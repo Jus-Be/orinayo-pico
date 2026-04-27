@@ -913,13 +913,13 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 		if (event_data[1] >= 16 && event_data[5] == 0) 
 		{
-			if (event_data[4] == 2)   	   config_guitar(1);
-			else if (event_data[4] == 4)   config_guitar(2);
-			else if (event_data[4] == 8)   config_guitar(3);
-			else if (event_data[4] == 16)  config_guitar(4);
-			else if (event_data[4] == 32)  config_guitar(5);							
-			else if (event_data[4] == 64)  config_guitar(6);
-			else if (event_data[4] == 128) {}			
+			if (event_data[4] == 2)   	   config_guitar(1);		// ketron arranger
+			else if (event_data[4] == 4)   config_guitar(2);		// ample guitar
+			else if (event_data[4] == 8)   config_guitar(3);		// midi drums
+			else if (event_data[4] == 16)  config_guitar(4);		// yamaha seqtrak
+			else if (event_data[4] == 32)  config_guitar(5);		// yamaha modx/montage					
+			else if (event_data[4] == 64)  config_guitar(11);		// mpc sample
+			else if (event_data[4] == 128) config_guitar(12);		// sp404 mk2	
 		}		
 		
 		// detect paddle neutral
