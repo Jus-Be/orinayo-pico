@@ -85,6 +85,10 @@ extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
 extern bool preferences_changed;
 
+extern uint8_t mbut0;
+extern uint8_t logo;
+extern uint8_t orange;
+
 static uint32_t old_p1 = 0;
 static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
@@ -492,7 +496,9 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 			} else {
 				// Data byte — only process Note On / Note Off messages.
 				uint8_t cmd = midi_running_status & 0xF0;
-				if (cmd == 0x80 || cmd == 0x90) {
+				
+				if (cmd == 0x80 || cmd == 0x90) 
+				{
 					if (midi_data_count == 0) {
 						midi_data0 = b;        // first data byte: note number
 						midi_data_count = 1;
@@ -510,6 +516,40 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 						}
 						chord_detect();
 					}
+				}
+				else
+					
+				if (enable_mpc_sample && cmd == 0xB0) 
+				{				
+					if (midi_data_count == 0) {
+						midi_data0 = b;        			// first data byte: cc command
+						midi_data_count = 1;
+					} else {						
+						uint8_t cc_cmd	= midi_data0;	
+						uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
+						midi_data_count  = 0; 			// ready for next running-status pair
+						
+						if (cc_cmd == 0x17 && cc_value == 0x7F) {			// start/stop
+							mbut0 = 1; logo = 0;
+							midi_bluetooth_handle_data();
+						}
+						else
+
+						if (cc_cmd == 0x16) {			// next /previous style
+						
+							if (cc_value == 0x1) {
+								mbut1 = 1; starpower = 0;	
+								midi_bluetooth_handle_data();
+							}
+							else
+								
+							if (cc_value == 0x16) {
+								mbut1 = 1; starpower = 0; orange = 1;
+								midi_bluetooth_handle_data();								
+							}
+						}													
+					}						
+					
 				} else {
 					// Other channel messages: Program Change (0xC0) and Channel
 					// Pressure (0xD0) carry one data byte; all others carry two.
