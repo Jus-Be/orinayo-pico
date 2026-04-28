@@ -74,12 +74,10 @@ extern int active_neck_pos;
 extern int basic_chord;
 extern int advanced_chord;
 
-extern uint8_t mpc_drum_velocity;
-extern uint8_t mpc_bass_velocity;
-extern uint8_t mpc_chord_velocity;
-extern uint8_t sp404_drum_velocity;
-extern uint8_t sp404_bass_velocity;
-extern uint8_t sp404_chord_velocity;
+extern uint8_t sample_drum_velocity;
+extern uint8_t sample_bass_velocity;
+extern uint8_t sample_chord_velocity;
+extern uint8_t midi_guitar_velocity;
 
 extern bool style_started;
 extern bool enable_ample_guitar;
@@ -575,18 +573,23 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							else
 								
 							if (cc_cmd == 0x0C) {			// drum volume
-								mpc_drum_velocity = cc_value > 0 ? cc_value : 1;
+								sample_drum_velocity = cc_value > 0 ? cc_value : 1;
 							}
 							else
 								
 							if (cc_cmd == 0x0D) {			// bass volume
-								mpc_bass_velocity = cc_value > 0 ? cc_value : 1;
+								sample_bass_velocity = cc_value > 0 ? cc_value : 1;
 							}
 							else
 
 							if (cc_cmd == 0x0E) {			// chord volume
-								mpc_chord_velocity = cc_value > 0 ? cc_value : 1;
-							}						
+								sample_chord_velocity = cc_value > 0 ? cc_value : 1;
+							}
+							else
+
+							if (cc_cmd == 0x0F) {			// midi guitar volume
+								midi_guitar_velocity = cc_value > 0 ? cc_value : 1;
+							}							
 						}						
 						
 					} else {
@@ -929,22 +932,12 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	if (enable_seqtrak) {
 		channel = 8;
 	}
-	else
-	
-	if (enable_sp404mk2) {
-		channel = 14;
-	}
-	else
-		
-	if (enable_mpc_sample) {
-		channel = 0;
-	}
 	
 	uint8_t msg[3];	
 	
 	msg[0] = command + channel;
 	msg[1] = note;
-	msg[2] = velocity;   
+	msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127));   
 		
 	midi_n_stream_write(0, 0, msg, 3);			
 }

@@ -1123,71 +1123,71 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 		
 						
-		if (event_data[5] == 15) {			// Paddle A+B
+		if (event_data[5] == 15) {										// Paddle A+B
 			handling_required = true;	
 
-			if (event_data[10] < 48) { // UP
+			if (event_data[10] < 48) { 									// UP
 				mbut0 = 1; logo = 0;
 			}
 			else
 				
-			if (event_data[10] > 58) { // DOWN
+			if (event_data[10] > 58) { 									// DOWN
 				mbut0 = 1; logo = 0;
 			}							
 
 		}	
 		else							
 		
-		if (event_data[5] == 12) {			// Paddle A
+		if (event_data[5] == 12) {										// Paddle A
 			handling_required = true;	
 			
-			if (event_data[9] < 48) { // UP
+			if (event_data[9] < 48) { 									// UP
 				applied_velocity = (50 - event_data[9]) / 50;
 
 				if (chord_selected) {
 					dpad_right = 1; right = 0;
 				} else {
-					knob_up = false; logo_knob_up = 0;	// break						
+					joy_down = true; joystick_down = 0;					// break						
 				}								
 
 			}
 			else
 				
-			if (event_data[9] > 58) { // DOWN
+			if (event_data[9] > 58) { 									// DOWN
 				applied_velocity = event_data[9] / 50;
 				
 				if (chord_selected) {
 					dpad_left = 1;	left = 0;	
 				} else {
-					joy_up = true; joystick_up = 0;	// fill								
+					joy_up = true; joystick_up = 0;						// fill								
 				}								
 			}
 				
 		}
 		else
 			
-		if (event_data[5] == 3) {			// Paddle B
+		if (event_data[5] == 3) {										// Paddle B
 			handling_required = true;	
 
-			if (event_data[10] < 48) { // UP
+			if (event_data[10] < 48) { 									// UP
 				applied_velocity = (50 - event_data[10]) / 50;							
 			
 				if (chord_selected) {
 					dpad_right = 1; right = 0;
 				} else {	
-					dpad_down = 1; starpower = 0; orange = 1;	// prev style	
+					dpad_down = 1; starpower = 0; orange = 0; but4 = 1;	// prev style	
 				}								
 			}
 			else
 				
-			if (event_data[10] > 58) { // DOWN
+			if (event_data[10] > 58) { 									// DOWN
 				applied_velocity = event_data[10] / 50;
 
 				if (chord_selected) {
 					dpad_left = 1;	left = 0;	
 
 				} else {
-					dpad_down = 1; starpower = 0;	// next style																															
+					dpad_down = 1; starpower = 0; 						// next style																															
 				}								
 			}							
 
