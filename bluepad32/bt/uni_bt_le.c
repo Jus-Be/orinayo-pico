@@ -99,6 +99,7 @@ void midi_seqtrak_arp();
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
 void config_guitar(uint8_t mode);
+uint32_t midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
 
 extern int applied_velocity;
 extern int transpose;
@@ -207,6 +208,32 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
         gap_disconnect(con_handle);
 
     resume_scanning_hint();
+}
+
+// BLE MIDI service UUID: 03B80E5A-EDE8-4B33-A751-6CE34EC4C700
+// Stored in little-endian order as it appears in BLE advertisement 128-bit UUID lists
+static const uint8_t ble_midi_service_uuid_le[16] = {
+    0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7,
+    0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03
+};
+
+// Check whether an advertisement payload contains a given 128-bit service UUID (little-endian)
+static bool adv_contains_uuid128(uint16_t ad_len, const uint8_t *ad_data, const uint8_t *uuid) {
+    ad_context_t context;
+    for (ad_iterator_init(&context, ad_len, (uint8_t*)ad_data);
+         ad_iterator_has_more(&context);
+         ad_iterator_next(&context)) {
+        uint8_t data_type = ad_iterator_get_data_type(&context);
+        uint8_t size = ad_iterator_get_data_len(&context);
+        const uint8_t* data = ad_iterator_get_data(&context);
+        if (data_type == BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS ||
+            data_type == BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS) {
+            for (int i = 0; i + 16 <= size; i += 16) {
+                if (memcmp(&data[i], uuid, 16) == 0) return true;
+            }
+        }
+    }
+    return false;
 }
 
 static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
@@ -767,6 +794,73 @@ static void uni_sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
     }
 }
 
+// Size of the local buffer used when accumulating MIDI bytes from a BLE MIDI packet
+#define BLE_MIDI_BUF_SIZE 64
+
+// Parse an incoming BLE MIDI notification packet and forward raw MIDI bytes to uart0/USB.
+// BLE MIDI format: [Header][Timestamp][Status][Data...][Timestamp?][Status?][Data...]...
+// Header and Timestamp bytes have bit 7 set; MIDI data bytes have bit 7 clear.
+static void ble_midi_handle_packet(const uint8_t *data, uint16_t len) {
+    if (len < 3) return;
+
+    uint8_t midi_buf[BLE_MIDI_BUF_SIZE];
+    int midi_len = 0;
+    bool at_boundary = true;   // expecting a timestamp byte at message boundaries
+    int data_remaining = 0;
+
+    // Start at index 1 to skip the header byte (index 0)
+    for (int i = 1; i < (int)len; i++) {
+        uint8_t b = data[i];
+
+        if (at_boundary) {
+            // At a message boundary the first byte with bit 7 set is a timestamp – skip it
+            if (b & 0x80) {
+                at_boundary = false;
+                continue;
+            }
+            // Data byte at a boundary is unexpected; skip
+            continue;
+        }
+
+        if (b & 0x80) {
+            // MIDI status byte
+            midi_buf[midi_len++] = b;
+            uint8_t msg_type = b & 0xF0;
+            if (msg_type == 0x80 || msg_type == 0x90 || msg_type == 0xA0 ||
+                msg_type == 0xB0 || msg_type == 0xE0) {
+                data_remaining = 2;
+            } else if (msg_type == 0xC0 || msg_type == 0xD0) {
+                data_remaining = 1;
+            } else if (b == 0xF2) {
+                data_remaining = 2;
+            } else if (b == 0xF1 || b == 0xF3) {
+                data_remaining = 1;
+            } else {
+                // Single-byte system real-time message (e.g. 0xF8 clock, 0xFA start, 0xFC stop)
+                data_remaining = 0;
+                at_boundary = true;
+            }
+        } else {
+            // MIDI data byte
+            midi_buf[midi_len++] = b;
+            if (data_remaining > 0) {
+                data_remaining--;
+                if (data_remaining == 0)
+                    at_boundary = true;
+            }
+        }
+
+        // Flush when the buffer is full to avoid overflow
+        if (midi_len >= BLE_MIDI_BUF_SIZE) {
+            midi_n_stream_write(0, 0, midi_buf, midi_len);
+            midi_len = 0;
+        }
+    }
+
+    if (midi_len > 0)
+        midi_n_stream_write(0, 0, midi_buf, midi_len);
+}
+
 // Callback function which manages GATT events. Implements a state machine.
 void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size) {
     UNUSED(packet_type);
@@ -850,7 +944,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			else
 				
 			if (sonic_master_enabled) {
-
+				// Enable notifications on the BLE MIDI I/O characteristic
+				gatt_client_write_client_characteristic_configuration(handle_gatt_client_event, connection_handle, &server_characteristic, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
 				query_state = 2;	
 			}
 		}
@@ -881,6 +976,12 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 					
     if (type_of_packet == GATT_EVENT_NOTIFICATION) {
 		if (gamepad_guitar_connected) return;
+
+		// BLE MIDI device: parse packet and forward raw MIDI bytes to uart0/USB
+		if (sonic_master_enabled) {
+			ble_midi_handle_packet(value, value_length);
+			return;
+		}
 			
 		memcpy(event_data, value, value_length);
 
@@ -1236,7 +1337,8 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				
 			if (sonic_master_enabled) {	// "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 				uint8_t service_name[16] = {0x03, 0xB8, 0x0E, 0x5A, 0xED, 0xE8, 0x4B, 0x33, 0xA7, 0x51, 0x6C, 0xE3, 0x4E, 0xC4, 0xC7, 0x00} ;			
-				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);			
+				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
+				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
 			} 			
 			else {	
 			/*
@@ -1319,6 +1421,17 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 			sonic_master_enabled = true;
 			hog_connect(addr, addr_type);	
 			return;	
+		}
+	}
+
+	// Also detect any BLE MIDI device by service UUID (03B80E5A-EDE8-4B33-A751-6CE34EC4C700)
+	if (!sonic_master_enabled) {
+		const uint8_t *ad_data = gap_event_advertising_report_get_data(packet);
+		uint16_t ad_len = gap_event_advertising_report_get_data_length(packet);
+		if (adv_contains_uuid128(ad_len, ad_data, ble_midi_service_uuid_le)) {
+			sonic_master_enabled = true;
+			hog_connect(addr, addr_type);
+			return;
 		}
 	}
 		
