@@ -88,6 +88,7 @@ extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
+extern bool enable_nanobox_tangerine;
 extern bool preferences_changed;
 
 extern uint8_t but4; 
@@ -279,7 +280,8 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		
 		// iRig Keys 2 PRO
 		// MPC Sample
-		// X-TOUCH MINI		
+		// X-TOUCH MINI
+		// nanobox tangerine
 		
 		if (name[0] == 'i' && name[1] == 'R' && name[2] == 'i' && name[3] == 'g' && name[4] == ' ' && name[5] == 'K' && name[6] == 'e' && name[7] == 'y' && name[8] == 's' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
 			// Start/stop 	CC23 (0x17, 0x7F)
@@ -309,7 +311,13 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Buttons       (B) Note On/Off 0x20 - 0x2F (16 buttons)
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
-		}		
+		}
+		else
+
+		if (name[0] == 'n' && name[1] == 'a' && name[2] == 'n' && name[3] == 'o' && name[4] == 'b' && name[5] == 'o' && name[6] == 'x' && name[7] == ' ' && name[8] == 't' && name[9] == 'a' && name[10] == 'n' && name[11] == 'g' && name[12] == 'e' && name[13] == 'r' && name[14] == 'i' && name[15] == 'n' && name[16] == 'e') {		
+			enable_nanobox_tangerine = true;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
+		}
     }
 }
 
@@ -930,6 +938,11 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
 
 	if (enable_seqtrak) {
+		channel = 8;
+	}
+	else
+		
+	if (enable_nanobox_tangerine) {	// don't play guitar midi on sampler (0-7)
 		channel = 8;
 	}
 	

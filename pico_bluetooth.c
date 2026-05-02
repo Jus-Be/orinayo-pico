@@ -36,6 +36,7 @@ bool enable_dream_midi = false;
 bool enable_rclooper = false;
 bool enable_sp404mk2 = false;
 bool enable_mpc_sample = false;
+bool enable_nanobox_tangerine = false;
 bool enable_synth = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -180,6 +181,7 @@ void config_seqtrak();
 void config_sp404mk2();
 void config_mpc_sample();
 void config_style_play();
+void config_nanobox_tangerine();
 void play_chord(bool on, bool up);
 void clear_chord_notes();
 void stop_chord();
@@ -1881,8 +1883,10 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 14) {										// Unused
-
+	if (mode == 14) {										// 1010Music Nanobox Tangerine
+		enable_nanobox_tangerine = !enable_nanobox_tangerine;
+		enable_style_play = enable_nanobox_tangerine;	
+		config_nanobox_tangerine();		
 	}
 	else
 		
@@ -1919,7 +1923,7 @@ void config_guitar(uint8_t mode) {
 		config_style_play();		
 		
 		if (enable_rclooper)  {
-			config_guitar(7);	// default guitar settings
+			config_guitar(7);								// default guitar settings
 		}			
 	}
 	else
@@ -2052,6 +2056,10 @@ void config_style_play() {
 			midi_send_control_change(0xB2, 11, 127);			
 		}
 	}		
+}
+
+void config_nanobox_tangerine() {
+	
 }
 
 void config_mpc_sample() {		
