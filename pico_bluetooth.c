@@ -103,6 +103,7 @@ uint8_t logo_knob_up = 0;
 uint8_t logo_knob_down = 0; 	
 uint8_t guitar_pc_code = 26;
 
+int applied_velocity = 100;				// TODO Livelive applied velocity
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
