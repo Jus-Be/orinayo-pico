@@ -103,7 +103,6 @@ uint8_t logo_knob_up = 0;
 uint8_t logo_knob_down = 0; 	
 uint8_t guitar_pc_code = 26;
 
-int applied_velocity = 100;
 int active_strum_pattern = 0;	
 int active_neck_pos = 2;
 int style_section = 0; 
@@ -125,8 +124,8 @@ uint8_t mpc_old_drum_note = 255;
 uint8_t mpc_old_bass_note = 255;
 uint8_t mpc_old_chord_note = 255;
 
-uint8_t sample_drum_velocity = 120;
-uint8_t sample_bass_velocity = 127;
+uint8_t sample_drum_velocity = 127;
+uint8_t sample_bass_velocity = 110;
 uint8_t sample_chord_velocity = 80;
 uint8_t midi_guitar_velocity = 127;
 
@@ -397,8 +396,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	{
 		if (abs(axis_ry) > abs(axis_rx)) {
 			sample_drum_velocity = abs(axis_ry) % 128;
+			sample_drum_velocity = sample_drum_velocity > 0 ? sample_drum_velocity : 1;
 		} else {
 			sample_bass_velocity = abs(axis_rx) % 128;			
+			sample_bass_velocity = sample_bass_velocity > 0 ? sample_bass_velocity : 1;
 		}
 	}
 	else
@@ -407,8 +408,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	{
 		if (abs(axis_rx) > abs(axis_ry)) {
 			sample_chord_velocity = abs(axis_rx) % 128;				
+			sample_chord_velocity = sample_chord_velocity > 0 ? sample_chord_velocity : 1;
 		} else {
 			midi_guitar_velocity = abs(axis_ry) % 128;			
+			midi_guitar_velocity = midi_guitar_velocity > 0 ? midi_guitar_velocity : 1;
 		}
 	}	
   
@@ -2656,9 +2659,8 @@ void mpc_trigger_loop() {
 
 	if (mpc_type == 0) {												// Bass in major 
 		mpc_bass_note = (samples[bass_tonic][0] - 3 + 36) % 128;
-		if (enable_nanobox_tangerine && mpc_bass_note == 128) mpc_bass_note = 32; 		// hack for nanobox key C0 issue
 
-		if (bass_tonic != chord_tonic) {								// Bass in root
+		if (bass_tonic != chord_tonic) {												// Bass in root
 			mpc_bass_note = (samples[bass_tonic][1] - 3 + 36) % 128;	
 		} 			
 		
