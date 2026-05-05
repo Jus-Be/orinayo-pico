@@ -397,10 +397,11 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	{
 		if (abs(axis_ry) > abs(axis_rx)) {
 			sample_drum_velocity = abs(axis_ry) % 128;
-			sample_drum_velocity = sample_drum_velocity > 0 ? sample_drum_velocity : 1;
+			sample_drum_velocity = sample_drum_velocity > 25 ? sample_drum_velocity : 25;
+			style_change_requested = true;
 		} else {
 			sample_bass_velocity = abs(axis_rx) % 128;			
-			sample_bass_velocity = sample_bass_velocity > 0 ? sample_bass_velocity : 1;
+			sample_bass_velocity = sample_bass_velocity > 25 ? sample_bass_velocity : 25;
 		}
 	}
 	else
@@ -409,10 +410,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	{
 		if (abs(axis_rx) > abs(axis_ry)) {
 			sample_chord_velocity = abs(axis_rx) % 128;				
-			sample_chord_velocity = sample_chord_velocity > 0 ? sample_chord_velocity : 1;
+			sample_chord_velocity = sample_chord_velocity > 25 ? sample_chord_velocity : 25;
 		} else {
 			midi_guitar_velocity = abs(axis_ry) % 128;			
-			midi_guitar_velocity = midi_guitar_velocity > 0 ? midi_guitar_velocity : 1;
+			midi_guitar_velocity = midi_guitar_velocity > 25 ? midi_guitar_velocity : 25;
 		}
 	}	
   
