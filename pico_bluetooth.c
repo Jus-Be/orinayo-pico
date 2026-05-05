@@ -1456,7 +1456,7 @@ void midi_bluetooth_handle_data() {
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
 			else if (green && blue) config_guitar(13);				// Behringer JT-Micro Synth
-			else if (red && orange) config_guitar(14);				//
+			else if (red && orange) config_guitar(14);				// 1010Music Nanobox Tangerine
 			
 			else if (green && red) config_guitar(6);				// Acoustic/Electric
 			else if (red && yellow) config_guitar(7);				// Guitar Midi FX1
@@ -2656,6 +2656,7 @@ void mpc_trigger_loop() {
 
 	if (mpc_type == 0) {												// Bass in major 
 		mpc_bass_note = (samples[bass_tonic][0] - 3 + 36) % 128;
+		if (enable_nanobox_tangerine && mpc_bass_note == 128) mpc_bass_note = 32; 		// hack for nanobox key C0 issue
 
 		if (bass_tonic != chord_tonic) {								// Bass in root
 			mpc_bass_note = (samples[bass_tonic][1] - 3 + 36) % 128;	
