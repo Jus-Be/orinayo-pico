@@ -942,8 +942,8 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	}
 	else
 		
-	if (enable_nanobox_tangerine) {	// don't play guitar midi on sampler (0-7)
-		//channel = 8;
+	if (enable_nanobox_tangerine) {	
+
 	}
 	
 	uint8_t msg[3];	
