@@ -1707,7 +1707,7 @@ void midi_bluetooth_handle_data() {
 				if (enable_nanobox_tangerine) 
 				{
 					if (nanobox_old_drum_note != 255) {
-						//sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+						sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 					}	
 					uint8_t section = (style_section % 4);
 					nanobox_drum_note = FILA;
@@ -1844,7 +1844,7 @@ void midi_bluetooth_handle_data() {
 				if (enable_nanobox_tangerine) 
 				{
 					if (nanobox_old_drum_note != 255) {
-						//sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+						sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 					}	
 					nanobox_drum_note = BRKA;					
 					sp404_midi_note(0x94, nanobox_drum_note, enable_drum_track ? sample_drum_velocity : 1);		
@@ -2805,14 +2805,14 @@ void nanobox_trigger_loop() {
 	}
 
 	if (nanobox_old_bass_note != nanobox_bass_note || enable_stacatto_mode) { 
-		//if (nanobox_old_bass_note != 255) sp404_midi_note(0x95, nanobox_old_bass_note, enable_bass_track ? sample_bass_velocity : 0);
+		if (nanobox_old_bass_note != 255) sp404_midi_note(0x95, nanobox_old_bass_note, enable_bass_track ? sample_bass_velocity : 0);
 		
 		sp404_midi_note(0x95, nanobox_bass_note, enable_bass_track ? sample_bass_velocity : 0);			
 		nanobox_old_bass_note = nanobox_bass_note;		
 	}
 	
 	if (nanobox_old_chord_note != nanobox_chord_note || enable_stacatto_mode) {	
-		//if (nanobox_old_chord_note != 255) sp404_midi_note(0x96, nanobox_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+		if (nanobox_old_chord_note != 255) sp404_midi_note(0x96, nanobox_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 		
 		sp404_midi_note(0x96, nanobox_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 		nanobox_old_chord_note = nanobox_chord_note;	
@@ -2823,7 +2823,7 @@ void nanobox_trigger_loop() {
 		style_change_requested = false;
 		
 		if (nanobox_old_drum_note != 255) {
-			//sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			sp404_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 		}				
 
 		uint8_t section = (style_section % 4);
