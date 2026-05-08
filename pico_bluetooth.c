@@ -62,6 +62,7 @@ bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 bool style_change_requested = false;
+bool style_end_requested = false;
 bool preferences_changed = false;
 
 uint8_t but0 = 0;
@@ -1105,8 +1106,7 @@ void midi_bluetooth_handle_data() {
 							nanobox_old_drum_note = 255;
 						}	
 
-						sleep_ms(3000);	
-						sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);							
+						style_end_requested = true;							
 					}					
 					else
 						
@@ -2563,8 +2563,14 @@ void play_chord(bool on, bool up) {
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (handled && style_started && on) {			
-			nanobox_trigger_loop();				
+		if (handled && on) {
+
+			if (style_end_requested) {
+				style_end_requested = false;
+				sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);	
+			}
+			
+			if (style_started) nanobox_trigger_loop();				
 		}
 	}
 	else
