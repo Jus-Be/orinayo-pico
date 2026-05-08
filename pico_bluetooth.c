@@ -1320,6 +1320,14 @@ void midi_bluetooth_handle_data() {
 		if (enable_arranger_mode) midi_ketron_footsw(8, mbut2 ? true : false);						// 	user defined from footswitch	
 		menu = mbut2;
 
+		if (green && blue && orange) 
+		{
+			if (mbut2) {
+				style_group = 20;
+			}
+		}
+		else
+			
 		if (green && red && yellow) 
 		{
 			if (mbut2) {
@@ -1488,10 +1496,17 @@ void midi_bluetooth_handle_data() {
 		}
 		else
 			
+		if (enable_nanobox_tangerine) 
+		{
+			if (mbut2)  {
+				midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos
+			}
+		}		
+		else
+			
 		if (enable_synth) 
 		{
-			if (mbut2) 
-			{
+			if (mbut2)  {
 				midi_send_program_change(0xC0, style_group); // select synth patch
 			}
 		}		
