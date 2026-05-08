@@ -289,7 +289,7 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Prev Style	CC22 (0x16, 0x16)
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			
-			enable_mpc_sample = true;									// assume MPC is also connected by MIDI			
+			enable_nanobox_tangerine = true;									// assume nanobox tangerine is also connected by MIDI			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
 		else
@@ -494,7 +494,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 			while (!uart_is_writable(UART_ID)){ }	
 			uart_putc(UART_ID, buffer[i]);
 			
-			if (enable_mpc_sample || enable_sp404mk2) {
+			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine) {
 				// Parse the raw MIDI byte stream to track note on/off events.
 				uint8_t b = buffer[i];
 				if (b & 0x80) {
