@@ -2191,6 +2191,8 @@ void config_nanobox_tangerine() {
 	midi_send_control_change(0xB4, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 5		
 	midi_send_control_change(0xB5, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 6
 	midi_send_control_change(0xB6, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 7	
+	
+	midi_send_program_change(0xCF, style_group + 2);												// load default selected song
 }
 
 void config_mpc_sample() {		

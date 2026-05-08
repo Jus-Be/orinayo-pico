@@ -73,6 +73,7 @@ extern int active_strum_pattern;
 extern int active_neck_pos;
 extern int basic_chord;
 extern int advanced_chord;
+extern int style_group;
 
 extern uint8_t sample_drum_velocity;
 extern uint8_t sample_bass_velocity;
@@ -147,6 +148,7 @@ void config_mpc_sample();
 void nanobox_trigger_loop();
 void mpc_trigger_loop();
 void sp404_trigger_loop();
+void config_nanobox_tangerine();
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -293,7 +295,8 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Prev Style	CC22 (0x16, 0x16)
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			
-			enable_nanobox_tangerine = true;									// assume nanobox tangerine is also connected by MIDI			
+			enable_nanobox_tangerine = true;									// assume nanobox tangerine is also connected by MIDI	
+			config_nanobox_tangerine();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
 		else
@@ -320,6 +323,7 @@ void name_received_cb(tuh_xfer_t* xfer) {
 
 		if (name[0] == 'n' && name[1] == 'a' && name[2] == 'n' && name[3] == 'o' && name[4] == 'b' && name[5] == 'o' && name[6] == 'x' && name[7] == ' ' && name[8] == 't' && name[9] == 'a' && name[10] == 'n' && name[11] == 'g' && name[12] == 'e' && name[13] == 'r' && name[14] == 'i' && name[15] == 'n' && name[16] == 'e') {		
 			enable_nanobox_tangerine = true;
+			config_nanobox_tangerine();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
     }
@@ -584,15 +588,33 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 
 							if (cc_cmd == 0x16) {								// data button dial
 							
-								if (cc_value == 0x1) {							// next style
-									dpad_down = 1; starpower = 0;	
-									midi_bluetooth_handle_data();
-								}
-								else
+								if (style_started) {
+									if (cc_value == 0x1) {							// next style
+										dpad_down = 1; starpower = 0;	
+										midi_bluetooth_handle_data();
+									}
+									else
+										
+									if (cc_value == 0x7F) {							// previous style
+										dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
+										midi_bluetooth_handle_data();								
+									}
+								} else {
 									
-								if (cc_value == 0x7F) {							// previous style
-									dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
-									midi_bluetooth_handle_data();								
+									if (cc_value == 0x1) {							// next style group
+										style_group = style_group + 1;
+										if (style_group > 20) style_group = 0;
+									}
+									else
+										
+									if (cc_value == 0x7F) {							// previous style group
+										style_group = style_group - 1;
+										if (style_group < 0) style_group = 20;								
+									}
+
+									if (enable_nanobox_tangerine) {
+										midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+									}																		
 								}
 							}
 							else
