@@ -143,6 +143,9 @@ void midi_modx_arp_octave(uint8_t octave);
 void dream_set_delay(int tempo);
 void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void config_mpc_sample();
+void nanobox_trigger_loop();
+void mpc_trigger_loop()
+void sp404_trigger_loop();
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -472,7 +475,15 @@ static void chord_detect(void) {
 
         if (enable_mpc_sample) {
             mpc_trigger_loop();
-        } else if (enable_sp404mk2) {
+        } 
+		else 
+		
+		if (enable_nanobox_tangerine) {
+            nanobox_trigger_loop();
+        }		
+		else 
+		
+		if (enable_sp404mk2) {
             sp404_trigger_loop();
         }
     }
