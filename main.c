@@ -144,7 +144,7 @@ void dream_set_delay(int tempo);
 void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void config_mpc_sample();
 void nanobox_trigger_loop();
-void mpc_trigger_loop()
+void mpc_trigger_loop();
 void sp404_trigger_loop();
 
 uint8_t get_arp_template(void);
