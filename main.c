@@ -635,7 +635,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							else
 
 							if (cc_cmd == 0x0F) {			// midi guitar volume
-								midi_guitar_velocity = cc_value > 0 ? cc_value : 1;
+								midi_guitar_velocity = cc_value > 0 ? cc_value : 25;
 							}							
 						}						
 						
@@ -989,7 +989,8 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	
 	msg[0] = command + channel;
 	msg[1] = note;
-	msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127));   
+	//msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127));  // TODO 
+	msg[2] = (uint8_t) (velocity);	
 		
 	midi_n_stream_write(0, 0, msg, 3);			
 }

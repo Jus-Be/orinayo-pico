@@ -381,8 +381,9 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	
 	storage_load_preferences();	
 	
-	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode;
-	config_style_play();
+	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine;
+
+	if (!enable_nanobox_tangerine) config_style_play();
 	
 	config_ample_guitar();
 	config_arranger();
@@ -2188,9 +2189,9 @@ void config_style_play() {
 }
 
 void config_nanobox_tangerine() {
-	midi_send_control_change(0xB4, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 5		
-	midi_send_control_change(0xB5, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 6
-	midi_send_control_change(0xB6, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 7	
+	//midi_send_control_change(0xB4, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 5		
+	//midi_send_control_change(0xB5, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 6
+	//midi_send_control_change(0xB6, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 7	
 	
 	midi_send_program_change(0xCF, style_group + 2);												// load default selected song
 }
@@ -2665,9 +2666,9 @@ void play_chord(bool on, bool up) {
 						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
-						if (!enable_modx && !enable_ample_guitar && !enable_seqtrak && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, 33);						
+						if (!enable_modx && !enable_ample_guitar && !enable_seqtrak && !enable_nanobox_tangerine && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, 33);						
 						midi_send_note(0x90, note, 120);
-						if (!enable_modx && !enable_ample_guitar && !enable_seqtrak && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, guitar_pc_code);	
+						if (!enable_modx && !enable_ample_guitar && !enable_seqtrak && !enable_nanobox_tangerine && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, guitar_pc_code);	
 						
 						old_midinotes[0] = note;						
 					}					
@@ -3192,7 +3193,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compUp);
 			
 			if (start_action == 83) {	// mute
-				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar) midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar && !enable_nanobox_tangerine) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -3202,7 +3203,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 83) {	// normal
-				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar) midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar && !enable_nanobox_tangerine) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		} 
 		else
@@ -3213,7 +3214,7 @@ void midi_process_state(uint64_t start_us) {
 			qsort(auto_chord_midinotes, 6, sizeof(uint8_t), compDown);
 			
 			if (start_action == 79 || start_action == 81) {	// mute
-				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar) midi_send_program_change(0xC0, 28);
+				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar && !enable_nanobox_tangerine) midi_send_program_change(0xC0, 28);
 			}
 			
 			for (int n=0; n<6; n++) {
@@ -3223,7 +3224,7 @@ void midi_process_state(uint64_t start_us) {
 			}
 			
 			if (start_action == 79 || start_action == 81) {	// normal
-				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar) midi_send_program_change(0xC0, guitar_pc_code);
+				if (!enable_modx && !enable_seqtrak && !enable_synth && !enable_ample_guitar && !enable_nanobox_tangerine) midi_send_program_change(0xC0, guitar_pc_code);
 			}			
 		}
 		else
