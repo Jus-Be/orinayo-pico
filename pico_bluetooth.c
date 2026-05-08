@@ -2563,14 +2563,8 @@ void play_chord(bool on, bool up) {
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (handled && on) {
-
-			if (style_end_requested) {
-				style_end_requested = false;
-				sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);	
-			}
-			
-			if (style_started) nanobox_trigger_loop();				
+		if (handled && on && (style_started || style_end_requested)) {
+			nanobox_trigger_loop();				
 		}
 	}
 	else
@@ -2782,6 +2776,12 @@ void nanobox_trigger_loop() {
 	
 	uint8_t bass_tonic = (nanobox_bass + transpose - 1) % 12;
 	uint8_t chord_tonic = (nanobox_chord + transpose - 1) % 12;	
+
+	if (style_end_requested) {
+		style_end_requested = false;
+		sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+		return;
+	}
 	
 	if (nanobox_type == 0) {												// Major 
 		nanobox_bass_note = (bass_tonic + 36) % 128;
@@ -2837,8 +2837,7 @@ void nanobox_trigger_loop() {
 		
 		sp404_midi_note(0x96, nanobox_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 		nanobox_old_chord_note = nanobox_chord_note;	
-	}	
-	
+	}		
 			
 	if (style_change_requested) {
 		style_change_requested = false;

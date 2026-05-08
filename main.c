@@ -89,6 +89,7 @@ extern bool enable_modx;
 extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
 extern bool enable_nanobox_tangerine;
+extern bool style_end_requested;
 extern bool preferences_changed;
 
 extern uint8_t but4; 
@@ -549,6 +550,11 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 								
 								chord_detect();
 							}
+							else 
+								
+							if (style_end_requested && enable_nanobox_tangerine) {
+								nanobox_trigger_loop();
+							}							
 						}
 					}
 					else
