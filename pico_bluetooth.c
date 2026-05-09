@@ -983,7 +983,13 @@ void midi_bluetooth_handle_data() {
 					}
 					else
 						
-					if (enable_nanobox_tangerine) {						
+					if (enable_nanobox_tangerine) 
+					{	
+						if (style_end_requested)) {
+							style_end_requested = false;
+							sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);			
+						}	
+						
 						nanobox_drum_note = INT1;
 						sp404_midi_note(0x94, nanobox_drum_note, enable_drum_track ? sample_drum_velocity : 1);	
 						nanobox_old_drum_note = nanobox_drum_note;
