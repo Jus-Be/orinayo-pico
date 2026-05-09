@@ -985,7 +985,7 @@ void midi_bluetooth_handle_data() {
 						
 					if (enable_nanobox_tangerine) 
 					{	
-						if (style_end_requested)) {
+						if (style_end_requested) {
 							style_end_requested = false;
 							sp404_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);			
 						}	
