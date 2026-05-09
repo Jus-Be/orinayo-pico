@@ -989,8 +989,12 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	
 	msg[0] = command + channel;
 	msg[1] = note;
-	//msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127));  // TODO 
-	msg[2] = (uint8_t) (velocity);	
+	
+	if (!enable_nanobox_tangerine) {									// tangerine only uses velocity to trigger or not
+		msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127)); 
+	} else {
+		msg[2] = (uint8_t) (velocity);	
+	}
 		
 	midi_n_stream_write(0, 0, msg, 3);			
 }
