@@ -1537,7 +1537,7 @@ void midi_bluetooth_handle_data() {
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
 			else if (green && orange) config_guitar(18);			// Reset Preferences	
-			else if (green && yellow) config_guitar(10);			// RC-600 Looper			
+			else if (green && yellow) config_guitar(10);			// Akai MPX Looper			
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
@@ -1930,7 +1930,7 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x84, mpx_old_chord_note, 0);			// stop mpx loop	
 	
 	ample_old_key = 0;	
 	mpx_old_chord_note = 0;
@@ -2011,8 +2011,9 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 10) {										// Akai MPX8/16 Looper
 		enable_mpx_looper = !enable_mpx_looper;
-		enable_style_play = !enable_mpx_looper;	
-		config_style_play();		
+		enable_style_play = enable_mpx_looper;	
+		config_style_play();
+		config_mpx_looper();		
 		
 		if (enable_mpx_looper)  {
 			config_guitar(7);								// default guitar settings
@@ -2156,6 +2157,14 @@ void config_nanobox_tangerine() {
 	//midi_send_control_change(0xB6, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 7	
 	
 	//midi_send_program_change(0xCF, style_group + 2);													// load default selected song
+}
+
+void config_mpx_looper() {		
+	midi_send_control_change(0xB4, 11, !enable_mpx_looper ? 127 : 0);  								// silent sample trigger channel 5	
+	
+	if (enable_mpx_looper) {
+		midi_send_program_change(0xC0, guitar_pc_code);												// channel 1 used for guitar melody
+	}
 }
 
 void config_mpc_sample() {		
@@ -2528,11 +2537,11 @@ void play_chord(bool on, bool up) {
 			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
 			{	
 				if (mpx_old_chord_note != 0) {
-					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+					sp404_midi_note(0x94, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 				}
 				
 				if (mpx_chord_note != 0) {
-					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
+					sp404_midi_note(0x94, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 					mpx_old_chord_note = mpx_chord_note;	
 				}
 			}			
