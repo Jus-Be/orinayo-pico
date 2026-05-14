@@ -144,7 +144,7 @@ void midi_modx_arp_hold(uint8_t part, bool on);
 void midi_modx_arp_realtime(uint8_t part, bool on);
 void midi_modx_arp_octave(uint8_t octave);
 void dream_set_delay(int tempo);
-void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
+void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void config_mpc_sample();
 void nanobox_trigger_loop();
 void mpc_trigger_loop();
@@ -964,7 +964,7 @@ uint8_t get_arp_template(void) {
 	return 15;	
 }
 
-void sp404_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
+void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t msg[3];	
 	
 	msg[0] = command;
