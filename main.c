@@ -504,8 +504,11 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	uint8_t cable_num = 0;
 	uint32_t bytes_read = 0;
 
-	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) {	
-		tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
+	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) 
+	{	
+		if (!enable_mpx_looper) { 										// filter midi events from mpx pads
+			tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
+		}
 		
 		for (uint32_t i=0; i<bytes_read; i++) {
 			while (!uart_is_writable(UART_ID)){ }	
@@ -621,22 +624,22 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							else
 								
 							if (cc_cmd == 0x0C) {			// drum volume
-								sample_drum_velocity = cc_value > 0 ? cc_value : 1;
+								sample_drum_velocity = cc_value > 0 ? cc_value : 64;
 							}
 							else
 								
 							if (cc_cmd == 0x0D) {			// bass volume
-								sample_bass_velocity = cc_value > 0 ? cc_value : 1;
+								sample_bass_velocity = cc_value > 0 ? cc_value : 64;
 							}
 							else
 
 							if (cc_cmd == 0x0E) {			// chord volume
-								sample_chord_velocity = cc_value > 0 ? cc_value : 1;
+								sample_chord_velocity = cc_value > 0 ? cc_value : 64;
 							}
 							else
 
 							if (cc_cmd == 0x0F) {			// midi guitar volume
-								midi_guitar_velocity = cc_value > 0 ? cc_value : 25;
+								midi_guitar_velocity = cc_value > 0 ? cc_value : 64;
 							}							
 						}						
 						

@@ -384,7 +384,7 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	
 	storage_load_preferences();	
 	
-	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine;
+	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine || enable_mpx_looper;
 
 	if (!enable_nanobox_tangerine) config_style_play();
 	
@@ -435,10 +435,10 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	{
 		if (abs(axis_rx) > abs(axis_ry)) {
 			sample_chord_velocity = abs(axis_rx) % 128;				
-			sample_chord_velocity = sample_chord_velocity > 25 ? sample_chord_velocity : 25;
+			sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
 		} else {
 			midi_guitar_velocity = abs(axis_ry) % 128;			
-			midi_guitar_velocity = midi_guitar_velocity > 25 ? midi_guitar_velocity : 25;
+			midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
 		}
 	}	
   
