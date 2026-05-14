@@ -89,6 +89,7 @@ extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
+extern bool enable_mpx_looper;
 extern bool enable_nanobox_tangerine;
 extern bool style_end_requested;
 extern bool preferences_changed;
