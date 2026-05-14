@@ -45,7 +45,7 @@ bool enable_auto_hold = false;
 bool enable_stacatto_mode = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
-bool enable_rclooper = false;
+bool enable_mpx_looper = false;
 bool enable_sp404mk2 = false;
 bool enable_mpc_sample = false;
 bool enable_nanobox_tangerine = false;
@@ -128,7 +128,6 @@ int basic_chord = 0;
 int advanced_chord = 0;
 int last_chord_note = 0;
 int last_chord_type = 0;
-int last_basic_chord = 0;
 
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 110;
@@ -148,6 +147,9 @@ uint8_t mpc_bass_note = 0;
 uint8_t mpc_old_drum_note = 255;
 uint8_t mpc_old_bass_note = 255;
 uint8_t mpc_old_chord_note = 255;
+
+uint8_t mpx_chord_note = 0;
+uint8_t mpx_old_chord_note = 0;
 
 uint8_t sp404_drum_note = 0;
 uint8_t sp404_chord_note = 0;
@@ -593,8 +595,8 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				enable_chord_track = !enable_chord_track;
 				
-				if (enable_rclooper) {
-					midi_send_control_change(0xB3, enable_chord_track ? 70 : 71, 127);
+				if (enable_mpx_looper) {
+					
 				}
 				else 
 					
@@ -663,7 +665,7 @@ void midi_bluetooth_handle_data() {
 
 		if (yellow && orange) 
 		{
-			if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_synth && !enable_rclooper) {
+			if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_synth && !enable_mpx_looper) {
 				enable_style_play = !enable_style_play;	// toggle chord generation
 			}
 		}				
@@ -836,28 +838,6 @@ void midi_bluetooth_handle_data() {
 		finished_processing = true;	
 		return;			
 	}						
-/*
-	if (dpad_up != up) {									// transpose down
-		up = dpad_up;
-
-		if (dpad_up) {
-			transpose--;
-			if (transpose < 0) 	transpose = 11;				
-			if (enable_seqtrak) midi_seqtrak_key(transpose);				
-			//if (enable_modx) 	midi_modx_key(transpose);				
-		}
-		
-		if (enable_rclooper)
-		{
-			if (dpad_up) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
-			}
-		}
-		
-		finished_processing = true;		
-		return;			
-	}
-*/
 
 	if (dpad_up != up) {									// transpose up
 		up = dpad_up;
@@ -869,10 +849,10 @@ void midi_bluetooth_handle_data() {
 			//if (enable_modx) 	midi_modx_key(transpose);				
 		}
 		
-		if (enable_rclooper)
+		if (enable_mpx_looper)
 		{
 			if (dpad_up) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key
+				// do nothing
 			}
 		}		
 		
@@ -883,8 +863,6 @@ void midi_bluetooth_handle_data() {
 	if (mbut0 != logo) {									// start/stop
 		logo = mbut0;
 		
-		last_basic_chord = 0;
-
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
 		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 			// 	/drums/nn.wav	
 		
@@ -1031,8 +1009,8 @@ void midi_bluetooth_handle_data() {
 					}					
 					else
 						
-					if (enable_rclooper) {
-						midi_send_control_change(0xB3, 68, 127); 						
+					if (enable_mpx_looper) {
+						// do nothing. drums are from midi_drums or audio_drums 						
 					}
 					else
 						
@@ -1146,8 +1124,8 @@ void midi_bluetooth_handle_data() {
 					}
 					else
 					
-					if (enable_rclooper) {
-						midi_send_control_change(0xB3, 68, 127); 						
+					if (enable_mpx_looper) {
+						// do nothing. drums are elsewhere. midi or audio						
 					}
 					else
 						
@@ -1274,12 +1252,12 @@ void midi_bluetooth_handle_data() {
 		}			
 		else
 			
-		if (enable_rclooper) 
+		if (enable_mpx_looper) 
 		{
 			if (dpad_down) 
 			{		
 				if (style_started) {
-					midi_send_control_change(0xB3, 64 + style_section % 4, 127); 						
+					// do nothing. drums are elsewhere 						
 				}
 			}
 		}
@@ -1495,10 +1473,10 @@ void midi_bluetooth_handle_data() {
 			}
 		}
 		
-		if (enable_rclooper)
+		if (enable_mpx_looper)
 		{
 			if (mbut2) {
-				midi_send_program_change(0xC3, ((style_group % 8) * 12) + transpose);	// Jump to memory location of style in correct key				
+				// do nothing. drums are elsewhere
 			}
 		}
 		else
@@ -1657,36 +1635,10 @@ void midi_bluetooth_handle_data() {
 		}
 		else
 			
-		if (enable_rclooper) 
+		if (enable_mpx_looper) 
 		{	
-			if (joy_up) 
-			{
-				if (green) {
-					midi_send_control_change(0xB3, 66, 127); 	
-					sleep_ms(1000);	
-					midi_send_control_change(0xB3, 64, 127); 					
-				}
-				else
-					
-				if (red) {
-					midi_send_control_change(0xB3, 67, 127); 	
-					sleep_ms(1000);	
-					midi_send_control_change(0xB3, 65, 127); 					
-				}				
-				else
-					
-				if (yellow) {
-					midi_send_control_change(0xB3, 64, 127); 	
-					sleep_ms(1000);	
-					midi_send_control_change(0xB3, 66, 127); 					
-				}					
-				else
-					
-				if (blue) {
-					midi_send_control_change(0xB3, 65, 127); 	
-					sleep_ms(1000);	
-					midi_send_control_change(0xB3, 67, 127); 					
-				}					
+			if (joy_up) {
+				// do nothing. drums elsewhere	
 			}
 		}		
 
@@ -1976,8 +1928,12 @@ void stop_chord() {
 
 void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
-	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
+	
+	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
+	
 	ample_old_key = 0;	
+	mpx_old_chord_note = 0;
 }
 
 int compDown(const void *a, const void *b) {
@@ -2053,12 +2009,12 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 10) {										// RC 600 Looper
-		enable_rclooper = !enable_rclooper;
-		enable_style_play = !enable_rclooper;	
+	if (mode == 10) {										// Akai MPX8/16 Looper
+		enable_mpx_looper = !enable_mpx_looper;
+		enable_style_play = !enable_mpx_looper;	
 		config_style_play();		
 		
-		if (enable_rclooper)  {
+		if (enable_mpx_looper)  {
 			config_guitar(7);								// default guitar settings
 		}			
 	}
@@ -2549,15 +2505,37 @@ void play_chord(bool on, bool up) {
 	bool strum_last_chord = false;
 
 	uint8_t note = 0;
-	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};
+	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};	
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
-	if (enable_rclooper) 	// trigger chord loop on rc600
+	if (enable_mpx_looper) 	// trigger chord loop on mpx
 	{					
-		if (handled && last_basic_chord != basic_chord && style_started) {
-			last_basic_chord = basic_chord;
+		if (handled) {
+			uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
+			uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
+						
+			mpx_chord_note = 0;			
 			
-			if (basic_chord > 0) midi_send_control_change(0xB3, 20 + basic_chord, 127); 						
+			if (basic_chord == 1 && mpc_type == 0) mpx_chord_note = 36;		// C
+			if (basic_chord == 2 && mpc_type == 1) mpx_chord_note = 43;		// Dm
+			if (basic_chord == 3 && mpc_type == 1) mpx_chord_note = 45;		// Em
+			if (basic_chord == 4 && mpc_type == 0) mpx_chord_note = 38;		// F
+			if (basic_chord == 5 && mpc_type == 0) mpx_chord_note = 40;		// G
+			if (basic_chord == 6 && mpc_type == 1) mpx_chord_note = 41;		// Am
+			if (basic_chord == 1 && mpc_type == 2) mpx_chord_note = 47;		// Csus
+			if (basic_chord == 5 && mpc_type == 2) mpx_chord_note = 48;		// Gsus	
+
+			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
+			{	
+				if (mpx_old_chord_note != 0) {
+					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+				}
+				
+				if (mpx_chord_note != 0) {
+					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
+					mpx_old_chord_note = mpx_chord_note;	
+				}
+			}			
 		}
 	}		
 	else
