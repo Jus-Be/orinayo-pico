@@ -801,7 +801,14 @@ void midi_bluetooth_handle_data() {
 					//sp404_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sample_bass_velocity : 5);
 					//sp404_old_chord_note = 0;
 					//sp404_old_bass_note = 0;					
-				}					
+				}
+				else
+					
+				
+				if (enable_mpx_looper && mpx_old_chord_note) {
+					midi_send_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
+					mpx_old_chord_note = 0;					
+				}
 			}
 		}	
 		
@@ -1941,9 +1948,7 @@ void stop_chord() {
 void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
-	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
-	
+	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
 	ample_old_key = 0;	
 }
 
@@ -2023,14 +2028,9 @@ void config_guitar(uint8_t mode) {
 	if (mode == 10) {										// Akai MPX8/16 Looper
 		enable_mpx_looper = !enable_mpx_looper;
 		enable_style_play = !enable_mpx_looper;
-		active_strum_pattern = -1;		
 		
-		//config_style_play();
-		//config_mpx_looper();		
-		
-		if (enable_mpx_looper)  {
-			//config_guitar(7);								// default guitar settings
-		}			
+		config_style_play();
+		config_mpx_looper();					
 	}
 	else
 	
@@ -2177,6 +2177,10 @@ void config_mpx_looper() {
 	
 	if (enable_mpx_looper) {
 		midi_send_program_change(0xC5, guitar_pc_code);												// channel 1 used for guitar melody
+		midi_send_control_change(0xB5, 80, 4);				// reverb - hall
+		midi_send_control_change(0xB5, 91, 64);	
+		midi_send_control_change(0xB5, 81, 2);				// chorus - 3		
+		midi_send_control_change(0xB5, 93, 0);		
 	}
 }
 
