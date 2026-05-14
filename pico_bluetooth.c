@@ -1930,7 +1930,7 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x84, mpx_old_chord_note, 0);			// stop mpx loop	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
 	
 	ample_old_key = 0;	
 	mpx_old_chord_note = 0;
@@ -2011,7 +2011,9 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 10) {										// Akai MPX8/16 Looper
 		enable_mpx_looper = !enable_mpx_looper;
-		enable_style_play = !enable_mpx_looper;	
+		enable_style_play = !enable_mpx_looper;
+		active_strum_pattern = -1;		
+		
 		//config_style_play();
 		//config_mpx_looper();		
 		
@@ -2537,11 +2539,11 @@ void play_chord(bool on, bool up) {
 			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
 			{	
 				if (mpx_old_chord_note != 0) {
-					sp404_midi_note(0x94, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 				}
 				
 				if (mpx_chord_note != 0) {
-					sp404_midi_note(0x94, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
+					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 					mpx_old_chord_note = mpx_chord_note;	
 				}
 			}			
