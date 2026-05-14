@@ -985,6 +985,11 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	if (enable_nanobox_tangerine) {	
 
 	}
+	else
+		
+	if (enable_mpx_looper) {
+		channel = 5;
+	}
 	
 	uint8_t msg[3];	
 	

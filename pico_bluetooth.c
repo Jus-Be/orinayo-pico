@@ -1942,7 +1942,7 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x94, mpx_old_chord_note, 127);		// replay to stop mpx loop	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
 	
 	ample_old_key = 0;	
 }
@@ -2173,10 +2173,10 @@ void config_nanobox_tangerine() {
 }
 
 void config_mpx_looper() {		
-	midi_send_control_change(0xB4, 11, !enable_mpx_looper ? 127 : 0);  								// silent sample trigger channel 5	
+	midi_send_control_change(0xB0, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
 	
 	if (enable_mpx_looper) {
-		midi_send_program_change(0xC0, guitar_pc_code);												// channel 1 used for guitar melody
+		midi_send_program_change(0xC5, guitar_pc_code);												// channel 1 used for guitar melody
 	}
 }
 
@@ -2550,11 +2550,11 @@ void play_chord(bool on, bool up) {
 			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
 			{	
 				if (mpx_old_chord_note != 0) {
-					sp404_midi_note(0x94, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 				}
 				
 				if (mpx_chord_note != 0) {
-					sp404_midi_note(0x94, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
+					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 					mpx_old_chord_note = mpx_chord_note;	
 				}
 			}			
