@@ -800,6 +800,12 @@ void midi_bluetooth_handle_data() {
 					//sp404_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sample_bass_velocity : 5);
 					//sp404_old_chord_note = 0;
 					//sp404_old_bass_note = 0;					
+				}	
+				else
+					
+				if (enable_mpx_looper && mpx_old_chord_note) {
+					midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
+					mpx_old_chord_note = 0;
 				}				
 			}
 		}	
@@ -1562,7 +1568,18 @@ void midi_bluetooth_handle_data() {
 
 	if (joy_up != joystick_up) {							// style control - fill, tempo
 		joystick_up = joy_up;
-		
+
+		if (green && red) 
+		{
+			if (joy_up) {
+				if (enable_dream_midi)  dream_set_delay(85);	
+				if (enable_midi_drums) 	looper_update_bpm(85);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(85);
+				if (enable_modx) 		midi_modx_tempo(85);					
+			}
+		}
+		else
+			
 		if (green) 
 		{
 			if (joy_up) {
@@ -1577,10 +1594,10 @@ void midi_bluetooth_handle_data() {
 		if (red) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(96);					
-				if (enable_midi_drums) 	looper_update_bpm(96);
-				if (enable_seqtrak) 	midi_seqtrak_tempo(96);
-				if (enable_modx) 		midi_modx_tempo(96);					
+				if (enable_dream_midi)  dream_set_delay(90);					
+				if (enable_midi_drums) 	looper_update_bpm(90);
+				if (enable_seqtrak) 	midi_seqtrak_tempo(90);
+				if (enable_modx) 		midi_modx_tempo(90);					
 			}
 		}
 		else
@@ -1930,10 +1947,10 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
+	//if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
 	
 	ample_old_key = 0;	
-	mpx_old_chord_note = 0;
+	//mpx_old_chord_note = 0;
 }
 
 int compDown(const void *a, const void *b) {
