@@ -2011,12 +2011,12 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 10) {										// Akai MPX8/16 Looper
 		enable_mpx_looper = !enable_mpx_looper;
-		enable_style_play = enable_mpx_looper;	
-		config_style_play();
-		config_mpx_looper();		
+		enable_style_play = !enable_mpx_looper;	
+		//config_style_play();
+		//config_mpx_looper();		
 		
 		if (enable_mpx_looper)  {
-			config_guitar(7);								// default guitar settings
+			//config_guitar(7);								// default guitar settings
 		}			
 	}
 	else
@@ -2519,7 +2519,7 @@ void play_chord(bool on, bool up) {
 	
 	if (enable_mpx_looper) 	// trigger chord loop on mpx
 	{					
-		if (handled) {
+		if (handled && on) {
 			uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
 			uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
 						
