@@ -800,13 +800,7 @@ void midi_bluetooth_handle_data() {
 					//sp404_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sample_bass_velocity : 5);
 					//sp404_old_chord_note = 0;
 					//sp404_old_bass_note = 0;					
-				}	
-				else
-					
-				if (enable_mpx_looper && mpx_old_chord_note) {
-					midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
-					mpx_old_chord_note = 0;
-				}				
+				}					
 			}
 		}	
 		
@@ -1947,10 +1941,10 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	//if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x80, mpx_old_chord_note, 0);			// stop mpx loop	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
 	
 	ample_old_key = 0;	
-	//mpx_old_chord_note = 0;
+	mpx_old_chord_note = 0;
 }
 
 int compDown(const void *a, const void *b) {
