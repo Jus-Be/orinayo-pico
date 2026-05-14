@@ -393,7 +393,8 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	config_modx();
 	config_seqtrak();	
 	config_sp404mk2();	
-	config_mpc_sample();	
+	config_mpc_sample();
+	//config_mpx_looper();	
   
   return UNI_ERROR_SUCCESS;
 }
@@ -1941,10 +1942,9 @@ void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
 	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum	
-	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
+	if (enable_mpx_looper && mpx_old_chord_note) midi_send_note(0x94, mpx_old_chord_note, 127);		// replay to stop mpx loop	
 	
 	ample_old_key = 0;	
-	mpx_old_chord_note = 0;
 }
 
 int compDown(const void *a, const void *b) {
@@ -2550,11 +2550,11 @@ void play_chord(bool on, bool up) {
 			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
 			{	
 				if (mpx_old_chord_note != 0) {
-					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+					sp404_midi_note(0x94, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 				}
 				
 				if (mpx_chord_note != 0) {
-					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
+					sp404_midi_note(0x94, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
 					mpx_old_chord_note = mpx_chord_note;	
 				}
 			}			
