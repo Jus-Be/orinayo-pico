@@ -769,8 +769,10 @@ void midi_bluetooth_handle_data() {
 		else
 
 		if (red) {
-			if (active_strum_pattern > 1) stop_chord();   // kill any sustained notes			
+			if (active_strum_pattern > 1) stop_chord();   // kill any sustained notes	
+			
 			active_strum_pattern = 1;
+			
 			if (but6 && enable_seqtrak) midi_seqtrak_arp();
 			
 			if (but6 && enable_ample_guitar && active_neck_pos != 1) {
@@ -2551,16 +2553,14 @@ void play_chord(bool on, bool up) {
 			if (basic_chord == 1 && mpc_type == 2) mpx_chord_note = 47;		// Csus
 			if (basic_chord == 5 && mpc_type == 2) mpx_chord_note = 48;		// Gsus	
 
-			if (mpx_old_chord_note != mpx_chord_note || enable_stacatto_mode) 
+			if ((mpx_chord_note && mpx_old_chord_note != mpx_chord_note) || enable_stacatto_mode) 
 			{	
 				if (mpx_old_chord_note != 0) {
 					sp404_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
 				}
 				
-				if (mpx_chord_note != 0) {
-					sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);		
-					mpx_old_chord_note = mpx_chord_note;	
-				}
+				sp404_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
+				mpx_old_chord_note = mpx_chord_note;				
 			}			
 		}
 	}		
