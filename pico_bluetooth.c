@@ -1979,7 +1979,7 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 10) {										// Akai MPX8/16 Looper
+	if (mode == 10) {										// Akai MPX8 Looper
 		enable_mpx_looper = !enable_mpx_looper;
 		enable_style_play = !enable_mpx_looper;
 		

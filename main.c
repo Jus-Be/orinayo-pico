@@ -151,6 +151,7 @@ void mpc_trigger_loop();
 void mpx_trigger_loop();
 void sp404_trigger_loop();
 void config_nanobox_tangerine();
+void config_mpx_looper();
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -300,6 +301,13 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			enable_nanobox_tangerine = true;									// assume nanobox tangerine is also connected by MIDI	
 			config_nanobox_tangerine();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
+		}
+		else
+			
+		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'X' && name[3] == '8') {		
+			enable_mpx_looper = true;	
+			config_mpx_looper();
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
 			
