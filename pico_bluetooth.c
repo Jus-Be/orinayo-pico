@@ -3054,7 +3054,11 @@ void mpx_trigger_loop() {
 		
 		sampler_midi_note(0x99, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
 		mpx_old_chord_note = mpx_chord_note;				
-	}			
+	}
+
+	if (style_change_requested) {
+		style_change_requested = false;
+	}		
 }
 
 void mpc_stop_loops() {	
