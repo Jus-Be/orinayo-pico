@@ -799,19 +799,26 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				stop_chord();						// kill any sustained notes
 				
-				if (enable_sp404mk2 && style_started && sp404_chord_note > 0) {		
-					//sampler_midi_note(sp404_chord_cmd, sp404_chord_note, enable_chord_track ? sample_chord_velocity : 5);	// stop current loop
-					//sampler_midi_note(sp404_bass_cmd, sp404_bass_note, enable_bass_track ? sample_bass_velocity : 5);
-					//sp404_old_chord_note = 0;
-					//sp404_old_bass_note = 0;					
+				if (enable_sp404mk2) {		
+					sp404_stop_loops();				
+				}
+				else
+
+				if (enable_mpc_sample) {
+					mpc_stop_loops();						
+				}					
+				else
+					
+				if (enable_mpx_looper && mpx_old_chord_note) {
+					mpx_stop_loops();				
 				}
 				else
 					
-				
-				if (enable_mpx_looper && mpx_old_chord_note) {
-					sampler_midi_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop	
-					mpx_old_chord_note = 0;					
+				if (enable_nanobox_tangerine) {
+					nanobox_stop_loops();
 				}
+				
+				style_change_requested = true;
 			}
 		}	
 		
@@ -971,6 +978,11 @@ void midi_bluetooth_handle_data() {
 						mpc_bass_note = 255;						
 					}
 					else
+
+					if (enable_mpx_looper) {
+						// do nothing. drums are in sample. no intro						
+					}
+					else						
 						
 					if (enable_nanobox_tangerine) 
 					{	
@@ -1019,12 +1031,7 @@ void midi_bluetooth_handle_data() {
 						m5audio_play_audio_by_name(audio_drum_name, 13);
 					}					
 					else
-						
-					if (enable_mpx_looper) {
-						// do nothing. drums are from midi_drums or audio_drums 						
-					}
-					else
-						
+												
 					if (enable_seqtrak) {
 						midi_seqtrak_mute(7, false);
 						midi_seqtrak_mute(9, false);
@@ -1064,79 +1071,34 @@ void midi_bluetooth_handle_data() {
 				}
 				
 				if (mbut0) 
-				{
+				{		
+					if (enable_mpx_looper && mpx_old_chord_note) {
+						mpx_stop_loops();
+						mpx_old_chord_note = 0;					
+					}			
+					else
+					
 					if (enable_mpc_sample) {
 						sampler_midi_note(0x94, 45, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
-
-						if (mpc_old_chord_note != 255) {
-							sampler_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
-							mpc_old_chord_note = 255;						
-						}
-
-						if (mpc_old_bass_note != 255) {						
-							sampler_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
-							mpc_old_bass_note = 255;						
-						}
-
-						if (mpc_old_drum_note != 255) {
-							sampler_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-							mpc_old_drum_note = 255;
-						}						
+						mpc_stop_loops();						
 					}
 					else
 						
 					if (enable_nanobox_tangerine) {
 						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-
-						if (nanobox_old_chord_note != 255) {
-							sampler_midi_note(0x96, nanobox_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
-							nanobox_old_chord_note = 255;						
-						}
-
-						if (nanobox_old_bass_note != 255) {						
-							sampler_midi_note(0x95, nanobox_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
-							nanobox_old_bass_note = 255;						
-						}
-
-						if (nanobox_old_drum_note != 255) {						
-							nanobox_old_drum_note = 255;
-						}	
-
+						nanobox_stop_loops();
 						style_end_requested = true;							
 					}					
 					else
 						
 					if (enable_sp404mk2) {
 						sampler_midi_note(0x90, 40, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
-
-						if (sp404_old_chord_note > 0) {
-							sampler_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
-							sp404_old_chord_note = 0;
-							sp404_old_chord_cmd = 0;							
-						}
-
-						if (sp404_old_bass_note > 0) {						
-							sampler_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
-							sp404_old_bass_note = 0;
-							sp404_old_bass_cmd = 0;							
-						}
-
-						if (sp404_old_drum_note > 0) {
-							sampler_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-							sp404_old_drum_note = 0;
-						}
-		
-						
+						sp404_stop_loops();
 					}					
 					else
 						
 					if (enable_worship_pads || enable_audio_drums) 	{					
 						m5audio_stop();
-					}
-					else
-					
-					if (enable_mpx_looper) {
-						// do nothing. drums are elsewhere. midi or audio						
 					}
 					else
 						
@@ -1929,25 +1891,6 @@ void midi_bluetooth_handle_data() {
 	finished_processing = true;				
 }
 
-void stop_chord() {
-	clear_chord_notes();		
-	
-	for (int n=0; n<6; n++) 
-	{
-		if (old_midinotes[n] > 0) {
-			midi_send_note(0x80, old_midinotes[n], 0);	
-			old_midinotes[n] = 0;
-		}
-		
-		if (chord_notes[n] > 0) {
-			midi_send_note(0x80, chord_notes[n], 0);	
-			chord_notes[n] = 0;
-		}				
-	}
-
-	if (voice_note != 0) midi_send_note(0x80, voice_note, 0);
-}
-
 void clear_chord_notes() {
 	midi_play_chord(false, 0, 0, 0);
 	
@@ -2537,37 +2480,15 @@ void play_chord(bool on, bool up) {
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};	
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
-	if (enable_mpx_looper) 	// trigger chord loop on mpx
+	if (enable_mpx_looper) 			// trigger chord loop on mpx
 	{					
-		if (handled && on) {
-			uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
-			uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
-						
-			mpx_chord_note = 0;			
-			
-			if (basic_chord == 1 && mpc_type == 0) mpx_chord_note = 36;		// C
-			if (basic_chord == 2 && mpc_type == 1) mpx_chord_note = 43;		// Dm
-			if (basic_chord == 3 && mpc_type == 1) mpx_chord_note = 45;		// Em
-			if (basic_chord == 4 && mpc_type == 0) mpx_chord_note = 38;		// F
-			if (basic_chord == 5 && mpc_type == 0) mpx_chord_note = 40;		// G
-			if (basic_chord == 6 && mpc_type == 1) mpx_chord_note = 41;		// Am
-			if (basic_chord == 1 && mpc_type == 2) mpx_chord_note = 47;		// Csus
-			if (basic_chord == 5 && mpc_type == 2) mpx_chord_note = 48;		// Gsus	
-
-			if ((mpx_chord_note && mpx_old_chord_note != mpx_chord_note) || enable_stacatto_mode) 
-			{	
-				if (mpx_old_chord_note != 0) {
-					sampler_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
-				}
-				
-				sampler_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
-				mpx_old_chord_note = mpx_chord_note;				
-			}			
+		if (handled && style_started && on) {
+			mpx_trigger_loop();
 		}
 	}		
 	else
 
-	if (enable_mpc_sample)	// trigger chord loop on mpc sample
+	if (enable_mpc_sample)			// trigger chord loop on mpc sample
 	{
 		if (handled && style_started && on) {			
 			mpc_trigger_loop();				
@@ -2583,7 +2504,7 @@ void play_chord(bool on, bool up) {
 	}
 	else
 		
-	if (enable_sp404mk2) 	// trigger chord loop on sp404 mk2
+	if (enable_sp404mk2) 			// trigger chord loop on sp404 mk2
 	{		
 		if (handled && style_started && on) {				
 			sp404_trigger_loop();	
@@ -2781,6 +2702,25 @@ void play_chord(bool on, bool up) {
 			}
 		}
 	} 		
+}
+
+void stop_chord() {
+	clear_chord_notes();		
+	
+	for (int n=0; n<6; n++) 
+	{
+		if (old_midinotes[n] > 0) {
+			midi_send_note(0x80, old_midinotes[n], 0);	
+			old_midinotes[n] = 0;
+		}
+		
+		if (chord_notes[n] > 0) {
+			midi_send_note(0x80, chord_notes[n], 0);	
+			chord_notes[n] = 0;
+		}				
+	}
+
+	if (voice_note != 0) midi_send_note(0x80, voice_note, 0);
 }
 
 void nanobox_trigger_loop() {
@@ -3076,6 +3016,89 @@ void sp404_trigger_loop() {
 		sampler_midi_note(0x90, sp404_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 		sp404_old_drum_note = sp404_drum_note;
 		
+	}	
+}
+
+void mpx_trigger_loop() {			
+	uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
+	uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
+				
+	mpx_chord_note = 0;			
+	
+	if (basic_chord == 1 && mpc_type == 0) mpx_chord_note = 36;		// C
+	if (basic_chord == 2 && mpc_type == 1) mpx_chord_note = 43;		// Dm
+	if (basic_chord == 3 && mpc_type == 1) mpx_chord_note = 45;		// Em
+	if (basic_chord == 4 && mpc_type == 0) mpx_chord_note = 38;		// F
+	if (basic_chord == 5 && mpc_type == 0) mpx_chord_note = 40;		// G
+	if (basic_chord == 6 && mpc_type == 1) mpx_chord_note = 41;		// Am
+	if (basic_chord == 1 && mpc_type == 2) mpx_chord_note = 47;		// Csus
+	if (basic_chord == 5 && mpc_type == 2) mpx_chord_note = 48;		// Gsus	
+
+	if ((mpx_chord_note && mpx_old_chord_note != mpx_chord_note) || enable_stacatto_mode) 
+	{	
+		if (mpx_old_chord_note != 0) {
+			sampler_midi_note(0x90, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+		}
+		
+		sampler_midi_note(0x90, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
+		mpx_old_chord_note = mpx_chord_note;				
+	}			
+}
+
+void mpc_stop_loops() {	
+	if (mpc_old_chord_note != 255) {
+		sampler_midi_note(0x94, mpc_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
+		mpc_old_chord_note = 255;						
+	}
+
+	if (mpc_old_bass_note != 255) {						
+		sampler_midi_note(0x94, mpc_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
+		mpc_old_bass_note = 255;						
+	}
+
+	if (mpc_old_drum_note != 255) {
+		sampler_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+		mpc_old_drum_note = 255;
+	}	
+}
+
+void mpx_stop_loops() {
+	if (mpx_old_chord_note) sampler_midi_note(0x90, mpx_old_chord_note, 127);		// replay to stop mpx loop		
+	mpx_old_chord_note = 0;
+}
+
+void sp404_stop_loops() {
+	if (sp404_old_chord_note > 0) {
+		sampler_midi_note(sp404_old_chord_cmd, sp404_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
+		sp404_old_chord_note = 0;
+		sp404_old_chord_cmd = 0;							
+	}
+
+	if (sp404_old_bass_note > 0) {						
+		sampler_midi_note(sp404_old_bass_cmd, sp404_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
+		sp404_old_bass_note = 0;
+		sp404_old_bass_cmd = 0;							
+	}
+
+	if (sp404_old_drum_note > 0) {
+		sampler_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+		sp404_old_drum_note = 0;
+	}	
+}
+
+void nanobox_stop_loops() {	
+	if (nanobox_old_chord_note != 255) {
+		sampler_midi_note(0x96, nanobox_old_chord_note, enable_chord_track ? sample_chord_velocity : 1);
+		nanobox_old_chord_note = 255;						
+	}
+
+	if (nanobox_old_bass_note != 255) {						
+		sampler_midi_note(0x95, nanobox_old_bass_note, enable_bass_track ? sample_bass_velocity : 1);
+		nanobox_old_bass_note = 255;						
+	}
+
+	if (nanobox_old_drum_note != 255) {						
+		nanobox_old_drum_note = 255;
 	}	
 }
 

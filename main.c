@@ -148,6 +148,7 @@ void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void config_mpc_sample();
 void nanobox_trigger_loop();
 void mpc_trigger_loop();
+void mpx_trigger_loop();
 void sp404_trigger_loop();
 void config_nanobox_tangerine();
 
@@ -479,6 +480,11 @@ static void chord_detect(void) {
         uint8_t bass_1based = (lowest % 12) + 1;
         advanced_chord = (root_1based * 256) + (bass_1based * 16) + type;
 
+		if (enable_mpx_looper) 	{					
+			mpx_trigger_loop();
+		}
+		else
+		
         if (enable_mpc_sample) {
             mpc_trigger_loop();
         } 
@@ -506,13 +512,14 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 
 	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) 
 	{	
-		if (!enable_mpx_looper) { 										// filter midi events from mpx pads
-			tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
-		}
+		tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
 		
-		for (uint32_t i=0; i<bytes_read; i++) {
-			while (!uart_is_writable(UART_ID)){ }	
-			uart_putc(UART_ID, buffer[i]);
+		for (uint32_t i=0; i<bytes_read; i++) 
+		{
+			if (!enable_mpx_looper) { 						// filter midi events from mpx pads			
+				while (!uart_is_writable(UART_ID)){ }	
+				uart_putc(UART_ID, buffer[i]);
+			}
 			
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine) {
 				// Parse the raw MIDI byte stream to track note on/off events.
