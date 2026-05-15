@@ -815,6 +815,7 @@ void midi_bluetooth_handle_data() {
 				else
 					
 				if (enable_nanobox_tangerine) {
+					sampler_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);					
 					nanobox_stop_loops();
 				}
 				
