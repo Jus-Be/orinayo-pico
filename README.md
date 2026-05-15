@@ -46,9 +46,12 @@ Select a mode at runtime using a button combination on the controller — no ref
 |------|-------------|
 | **Arranger** | Send chords and style-section commands to Ketron/Yamaha keyboard arrangers |
 | **Ample Guitar** | Trigger guitar VST articulations and strumming modes via key switches |
-| **MIDI Drums** | Record and play back drum patterns with 14 tracks, ghost notes, and fills |
+| **MIDI Drums** | Record and play back MIDI guitar and drum patterns with 14 tracks, ghost notes, and fills |
 | **SeqTrak** | Control Yamaha SeqTrak arpeggiator and pattern selection via SysEx |
-| **MODX** | Control Yamaha MODX/Montage arpeggiator and scene changes via SysEx |
+| **MPX8** | Trigger 8 chord audio loops via MIDI |
+| **MPC Sample** | Trigger 124 audio loops via MIDI with independent tracks for drums, bass and other instruments |
+| **SP404 Mk2** | Trigger 160 audio loops via MIDI with independent tracks for drums, bass and other instruments |
+| **Nanobox Tangerine** | Play up to 4 multi-sampled instruments and trigger audio loops on Nanobox Tangerine from 1010Music via MIDI with independent tracks for drums, bass and other instruments |
 
 ---
 

@@ -45,9 +45,9 @@ bool enable_auto_hold = false;
 bool enable_stacatto_mode = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
-bool enable_mpx_looper = false;
 bool enable_sp404mk2 = false;
 bool enable_mpc_sample = false;
+bool enable_mpx_looper = false;
 bool enable_nanobox_tangerine = false;
 bool enable_synth = false;
 bool enable_arranger_mode = false;
@@ -1918,6 +1918,10 @@ void config_guitar(uint8_t mode) {
 		enable_sp404mk2 		 = false;
 		enable_mpc_sample 		 = false;
 		enable_nanobox_tangerine = false;
+		enable_mpx_looper		 = false;
+		enable_synth 			 = false;
+		
+		guitar_pc_code			 = 26;
 		
 		preferences_changed 	 = true;
 	}

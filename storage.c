@@ -42,6 +42,9 @@ extern bool enable_bass_track;
 extern bool enable_modx;
 extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
+extern bool enable_mpx_looper;
+extern bool enable_nanobox_tangerine;
+extern bool enable_synth;
 
 extern uint8_t guitar_pc_code;
 
@@ -75,14 +78,17 @@ bool storage_store_preferences(void) {
 
     memcpy(&data->magic, MAGIC_HEADER, sizeof(data->magic));
 	
-	data->preferences[0] = enable_ample_guitar;
-	data->preferences[1] = enable_midi_drums;
-	data->preferences[2] = enable_seqtrak;
-	data->preferences[3] = enable_modx;
-	data->preferences[4] = enable_sp404mk2;
-	data->preferences[5] = enable_arranger_mode;
-	data->preferences[6] = guitar_pc_code;
-	data->preferences[7] = enable_mpc_sample;	
+	data->preferences[0]  = enable_ample_guitar;
+	data->preferences[1]  = enable_midi_drums;
+	data->preferences[2]  = enable_seqtrak;
+	data->preferences[3]  = enable_modx;
+	data->preferences[4]  = enable_sp404mk2;
+	data->preferences[5]  = enable_arranger_mode;
+	data->preferences[6]  = guitar_pc_code;
+	data->preferences[7]  = enable_mpc_sample;	
+	data->preferences[8]  = enable_mpx_looper;
+	data->preferences[9]  = enable_nanobox_tangerine;
+	data->preferences[10] = enable_synth;		
 	
     mutation_operation_t program = {.op_is_erase = false, .p0 = GHOST_FLASH_BANK_STORAGE_OFFSET, .p1 = (uintptr_t)storage};
 	
@@ -105,14 +111,17 @@ bool storage_load_preferences(void) {
         return false;
 	}
 	
-	enable_ample_guitar 	= data->preferences[0];
-	enable_midi_drums 		= data->preferences[1];
-	enable_seqtrak 			= data->preferences[2];
-	enable_modx 			= data->preferences[3];
-	enable_sp404mk2 		= data->preferences[4];
-	enable_arranger_mode 	= data->preferences[5];
-	guitar_pc_code			= data->preferences[6];
-	enable_mpc_sample		= data->preferences[7];
+	enable_ample_guitar 	 = data->preferences[0];
+	enable_midi_drums 		 = data->preferences[1];
+	enable_seqtrak 			 = data->preferences[2];
+	enable_modx 			 = data->preferences[3];
+	enable_sp404mk2 		 = data->preferences[4];
+	enable_arranger_mode 	 = data->preferences[5];
+	guitar_pc_code			 = data->preferences[6];
+	enable_mpc_sample		 = data->preferences[7];
+	enable_mpx_looper 		 = data->preferences[8];
+	enable_nanobox_tangerine = data->preferences[9];
+	enable_synth			 = data->preferences[10];	
 	
 	//midi_send_note(0x94, data->preferences[0] ? 127 : 0, enable_ample_guitar ? 127 : 0);	
     return true;
