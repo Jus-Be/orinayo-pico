@@ -799,27 +799,30 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				stop_chord();						// kill any sustained notes
 				
-				if (enable_sp404mk2) {		
-					sp404_stop_loops();				
-				}
-				else
+				if (!style_change_requested) 
+				{
+					if (enable_sp404mk2) {		
+						sp404_stop_loops();				
+					}
+					else
 
-				if (enable_mpc_sample) {
-					mpc_stop_loops();						
-				}					
-				else
+					if (enable_mpc_sample) {
+						mpc_stop_loops();						
+					}					
+					else
+						
+					if (enable_mpx_looper && mpx_old_chord_note) {
+						mpx_stop_loops();				
+					}
+					else
+						
+					if (enable_nanobox_tangerine) {
+						sampler_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);					
+						nanobox_stop_loops();
+					}
 					
-				if (enable_mpx_looper && mpx_old_chord_note) {
-					mpx_stop_loops();				
+					style_change_requested = true;
 				}
-				else
-					
-				if (enable_nanobox_tangerine) {
-					sampler_midi_note(0x94, nanobox_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);					
-					nanobox_stop_loops();
-				}
-				
-				style_change_requested = true;
 			}
 		}	
 		
