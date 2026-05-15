@@ -2128,6 +2128,8 @@ void config_nanobox_tangerine() {
 
 void config_mpx_looper() {		
 	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
+	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
+
 	
 	if (enable_mpx_looper) {
 		midi_send_program_change(0xC5, guitar_pc_code);												// channel 5 used for guitar melody
