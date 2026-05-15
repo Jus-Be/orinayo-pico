@@ -2122,7 +2122,7 @@ void config_mpx_looper() {
 	midi_send_control_change(0xB0, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
 	
 	if (enable_mpx_looper) {
-		midi_send_program_change(0xC5, guitar_pc_code);												// channel 1 used for guitar melody
+		midi_send_program_change(0xC5, guitar_pc_code);												// channel 5 used for guitar melody
 		midi_send_control_change(0xB5, 80, 4);				// reverb - hall
 		midi_send_control_change(0xB5, 91, 64);	
 		midi_send_control_change(0xB5, 81, 2);				// chorus - 3		
@@ -2144,6 +2144,10 @@ void config_sp404mk2() {
 		
 	if (enable_sp404mk2) {
 		midi_send_program_change(0xCE, guitar_pc_code);												// channel 15 used for guitar melody
+		midi_send_control_change(0xBE, 80, 4);				// reverb - hall
+		midi_send_control_change(0xBE, 91, 64);	
+		midi_send_control_change(0xBE, 81, 2);				// chorus - 3		
+		midi_send_control_change(0xBE, 93, 0);			
 	}
 }
 

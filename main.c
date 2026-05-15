@@ -993,7 +993,12 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	else
 		
 	if (enable_nanobox_tangerine) {	
-
+		channel = 0;
+	}
+	else
+		
+	if (enable_sp404mk2) {
+		channel = 14;
 	}
 	else
 		
