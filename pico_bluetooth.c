@@ -3049,7 +3049,8 @@ void mpx_trigger_loop() {
 	if ((mpx_chord_note && mpx_old_chord_note != mpx_chord_note) || enable_stacatto_mode) 
 	{	
 		if (mpx_old_chord_note != 0) {
-			sampler_midi_note(0x99, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);	
+			sampler_midi_note(0x99, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);
+			sleep_ms(600);				
 		}
 		
 		sampler_midi_note(0x99, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
