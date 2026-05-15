@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/Jus-Be/orinayo-pico/actions/workflows/build.yml/badge.svg)](https://github.com/Jus-Be/orinayo-pico/actions/workflows/build.yml)
 
-Firmware for the **Raspberry Pi Pico 2 W** that acts as a Bluetooth-to-MIDI gateway, turning Bluetooth Classic (HID over L2CAP) and BLE devices into professional MIDI control surfaces. Connect wirelessly to your controller and output MIDI simultaneously over USB (to a DAW) and hardware UART (to a synthesizer).
+Firmware for the **Raspberry Pi Pico 2 W** that acts as a Bluetooth-to-MIDI gateway, turning Bluetooth Classic (HID over L2CAP) and BLE devices into professional MIDI control surfaces. Connect wirelessly to your controller and output MIDI simultaneously over USB (to a DAW) and hardware UART (to a synthesizer or phrase sampler).
 
 https://github.com/user-attachments/assets/bf5d0bad-dd6a-400b-bc92-5dadf5c17ba5
 
