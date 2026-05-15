@@ -3050,7 +3050,7 @@ void mpx_trigger_loop() {
 	{	
 		if (mpx_old_chord_note != 0) {
 			sampler_midi_note(0x99, mpx_old_chord_note, enable_chord_track ? sample_chord_velocity : 0);
-			sleep_ms(100);				
+			sleep_ms(50);				
 		}
 		
 		sampler_midi_note(0x99, mpx_chord_note, enable_chord_track ? sample_chord_velocity : 0);			
