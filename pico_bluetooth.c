@@ -3048,7 +3048,15 @@ void mpx_trigger_loop() {
 				sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			}				
 
-			mpx_sample_note = 36 + (style_section % 8);
+			if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-8
+			else if (style_section == 1) 	mpx_sample_note = 38;
+			else if (style_section == 2) 	mpx_sample_note = 40;
+			else if (style_section == 3) 	mpx_sample_note = 41;
+			else if (style_section == 4) 	mpx_sample_note = 43;
+			else if (style_section == 5) 	mpx_sample_note = 45;
+			else if (style_section == 6) 	mpx_sample_note = 47;
+			else if (style_section == 7) 	mpx_sample_note = 48;	
+		
 			sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			mpx_old_sample_note = mpx_sample_note;
 			style_change_requested = false;
