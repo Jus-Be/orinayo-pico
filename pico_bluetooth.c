@@ -985,7 +985,12 @@ void midi_bluetooth_handle_data() {
 					else
 
 					if (enable_mpx_looper) {
-						// do nothing. drums are in sample or are the sample. no intro						
+						mpx_sample_note = 36;
+						sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);	
+						mpx_old_sample_note = mpx_sample_note;
+						
+						style_change_requested = false;
+						style_section = 0;					
 					}
 					else						
 						
@@ -1079,7 +1084,8 @@ void midi_bluetooth_handle_data() {
 				{		
 					if (enable_mpx_looper && mpx_old_sample_note) {
 						mpx_stop_loops();
-						mpx_old_sample_note = 0;					
+						mpx_old_sample_note = 0;
+						style_change_requested = false;						
 					}			
 					else
 					
@@ -3038,11 +3044,11 @@ void mpx_trigger_loop() {
 	{
 		if (style_change_requested) 
 		{
-			if (mpx_old_sample_note != 0) {
+			if (mpx_old_sample_note) {
 				sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			}				
 
-			mpx_sample_note = 36 + style_section;
+			mpx_sample_note = 36 + (style_section % 8);
 			sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			mpx_old_sample_note = mpx_sample_note;
 		}		
@@ -3092,7 +3098,7 @@ void mpc_stop_loops() {
 }
 
 void mpx_stop_loops() {
-	if (mpx_old_sample_note) sampler_midi_note(0x99, mpx_old_sample_note, 127);		// replay to stop mpx loop		
+	if (mpx_old_sample_note) sampler_midi_note(0x99, mpx_old_sample_note, sample_drum_velocity);		// replay to stop mpx loop		
 	mpx_old_sample_note = 0;
 }
 
