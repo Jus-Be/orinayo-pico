@@ -984,7 +984,7 @@ void midi_bluetooth_handle_data() {
 					}
 					else
 
-					if (enable_mpx_looper) {
+					if (enable_mpx_looper && enable_mpx_drums) {
 						mpx_sample_note = 36;
 						sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);	
 						mpx_old_sample_note = mpx_sample_note;
@@ -3051,6 +3051,7 @@ void mpx_trigger_loop() {
 			mpx_sample_note = 36 + (style_section % 8);
 			sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			mpx_old_sample_note = mpx_sample_note;
+			style_change_requested = false;
 		}		
 	} else {
 		mpx_sample_note = 0;			
@@ -3073,10 +3074,10 @@ void mpx_trigger_loop() {
 			sampler_midi_note(0x99, mpx_sample_note, enable_chord_track ? sample_chord_velocity : 0);			
 			mpx_old_sample_note = mpx_sample_note;				
 		}
-	}
-
-	if (style_change_requested) {
-		style_change_requested = false;
+		
+		if (style_change_requested) {
+			style_change_requested = false;
+		}		
 	}		
 }
 
