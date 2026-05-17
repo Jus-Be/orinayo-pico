@@ -2129,9 +2129,12 @@ void config_nanobox_tangerine() {
 	//midi_send_program_change(0xCF, style_group + 2);													// load default selected song
 }
 
-void config_mpx_looper() {		
-	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
-	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 5	
+void config_mpx_looper() {	
+	midi_send_control_change(0xB9, 0x63, 0x37);														// quiet drum sound
+	midi_send_control_change(0xB9, 0x62, 0x07);
+	midi_send_control_change(0xB9, 0x06, 0x00);
+	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
+	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
 
 	
 	if (enable_mpx_looper) {
