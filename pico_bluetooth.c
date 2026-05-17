@@ -2130,10 +2130,7 @@ void config_nanobox_tangerine() {
 }
 
 void config_mpx_looper() {	
-	//midi_send_control_change(0xB9, 0x63, 0x37);														// quiet drum sound
-	//midi_send_control_change(0xB9, 0x62, 0x07);
-	//midi_send_control_change(0xB9, 0x06, 0x00);
-	//midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
+	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
 	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  									// silent sample trigger channel 10	
 
 	
@@ -3051,14 +3048,14 @@ void mpx_trigger_loop() {
 				sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			}				
 
-			if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-8
+			if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-4 only
 			else if (style_section == 1) 	mpx_sample_note = 38;
 			else if (style_section == 2) 	mpx_sample_note = 40;
 			else if (style_section == 3) 	mpx_sample_note = 41;
-			else if (style_section == 4) 	mpx_sample_note = 43;
-			else if (style_section == 5) 	mpx_sample_note = 45;
-			else if (style_section == 6) 	mpx_sample_note = 47;
-			else if (style_section == 7) 	mpx_sample_note = 48;	
+			else if (style_section == 4) 	mpx_sample_note = 36;
+			else if (style_section == 5) 	mpx_sample_note = 38;
+			else if (style_section == 6) 	mpx_sample_note = 40;
+			else if (style_section == 7) 	mpx_sample_note = 41;	
 		
 			sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 			mpx_old_sample_note = mpx_sample_note;
