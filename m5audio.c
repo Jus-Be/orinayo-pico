@@ -58,7 +58,7 @@ static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
     }
 */
 	
-    uart_write_blocking(M5AUDIO_UART_ID, frame, sizeof(frame));
+    uart_write_blocking(M5AUDIO_UART_ID, frame, 4 + datalen);
     uart_tx_wait_blocking(M5AUDIO_UART_ID); 	
 }
 
