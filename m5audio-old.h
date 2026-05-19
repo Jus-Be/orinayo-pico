@@ -1,8 +1,7 @@
 /*
- * Grove MP3 Module V4.0 (WT2605C) driver API
- * Compatible with https://wiki.seeedstudio.com/Grove-MP3-v4.0/
- * Communicates over UART1 (GPIO 4=TX, GPIO 5=RX) at 9600 baud
- * using AT-style text commands.
+ * M5Stack Audio Player (U197) API
+ * Compatible with https://github.com/m5stack/M5Unit-AudioPlayer
+ * Communicates over UART1 (GPIO 4=TX, GPIO 5=RX) at 9600 baud.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,15 +10,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* UART1 pin assignments for the Grove MP3 Module V4.0 (WT2605C) */
+/* UART1 pin assignments for the M5Stack Audio Player (U197) */
 #define M5AUDIO_UART_ID      uart1
-#define M5AUDIO_BAUD_RATE    115200
+#define M5AUDIO_BAUD_RATE    9600
 #define M5AUDIO_UART_TX_PIN  4
 #define M5AUDIO_UART_RX_PIN  5
 
 /* Volume range accepted by m5audio_set_volume() */
 #define M5AUDIO_VOLUME_MIN  0
-#define M5AUDIO_VOLUME_MAX  31
+#define M5AUDIO_VOLUME_MAX  30
 
 /* Playback loop mode presets for m5audio_set_play_mode() */
 typedef enum {
@@ -81,8 +80,8 @@ void m5audio_volume_down(void);
 void m5audio_set_play_mode(m5audio_play_mode_t mode);
 
 /*
- * Play an audio file from the SD card by its path/name.
- * name     : file path bytes (e.g. "/pads/01/01.mp3"), not null-terminated
- * name_len : number of bytes in name
+ * @brief Plays an audio file by its name.
+ *
+ * @param name Audio file name
  */
 void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len);
