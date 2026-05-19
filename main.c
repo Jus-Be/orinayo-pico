@@ -222,9 +222,9 @@ int main() {
 
 	// setup UART1 
 	m5audio_init();
-	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
+	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
 	//m5audio_set_volume(20);		
-	m5audio_play();	
+	m5audio_play_track(1);	
 
 
     while (true) {
