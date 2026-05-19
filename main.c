@@ -198,13 +198,8 @@ int main() {
 	multicore_launch_core1(core1_main);	
 	flash_safe_execute_core_init();	
 
-	//sleep_ms(10);
-	tud_init(BOARD_TUD_RHPORT);	
-	
-	//sleep_ms(500);		
+	tud_init(BOARD_TUD_RHPORT);			
 	bluetooth_init();
-	
-	//tud_task();	
 
     //struct repeating_timer timer;	
     //add_repeating_timer_ms(500, repeating_timer_callback, NULL, &timer);
@@ -214,14 +209,12 @@ int main() {
     note_scheduler_init();
 	
 	// set UART0 speed.
-	/*
 	uart_init(UART_ID, BAUD_RATE);
 	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	uart_set_fifo_enabled(UART_ID, true);
 	uart_set_translate_crlf(UART_ID, false);
-	sleep_ms(500);	
-	*/	
+	sleep_ms(500);		
 
 	// setup UART1 
 	//m5audio_init();
@@ -255,8 +248,8 @@ int main() {
 			}
 			
 			for (int i=0; i<4; i++) {
-				//while (!uart_is_writable(UART_ID)){ }	
-				//uart_putc(UART_ID, buffer[i]);		
+				while (!uart_is_writable(UART_ID)){ }	
+				uart_putc(UART_ID, buffer[i]);		
 			}
 			
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
@@ -533,8 +526,8 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		for (uint32_t i=0; i<bytes_read; i++) 
 		{
 			if (!enable_mpx_looper) { 						// filter midi events from mpx pads			
-				//while (!uart_is_writable(UART_ID)){ }	
-				//uart_putc(UART_ID, buffer[i]);
+				while (!uart_is_writable(UART_ID)){ }	
+				uart_putc(UART_ID, buffer[i]);
 			}
 			
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine) {
@@ -1251,11 +1244,9 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 		tuh_midi_write_flush(device_addr);
 	}
 	
-	/*
 	for (uint32_t i=0; i<bufsize; i++) {
 		while (!uart_is_writable(UART_ID)){ }	
 		uart_putc(UART_ID, buffer[i]);		
 	}
 	uart_tx_wait_blocking(UART_ID);
-	*/
 }
