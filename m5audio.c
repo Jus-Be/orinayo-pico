@@ -65,13 +65,21 @@ static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
 /* ---- Public API ---------------------------------------------------------- */
 
 void m5audio_init(void) {
+    uart_init(M5AUDIO_UART_ID, 9600);	
+    sleep_ms(50);
+
+    uint8_t baud_cmd[] = {0xAA, 0x0B, 0x01, 0x05, 0xB1};
+    uart_write_blocking(M5AUDIO_UART_ID, baud_cmd, sizeof(baud_cmd));
+    uart_tx_wait_blocking(M5AUDIO_UART_ID);
+    sleep_ms(50);
+
+    uart_set_baudrate(M5AUDIO_UART_ID, 115200);	
     uart_init(M5AUDIO_UART_ID, M5AUDIO_BAUD_RATE);
     gpio_set_function(M5AUDIO_UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(M5AUDIO_UART_RX_PIN, GPIO_FUNC_UART);
     uart_set_fifo_enabled(M5AUDIO_UART_ID, true);
     uart_set_translate_crlf(M5AUDIO_UART_ID, false);
-    /* Allow the module time to finish its power-on initialisation */
-    sleep_ms(500);
+    sleep_ms(500);	
 }
 
 void m5audio_select_audio_num(uint16_t audio_num) {

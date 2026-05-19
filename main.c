@@ -217,13 +217,13 @@ int main() {
 	uart_init(UART_ID, BAUD_RATE);
 	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-	uart_set_fifo_enabled(UART_ID, true);
+	uart_set_fifo_enabled(UART_ID, false);
 	uart_set_translate_crlf(UART_ID, false);
 
 	// setup UART1 
 	m5audio_init();
 	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
-	m5audio_set_volume(30);
+	m5audio_set_volume(20);
 	
 	//m5audio_play_track(5);		
 	//m5audio_select_audio_num(1);
