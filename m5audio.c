@@ -48,15 +48,7 @@ static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
         frame[3 + i] = data[i];
         sum += data[i];
     }
-	
     frame[3 + datalen] = sum & 0xFF;
-
-/*
-    for (size_t i = 0; i < 4 + datalen; i++) {
-        while (!uart_is_writable(M5AUDIO_UART_ID)) { }
-        uart_putc(M5AUDIO_UART_ID, frame[i]);
-    }
-*/
 	
     uart_write_blocking(M5AUDIO_UART_ID, frame, 4 + datalen);
     uart_tx_wait_blocking(M5AUDIO_UART_ID); 	
@@ -85,49 +77,49 @@ void m5audio_init(void) {
 void m5audio_select_audio_num(uint16_t audio_num) {
     uint8_t data[] = {0x16, (uint8_t)((audio_num >> 8) & 0xFF), (uint8_t)(audio_num & 0xFF)};
     audioplayer_send(0x04, data, 3);
-    // sleep_ms(100);
+
 }
 
 void m5audio_repeat_at_time(uint8_t start_min, uint8_t start_sec, uint8_t end_min, uint8_t end_sec) {
     uint8_t data[] = {0x00, start_min, start_sec, end_min, end_sec};
     audioplayer_send(0x08, data, 5);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_end_repeat() {
     uint8_t data[] = {0x01};
     audioplayer_send(0x08, data, 1);
-    // sleep_ms(100);
+
 }
 
 void m5audio_play(void) {
     uint8_t data[] = {0x01};
     audioplayer_send(0x04, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_pause(void) {
     uint8_t data[] = {0x02};
     audioplayer_send(0x04, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_stop(void) {
     uint8_t data[] = {0x03};
     audioplayer_send(0x04, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_next(void) {
     uint8_t data[] = {0x05};
     audioplayer_send(0x04, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_prev(void) {
     uint8_t data[] = {0x04};
     audioplayer_send(0x04, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
@@ -138,7 +130,7 @@ void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
         data[i + 1] = name[i];
     }
     audioplayer_send(0x04, data, name_len + 1);
-    // sleep_ms(100);		
+		
 }
 
 void m5audio_play_track(uint16_t track) {
@@ -147,7 +139,7 @@ void m5audio_play_track(uint16_t track) {
     }
     uint8_t data[] = {0x06, (uint8_t)((track >> 8) & 0xFF), (uint8_t)(track & 0xFF)};
     audioplayer_send(0x04, data, 3);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_set_volume(uint8_t volume) {
@@ -156,23 +148,23 @@ void m5audio_set_volume(uint8_t volume) {
     }
     uint8_t data[] = {0x01, volume};
     audioplayer_send(0x06, data, 2);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_volume_up(void) {
     uint8_t data[] = {0x02};
     audioplayer_send(0x06, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_volume_down(void) {
     uint8_t data[] = {0x03};
     audioplayer_send(0x06, data, 1);
-    // sleep_ms(100);	
+	
 }
 
 void m5audio_set_play_mode(m5audio_play_mode_t mode) {
     uint8_t data[] = {0x01, (uint8_t)mode};
     audioplayer_send(0x0B, data, 2);
-    // sleep_ms(100);	
+	
 }

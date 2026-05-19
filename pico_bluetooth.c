@@ -2497,11 +2497,6 @@ void play_chord(bool on, bool up) {
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};	
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
-	if (enable_audio_drums) {
-		m5audio_play_track(basic_chord);
-	}
-	else
-	
 	if (enable_mpx_looper) 			// trigger chord loop on mpx
 	{					
 		if (handled && style_started && on) {

@@ -215,21 +215,27 @@ int main() {
 	
 	// set UART0 speed.
 	uart_init(UART_ID, BAUD_RATE);
-	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+	gpio_set_function(5, GPIO_FUNC_UART);
+	gpio_set_function(4, GPIO_FUNC_UART);
 	uart_set_fifo_enabled(UART_ID, false);
 	uart_set_translate_crlf(UART_ID, false);
 
 	// setup UART1 
-	m5audio_init();
-	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
-	m5audio_set_volume(20);
+	//m5audio_init();
+	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
+	//m5audio_set_volume(20);
 	
-	//m5audio_play_track(5);		
-	//m5audio_select_audio_num(1);
-	//m5audio_repeat_at_time(0, 0, 0, 9);		
-	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_STOP);		
-	//m5audio_play();	
+	
+    uart_init(uart1, 115200);
+    gpio_set_function(5, GPIO_FUNC_UART);
+    gpio_set_function(4, GPIO_FUNC_UART);
+    uart_set_fifo_enabled(uart1, true);
+    uart_set_translate_crlf(uart1, false);	
+
+	sleep_ms(500);	
+	char frame[] = "AT+LPLAY=sd0,1\r";
+    uart_write_blocking(uart1, frame, 15);
+    uart_tx_wait_blocking(uart1); 	
 
 
     while (true) {
