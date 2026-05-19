@@ -221,10 +221,23 @@ int main() {
 	uart_set_translate_crlf(UART_ID, false);
 
 	// setup UART1 
-	m5audio_init();
+	//m5audio_init();
 	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
 	//m5audio_set_volume(20);		
-	m5audio_play_track(2);	
+	//m5audio_play_track(2);	
+	
+    uart_init(M5AUDIO_UART_ID, M5AUDIO_BAUD_RATE);
+    gpio_set_function(M5AUDIO_UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(M5AUDIO_UART_RX_PIN, GPIO_FUNC_UART);
+    uart_set_fifo_enabled(M5AUDIO_UART_ID, true);
+    uart_set_translate_crlf(M5AUDIO_UART_ID, false);	
+	
+	char play_cmd[] = "AT+PLAY=sd0,2\r";
+	
+    for (size_t i = 0; i < 14; i++) {
+        while (!uart_is_writable(M5AUDIO_UART_ID)) { /* wait */ }
+        uart_putc(M5AUDIO_UART_ID, play_cmd[i]);
+    }	
 
 
     while (true) {

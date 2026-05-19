@@ -1,60 +1,68 @@
 /*
- * M5Stack Audio Player (U197) driver
- * Compatible with https://github.com/m5stack/M5Unit-AudioPlayer
+ * Grove MP3 Module V4.0 (WT2605C) driver
+ * Compatible with https://wiki.seeedstudio.com/Grove-MP3-v4.0/
  *
- * Protocol frame format (variable length):
+ * Protocol: ASCII AT commands sent over UART, terminated with CR+LF.
+ * Command format:  AT+<CMD>[=<params>]\r\n
+ * Response:        "OK\r\n" on success, "ERR\r\n" on failure.
  *
- *   Byte  0     : CMD              (command)
- *   Byte  1     : ~CMD & 0xFF      (one's complement of command)
- *   Byte  2     : LEN              (number of data bytes that follow)
- *   Bytes 3..N  : data bytes       (LEN bytes)
- *   Byte  N+1   : checksum         (sum of all preceding bytes, & 0xFF)
+ * Responses are not read back; the RX line is used by the module only.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "m5audio.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 
-/* Maximum number of data bytes per frame and total frame buffer size */
-#define AUDIOPLAYER_MAX_DATA    32
-#define AUDIOPLAYER_FRAME_SIZE  (4 + AUDIOPLAYER_MAX_DATA)  /* cmd + ~cmd + len + data + checksum */
+/* Maximum length of a single AT command string (excluding \r\n) */
+#define WT2605C_CMD_MAX  64
+
+/*
+ * WT2605C REPEATMODE values (1-based) for each m5audio_play_mode_t entry.
+ *
+ * WT2605C modes:
+ *   1 = all-loop (cycle)
+ *   2 = single-loop
+ *   3 = folder-loop (dir cycle)
+ *   4 = random
+ *   5 = single-shot (play once, stop)
+ *
+ * M5AUDIO_PLAY_MODE_ALL_ONCE and M5AUDIO_PLAY_MODE_FOLDER_ONCE have no
+ * exact equivalents; they are mapped to the closest WT2605C modes.
+ */
+static const uint8_t play_mode_map[] = {
+    1,  /* ALL_LOOP    -> cycle all          */
+    2,  /* SINGLE_LOOP -> single cycle       */
+    3,  /* FOLDER_LOOP -> dir cycle          */
+    4,  /* RANDOM      -> random             */
+    5,  /* SINGLE_STOP -> single shot        */
+    5,  /* ALL_ONCE    -> single shot (approx) */
+    3,  /* FOLDER_ONCE -> dir cycle (approx) */
+};
+
+/* Ensure play_mode_map stays in sync with m5audio_play_mode_t */
+static_assert(sizeof(play_mode_map) == M5AUDIO_PLAY_MODE_FOLDER_ONCE + 1,
+              "play_mode_map must have one entry per m5audio_play_mode_t value");
 
 /* ---- Internal helpers ---------------------------------------------------- */
 
 /*
- * Build and transmit a variable-length frame.
- *
- *   cmd     : command byte
- *   data    : pointer to the data bytes
- *   datalen : number of data bytes (capped at AUDIOPLAYER_MAX_DATA)
+ * Transmit a complete AT command string followed by CR+LF.
+ * cmd must be a null-terminated string containing everything after "AT+".
+ * Example: wt2605c_send("STOP") -> sends "AT+STOP\r"
  */
-static void audioplayer_send(uint8_t cmd, const uint8_t *data, size_t datalen) {
-    uint8_t frame[AUDIOPLAYER_FRAME_SIZE];
-    if (datalen > AUDIOPLAYER_MAX_DATA) {
-        datalen = AUDIOPLAYER_MAX_DATA;
-    }
-
-    frame[0] = cmd;
-    frame[1] = (~cmd) & 0xFF;
-    frame[2] = (uint8_t)datalen;
-
-    uint8_t sum = frame[0] + frame[1] + frame[2];
-	
-    for (size_t i = 0; i < datalen; i++) {
-        frame[3 + i] = data[i];
-        sum += data[i];
-    }
-	
-    frame[3 + datalen] = sum & 0xFF;
-
-    for (size_t i = 0; i < 4 + datalen; i++) {
-        while (!uart_is_writable(M5AUDIO_UART_ID)) { /* wait */ }
-        uart_putc(M5AUDIO_UART_ID, frame[i]);
-    }
+static void wt2605c_send(const char *cmd) {
+    static const char prefix[] = "AT+";
+    static const char crlf[]   = "\r";
+    uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)prefix, sizeof(prefix) - 1);
+    uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)cmd, strlen(cmd));
+    uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)crlf, sizeof(crlf) - 1);
 }
 
 /* ---- Public API ---------------------------------------------------------- */
@@ -69,97 +77,84 @@ void m5audio_init(void) {
     sleep_ms(500);
 }
 
-void m5audio_select_audio_num(uint16_t audio_num) {
-    uint8_t data[] = {0x16, (uint8_t)((audio_num >> 8) & 0xFF), (uint8_t)(audio_num & 0xFF)};
-    audioplayer_send(0x04, data, 3);
-    sleep_ms(100);
-}
-
-void m5audio_repeat_at_time(uint8_t start_min, uint8_t start_sec, uint8_t end_min, uint8_t end_sec) {
-    uint8_t data[] = {0x00, start_min, start_sec, end_min, end_sec};
-    audioplayer_send(0x08, data, 5);
-    sleep_ms(100);	
-}
-
-void m5audio_end_repeat() {
-    uint8_t data[] = {0x01};
-    audioplayer_send(0x08, data, 1);
-    sleep_ms(100);
-}
-
 void m5audio_play(void) {
-    uint8_t data[] = {0x01};
-    audioplayer_send(0x04, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("PP");
+    sleep_ms(100);
 }
 
 void m5audio_pause(void) {
-    uint8_t data[] = {0x02};
-    audioplayer_send(0x04, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("PP");
+    sleep_ms(100);
 }
 
 void m5audio_stop(void) {
-    uint8_t data[] = {0x03};
-    audioplayer_send(0x04, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("STOP");
+    sleep_ms(100);
 }
 
 void m5audio_next(void) {
-    uint8_t data[] = {0x05};
-    audioplayer_send(0x04, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("NEXT");
+    sleep_ms(100);
 }
 
 void m5audio_prev(void) {
-    uint8_t data[] = {0x04};
-    audioplayer_send(0x04, data, 1);
-    sleep_ms(100);	
-}
-
-void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
-    uint8_t data[32];  // Ensure enough space
-    data[0] = 0x07;
-	
-    for (uint8_t i = 0; i < name_len; i++) {
-        data[i + 1] = name[i];
-    }
-    audioplayer_send(0x04, data, name_len + 1);
-    sleep_ms(100);		
+    wt2605c_send("PREV");
+    sleep_ms(100);
 }
 
 void m5audio_play_track(uint16_t track) {
     if (track < 1 || track > 3000) {
         return;
     }
-    uint8_t data[] = {0x06, (uint8_t)((track >> 8) & 0xFF), (uint8_t)(track & 0xFF)};
-    audioplayer_send(0x04, data, 3);
-    sleep_ms(100);	
+    char buf[WT2605C_CMD_MAX];
+    snprintf(buf, sizeof(buf), "PLAY=sd0,%u", (unsigned int)track);
+    wt2605c_send(buf);
+    sleep_ms(100);
 }
 
 void m5audio_set_volume(uint8_t volume) {
     if (volume > M5AUDIO_VOLUME_MAX) {
         volume = M5AUDIO_VOLUME_MAX;
     }
-    uint8_t data[] = {0x01, volume};
-    audioplayer_send(0x06, data, 2);
-    sleep_ms(100);	
+    char buf[WT2605C_CMD_MAX];
+    snprintf(buf, sizeof(buf), "VOL=%u", (unsigned int)volume);
+    wt2605c_send(buf);
+    sleep_ms(100);
 }
 
 void m5audio_volume_up(void) {
-    uint8_t data[] = {0x02};
-    audioplayer_send(0x06, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("VOLUP");
+    sleep_ms(100);
 }
 
 void m5audio_volume_down(void) {
-    uint8_t data[] = {0x03};
-    audioplayer_send(0x06, data, 1);
-    sleep_ms(100);	
+    wt2605c_send("VOLDOWN");
+    sleep_ms(100);
 }
 
 void m5audio_set_play_mode(m5audio_play_mode_t mode) {
-    uint8_t data[] = {0x01, (uint8_t)mode};
-    audioplayer_send(0x0B, data, 2);
-    sleep_ms(100);	
+    uint8_t wt_mode;
+    if ((unsigned int)mode < sizeof(play_mode_map)) {
+        wt_mode = play_mode_map[mode];
+    } else {
+        wt_mode = 1;
+    }
+    char buf[WT2605C_CMD_MAX];
+    snprintf(buf, sizeof(buf), "REPEATMODE=%u", (unsigned int)wt_mode);
+    wt2605c_send(buf);
+    sleep_ms(100);
+}
+
+void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
+    char buf[WT2605C_CMD_MAX];
+    int prefix_len = snprintf(buf, sizeof(buf), "PLAY=sd0,");
+    if (prefix_len < 0 || prefix_len >= (int)sizeof(buf)) {
+        return;
+    }
+    size_t avail = sizeof(buf) - (size_t)prefix_len - 1; /* reserve space for null terminator */
+    size_t copy_len = (name_len < avail) ? name_len : avail;
+    memcpy(buf + prefix_len, name, copy_len);
+    buf[prefix_len + copy_len] = '\0';
+    wt2605c_send(buf);
+    sleep_ms(100);
 }
