@@ -55,11 +55,11 @@ static_assert(sizeof(play_mode_map) == M5AUDIO_PLAY_MODE_FOLDER_ONCE + 1,
 /*
  * Transmit a complete AT command string followed by CR+LF.
  * cmd must be a null-terminated string containing everything after "AT+".
- * Example: wt2605c_send("STOP") -> sends "AT+STOP\r\n"
+ * Example: wt2605c_send("STOP") -> sends "AT+STOP\r"
  */
 static void wt2605c_send(const char *cmd) {
     static const char prefix[] = "AT+";
-    static const char crlf[]   = "\r\n";
+    static const char crlf[]   = "\r";
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)prefix, sizeof(prefix) - 1);
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)cmd, strlen(cmd));
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)crlf, sizeof(crlf) - 1);
