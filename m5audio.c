@@ -46,6 +46,10 @@ static const uint8_t play_mode_map[] = {
     3,  /* FOLDER_ONCE -> dir cycle (approx) */
 };
 
+/* Ensure play_mode_map stays in sync with m5audio_play_mode_t */
+static_assert(sizeof(play_mode_map) == M5AUDIO_PLAY_MODE_FOLDER_ONCE + 1,
+              "play_mode_map must have one entry per m5audio_play_mode_t value");
+
 /* ---- Internal helpers ---------------------------------------------------- */
 
 /*
@@ -147,7 +151,7 @@ void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
     if (prefix_len < 0 || prefix_len >= (int)sizeof(buf)) {
         return;
     }
-    size_t avail = sizeof(buf) - (size_t)prefix_len - 1; /* reserve 1 for '\0' */
+    size_t avail = sizeof(buf) - (size_t)prefix_len - 1; /* reserve space for null terminator */
     size_t copy_len = (name_len < avail) ? name_len : avail;
     memcpy(buf + prefix_len, name, copy_len);
     buf[prefix_len + copy_len] = '\0';
