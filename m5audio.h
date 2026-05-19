@@ -12,7 +12,7 @@
 
 /* UART1 pin assignments for the M5Stack Audio Player (U197) */
 #define M5AUDIO_UART_ID      uart1
-#define M5AUDIO_BAUD_RATE    115200
+#define M5AUDIO_BAUD_RATE    9600
 #define M5AUDIO_UART_TX_PIN  4
 #define M5AUDIO_UART_RX_PIN  5
 
