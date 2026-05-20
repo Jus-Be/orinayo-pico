@@ -248,11 +248,9 @@ int main() {
 				tuh_midi_write_flush(device_addr);
 			}
 			
-			for (int i=0; i<4; i++) {
-				while (!uart_is_writable(UART_ID)){ }	
-				uart_putc(UART_ID, buffer[i]);		
-			}
-			
+			uart_write_blocking(UART_ID, buffer, 4);
+			uart_tx_wait_blocking(UART_ID); 	
+	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}	
 		
@@ -523,14 +521,14 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) 
 	{	
 		tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
+
+		if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
+			uart_write_blocking(UART_ID, buffer, bytes_read);
+			uart_tx_wait_blocking(UART_ID);			
+		}
 		
 		for (uint32_t i=0; i<bytes_read; i++) 
 		{
-			if (!enable_mpx_looper) { 						// filter midi events from mpx pads			
-				while (!uart_is_writable(UART_ID)){ }	
-				uart_putc(UART_ID, buffer[i]);
-			}
-			
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine) {
 				// Parse the raw MIDI byte stream to track note on/off events.
 				uint8_t b = buffer[i];
@@ -1244,10 +1242,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 		tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
 		tuh_midi_write_flush(device_addr);
 	}
-	
-	for (uint32_t i=0; i<bufsize; i++) {
-		while (!uart_is_writable(UART_ID)){ }	
-		uart_putc(UART_ID, buffer[i]);		
-	}
+
+	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 }
