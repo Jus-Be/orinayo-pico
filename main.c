@@ -226,7 +226,7 @@ int main() {
     gpio_set_function(4, GPIO_FUNC_UART);
     gpio_set_function(5, GPIO_FUNC_UART);
     uart_set_fifo_enabled(uart1, true);
-    uart_set_translate_crlf(uart1, true);	
+    uart_set_translate_crlf(uart1, false);	
 	sleep_ms(500);
 	
 	char frame[] = "AT+LPLAY=sd0,1\r";
