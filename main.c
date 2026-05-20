@@ -217,14 +217,14 @@ int main() {
 	sleep_ms(500);		
 
 	// setup UART1 
-	m5audio_init();
-	m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
-	m5audio_set_volume(20);
+	//m5audio_init();
+	//m5audio_set_play_mode(M5AUDIO_PLAY_MODE_SINGLE_LOOP);
+	//m5audio_set_volume(20);
 	
-	/*
+	
     uart_init(uart1, 115200);
-    gpio_set_function(5, GPIO_FUNC_UART);
     gpio_set_function(4, GPIO_FUNC_UART);
+    gpio_set_function(5, GPIO_FUNC_UART);
     uart_set_fifo_enabled(uart1, true);
     uart_set_translate_crlf(uart1, true);	
 	sleep_ms(500);
@@ -232,7 +232,6 @@ int main() {
 	char frame[] = "AT+LPLAY=sd0,1\r";
     uart_write_blocking(uart1, frame, 15);
     uart_tx_wait_blocking(uart1); 		
-	*/
 
     while (true) {
 		tud_task(); // tinyusb device task		
