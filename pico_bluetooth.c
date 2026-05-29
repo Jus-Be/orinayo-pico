@@ -2495,6 +2495,7 @@ void play_chord(bool on, bool up) {
 	{
 		if (style_change_requested && handled && style_started && on) {		
 			m5audio_loop_track((style_section % 4) + 1);
+			style_change_requested = false;
 		}
 	}
 	else
