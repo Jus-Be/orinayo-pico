@@ -74,32 +74,32 @@ void m5audio_init(void) {
     uart_set_fifo_enabled(M5AUDIO_UART_ID, true);
     uart_set_translate_crlf(M5AUDIO_UART_ID, false);
     /* Allow the module time to finish its power-on initialisation */
-    sleep_ms(500);
+    
 }
 
 void m5audio_play(void) {
     wt2605c_send("PP");
-    sleep_ms(100);
+    
 }
 
 void m5audio_pause(void) {
     wt2605c_send("PP");
-    sleep_ms(100);
+    
 }
 
 void m5audio_stop(void) {
     wt2605c_send("STOP");
-    sleep_ms(100);
+    
 }
 
 void m5audio_next(void) {
     wt2605c_send("NEXT");
-    sleep_ms(100);
+    
 }
 
 void m5audio_prev(void) {
     wt2605c_send("PREV");
-    sleep_ms(100);
+    
 }
 
 void m5audio_play_track(uint16_t track) {
@@ -109,7 +109,7 @@ void m5audio_play_track(uint16_t track) {
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "PLAY=sd0,%u", (unsigned int)track);
     wt2605c_send(buf);
-    sleep_ms(100);
+    
 }
 
 void m5audio_set_volume(uint8_t volume) {
@@ -119,17 +119,17 @@ void m5audio_set_volume(uint8_t volume) {
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "VOL=%u", (unsigned int)volume);
     wt2605c_send(buf);
-    sleep_ms(100);
+    
 }
 
 void m5audio_volume_up(void) {
     wt2605c_send("VOLUP");
-    sleep_ms(100);
+    
 }
 
 void m5audio_volume_down(void) {
     wt2605c_send("VOLDOWN");
-    sleep_ms(100);
+    
 }
 
 void m5audio_set_play_mode(m5audio_play_mode_t mode) {
@@ -142,7 +142,7 @@ void m5audio_set_play_mode(m5audio_play_mode_t mode) {
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "REPEATMODE=%u", (unsigned int)wt_mode);
     wt2605c_send(buf);
-    sleep_ms(100);
+    
 }
 
 void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
@@ -156,5 +156,5 @@ void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
     memcpy(buf + prefix_len, name, copy_len);
     buf[prefix_len + copy_len] = '\0';
     wt2605c_send(buf);
-    sleep_ms(100);
+    
 }
