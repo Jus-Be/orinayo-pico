@@ -58,11 +58,7 @@ static_assert(sizeof(play_mode_map) == M5AUDIO_PLAY_MODE_FOLDER_ONCE + 1,
  * Example: wt2605c_send("STOP") -> sends "AT+STOP\r"
  */
 static void wt2605c_send(const char *cmd) {
-    static const char prefix[] = "AT+";
-    static const char crlf[]   = "\r";
-    uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)prefix, sizeof(prefix) - 1);
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)cmd, strlen(cmd));
-    uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)crlf, sizeof(crlf) - 1);
     uart_tx_wait_blocking(M5AUDIO_UART_ID); 	
 }
 
@@ -79,26 +75,35 @@ void m5audio_init(void) {
 }
 
 void m5audio_play(void) {
-    wt2605c_send("PP");    
+    wt2605c_send("AT+PP\r");    
 }
 
 void m5audio_pause(void) {
-    wt2605c_send("PP");    
+    wt2605c_send("AT+PP\r");    
 }
 
 void m5audio_stop(void) {
-    wt2605c_send("STOP");
+    wt2605c_send("AT+STOP\r");
     
 }
 
 void m5audio_next(void) {
-    wt2605c_send("NEXT");
+    wt2605c_send("AT+NEXT\r");
     
 }
 
 void m5audio_prev(void) {
-    wt2605c_send("PREV");
+    wt2605c_send("AT+PREV\r");
     
+}
+
+void m5audio_loop_track(uint16_t track) {
+    if (track < 1 || track > 3000) {
+        return;
+    }
+    char buf[WT2605C_CMD_MAX];
+    snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u\r", (unsigned int)track);
+    wt2605c_send(buf);
 }
 
 void m5audio_play_track(uint16_t track) {
@@ -106,7 +111,7 @@ void m5audio_play_track(uint16_t track) {
         return;
     }
     char buf[WT2605C_CMD_MAX];
-    snprintf(buf, sizeof(buf), "PLAY=sd0,%u", (unsigned int)track);
+    snprintf(buf, sizeof(buf), "AT+PLAY=sd0,%u\r", (unsigned int)track);
     wt2605c_send(buf);
 }
 
@@ -115,17 +120,16 @@ void m5audio_set_volume(uint8_t volume) {
         volume = M5AUDIO_VOLUME_MAX;
     }
     char buf[WT2605C_CMD_MAX];
-    snprintf(buf, sizeof(buf), "VOL=%u", (unsigned int)volume);
+    snprintf(buf, sizeof(buf), "AT+VOL=%u\r", (unsigned int)volume);
     wt2605c_send(buf);  
 }
 
 void m5audio_volume_up(void) {
-    wt2605c_send("VOLUP");
-    
+    wt2605c_send("AT+VOLUP\r");    
 }
 
 void m5audio_volume_down(void) {
-    wt2605c_send("VOLDOWN");
+    wt2605c_send("AT+VOLDOWN\r");
     
 }
 
@@ -137,21 +141,22 @@ void m5audio_set_play_mode(m5audio_play_mode_t mode) {
         wt_mode = 1;
     }
     char buf[WT2605C_CMD_MAX];
-    snprintf(buf, sizeof(buf), "REPEATMODE=%u", (unsigned int)wt_mode);
+    snprintf(buf, sizeof(buf), "AT+REPEATMODE=%u\r", (unsigned int)wt_mode);
     wt2605c_send(buf);
     
 }
 
 void m5audio_play_audio_by_name(uint8_t *name, uint8_t name_len) {
     char buf[WT2605C_CMD_MAX];
-    int prefix_len = snprintf(buf, sizeof(buf), "PLAY=sd0,");
+    int prefix_len = snprintf(buf, sizeof(buf), "AT+PLAY=sd0,");
     if (prefix_len < 0 || prefix_len >= (int)sizeof(buf)) {
         return;
     }
     size_t avail = sizeof(buf) - (size_t)prefix_len - 1; /* reserve space for null terminator */
     size_t copy_len = (name_len < avail) ? name_len : avail;
     memcpy(buf + prefix_len, name, copy_len);
-    buf[prefix_len + copy_len] = '\0';
+    buf[prefix_len + copy_len] = '\r';
+    buf[prefix_len + copy_len + 1] = '\0';	
     wt2605c_send(buf);
     
 }
