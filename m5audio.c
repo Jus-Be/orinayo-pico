@@ -63,6 +63,7 @@ static void wt2605c_send(const char *cmd) {
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)prefix, sizeof(prefix) - 1);
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)cmd, strlen(cmd));
     uart_write_blocking(M5AUDIO_UART_ID, (const uint8_t *)crlf, sizeof(crlf) - 1);
+    uart_tx_wait_blocking(M5AUDIO_UART_ID); 	
 }
 
 /* ---- Public API ---------------------------------------------------------- */
@@ -73,18 +74,16 @@ void m5audio_init(void) {
     gpio_set_function(M5AUDIO_UART_RX_PIN, GPIO_FUNC_UART);
     uart_set_fifo_enabled(M5AUDIO_UART_ID, true);
     uart_set_translate_crlf(M5AUDIO_UART_ID, false);
-    /* Allow the module time to finish its power-on initialisation */
-    
+    /* Allow the module time to finish its power-on initialisation */	
+	sleep_ms(500);	    
 }
 
 void m5audio_play(void) {
-    wt2605c_send("PP");
-    
+    wt2605c_send("PP");    
 }
 
 void m5audio_pause(void) {
-    wt2605c_send("PP");
-    
+    wt2605c_send("PP");    
 }
 
 void m5audio_stop(void) {
@@ -109,7 +108,6 @@ void m5audio_play_track(uint16_t track) {
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "PLAY=sd0,%u", (unsigned int)track);
     wt2605c_send(buf);
-    
 }
 
 void m5audio_set_volume(uint8_t volume) {
@@ -118,8 +116,7 @@ void m5audio_set_volume(uint8_t volume) {
     }
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "VOL=%u", (unsigned int)volume);
-    wt2605c_send(buf);
-    
+    wt2605c_send(buf);  
 }
 
 void m5audio_volume_up(void) {
