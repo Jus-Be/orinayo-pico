@@ -97,6 +97,15 @@ void m5audio_prev(void) {
     
 }
 
+void m5audio_step_in_play(uint16_t track) {
+    if (track < 1 || track > 3000) {
+        return;
+    }
+    char buf[WT2605C_CMD_MAX];
+    snprintf(buf, sizeof(buf), "AT+STEPINPLAY=sd0,%u\r", (unsigned int)track);
+    wt2605c_send(buf);
+}
+
 void m5audio_loop_track(uint16_t track) {
     if (track < 1 || track > 3000) {
         return;

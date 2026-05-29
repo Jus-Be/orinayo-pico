@@ -61,6 +61,8 @@ void m5audio_prev(void);
  * Values outside [1, 3000] are silently ignored.
  */
 void m5audio_play_track(uint16_t track);
+void m5audio_step_in_play(uint16_t track);
+void m5audio_loop_track(uint16_t track);
 
 /*
  * Set the output volume.
