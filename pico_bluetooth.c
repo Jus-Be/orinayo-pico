@@ -1034,7 +1034,10 @@ void midi_bluetooth_handle_data() {
 					if (enable_audio_drums) 	{
 						style_section = 0;
 						//m5audio_play_audio_by_name(audio_drum_name, 13);
-						m5audio_loop_track((style_section % 4) + 1);
+						uint16_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
+						uint16_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
+						
+						m5audio_loop_track(2, start_frame, end_frame);
 					}					
 					else
 												
@@ -2493,9 +2496,13 @@ void play_chord(bool on, bool up) {
 
 	if (enable_audio_drums) 
 	{
-		if (style_change_requested && handled && style_started && on) {		
+		if (style_change_requested && handled && style_started && on) {	
+			uint16_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000 + ((style_section % 4) * 18000));
+			uint16_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
+						
+			m5audio_loop_track(2, start_frame, end_frame);		
 			//m5audio_loop_track((style_section % 4) + 1);
-			m5audio_step_in_play((style_section % 4) + 1);			
+			
 			style_change_requested = false;
 		}
 	}
@@ -3333,4 +3340,22 @@ void midi_process_state(uint64_t start_us) {
 			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
+}
+
+uint32_t calculate_wt2605c_wav_frames(uint32_t sample_rate, uint8_t bit_depth, uint8_t channels, uint32_t duration_ms) {
+    // 1. Calculate how many bytes of raw audio pass through per second
+    uint32_t bytes_per_second = sample_rate * (bit_depth / 8) * channels;
+    
+    // Prevent division by zero if bad parameters are passed
+    if (bytes_per_second == 0) return 0;
+
+    // 2. WT2605C processes WAV data in fixed 512-byte blocks (frames)
+    // We use floating-point math to preserve accuracy before rounding
+    double ms_per_frame = (512.0 / (double)bytes_per_second) * 1000.0;
+    
+    // 3. Divide your target duration by the milliseconds per frame
+    // Adding 0.5 allows standard rounding to the nearest whole frame
+    uint32_t total_frames = (uint32_t)(((double)duration_ms / ms_per_frame) + 0.5);
+
+    return total_frames;
 }

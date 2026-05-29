@@ -106,12 +106,12 @@ void m5audio_step_in_play(uint16_t track) {
     wt2605c_send(buf);
 }
 
-void m5audio_loop_track(uint16_t track) {
+void m5audio_loop_track(uint16_t track, uint16_t start_frame, uint16_t end_frame) {
     if (track < 1 || track > 3000) {
         return;
     }
     char buf[WT2605C_CMD_MAX];
-    snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u\r", (unsigned int)track);
+    snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u,%u,%u\r", (unsigned int)track, (unsigned int)start_frame, (unsigned int)end_frame);
     wt2605c_send(buf);
 }
 
