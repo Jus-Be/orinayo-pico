@@ -552,7 +552,7 @@ void midi_bluetooth_handle_data() {
 				enable_drum_track = !enable_drum_track;
 				
 				if (enable_audio_drums) {
-					m5audio_set_volume(enable_drum_track ? 20 : 0);
+					m5audio_set_volume(enable_drum_track ? 31 : 0);
 				}
 				else 
 					
@@ -911,13 +911,8 @@ void midi_bluetooth_handle_data() {
 					//ghost_parameters_t *params = ghost_note_parameters();						
 					//params->ghost_intensity = 0.843;	
 					
-					if (enable_worship_pads) 	{
+					if (enable_worship_pads) {
 						m5audio_play_audio_by_name(audio_pad_name, 15);
-					}
-					else
-					
-					if (enable_audio_drums) 	{
-						m5audio_play_audio_by_name(audio_drum_name, 13);
 					}					
 				} 
 				else 
@@ -925,7 +920,7 @@ void midi_bluetooth_handle_data() {
 				if (looper_status.state == LOOPER_STATE_PLAYING) {
 					looper_status.state = LOOPER_STATE_WAITING;
 					
-					if (enable_worship_pads || enable_audio_drums) 	{					
+					if (enable_worship_pads) 	{					
 						m5audio_stop();
 					}					
 				}	
@@ -970,7 +965,11 @@ void midi_bluetooth_handle_data() {
 				} 
 				
 				if (mbut0) 
-				{					
+				{	
+					if (enable_worship_pads) {
+						m5audio_play_audio_by_name(audio_pad_name, 15);
+					}
+					
 					if (enable_mpc_sample) {
 						mpc_drum_note = 44;
 						sampler_midi_note(0x94, mpc_drum_note, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav	
@@ -1029,16 +1028,12 @@ void midi_bluetooth_handle_data() {
 						sp404_chord_cmd = 0;
 						sp404_bass_note = 0;
 						sp404_bass_cmd = 0;						
-					}
-					else
-						
-					if (enable_worship_pads) {
-						m5audio_play_audio_by_name(audio_pad_name, 15);
-					}
+					}						
 					else
 					
 					if (enable_audio_drums) 	{
-						m5audio_play_audio_by_name(audio_drum_name, 13);
+						//m5audio_play_audio_by_name(audio_drum_name, 13);
+						m5audio_loop_track((style_section % 4) + 1):
 					}					
 					else
 												
@@ -1211,12 +1206,16 @@ void midi_bluetooth_handle_data() {
 			if (style_section > 7) style_section = 0;
 			if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
-		
-		
 
 		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
 		}		
+
+					
+		if (enable_audio_drums) 	{
+			m5audio_loop_track((style_section % 4) + 1):
+		}
+		else
 
 		if (enable_sp404mk2 || enable_mpc_sample || enable_nanobox_tangerine || enable_mpx_looper)	
 		{
