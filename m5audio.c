@@ -111,7 +111,7 @@ void m5audio_loop_track(uint16_t track, uint32_t start_frame, uint32_t end_frame
         return;
     }
     char buf[WT2605C_CMD_MAX];
-    snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u,%u,%u\r", (unsigned int)track, (unsigned int)start_frame, (unsigned int)end_frame);
+    snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u,%u,%u\r\n", (unsigned int)track, (unsigned int)start_frame, (unsigned int)end_frame);
     wt2605c_send(buf);
 }
 
