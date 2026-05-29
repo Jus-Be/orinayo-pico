@@ -232,8 +232,8 @@ int main() {
     uart_write_blocking(uart1, frame, 10);
     uart_tx_wait_blocking(uart1); 
 	
-	char frame[] = "AT+LPLAY=sd0,1\r";
-    uart_write_blocking(uart1, frame, 15);
+	char frame2[] = "AT+LPLAY=sd0,1\r";
+    uart_write_blocking(uart1, frame2, 15);
     uart_tx_wait_blocking(uart1); 		
 
     while (true) {
