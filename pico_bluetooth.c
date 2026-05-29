@@ -1033,7 +1033,7 @@ void midi_bluetooth_handle_data() {
 					
 					if (enable_audio_drums) 	{
 						//m5audio_play_audio_by_name(audio_drum_name, 13);
-						m5audio_loop_track((style_section % 4) + 1):
+						m5audio_loop_track((style_section % 4) + 1);
 					}					
 					else
 												
@@ -1213,7 +1213,7 @@ void midi_bluetooth_handle_data() {
 
 					
 		if (enable_audio_drums) 	{
-			m5audio_loop_track((style_section % 4) + 1):
+			m5audio_loop_track((style_section % 4) + 1);
 		}
 		else
 
