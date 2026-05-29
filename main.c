@@ -228,9 +228,10 @@ int main() {
     uart_set_translate_crlf(uart1, false);	
 	sleep_ms(500);
 
-	//char frame[] = "AT+VOL=31\r";
-    //uart_write_blocking(uart1, frame, sizeof(frame));
-    //uart_tx_wait_blocking(uart1); 
+	char frame[] = "AT+VOL=31\r";
+    uart_write_blocking(uart1, frame, sizeof(frame));
+    uart_tx_wait_blocking(uart1); 
+	sleep_ms(100);
 	
 	char frame2[] = "AT+LPLAY=sd0,1\r";
     uart_write_blocking(uart1, frame2, sizeof(frame2));
