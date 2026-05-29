@@ -114,7 +114,8 @@ void m5audio_loop_track(uint16_t track, uint32_t start_frame, uint32_t end_frame
     snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u,%u,%u\r\0", (unsigned int)track, (unsigned int)start_frame, (unsigned int)end_frame);
     //wt2605c_send(buf);
 	uart_write_blocking(M5AUDIO_UART_ID, "AT+LPLAY=sd0,1,766,1684\r", 24); 
-    uart_tx_wait_blocking(M5AUDIO_UART_ID); 	
+    uart_tx_wait_blocking(M5AUDIO_UART_ID); 
+	sleep_ms(100);		
 }
 
 void m5audio_play_track(uint16_t track) {
