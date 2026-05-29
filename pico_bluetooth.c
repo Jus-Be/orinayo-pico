@@ -214,6 +214,8 @@ void nanobox_trigger_loop();
 void sp404_trigger_loop();
 void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
+uint32_t calculate_wt2605c_wav_frames(uint32_t sample_rate, uint8_t bit_depth, uint8_t channels, uint32_t duration_ms);
+
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
 	{{-1, -1, 3, 1, 2, 1}, {-1, -1, 2, 1, 2, 0}, {-1, -1, 3, 3, 4, 1}},
