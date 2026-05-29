@@ -62,7 +62,7 @@ void m5audio_prev(void);
  */
 void m5audio_play_track(uint16_t track);
 void m5audio_step_in_play(uint16_t track);
-void m5audio_loop_track(uint16_t track);
+void m5audio_loop_track(uint16_t track, uint32_t start_frame, uint32_t end_frame);
 
 /*
  * Set the output volume.

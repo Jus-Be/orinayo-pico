@@ -106,7 +106,7 @@ void m5audio_step_in_play(uint16_t track) {
     wt2605c_send(buf);
 }
 
-void m5audio_loop_track(uint16_t track, uint16_t start_frame, uint16_t end_frame) {
+void m5audio_loop_track(uint16_t track, uint32_t start_frame, uint32_t end_frame) {
     if (track < 1 || track > 3000) {
         return;
     }

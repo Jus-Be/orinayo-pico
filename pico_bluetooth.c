@@ -1034,8 +1034,8 @@ void midi_bluetooth_handle_data() {
 					if (enable_audio_drums) 	{
 						style_section = 0;
 						//m5audio_play_audio_by_name(audio_drum_name, 13);
-						uint16_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
-						uint16_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
+						uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
+						uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
 						
 						m5audio_loop_track(2, start_frame, end_frame);
 					}					
@@ -2497,8 +2497,8 @@ void play_chord(bool on, bool up) {
 	if (enable_audio_drums) 
 	{
 		if (style_change_requested && handled && style_started && on) {	
-			uint16_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000 + ((style_section % 4) * 18000));
-			uint16_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
+			uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000 + ((style_section % 4) * 18000));
+			uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - start_frame - 16000);
 						
 			m5audio_loop_track(2, start_frame, end_frame);		
 			//m5audio_loop_track((style_section % 4) + 1);
