@@ -1036,10 +1036,9 @@ void midi_bluetooth_handle_data() {
 					if (enable_audio_drums) 	{
 						style_section = 0;
 						//m5audio_play_audio_by_name(audio_drum_name, 13);
-						uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
-						uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 62000);
-						
-						m5audio_loop_track(1, 20, 0);
+						//uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
+						//uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 62000);						
+						//m5audio_loop_track(1, 20, 0);
 					}					
 					else
 												
@@ -2498,14 +2497,11 @@ void play_chord(bool on, bool up) {
 
 	if (enable_audio_drums) 
 	{
-		if (style_change_requested && handled && style_started && on) {	
+		if (handled && style_started && on) {	
 			uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000 + ((style_section % 4) * 18000));
 			uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - ((style_section % 4) * 18000) - 16000);
 						
-			m5audio_loop_track(1, 0, 20);		
-			//m5audio_loop_track((style_section % 4) + 1);
-			
-			style_change_requested = false;
+			audio_trigger_loop();
 		}
 	}
 	else
@@ -3062,6 +3058,25 @@ void sp404_trigger_loop() {
 		sp404_old_drum_note = sp404_drum_note;
 		
 	}	
+}
+
+void audio_trigger_loop() {
+	uint8_t audio_chord = (uint8_t) (advanced_chord / 256);
+	uint8_t audio_type = (uint8_t) ((advanced_chord % 256) % 16);			
+	uint8_t audio_sample_file = 0;			
+	
+	if (basic_chord == 1 && audio_type == 0) audio_sample_file = 1;		// C
+	if (basic_chord == 2 && audio_type == 1) audio_sample_file = 2;		// Dm
+	if (basic_chord == 3 && audio_type == 1) audio_sample_file = 3;		// Em
+	if (basic_chord == 4 && audio_type == 0) audio_sample_file = 4;		// F
+	if (basic_chord == 5 && audio_type == 0) audio_sample_file = 5;		// G
+	if (basic_chord == 6 && audio_type == 1) audio_sample_file = 6;		// Am
+	if (basic_chord == 1 && audio_type == 2) audio_sample_file = 7;		// Csus
+	if (basic_chord == 5 && audio_type == 2) audio_sample_file = 8;		// Gsus	
+
+	if (audio_sample_file) {
+		m5audio_loop_track(audio_sample_file, 0, 0);
+	}
 }
 
 void mpx_trigger_loop() {			
