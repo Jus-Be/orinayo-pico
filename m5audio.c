@@ -110,6 +110,8 @@ void m5audio_loop_track(uint16_t track, uint32_t start_frame, uint32_t end_frame
     if (track < 1 || track > 3000) {
         return;
     }
+	wt2605c_send("AT+STOP\r");
+	sleep_ms(50);
     char buf[WT2605C_CMD_MAX];
     snprintf(buf, sizeof(buf), "AT+LPLAY=sd0,%u\r", (unsigned int)track, (unsigned int)start_frame, (unsigned int)end_frame);
     wt2605c_send(buf);	
