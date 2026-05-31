@@ -214,8 +214,6 @@ void nanobox_trigger_loop();
 void sp404_trigger_loop();
 void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 
-uint32_t calculate_wt2605c_wav_frames(uint32_t sample_rate, uint8_t bit_depth, uint8_t channels, uint32_t duration_ms);
-
 int chord_chat[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
 	{{-1, -1, 3, 1, 2, 1}, {-1, -1, 2, 1, 2, 0}, {-1, -1, 3, 3, 4, 1}},
@@ -554,7 +552,7 @@ void midi_bluetooth_handle_data() {
 				enable_drum_track = !enable_drum_track;
 				
 				if (enable_audio_drums) {
-					m5audio_set_volume(enable_drum_track ? 31 : 0);
+					m5audio_set_volume(enable_drum_track ? 20 : 0);
 				}
 				else 
 					
@@ -913,8 +911,13 @@ void midi_bluetooth_handle_data() {
 					//ghost_parameters_t *params = ghost_note_parameters();						
 					//params->ghost_intensity = 0.843;	
 					
-					if (enable_worship_pads) {
+					if (enable_worship_pads) 	{
 						m5audio_play_audio_by_name(audio_pad_name, 15);
+					}
+					else
+					
+					if (enable_audio_drums) 	{
+						m5audio_play_audio_by_name(audio_drum_name, 13);
 					}					
 				} 
 				else 
@@ -922,7 +925,7 @@ void midi_bluetooth_handle_data() {
 				if (looper_status.state == LOOPER_STATE_PLAYING) {
 					looper_status.state = LOOPER_STATE_WAITING;
 					
-					if (enable_worship_pads) 	{					
+					if (enable_worship_pads || enable_audio_drums) 	{					
 						m5audio_stop();
 					}					
 				}	
@@ -967,11 +970,7 @@ void midi_bluetooth_handle_data() {
 				} 
 				
 				if (mbut0) 
-				{	
-					if (enable_worship_pads) {
-						m5audio_play_audio_by_name(audio_pad_name, 15);
-					}
-					
+				{					
 					if (enable_mpc_sample) {
 						mpc_drum_note = 44;
 						sampler_midi_note(0x94, mpc_drum_note, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav	
@@ -1030,15 +1029,16 @@ void midi_bluetooth_handle_data() {
 						sp404_chord_cmd = 0;
 						sp404_bass_note = 0;
 						sp404_bass_cmd = 0;						
-					}						
+					}
+					else
+						
+					if (enable_worship_pads) {
+						m5audio_play_audio_by_name(audio_pad_name, 15);
+					}
 					else
 					
 					if (enable_audio_drums) 	{
-						style_section = 0;
-						//m5audio_play_audio_by_name(audio_drum_name, 13);
-						//uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000);
-						//uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 62000);						
-						//m5audio_loop_track(1, 20, 0);
+						m5audio_play_audio_by_name(audio_drum_name, 13);
 					}					
 					else
 												
@@ -1211,12 +1211,14 @@ void midi_bluetooth_handle_data() {
 			if (style_section > 7) style_section = 0;
 			if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
+		
+		
 
 		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
 		}		
 
-		if (enable_sp404mk2 || enable_mpc_sample || enable_nanobox_tangerine || enable_mpx_looper || enable_audio_drums)	
+		if (enable_sp404mk2 || enable_mpc_sample || enable_nanobox_tangerine || enable_mpx_looper)	
 		{
 			if (dpad_down && style_started) {
 				style_change_requested = true;						
@@ -2494,18 +2496,7 @@ void play_chord(bool on, bool up) {
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};	
 	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
-
-	if (enable_audio_drums) 
-	{
-		if (handled && style_started && on) {	
-			uint32_t start_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 2000 + ((style_section % 4) * 18000));
-			uint32_t end_frame = calculate_wt2605c_wav_frames(44100, 16, 2, 80000 - ((style_section % 4) * 18000) - 16000);
-						
-			audio_trigger_loop();
-		}
-	}
-	else
-		
+	
 	if (enable_mpx_looper) 			// trigger chord loop on mpx
 	{					
 		if (handled && style_started && on) {
@@ -3060,25 +3051,6 @@ void sp404_trigger_loop() {
 	}	
 }
 
-void audio_trigger_loop() {
-	uint8_t audio_chord = (uint8_t) (advanced_chord / 256);
-	uint8_t audio_type = (uint8_t) ((advanced_chord % 256) % 16);			
-	uint8_t audio_sample_file = 0;			
-	
-	if (basic_chord == 1 && audio_type == 0) audio_sample_file = 1;		// C
-	if (basic_chord == 2 && audio_type == 1) audio_sample_file = 2;		// Dm
-	if (basic_chord == 3 && audio_type == 1) audio_sample_file = 3;		// Em
-	if (basic_chord == 4 && audio_type == 0) audio_sample_file = 4;		// F
-	if (basic_chord == 5 && audio_type == 0) audio_sample_file = 5;		// G
-	if (basic_chord == 6 && audio_type == 1) audio_sample_file = 6;		// Am
-	if (basic_chord == 1 && audio_type == 2) audio_sample_file = 7;		// Csus
-	if (basic_chord == 5 && audio_type == 2) audio_sample_file = 8;		// Gsus	
-
-	if (audio_sample_file) {
-		m5audio_loop_track(audio_sample_file, 0, 0);
-	}
-}
-
 void mpx_trigger_loop() {			
 	uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
 	uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
@@ -3357,22 +3329,4 @@ void midi_process_state(uint64_t start_us) {
 			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
-}
-
-uint32_t calculate_wt2605c_wav_frames(uint32_t sample_rate, uint8_t bit_depth, uint8_t channels, uint32_t duration_ms) {
-    // 1. Calculate how many bytes of raw audio pass through per second
-    uint32_t bytes_per_second = sample_rate * (bit_depth / 8) * channels;
-    
-    // Prevent division by zero if bad parameters are passed
-    if (bytes_per_second == 0) return 0;
-
-    // 2. WT2605C processes WAV data in fixed 512-byte blocks (frames)
-    // We use floating-point math to preserve accuracy before rounding
-    double ms_per_frame = (512.0 / (double)bytes_per_second) * 1000.0;
-    
-    // 3. Divide your target duration by the milliseconds per frame
-    // Adding 0.5 allows standard rounding to the nearest whole frame
-    uint32_t total_frames = (uint32_t)(((double)duration_ms / ms_per_frame) + 0.5);
-
-    return total_frames;
 }
