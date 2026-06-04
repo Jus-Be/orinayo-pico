@@ -50,6 +50,7 @@ bool enable_mpc_sample = false;
 bool enable_mpx_looper = false;
 bool enable_mpx_drums = false;
 bool enable_nanobox_tangerine = false;
+bool enable_wav_trigger_pro = false;
 bool enable_synth = false;
 bool enable_arranger_mode = false;
 bool enable_modx = false;
@@ -1456,8 +1457,13 @@ void midi_bluetooth_handle_data() {
 			
 		if (enable_nanobox_tangerine) 
 		{
-			if (mbut2)  {
-				midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos
+			if (mbut2)  
+			{				
+				if (enable_wav_trigger_pro) {
+					sampler_midi_note(0x9F, style_group);			 // select and load preset  
+				} else {
+					midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+				}				
 			}
 		}		
 		else
@@ -1513,6 +1519,7 @@ void midi_bluetooth_handle_data() {
 			} 			
 			else if (green && red && yellow) config_guitar(15);		// Worship Pads
 			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
+			else if (green && red && blue) config_guitar(13);		// Behringer JT-Micro Synth			
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
 			else if (green && orange) config_guitar(18);			// Reset Preferences	
@@ -1520,7 +1527,7 @@ void midi_bluetooth_handle_data() {
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
-			else if (green && blue) config_guitar(13);				// Behringer JT-Micro Synth
+			else if (green && blue) config_guitar(19);				// WAV Trigger Pro
 			else if (red && orange) config_guitar(14);				// 1010Music Nanobox Tangerine
 			
 			else if (green && red) config_guitar(6);				// Acoustic/Electric
@@ -1914,6 +1921,14 @@ int compUp(const void *a, const void *b) {
 
 void config_guitar(uint8_t mode) {
 
+	if (mode == 19) {										// WAV Trigger Pro
+		enable_wav_trigger_pro = !enable_wav_trigger_pro;
+		enable_nanobox_tangerine = enable_wav_trigger_pro;
+		enable_style_play = enable_nanobox_tangerine;	
+		config_nanobox_tangerine();		
+	}
+	else
+		
 	if (mode == 18) {										// Reset Preferences
 		enable_arranger_mode 	 = false;
 		enable_ample_guitar 	 = false;
@@ -2125,7 +2140,6 @@ void config_nanobox_tangerine() {
 	//midi_send_control_change(0xB4, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 5		
 	//midi_send_control_change(0xB5, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 6
 	//midi_send_control_change(0xB6, 11, !enable_nanobox_tangerine ? 127 : 0);  						// silent sample trigger channel 7	
-	
 	//midi_send_program_change(0xCF, style_group + 2);													// load default selected song
 }
 

@@ -91,6 +91,7 @@ extern bool enable_sp404mk2;
 extern bool enable_mpc_sample;
 extern bool enable_mpx_looper;
 extern bool enable_nanobox_tangerine;
+extern bool enable_wav_trigger_pro;
 extern bool style_end_requested;
 extern bool preferences_changed;
 
@@ -617,8 +618,13 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 										if (style_group < 0) style_group = 20;								
 									}
 
-									if (enable_nanobox_tangerine) {
-										midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+									if (enable_nanobox_tangerine) 
+									{
+										if (enable_wav_trigger_pro) {
+											sampler_midi_note(0x9F, style_group);			 // select and load preset  
+										} else {
+											midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+										}
 									}																		
 								}
 							}
