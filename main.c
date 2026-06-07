@@ -147,7 +147,7 @@ void midi_modx_arp_octave(uint8_t octave);
 void dream_set_delay(int tempo);
 void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void config_mpc_sample();
-void nanobox_trigger_loop();
+void sampler_trigger_loop();
 void mpc_trigger_loop();
 void mpx_trigger_loop();
 void sp404_trigger_loop();
@@ -485,8 +485,8 @@ static void chord_detect(void) {
         } 
 		else 
 		
-		if (enable_nanobox_tangerine) {
-            nanobox_trigger_loop();
+		if (enable_nanobox_tangerine || enable_wav_trigger_pro) {
+            sampler_trigger_loop();
         }		
 		else 
 		
@@ -516,7 +516,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		
 		for (uint32_t i=0; i<bytes_read; i++) 
 		{
-			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine) {
+			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine || enable_wav_trigger_pro) {
 				// Parse the raw MIDI byte stream to track note on/off events.
 				uint8_t b = buffer[i];
 				if (b & 0x80) {
@@ -562,8 +562,8 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							}
 							else 
 								
-							if (style_end_requested && enable_nanobox_tangerine) {
-								nanobox_trigger_loop();
+							if (style_end_requested && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
+								sampler_trigger_loop();
 							}							
 						}
 					}
@@ -618,13 +618,13 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 										if (style_group < 0) style_group = 20;								
 									}
 
-									if (enable_nanobox_tangerine) 
-									{
-										if (enable_wav_trigger_pro) {
-											sampler_midi_note(0x9F, style_group, 127);			 // select and load preset  
-										} else {
-											midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
-										}
+									if (enable_wav_trigger_pro) {
+										sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset  
+									} 									
+									else
+
+									if (enable_nanobox_tangerine) {
+										midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
 									}																		
 								}
 							}
@@ -992,7 +992,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	}
 	else
 		
-	if (enable_nanobox_tangerine) {	
+	if (enable_nanobox_tangerine || enable_wav_trigger_pro) {	
 		channel = 0;
 	}
 	else
