@@ -859,7 +859,7 @@ void midi_bluetooth_handle_data() {
 						
 					if (enable_wav_trigger_pro) {
 						wav_trigger_pro_stop_loops();	
-						sampler_midi_note(0x9F, 1, 127);						
+						//sampler_midi_note(0x9F, 1, 127);						
 					}
 					
 					style_change_requested = true;
@@ -1048,11 +1048,13 @@ void midi_bluetooth_handle_data() {
 						sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);	
 						sampler_old_drum_note = sampler_drum_note;
 						
-						style_change_requested = true;
-						style_section = 0;
+						sampler_chord_note = 36 + transpose;
+						sampler_bass_note = 36 + transpose;							
+						sampler_old_chord_note = 255;
+						sampler_old_bass_note = 255;
 						
-						sampler_chord_note = 255;
-						sampler_bass_note = 255;						
+						style_change_requested = true;
+						style_section = 0;					
 					}
 					else
 						
@@ -1146,8 +1148,8 @@ void midi_bluetooth_handle_data() {
 					else
 						
 					if (enable_wav_trigger_pro) {
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-						wav_trigger_pro_stop_loops();					
+						wav_trigger_pro_stop_loops();						
+						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop					
 					}					
 					else
 						
@@ -3319,7 +3321,8 @@ void wav_trigger_pro_stop_loops() {
 		sampler_old_bass_note = 255;						
 	}
 
-	if (sampler_old_drum_note != 255) {		// wav trigger pro has loop mode off for end1 drum style					
+	if (sampler_old_drum_note != 255) {		// wav trigger pro has loop mode off for end1 drum style	
+		sampler_midi_note(0x94, sampler_old_drum_note, 0);	
 		sampler_old_drum_note = 255;
 	}	
 }
