@@ -132,8 +132,8 @@ int last_chord_note = 0;
 int last_chord_type = 0;
 
 uint8_t sample_drum_velocity = 127;
-uint8_t sample_bass_velocity = 110;
-uint8_t sample_chord_velocity = 80;
+uint8_t sample_bass_velocity = 120;
+uint8_t sample_chord_velocity = 100;
 uint8_t midi_guitar_velocity = 127;
 
 uint8_t sampler_drum_note = 0;
@@ -2232,6 +2232,8 @@ void config_wav_trigger_pro() {
 }
 
 void config_mpx_looper() {	
+	if (enable_wav_trigger_pro) return;
+	
 	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
 	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  									// silent sample trigger channel 10	
 
@@ -2245,7 +2247,9 @@ void config_mpx_looper() {
 	}
 }
 
-void config_mpc_sample() {		
+void config_mpc_sample() {	
+	if (enable_wav_trigger_pro) return;
+	
 	midi_send_control_change(0xB4, 11, !enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
 	
 	if (enable_mpc_sample) {
@@ -2254,6 +2258,7 @@ void config_mpc_sample() {
 }
 
 void config_sp404mk2() {
+	if (enable_wav_trigger_pro) return;
 	
 	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, !enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
 		
@@ -2266,14 +2271,16 @@ void config_sp404mk2() {
 	}
 }
 
-void config_modx() {				
+void config_modx() {	
+	if (enable_wav_trigger_pro) return;			
 	
 	if (enable_modx) {						// set default scene 1
 		midi_send_control_change(0xB3, 92, 0);		
 	}	
 }
 
-void config_seqtrak() {		
+void config_seqtrak() {	
+	if (enable_wav_trigger_pro) return;	
 	
 	if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
 		midi_seqtrak_mute(7, true);
@@ -2282,6 +2289,7 @@ void config_seqtrak() {
 }
 
 void config_midi_drums() {	
+	if (enable_wav_trigger_pro) return;
 	
 	if (enable_midi_drums) {					
 		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
@@ -2290,7 +2298,8 @@ void config_midi_drums() {
 }
 
 void config_arranger() {
-
+	if (enable_wav_trigger_pro) return;
+	
 	if (enable_arranger_mode) {				
 		midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
 		midi_send_control_change(0xB0, 7, 100); 		// set default volume		
@@ -2298,6 +2307,7 @@ void config_arranger() {
 }
 
 void config_ample_guitar() {
+	if (enable_wav_trigger_pro) return;
 	
 	if (enable_ample_guitar) {	
 		midi_send_note(0x90, 97, 127);	// set strum mode on by default
@@ -2860,7 +2870,15 @@ void sampler_trigger_loop() {
 
 	if (style_end_requested) {
 		style_end_requested = false;
-		sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+		
+		if (enable_nanobox_tangerine) {		
+			sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+		} 
+		else
+			
+		if (enable_wav_trigger_pro) {
+			sampler_midi_note(0x94, END1, 0);			
+		}		
 		return;
 	}
 	
