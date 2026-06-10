@@ -858,8 +858,8 @@ void midi_bluetooth_handle_data() {
 					else
 						
 					if (enable_wav_trigger_pro) {
-						sampler_midi_note(0x9F, 1, 127);
-						wav_trigger_pro_stop_loops();						
+						wav_trigger_pro_stop_loops();	
+						sampler_midi_note(0x9F, 1, 127);						
 					}
 					
 					style_change_requested = true;
@@ -1045,7 +1045,8 @@ void midi_bluetooth_handle_data() {
 							else
 								
 							if (enable_wav_trigger_pro) {
-								sampler_midi_note(0x9F, 1, 127);	
+								sampler_midi_note(0x84, END1, 0);
+								sleep_ms(100);
 							}
 						}	
 						
@@ -1151,8 +1152,10 @@ void midi_bluetooth_handle_data() {
 					else
 						
 					if (enable_wav_trigger_pro) {
-						sampler_midi_note(0x84, END1, 0);
-						wav_trigger_pro_stop_loops();					
+						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+						sleep_ms(100);
+						wav_trigger_pro_stop_loops();
+						style_end_requested = true;						
 					}					
 					else
 						
@@ -1265,8 +1268,6 @@ void midi_bluetooth_handle_data() {
 			if (style_section > 7) style_section = 0;
 			if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
-		
-		
 
 		if (enable_worship_pads) {
 			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
@@ -1752,6 +1753,7 @@ void midi_bluetooth_handle_data() {
 				{
 					if (sampler_old_drum_note != 255) {
 						sampler_midi_note(0x84, sampler_old_drum_note, 0);
+						sleep_ms(100);
 					}	
 					uint8_t section = (style_section % 4);
 					sampler_drum_note = FILA;
@@ -1899,6 +1901,7 @@ void midi_bluetooth_handle_data() {
 				{
 					if (sampler_old_drum_note != 255) {
 						sampler_midi_note(0x84, sampler_old_drum_note, 0);
+						sleep_ms(100);
 					}	
 					sampler_drum_note = BRKA;					
 					sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);		
@@ -2229,7 +2232,6 @@ void config_nanobox_tangerine() {
 void config_wav_trigger_pro() {
 	
 }
-
 
 void config_mpx_looper() {	
 	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
@@ -2615,7 +2617,7 @@ void play_chord(bool on, bool up) {
 	}
 	else
 				
-	if (enable_nanobox_tangerine || enable_wav_trigger_pro)	// trigger chord loop on nanobox tangerine
+	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
 		if (handled && on && (style_started || style_end_requested)) {
 			sampler_trigger_loop();				
@@ -2916,7 +2918,8 @@ void sampler_trigger_loop() {
 			else
 				
 			if (enable_wav_trigger_pro) {
-				sampler_midi_note(0x85, sampler_old_bass_note, 0);				
+				sampler_midi_note(0x85, sampler_old_bass_note, 0);	
+				sleep_ms(100);				
 			}
 		}
 		
@@ -2934,7 +2937,8 @@ void sampler_trigger_loop() {
 			else
 				
 			if (enable_wav_trigger_pro) {
-				sampler_midi_note(0x86, sampler_old_chord_note, 0);				
+				sampler_midi_note(0x86, sampler_old_chord_note, 0);	
+				sleep_ms(100);				
 			}
 		}
 		
@@ -2954,6 +2958,7 @@ void sampler_trigger_loop() {
 				
 			if (enable_wav_trigger_pro) {
 				sampler_midi_note(0x84, sampler_old_drum_note, 0);
+				sleep_ms(100);
 			}			
 		}				
 
