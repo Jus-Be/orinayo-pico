@@ -874,7 +874,7 @@ void midi_bluetooth_handle_data() {
 			else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
 		}			
 
-		config_style_play();
+		if (but6 && enable_style_play) config_style_play();
 		finished_processing = true;
 		return;
 	}
