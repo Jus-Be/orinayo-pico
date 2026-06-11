@@ -393,17 +393,16 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	storage_load_preferences();	
 	
 	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine || enable_mpx_looper || enable_wav_trigger_pro;
-
-	if (!enable_nanobox_tangerine && !enable_wav_trigger_pro) config_style_play();
 	
-	config_ample_guitar();
-	config_arranger();
-	config_midi_drums();
-	config_modx();
-	config_seqtrak();	
-	config_sp404mk2();	
-	config_mpc_sample();
-	//config_mpx_looper();	
+	if (enable_style_play) 		config_style_play();
+	if (enable_ample_guitar) 	config_ample_guitar();
+	if (enable_arranger_mode) 	config_arranger();
+	if (enable_midi_drums) 		config_midi_drums();
+	if (enable_modx) 			config_modx();
+	if (enable_seqtrak) 		config_seqtrak();	
+	if (enable_sp404mk2) 		config_sp404mk2();	
+	if (enable_mpc_sample) 		config_mpc_sample();
+	if (enable_mpx_looper) 		config_mpx_looper();	
   
   return UNI_ERROR_SUCCESS;
 }
