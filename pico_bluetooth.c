@@ -392,7 +392,7 @@ static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
 	
 	storage_load_preferences();	
 	
-	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine || enable_mpx_looper || enable_wav_trigger_pro;
+	enable_style_play = enable_modx || enable_seqtrak || enable_midi_drums || enable_ample_guitar || enable_arranger_mode || enable_nanobox_tangerine;
 	
 	if (enable_style_play) 		config_style_play();
 	if (enable_ample_guitar) 	config_ample_guitar();
@@ -701,7 +701,7 @@ void midi_bluetooth_handle_data() {
 
 		if (yellow && orange) 
 		{
-			if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_synth && !enable_mpx_looper) {
+			if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_synth && !enable_mpx_looper && !enable_wav_trigger_pro) {
 				enable_style_play = !enable_style_play;	// toggle chord generation
 			}
 		}				
@@ -1981,13 +1981,6 @@ void midi_bluetooth_handle_data() {
 	finished_processing = true;				
 }
 
-void clear_chord_notes() {
-	midi_play_chord(false, 0, 0, 0);
-	
-	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
-	ample_old_key = 0;	
-}
-
 int compDown(const void *a, const void *b) {
     return (*(uint8_t *)b - *(uint8_t *)a);
 }
@@ -2000,7 +1993,7 @@ void config_guitar(uint8_t mode) {
 
 	if (mode == 19) {										// WAV Trigger Pro
 		enable_wav_trigger_pro = !enable_wav_trigger_pro;
-		enable_style_play = enable_wav_trigger_pro;	
+		enable_style_play = !enable_wav_trigger_pro;	
 		config_wav_trigger_pro();		
 	}
 	else
@@ -2836,8 +2829,15 @@ void play_chord(bool on, bool up) {
 	} 		
 }
 
+void clear_chord_notes() {
+	midi_play_chord(false, 0, 0, 0);
+	
+	if (enable_ample_guitar && ample_old_key) midi_send_note(0x80, ample_old_key, 0);				// stop ample strum		
+	ample_old_key = 0;	
+}
+
 void stop_chord() {
-	clear_chord_notes();		
+	if (enable_style_play) clear_chord_notes();		
 	
 	for (int n=0; n<6; n++) 
 	{
