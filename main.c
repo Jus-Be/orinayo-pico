@@ -986,13 +986,18 @@ void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
+	
+	if (enable_wav_trigger_pro) {
+		return;
+	}
+	else
 
 	if (enable_seqtrak) {
 		channel = 8;
 	}
 	else
 		
-	if (enable_nanobox_tangerine || enable_wav_trigger_pro) {	
+	if (enable_nanobox_tangerine) {	
 		channel = 0;
 	}
 	else
@@ -1129,7 +1134,7 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 		
 	} else {
 		
-		if (!enable_mpc_sample && !enable_sp404mk2 && !enable_mpx_looper) {
+		if (!enable_mpc_sample && !enable_sp404mk2 && !enable_mpx_looper && !enable_wav_trigger_pro) {
 			midi_n_stream_write(0, 0, msg, 3);	// CH 1
 
 			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
