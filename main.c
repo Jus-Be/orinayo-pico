@@ -988,7 +988,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	uint8_t channel = 0;	
 	
 	if (enable_wav_trigger_pro) {
-		return;
+		//return;
 	}
 	else
 
