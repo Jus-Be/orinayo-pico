@@ -1992,8 +1992,11 @@ void config_guitar(uint8_t mode) {
 
 	if (mode == 19) {										// WAV Trigger Pro
 		enable_wav_trigger_pro = !enable_wav_trigger_pro;
-		enable_style_play = !enable_wav_trigger_pro;	
-		config_wav_trigger_pro();		
+		enable_style_play = !enable_wav_trigger_pro;
+
+		if (enable_wav_trigger_pro) {
+			config_wav_trigger_pro();		
+		}
 	}
 	else
 		
@@ -2034,35 +2037,39 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 14) {										// 1010Music Nanobox Tangerine
 		enable_nanobox_tangerine = !enable_nanobox_tangerine;
-		enable_style_play = enable_nanobox_tangerine;	
-		config_nanobox_tangerine();		
+		enable_style_play = enable_nanobox_tangerine;
+		
+		if (enable_nanobox_tangerine) {
+			config_nanobox_tangerine();		
+		}
 	}
 	else
 		
 	if (mode == 13) {										// Behringer JT-Micro Synth
 		enable_synth = !enable_synth;						
-		enable_style_play = !enable_synth;	
-		config_style_play();		
+		enable_style_play = !enable_synth;			
 		
 		if (enable_synth)  {
-
+			config_style_play();
 		}					
 	}	
 	else
 		
 	if (mode == 12) {										// Roland SP404 MK2
 		enable_sp404mk2 = !enable_sp404mk2;	
-		enable_style_play = !enable_sp404mk2;	
-		config_style_play();
-		config_sp404mk2();
+		enable_style_play = !enable_sp404mk2;
+		
+		if (enable_style_play) 	config_style_play();
+		if (enable_sp404mk2) 	config_sp404mk2();
 	}
 	else
 		
 	if (mode == 11) {										// Akai MPC Sample
 		enable_mpc_sample = !enable_mpc_sample;	
 		enable_style_play = !enable_mpc_sample;	
-		config_style_play();		
-		config_mpc_sample();
+		
+		if (enable_style_play) 	config_style_play();		
+		if (enable_mpc_sample) 	config_mpc_sample();
 	}
 	else
 		
@@ -2070,8 +2077,8 @@ void config_guitar(uint8_t mode) {
 		enable_mpx_looper = !enable_mpx_looper;
 		enable_style_play = !enable_mpx_looper;
 		
-		config_style_play();
-		config_mpx_looper();					
+		if (enable_style_play) 	config_style_play();
+		if (enable_mpx_looper) 	config_mpx_looper();					
 	}
 	else
 	
@@ -2138,19 +2145,19 @@ void config_guitar(uint8_t mode) {
 	if (mode == 1) {  										// Arranger (ketron, giglad)
 		enable_arranger_mode = !enable_arranger_mode;
 		enable_style_play = enable_arranger_mode;	
-		config_style_play();
 		
-		config_arranger();						
+		if (enable_style_play) 		config_style_play();
+		if (enable_arranger_mode) 	config_arranger();						
 	}
 	else
 		
 	if (mode == 2) {										// DAW (ample guitar)
 		enable_ample_guitar = !enable_ample_guitar; 		// Ample Guitar VST mode
 		enable_style_play = enable_ample_guitar;
-		config_style_play();		
+		if (enable_style_play) config_style_play();		
 	
 		midi_send_note(0x90, 97, enable_ample_guitar ? 127 : 1);	// set strum mode on by default
-		config_ample_guitar();
+		if (enable_ample_guitar) config_ample_guitar();
 	}
 	else
 		
@@ -2160,25 +2167,30 @@ void config_guitar(uint8_t mode) {
 		}
 		enable_midi_drums = !enable_midi_drums;
 		enable_style_play = enable_midi_drums;	
-		config_style_play();		
 		
-		config_midi_drums();	
+		if (enable_style_play) config_style_play();		
+		
+		if (enable_midi_drums) {
+			config_midi_drums();	
+		}
 	}
 	else
 		
 	if (mode == 4) {										// SeqTrak			
 		enable_seqtrak = !enable_seqtrak;
 		enable_style_play = enable_seqtrak;
-		config_style_play();		
-		config_seqtrak();
+		
+		if (enable_style_play) 	config_style_play();		
+		if (enable_seqtrak) 	config_seqtrak();
 	}
 	else
 		
 	if (mode == 5) {										// MODX/Montage
 		enable_modx = !enable_modx;
 		enable_style_play = enable_modx;
-		config_style_play();		
-		config_modx();
+		
+		if (enable_style_play) 	config_style_play();		
+		if (enable_modx) 		config_modx();
 	}
 }
 
@@ -2188,10 +2200,6 @@ void config_style_play() {
 	midi_send_program_change(0xC1, 89);					// warm pad	(blue)
 	midi_send_program_change(0xC2, 99);					// FX4 (orange)	
 	midi_send_program_change(0xC3, 89);		
-		
-	midi_send_control_change(0xB1, 11, 0); 
-	midi_send_control_change(0xB2, 11, 0); 
-	midi_send_control_change(0xB3, 11, 0); 
 	
 	if (active_strum_pattern > 2 || active_strum_pattern == -1) {
 		midi_send_control_change(0xB1, 7, 48);	
@@ -2212,75 +2220,63 @@ void config_nanobox_tangerine() {
 }
 
 void config_wav_trigger_pro() {
-	
+	midi_send_control_change(0xB4, 11, 0); 				// silent sample trigger channel 5/8, 6/9, 7/10
+	midi_send_control_change(0xB5, 11, 0); 
+	midi_send_control_change(0xB6, 11, 0); 	
+	midi_send_control_change(0xB7, 11, 0);
+	midi_send_control_change(0xB8, 11, 0);
+	midi_send_control_change(0xB9, 11, 0);
 }
 
 void config_mpx_looper() {	
-	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
-	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  									// silent sample trigger channel 10	
+	midi_send_control_change(0xB9, 11, 0);  			// silent sample trigger channel 10	
+	midi_send_control_change(0xB9, 7, 0);  				// silent sample trigger channel 10	
 
-	
-	if (enable_mpx_looper) {
-		midi_send_program_change(0xC5, guitar_pc_code);												// channel 5 used for guitar melody
-		midi_send_control_change(0xB5, 80, 4);				// reverb - hall
-		midi_send_control_change(0xB5, 91, 64);	
-		midi_send_control_change(0xB5, 81, 2);				// chorus - 3		
-		midi_send_control_change(0xB5, 93, 0);		
-	}
+	midi_send_program_change(0xC5, guitar_pc_code);						// channel 5 used for guitar melody
+	midi_send_control_change(0xB5, 80, 4);				// reverb - hall
+	midi_send_control_change(0xB5, 91, 64);	
+	midi_send_control_change(0xB5, 81, 2);				// chorus - 3		
+	midi_send_control_change(0xB5, 93, 0);		
 }
 
 void config_mpc_sample() {	
-	midi_send_control_change(0xB4, 11, !enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
-	
-	if (enable_mpc_sample) {
-		midi_send_program_change(0xC0, guitar_pc_code);												// channel 1 used for guitar melody
-	}
+	midi_send_control_change(0xB4, 11, 0);  						// silent sample trigger channel 5	
+	midi_send_program_change(0xC0, guitar_pc_code);					// channel 1 used for guitar melody
 }
 
 void config_sp404mk2() {
-	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, !enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
+	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, 0); 	// silence sample trigger channels 1-10
 		
-	if (enable_sp404mk2) {
-		midi_send_program_change(0xCE, guitar_pc_code);												// channel 15 used for guitar melody
-		midi_send_control_change(0xBE, 80, 4);				// reverb - hall
-		midi_send_control_change(0xBE, 91, 64);	
-		midi_send_control_change(0xBE, 81, 2);				// chorus - 3		
-		midi_send_control_change(0xBE, 93, 0);			
-	}
+	midi_send_program_change(0xCE, guitar_pc_code);							// channel 15 used for guitar melody
+	midi_send_control_change(0xBE, 80, 4);				// reverb - hall
+	midi_send_control_change(0xBE, 91, 64);	
+	midi_send_control_change(0xBE, 81, 2);				// chorus - 3		
+	midi_send_control_change(0xBE, 93, 0);			
 }
 
 void config_modx() {	
-	if (enable_modx) {						// set default scene 1
-		midi_send_control_change(0xB3, 92, 0);		
-	}	
+	midi_send_control_change(0xB3, 92, 0);		
 }
 
 void config_seqtrak() {	
-	if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
-		midi_seqtrak_mute(7, true);
-		midi_seqtrak_mute(9, true);			
-	}
+	// initially mute seqtrak arpeggiator							
+	midi_seqtrak_mute(7, true);
+	midi_seqtrak_mute(9, true);			
 }
 
 void config_midi_drums() {	
-	if (enable_midi_drums) {					
-		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
-		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
-	}		
+	midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
+	midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 		
 }
 
 void config_arranger() {
-	if (enable_arranger_mode) {				
-		midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
-		midi_send_control_change(0xB0, 7, 100); 		// set default volume		
-	}	
+	midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
+	midi_send_control_change(0xB0, 7, 100); 		// set default volume		
 }
 
 void config_ample_guitar() {
-	if (enable_ample_guitar) {	
-		midi_send_note(0x90, 97, 127);	// set strum mode on by default
-		midi_send_note(0x90, 86, 127);		
-	}
+	midi_send_note(0x90, 97, 127);	// set strum mode on by default
+	midi_send_note(0x90, 86, 127);		
 }
 
 void play_chord(bool on, bool up) {
