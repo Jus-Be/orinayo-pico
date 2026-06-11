@@ -18,7 +18,6 @@
 #include "looper.h"
 #include "storage.h"
 #include "ghost_note.h"
-#include "m5audio.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
@@ -557,11 +556,6 @@ void midi_bluetooth_handle_data() {
 			if (but6) {
 				enable_drum_track = !enable_drum_track;
 				
-				if (enable_audio_drums) {
-					m5audio_set_volume(enable_drum_track ? 20 : 0);
-				}
-				else 
-					
 				if (enable_mpc_sample) 
 				{
 					if (!enable_drum_track) {
@@ -857,8 +851,7 @@ void midi_bluetooth_handle_data() {
 					else
 						
 					if (enable_wav_trigger_pro) {
-						wav_trigger_pro_stop_loops();	
-						//sampler_midi_note(0x9F, 1, 127);						
+						wav_trigger_pro_stop_loops();	;						
 					}
 					
 					style_change_requested = true;
@@ -948,25 +941,12 @@ void midi_bluetooth_handle_data() {
 					looper_status.state = LOOPER_STATE_PLAYING;
 					
 					//ghost_parameters_t *params = ghost_note_parameters();						
-					//params->ghost_intensity = 0.843;	
-					
-					if (enable_worship_pads) 	{
-						m5audio_play_audio_by_name(audio_pad_name, 15);
-					}
-					else
-					
-					if (enable_audio_drums) 	{
-						m5audio_play_audio_by_name(audio_drum_name, 13);
-					}					
+					//params->ghost_intensity = 0.843;						
 				} 
 				else 
 				
 				if (looper_status.state == LOOPER_STATE_PLAYING) {
-					looper_status.state = LOOPER_STATE_WAITING;
-					
-					if (enable_worship_pads || enable_audio_drums) 	{					
-						m5audio_stop();
-					}					
+					looper_status.state = LOOPER_STATE_WAITING;					
 				}	
 			}					
 		} 
@@ -1053,7 +1033,11 @@ void midi_bluetooth_handle_data() {
 						sampler_old_bass_note = 255;
 						
 						style_change_requested = true;
-						style_section = 0;					
+						style_section = 0;	
+
+						if (enable_wav_trigger_pro) {			// start backing track on midi channel 11
+							sampler_midi_note(0x9F,  56 + transpose, 127);	
+						}
 					}
 					else
 						
@@ -1074,16 +1058,6 @@ void midi_bluetooth_handle_data() {
 						sp404_bass_note = 0;
 						sp404_bass_cmd = 0;						
 					}
-					else
-						
-					if (enable_worship_pads) {
-						m5audio_play_audio_by_name(audio_pad_name, 15);
-					}
-					else
-					
-					if (enable_audio_drums) 	{
-						m5audio_play_audio_by_name(audio_drum_name, 13);
-					}					
 					else
 												
 					if (enable_seqtrak) {
@@ -1148,7 +1122,8 @@ void midi_bluetooth_handle_data() {
 						
 					if (enable_wav_trigger_pro) {
 						wav_trigger_pro_stop_loops();						
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop					
+						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop	
+						sampler_midi_note(0x9F,  68 + transpose, 127);								 // stop backing track					
 					}					
 					else
 						
@@ -1156,11 +1131,6 @@ void midi_bluetooth_handle_data() {
 						sampler_midi_note(0x90, 40, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
 						sp404_stop_loops();
 					}					
-					else
-						
-					if (enable_worship_pads || enable_audio_drums) 	{					
-						m5audio_stop();
-					}
 					else
 						
 					if (enable_seqtrak) {	
@@ -1261,10 +1231,6 @@ void midi_bluetooth_handle_data() {
 			if (style_section > 7) style_section = 0;
 			if (enable_arranger_mode) midi_send_control_change(0xB3, 14, 65); 			// Next Style			
 		}	
-
-		if (enable_worship_pads) {
-			m5audio_set_volume(((style_section % 4) * 8) + 6);				// max audio player volume = 30
-		}		
 
 		if (enable_sp404mk2 || enable_mpc_sample || enable_nanobox_tangerine || enable_mpx_looper || enable_wav_trigger_pro)	
 		{

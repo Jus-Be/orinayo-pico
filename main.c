@@ -19,7 +19,6 @@
 #include "async_timer.h"
 #include "storage.h"
 #include "looper.h"
-#include "m5audio.h"
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
@@ -215,11 +214,7 @@ int main() {
 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	uart_set_fifo_enabled(UART_ID, true);
 	uart_set_translate_crlf(UART_ID, false);
-	sleep_ms(500);		
-
-	// setup UART1 
-	m5audio_init();
-	m5audio_set_volume(M5AUDIO_VOLUME_MAX);		
+	sleep_ms(500);			
 
     while (true) {
 		tud_task(); // tinyusb device task		
