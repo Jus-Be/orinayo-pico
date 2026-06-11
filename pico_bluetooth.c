@@ -1558,9 +1558,8 @@ void midi_bluetooth_handle_data() {
 	if (mbut3 != config) {									// config options - select arranger/keyboard/sound module
 		config = mbut3;
 		
-		if (mbut3) 	{
-			midi_play_chord(false, 0, 0, 0);						// reset chord  keys
-			
+		if (mbut3) 	
+		{			
 			if (!green && !red && !yellow && !blue && !orange) 
 			{
 				if (enable_mpx_looper) {
@@ -2184,7 +2183,7 @@ void config_guitar(uint8_t mode) {
 }
 
 void config_style_play() {
-	if (enable_wav_trigger_pro) return;
+	midi_play_chord(false, 0, 0, 0);					// reset chord  keys
 	
 	midi_send_program_change(0xC1, 89);					// warm pad	(blue)
 	midi_send_program_change(0xC2, 99);					// FX4 (orange)	
@@ -2194,17 +2193,14 @@ void config_style_play() {
 	midi_send_control_change(0xB2, 11, 0); 
 	midi_send_control_change(0xB3, 11, 0); 
 	
-	if (enable_style_play) 	
-	{	
-		if (active_strum_pattern > 2 || active_strum_pattern == -1) {
-			midi_send_control_change(0xB1, 7, 48);	
-			midi_send_control_change(0xB1, 11, 127);			
-		}
-		
-		if (active_strum_pattern > 3 || active_strum_pattern == -1) {
-			midi_send_control_change(0xB2, 7, 36);
-			midi_send_control_change(0xB2, 11, 127);			
-		}
+	if (active_strum_pattern > 2 || active_strum_pattern == -1) {
+		midi_send_control_change(0xB1, 7, 48);	
+		midi_send_control_change(0xB1, 11, 127);			
+	}
+	
+	if (active_strum_pattern > 3 || active_strum_pattern == -1) {
+		midi_send_control_change(0xB2, 7, 36);
+		midi_send_control_change(0xB2, 11, 127);			
 	}		
 }
 
@@ -2220,8 +2216,6 @@ void config_wav_trigger_pro() {
 }
 
 void config_mpx_looper() {	
-	if (enable_wav_trigger_pro) return;
-	
 	midi_send_control_change(0xB9, 11, enable_mpx_looper ? 0 : 127);  								// silent sample trigger channel 10	
 	midi_send_control_change(0xB9, 7, enable_mpx_looper ? 0 : 127);  									// silent sample trigger channel 10	
 
@@ -2236,8 +2230,6 @@ void config_mpx_looper() {
 }
 
 void config_mpc_sample() {	
-	if (enable_wav_trigger_pro) return;
-	
 	midi_send_control_change(0xB4, 11, !enable_mpc_sample ? 127 : 0);  								// silent sample trigger channel 5	
 	
 	if (enable_mpc_sample) {
@@ -2246,8 +2238,6 @@ void config_mpc_sample() {
 }
 
 void config_sp404mk2() {
-	if (enable_wav_trigger_pro) return;
-	
 	for (uint8_t i=0; i<10; i++) midi_send_control_change(0xB0 + i, 11, !enable_sp404mk2 ? 127 : 0); // silence sample trigger channels 1-10
 		
 	if (enable_sp404mk2) {
@@ -2260,16 +2250,12 @@ void config_sp404mk2() {
 }
 
 void config_modx() {	
-	if (enable_wav_trigger_pro) return;			
-	
 	if (enable_modx) {						// set default scene 1
 		midi_send_control_change(0xB3, 92, 0);		
 	}	
 }
 
 void config_seqtrak() {	
-	if (enable_wav_trigger_pro) return;	
-	
 	if (enable_seqtrak) {								// initially mute seqtrak arpeggiator
 		midi_seqtrak_mute(7, true);
 		midi_seqtrak_mute(9, true);			
@@ -2277,8 +2263,6 @@ void config_seqtrak() {
 }
 
 void config_midi_drums() {	
-	if (enable_wav_trigger_pro) return;
-	
 	if (enable_midi_drums) {					
 		midi_send_program_change(0xC3, 89);		// warm pad on channel 4 (chords)   
 		midi_send_control_change(0xB3, 7, 0); 	// don't play pads by default 	
@@ -2286,8 +2270,6 @@ void config_midi_drums() {
 }
 
 void config_arranger() {
-	if (enable_wav_trigger_pro) return;
-	
 	if (enable_arranger_mode) {				
 		midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
 		midi_send_control_change(0xB0, 7, 100); 		// set default volume		
@@ -2295,8 +2277,6 @@ void config_arranger() {
 }
 
 void config_ample_guitar() {
-	if (enable_wav_trigger_pro) return;
-	
 	if (enable_ample_guitar) {	
 		midi_send_note(0x90, 97, 127);	// set strum mode on by default
 		midi_send_note(0x90, 86, 127);		
