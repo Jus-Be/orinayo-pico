@@ -2220,12 +2220,13 @@ void config_nanobox_tangerine() {
 }
 
 void config_wav_trigger_pro() {
-	midi_send_control_change(0xB4, 11, 0); 				// silent sample trigger channel 5/8, 6/9, 7/10
+	midi_send_control_change(0xB4, 11, 0); 				// silent sample trigger channel 5/8 (drums), 6/9 (bass), 7/10 (chords) and 15 (global)
 	midi_send_control_change(0xB5, 11, 0); 
 	midi_send_control_change(0xB6, 11, 0); 	
 	midi_send_control_change(0xB7, 11, 0);
 	midi_send_control_change(0xB8, 11, 0);
 	midi_send_control_change(0xB9, 11, 0);
+	midi_send_control_change(0xBF, 11, 0);	
 }
 
 void config_mpx_looper() {	
