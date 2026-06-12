@@ -76,6 +76,7 @@ uint8_t but6 = 0;
 uint8_t but7 = 0;   
 uint8_t but8 = 0;
 uint8_t but9 = 0;
+uint8_t but11 = 0;
 
 uint8_t mbut0 = 0;
 uint8_t mbut1 = 0;
@@ -132,7 +133,7 @@ int last_chord_type = 0;
 
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
-uint8_t sample_chord_velocity = 60;
+uint8_t sample_chord_velocity = 90;
 uint8_t midi_guitar_velocity = 127;
 
 uint8_t sampler_drum_note = 0;
@@ -458,6 +459,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	but7 = (ctl->gamepad.buttons >> 7) & 0x01;   
 	but8 = (ctl->gamepad.buttons >> 8) & 0x01; 	
 	but9 = (ctl->gamepad.buttons >> 9) & 0x01;	
+	but11 = (ctl->gamepad.buttons >> 11) & 0x01;	
 	
 	dpad_left = ctl->gamepad.dpad & 0x02;	
 	dpad_right = ctl->gamepad.dpad & 0x01;
@@ -888,8 +890,16 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (but9 != start)  {									// unused because start button clashes with axis (knob_up/knob_down)
-		start = but9;
+	if (but11 != start)  {									// start - reset
+		start = but11;
+		
+		if (but11) {
+			sample_drum_velocity = 127;
+			sample_bass_velocity = 120;
+			sample_chord_velocity = 90;
+			midi_guitar_velocity = 127;			
+		}
+		
 		finished_processing = true;	
 		return;			
 	}						
@@ -915,7 +925,7 @@ void midi_bluetooth_handle_data() {
 		return;
 	}		
 
-	if (mbut0 != logo) {									// start/stop
+	if (mbut0 != logo) {									// logo - start/stop
 		logo = mbut0;
 		
 		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
