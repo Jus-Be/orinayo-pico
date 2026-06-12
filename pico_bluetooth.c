@@ -134,6 +134,7 @@ uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
 uint8_t sample_chord_velocity = 95;
 uint8_t midi_guitar_velocity = 127;
+uint8_t worship_pad_velocity = 127;
 
 uint8_t sampler_drum_note = 0;
 uint8_t sampler_chord_note = 0;
@@ -419,35 +420,6 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	int8_t axis_rx = ctl->gamepad.axis_rx / 4;
 	int8_t axis_ry = ctl->gamepad.axis_ry / 4;
 	
-	joy_up = axis_y > axis_x;  
-	joy_down = axis_x > axis_y;  
-	knob_up = axis_ry > axis_rx; 
-	knob_down = axis_rx > axis_ry; 	
-	
-	if (knob_up) 									// bass/drums volume
-	{
-		if (abs(axis_ry) > abs(axis_rx)) {
-			sample_drum_velocity = abs(axis_ry) % 128;
-			sample_drum_velocity = sample_drum_velocity > 25 ? sample_drum_velocity : 25;
-			style_change_requested = true;
-		} else {
-			sample_bass_velocity = abs(axis_rx) % 128;			
-			sample_bass_velocity = sample_bass_velocity > 25 ? sample_bass_velocity : 25;
-		}
-	}
-	else
-		
-	if (knob_down) 									// chords/guitar volume
-	{
-		if (abs(axis_rx) > abs(axis_ry)) {
-			sample_chord_velocity = abs(axis_rx) % 128;				
-			sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
-		} else {
-			midi_guitar_velocity = abs(axis_ry) % 128;			
-			midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
-		}
-	}	
-  
 	but0 = (ctl->gamepad.buttons >> 0) & 0x01;
 	but1 = (ctl->gamepad.buttons >> 1) & 0x01;
 	but2 = (ctl->gamepad.buttons >> 2) & 0x01;
@@ -467,7 +439,36 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	mbut0 = (ctl->gamepad.misc_buttons >> 0) & 0x01;
 	mbut1 = (ctl->gamepad.misc_buttons >> 1) & 0x01;
 	mbut2 = (ctl->gamepad.misc_buttons >> 2) & 0x01;
-	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;
+	mbut3 = (ctl->gamepad.misc_buttons >> 3) & 0x01;	
+	
+	joy_up = axis_y > axis_x;  
+	joy_down = axis_x > axis_y;  
+	knob_up = axis_ry > axis_rx; 
+	knob_down = axis_rx > axis_ry; 	
+	
+	if (knob_up && !but9) 									// bass/drums volume
+	{
+		if (abs(axis_ry) > abs(axis_rx)) {
+			sample_drum_velocity = abs(axis_ry) % 128;
+			sample_drum_velocity = sample_drum_velocity > 25 ? sample_drum_velocity : 25;
+			style_change_requested = true;
+		} else {
+			sample_bass_velocity = abs(axis_rx) % 128;			
+			sample_bass_velocity = sample_bass_velocity > 25 ? sample_bass_velocity : 25;
+		}
+	}
+	else
+		
+	if (knob_down && !but9) 								// chords/guitar volume
+	{
+		if (abs(axis_rx) > abs(axis_ry)) {
+			sample_chord_velocity = abs(axis_rx) % 128;				
+			sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
+		} else {
+			midi_guitar_velocity = abs(axis_ry) % 128;			
+			midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
+		}
+	}	
 
 	switch (ctl->klass) {
 		case UNI_CONTROLLER_CLASS_GAMEPAD:		
@@ -895,7 +896,8 @@ void midi_bluetooth_handle_data() {
 			sample_drum_velocity = 127;
 			sample_bass_velocity = 120;
 			sample_chord_velocity = 90;
-			midi_guitar_velocity = 127;			
+			midi_guitar_velocity = 127;	
+			worship_pad_velocity = 127;			
 		}	
 		finished_processing = true;	
 		return;			
@@ -1043,7 +1045,7 @@ void midi_bluetooth_handle_data() {
 						style_section = 0;	
 
 						if (enable_wav_trigger_pro) {			// start backing track on midi channel 11
-							sampler_midi_note(0x9F,  56 + transpose, 127);	
+							sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
 						}
 					}
 					else
