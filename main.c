@@ -497,10 +497,12 @@ void tuh_mount_cb(uint8_t daddr) {
 }
 
 void tuh_umount_cb(uint8_t daddr) {
+	(void) daddr;
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
 }
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
+	(void) mount_cb_data
 	device_addr = idx;
 	
 	if (enable_mpc_sample) {
@@ -509,6 +511,7 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
+	(void) idx;
 	device_addr = 255;
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }

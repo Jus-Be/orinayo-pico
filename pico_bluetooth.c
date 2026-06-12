@@ -214,10 +214,14 @@ void clear_chord_notes();
 void stop_chord();
 void dream_set_delay(int tempo);
 void mpc_trigger_loop();
+void mpx_trigger_loop();
 void sampler_trigger_loop();
 void sp404_trigger_loop();
 void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity);
 void nanobox_stop_loops();
+void sp404_stop_loops();
+void mpc_stop_loops();
+void mpx_stop_loops();
 void wav_trigger_pro_stop_loops();
 
 
@@ -340,13 +344,16 @@ static void pico_bluetooth_on_init_complete(void) {
 }
 
 static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const char* name, uint16_t cod, uint8_t rssi) {
+  	(void) addr;
+	(void) rssi;
+	
   // You can filter discovered devices here. Return any value different from UNI_ERROR_SUCCESS;
   // @param addr: the Bluetooth address
   // @param name: could be NULL, could be zero-length, or might contain the name.
   // @param cod: Class of Device. See "uni_bt_defines.h" for possible values.
   // @param rssi: Received Signal Strength Indicator (RSSI) measured in dBms. The higher (255) the better.
 
-  const char* device_name = (name && strlen(name) > 0) ? name : "Unknown";
+  //const char* device_name = (name && strlen(name) > 0) ? name : "Unknown";
   // PICO_DEBUG("[BT] Found device: %s (%02X:%02X:%02X:%02X:%02X:%02X) CoD=0x%04X RSSI=%ddBm\n", device_name, addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], cod, rssi);
 
   // Check if it's a Gamepad controller
@@ -365,7 +372,8 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
 }
 
 static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
-	gamepad_guitar_connected = true; 	
+  (void) d;
+  gamepad_guitar_connected = true; 	
   // PICO_INFO("Device connected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Disable scanning when a device is connected to save power
@@ -374,6 +382,7 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
 }
 
 static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
+  (void) d;	
   gamepad_guitar_connected = false;	
   // PICO_INFO("Device disconnected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
@@ -385,6 +394,7 @@ static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
 }
 
 static uni_error_t pico_bluetooth_on_device_ready(uni_hid_device_t* d) {
+	(void) d;	
 	// You can reject the connection by returning an error.
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
     
@@ -413,6 +423,7 @@ static const uni_property_t* pico_bluetooth_get_property(uni_property_idx_t idx)
 }
 
 static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controller_t* ctl) { 
+	(void) d;
 	if (!gamepad_guitar_connected) return;
 	
 	int8_t axis_x = ctl->gamepad.axis_x / 4;	// nomalise -512 to +512 to -128 to +128
@@ -494,7 +505,7 @@ void midi_bluetooth_handle_data() {
 	finished_processing = false;
 	
 	absolute_time_t now = get_absolute_time();
-	uint64_t now_since_boot = to_us_since_boot(now);
+	//uint64_t now_since_boot = to_us_since_boot(now);
 
 	#if IS_PICO_DEBUG
 	  static int count = 0;
@@ -925,18 +936,7 @@ void midi_bluetooth_handle_data() {
 	}		
 
 	if (mbut0 != logo) {									// start/stop
-		logo = mbut0;
-		
-		uint8_t audio_pad_name[15]  = { 47, 112, 97,  100, 115,  47, 48, 49, 47, 48, 49,  46, 109, 112, 51}; 	// 	/pads/nn/mm.mp3	
-		uint8_t audio_drum_name[13] = { 47, 100, 114, 117, 109, 115, 47, 48, 49, 46, 119, 97, 118}; 			// 	/drums/nn.wav	
-		
-		audio_pad_name[6] = ((uint8_t)((style_group + 1) / 10)) + 48;
-		audio_pad_name[7] = ((uint8_t)((style_group + 1) % 10)) + 48;
-		audio_pad_name[9] = ((uint8_t)((transpose + 1) / 10)) + 48;
-		audio_pad_name[10] = ((uint8_t)((transpose + 1) % 10)) + 48;	
-
-		audio_drum_name[7] = ((uint8_t)((style_group + 1) / 10)) + 48;
-		audio_drum_name[8] = ((uint8_t)((style_group + 1) % 10)) + 48;		
+		logo = mbut0;	
 		
 		if (enable_midi_drums) 
 		{
@@ -2536,7 +2536,7 @@ void play_chord(bool on, bool up) {
 	}
 	
 	int O = 12;
-	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
+	//int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		
 	int string_frets[6] = {__6th, __5th, __4th, __3rd, __2nd, __1st};
 	uint8_t chord_midinotes[6] = {0};	
@@ -2549,7 +2549,7 @@ void play_chord(bool on, bool up) {
 
 	uint8_t note = 0;
 	uint8_t ample_style_notes[8] = {36, 37, 39, 42, 44, 46, 49, 51};	
-	uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
+	//uint8_t ample_string_notes[6] = {47, 45, 43, 41, 40, 38};
 	
 	if (enable_mpx_looper) 			// trigger chord loop on mpx
 	{					
@@ -3154,7 +3154,7 @@ void sp404_trigger_loop() {
 }
 
 void mpx_trigger_loop() {			
-	uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
+	//uint8_t mpc_chord = (uint8_t) (advanced_chord / 256);
 	uint8_t mpc_type = (uint8_t) ((advanced_chord % 256) % 16);
 
 	if (enable_mpx_drums) 
@@ -3281,6 +3281,7 @@ void wav_trigger_pro_stop_loops() {
 }
 
 static void pico_bluetooth_on_oob_event(uni_platform_oob_event_t event, void* data) {
+  (void) data;
   switch (event) {
     case UNI_PLATFORM_OOB_GAMEPAD_SYSTEM_BUTTON:
       // Optional: do something when "system" button gets pressed.
@@ -3333,6 +3334,8 @@ void bluetooth_init(void) {
 }
 
 void midi_process_state(uint64_t start_us) {
+	(void) start_us;
+	
 	int O = 12;
 	int C = 0, Cs = 1, Db = 1, D = 2, Ds = 3, Eb = 3, E = 4, F = 5, Fs = 6, Gb = 6, G = 7, Gs = 8, Ab = 8, A = 9, As = 10, Bb = 10, B = 11;	
 	int __6th = E +O*(active_neck_pos+2), __5th = A +O*(active_neck_pos+2), __4th = D +O*(active_neck_pos+2), __3rd = G +O*(active_neck_pos+2), __2nd = B +O*(active_neck_pos+2), __1st = E +O*(active_neck_pos+3);		

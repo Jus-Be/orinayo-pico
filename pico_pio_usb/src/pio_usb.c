@@ -183,8 +183,7 @@ uint8_t __no_inline_not_in_flash_func(pio_usb_bus_wait_handshake)(pio_port_t* pp
   return pp->usb_rx_buffer[1];
 }
 
-int __no_inline_not_in_flash_func(pio_usb_bus_receive_packet_and_handshake)(
-    pio_port_t *pp, uint8_t handshake) {
+int __no_inline_not_in_flash_func(pio_usb_bus_receive_packet_and_handshake)(pio_port_t *pp, uint8_t handshake) {
   uint16_t crc = 0xffff;
   uint16_t crc_prev = 0xffff;
   uint16_t crc_prev2 = 0xffff;
