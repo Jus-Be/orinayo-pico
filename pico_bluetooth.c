@@ -132,7 +132,7 @@ int last_chord_type = 0;
 
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
-uint8_t sample_chord_velocity = 100;
+uint8_t sample_chord_velocity = 60;
 uint8_t midi_guitar_velocity = 127;
 
 uint8_t sampler_drum_note = 0;
@@ -2193,6 +2193,8 @@ void config_wav_trigger_pro() {
 	midi_send_control_change(0xB8, 11, 0);
 	midi_send_control_change(0xB9, 11, 0);
 	midi_send_control_change(0xBF, 11, 0);	
+	
+	midi_send_control_change(0xBF, 7, 127);				
 }
 
 void config_mpx_looper() {	
