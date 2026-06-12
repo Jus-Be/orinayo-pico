@@ -5,9 +5,11 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "pico/cyw43_arch.h"
 #include "pico/multicore.h"
 #include "hardware/clocks.h"
+#include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
@@ -65,6 +67,21 @@ void pico_set_led(bool led_on) {
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
 #define GPIO_FUNC_UART 2
+
+// U153 Registers
+#define U153_I2C_ADDR       0x41
+#define REG_ENCODER_START   0x00
+#define REG_LED_START       0x20
+#define REG_BUTTON_BYTE     0x70
+#define REG_SWITCH_BYTE     0x80
+#define I2C_PORT            i2c0
+#define PIN_SDA             4
+#define PIN_SCL             5
+
+// Timing configurations for click detection (in milliseconds)
+#define DEBOUNCE_MS         30
+#define DOUBLE_CLICK_WINDOW 300
+#define FLASH_DURATION_MS   150
 
 extern int midi_current_step;
 extern int style_section;
@@ -171,6 +188,23 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 	//board_millis();	
 	previous = current;
     return true;
+}
+
+// Helper functions for I2C communication
+
+bool u153_read_registers(uint8_t reg_addr, uint8_t *buffer, size_t length) {
+    int bytes_written = i2c_write_blocking(I2C_PORT, U153_I2C_ADDR, &reg_addr, 1, true);
+    if (bytes_written < 0) return false;
+    int bytes_read = i2c_read_blocking(I2C_PORT, U153_I2C_ADDR, buffer, length, false);
+    return (bytes_read == (int)length);
+}
+
+bool u153_update_all_leds(uint8_t *led_rgb_array) {
+    uint8_t tx_buffer[25];
+    tx_buffer[0] = REG_LED_START;
+    memcpy(&tx_buffer[1], led_rgb_array, 24);
+    int bytes_written = i2c_write_blocking(I2C_PORT, U153_I2C_ADDR, tx_buffer, sizeof(tx_buffer), false);
+    return (bytes_written == sizeof(tx_buffer));
 }
 
 // core1: handle host events
