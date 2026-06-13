@@ -297,16 +297,18 @@ int main() {
 		}
 
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
-
+		sampler_midi_note(0x80, 1, bytes_written);
+				
         if (bytes_written >= 0) {
             // Read 49 bytes sequentially (0x00 up to 0x30)
             int bytes_read = i2c_read_blocking(I2C_PORT, ENCODER_ADDR, (uint8_t*)&inputs, sizeof(encoder_inputs_t), false);
+			sampler_midi_note(0x80, 2, bytes_read);			
 
             if (bytes_read == sizeof(encoder_inputs_t)) {
                 //printf("\033[2J\033[H"); // Clear terminal screen anchor
                 //printf("--- M5Stack 8Encoder Status ---\n");
                 //printf("Slide Switch Position: %s\n\n", (inputs.slide_switch == 1) ? "ON (Right)" : "OFF (Left)");
-				sampler_midi_note(0x80, inputs.slide_switch, inputs.slide_switch);
+				sampler_midi_note(0x80, 3, inputs.slide_switch);
                 
                 for (int i = 0; i < 8; i++) {
                     //printf("Enc %d | Counter: %-6d | Button: %s\n", i, inputs.counters[i], (inputs.buttons[i] == 1) ? "[PRESSED]" : "released");
