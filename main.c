@@ -306,6 +306,7 @@ int main() {
                 //printf("\033[2J\033[H"); // Clear terminal screen anchor
                 //printf("--- M5Stack 8Encoder Status ---\n");
                 //printf("Slide Switch Position: %s\n\n", (inputs.slide_switch == 1) ? "ON (Right)" : "OFF (Left)");
+				sampler_midi_note(0x80, inputs.slide_switch, inputs.slide_switch);
                 
                 for (int i = 0; i < 8; i++) {
                     //printf("Enc %d | Counter: %-6d | Button: %s\n", i, inputs.counters[i], (inputs.buttons[i] == 1) ? "[PRESSED]" : "released");
@@ -313,6 +314,9 @@ int main() {
                     // --- STEP 2: DYNAMIC LIGHT LOGIC ---
                     // If a button is pressed down, light its LED Red.
                     // Otherwise, shine Blue if the slide switch is ON, or Green if it's OFF.
+					
+					sampler_midi_note(0x81 + i, inputs.buttons[i], inputs.buttons[i]);
+				
                     if (inputs.buttons[i] == 1) {
                         led_data.leds[i].r = 50;  // Soft Red
                         led_data.leds[i].g = 0;
