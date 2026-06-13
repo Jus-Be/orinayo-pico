@@ -256,7 +256,7 @@ int main() {
     gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(PIN_SDA);
     gpio_pull_up(PIN_SCL);
-    sleep_ms(2000);	
+    //sleep_ms(2000);	
 	
     // Hardware polling buffers
     uint8_t enc_raw_data[32];
@@ -307,6 +307,7 @@ int main() {
 			while(1); 
 		}
 		
+		/*
 		// Handle 8 Encoders and LEDs on I2C0
 		
         uint32_t now = to_ms_since_boot(get_absolute_time());
@@ -410,7 +411,10 @@ int main() {
                 }
                 //printf("\n");
             }
-        }		
+        }
+
+		sleep_ms(100); // 10Hz poll rate
+		*/
     }
 	
     //cancel_repeating_timer(&timer);	
