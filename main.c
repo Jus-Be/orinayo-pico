@@ -295,7 +295,7 @@ int main() {
 			watchdog_enable(1, 1); 			// force reboot
 			while(1); 
 		}
-
+		/*
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
         
         if (bytes_written >= 0) {
@@ -334,8 +334,8 @@ int main() {
         } else {
             //printf("Error connecting to 8Encoder hardware unit.\n");
         }
-
-        sleep_ms(50); // Fast 20Hz polling loop for tactile responsiveness
+		*/
+        //sleep_ms(50); // Fast 20Hz polling loop for tactile responsiveness
 
     }
 	
