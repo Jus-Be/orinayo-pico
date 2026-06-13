@@ -329,7 +329,7 @@ int main() {
                 }
                 
                 // Push the modified colors back down the line to the 8Encoder unit
-                //update_all_leds(&led_data);
+                update_all_leds(&led_data);
             }
         } else {
             //printf("Error connecting to 8Encoder hardware unit.\n");
