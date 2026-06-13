@@ -299,10 +299,10 @@ int main() {
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
 				
         //if (bytes_written >= 0) {
-			sampler_midi_note(0x90, 0, bytes_written % 127);			
+			sampler_midi_note(0x90, 0, 1);			
             // Read 49 bytes sequentially (0x00 up to 0x30)
             int bytes_read = i2c_read_blocking(I2C_PORT, ENCODER_ADDR, (uint8_t*)&inputs, sizeof(encoder_inputs_t), false);
-			sampler_midi_note(0x91, 1, bytes_read % 127);			
+			sampler_midi_note(0x91, 1, 2);			
 
             if (bytes_read == sizeof(encoder_inputs_t)) {
                 //printf("\033[2J\033[H"); // Clear terminal screen anchor
