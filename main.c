@@ -301,7 +301,7 @@ int main() {
         if (bytes_written >= 0) {
             // Read 49 bytes sequentially (0x00 up to 0x30)
             int bytes_read = i2c_read_blocking(I2C_PORT, ENCODER_ADDR, (uint8_t*)&inputs, sizeof(encoder_inputs_t), false);
-            /*
+
             if (bytes_read == sizeof(encoder_inputs_t)) {
                 //printf("\033[2J\033[H"); // Clear terminal screen anchor
                 //printf("--- M5Stack 8Encoder Status ---\n");
@@ -329,9 +329,8 @@ int main() {
                 }
                 
                 // Push the modified colors back down the line to the 8Encoder unit
-                update_all_leds(&led_data);
+                //update_all_leds(&led_data);
             }
-			*/
         } else {
             //printf("Error connecting to 8Encoder hardware unit.\n");
         }
