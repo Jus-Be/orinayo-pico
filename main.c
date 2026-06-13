@@ -295,8 +295,9 @@ int main() {
 			watchdog_enable(1, 1); 			// force reboot
 			while(1); 
 		}
-		/*
+
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
+		/*
         
         if (bytes_written >= 0) {
             // Read 49 bytes sequentially (0x00 up to 0x30)
