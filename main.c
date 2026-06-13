@@ -257,8 +257,8 @@ int main() {
 	sleep_ms(500);	
 
     i2c_init(I2C_PORT, 400 * 1000);
-    gpio_set_function(PIN_SDA, GPIO_FUNC_I2C);
     gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
+    gpio_set_function(PIN_SDA, GPIO_FUNC_I2C);	
     gpio_pull_up(PIN_SDA);
     gpio_pull_up(PIN_SCL);
 
@@ -297,7 +297,6 @@ int main() {
 		}
 
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
-		/*
         
         if (bytes_written >= 0) {
             // Read 49 bytes sequentially (0x00 up to 0x30)
@@ -335,8 +334,8 @@ int main() {
         } else {
             //printf("Error connecting to 8Encoder hardware unit.\n");
         }
-		*/
-        //sleep_ms(50); // Fast 20Hz polling loop for tactile responsiveness
+
+        sleep_ms(50); // Fast 20Hz polling loop for tactile responsiveness
 
     }
 	
