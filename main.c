@@ -70,8 +70,8 @@ void pico_set_led(bool led_on) {
 
 // Hardware Hookup Config
 #define I2C_PORT        i2c0
-#define PIN_SDA         8
-#define PIN_SCL         9
+#define PIN_SDA         5
+#define PIN_SCL         6
 
 // M5Stack 8Encoder I2C Register Map Definitions
 #define ENCODER_ADDR    0x41  // Device I2C address
