@@ -256,6 +256,7 @@ int main() {
 	uart_set_translate_crlf(UART_ID, false);
 	sleep_ms(500);	
 
+	/*
     i2c_init(I2C_PORT, 400 * 1000);
     gpio_set_function(PIN_SDA, GPIO_FUNC_I2C);		
     gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
@@ -265,7 +266,8 @@ int main() {
     encoder_inputs_t inputs;
     rgb_payload_t led_data = {0};
     uint8_t start_reg = REG_ENC_START;
-
+	*/
+	
     while (true) {
 		tud_task(); // tinyusb device task		
 		
