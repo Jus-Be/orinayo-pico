@@ -87,6 +87,10 @@ uint8_t dpad_right = 0;
 uint8_t dpad_up = 0;
 uint8_t dpad_down = 0;
 
+int8_t axis_rx = 0;
+int8_t axis_ry = 0;
+
+
 bool joy_up = false;  
 bool joy_down = false;  
 bool knob_up = false; 
@@ -428,8 +432,9 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	
 	int8_t axis_x = ctl->gamepad.axis_x / 4;	// nomalise -512 to +512 to -128 to +128
 	int8_t axis_y = ctl->gamepad.axis_y / 4;
-	int8_t axis_rx = ctl->gamepad.axis_rx / 4;
-	int8_t axis_ry = ctl->gamepad.axis_ry / 4;
+	
+	axis_rx = ctl->gamepad.axis_rx / 4;
+	axis_ry = ctl->gamepad.axis_ry / 4;
 	
 	but0 = (ctl->gamepad.buttons >> 0) & 0x01;
 	but1 = (ctl->gamepad.buttons >> 1) & 0x01;
