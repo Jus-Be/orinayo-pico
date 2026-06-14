@@ -295,10 +295,10 @@ int main() {
 			watchdog_enable(1, 1); 			// force reboot
 			while(1); 
 		}
-
+		/*
         int bytes_written = i2c_write_blocking(I2C_PORT, ENCODER_ADDR, &start_reg, 1, true);
 				
-        //if (bytes_written >= 0) {
+        if (bytes_written >= 0) {
 			sampler_midi_note(0x90, 0, 1);			
             // Read 49 bytes sequentially (0x00 up to 0x30)
             int bytes_read = i2c_read_blocking(I2C_PORT, ENCODER_ADDR, (uint8_t*)&inputs, sizeof(encoder_inputs_t), false);
@@ -337,12 +337,12 @@ int main() {
                 // Push the modified colors back down the line to the 8Encoder unit
                 update_all_leds(&led_data);
             }
-        //} else {
+        } else {
         //    //printf("Error connecting to 8Encoder hardware unit.\n");
-        //}
+        }
 
         //sleep_ms(50); // Fast 20Hz polling loop for tactile responsiveness
-		
+		*/
     }
 	
     //cancel_repeating_timer(&timer);	
