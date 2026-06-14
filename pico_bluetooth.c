@@ -455,31 +455,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 	joy_up = axis_y > axis_x;  
 	joy_down = axis_x > axis_y;  
 	knob_up = axis_ry > axis_rx; 
-	knob_down = axis_rx > axis_ry; 	
-	
-	if (knob_up && !but9) 									// bass/drums volume
-	{
-		if (abs(axis_ry) > abs(axis_rx)) {
-			sample_drum_velocity = abs(axis_ry) % 128;
-			sample_drum_velocity = sample_drum_velocity > 25 ? sample_drum_velocity : 25;
-			style_change_requested = true;
-		} else {
-			sample_bass_velocity = abs(axis_rx) % 128;			
-			sample_bass_velocity = sample_bass_velocity > 25 ? sample_bass_velocity : 25;
-		}
-	}
-	else
-		
-	if (knob_down && !but9) 								// chords/guitar volume
-	{
-		if (abs(axis_rx) > abs(axis_ry)) {
-			sample_chord_velocity = abs(axis_rx) % 128;				
-			sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
-		} else {
-			midi_guitar_velocity = abs(axis_ry) % 128;			
-			midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
-		}
-	}	
+	knob_down = axis_rx > axis_ry; 		
 
 	switch (ctl->klass) {
 		case UNI_CONTROLLER_CLASS_GAMEPAD:		
@@ -900,15 +876,15 @@ void midi_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (but9 != start)  {									// unused because start button clashes with axis (knob_up/knob_down)
+	if (but9 != start)  {									// reset volumes
 		start = but9;
 	
 		if (but9) {
 			sample_drum_velocity = 127;
 			sample_bass_velocity = 120;
 			sample_chord_velocity = 90;
-			midi_guitar_velocity = 127;	
-			worship_pad_velocity = 127;			
+			midi_guitar_velocity = 100;	
+			worship_pad_velocity = 100;			
 		}	
 		finished_processing = true;	
 		return;			
@@ -1888,13 +1864,35 @@ void midi_bluetooth_handle_data() {
 
 	if (knob_up != logo_knob_up) {							// unused because of volume control - mpc-sample, sp404mk2
 		logo_knob_up = knob_up;	
-
+		
+		if (knob_up && !but9) 									// bass/drums volume
+		{
+			if (abs(axis_ry) > abs(axis_rx)) {
+				sample_drum_velocity = abs(axis_ry) % 128;
+				sample_drum_velocity = sample_drum_velocity > 25 ? sample_drum_velocity : 25;
+				style_change_requested = true;
+			} else {
+				sample_bass_velocity = abs(axis_rx) % 128;			
+				sample_bass_velocity = sample_bass_velocity > 25 ? sample_bass_velocity : 25;
+			}
+		}		
 		finished_processing = true;		
 		return;			
 	}
 
 	if (knob_down != logo_knob_down) {						// unused because of volume control - mpc-sample, sp404mk2
 		logo_knob_down = knob_down;	
+		
+		if (knob_down && !but9) 								// chords/guitar volume
+		{
+			if (abs(axis_rx) > abs(axis_ry)) {
+				sample_chord_velocity = abs(axis_rx) % 128;				
+				sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
+			} else {
+				midi_guitar_velocity = abs(axis_ry) % 128;			
+				midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
+			}
+		}		
 			
 		finished_processing = true;
 		return;			
