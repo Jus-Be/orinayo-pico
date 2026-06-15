@@ -72,12 +72,12 @@ void pico_set_led(bool led_on) {
 // U153 Registers
 #define U153_I2C_ADDR       0x41
 #define REG_ENCODER_START   0x00
-#define REG_LED_START       0x20
-#define REG_BUTTON_BYTE     0x70
-#define REG_SWITCH_BYTE     0x80
+#define REG_BUTTON_START    0x50
+#define REG_SWITCH_BYTE     0x60
+#define REG_LED_START       0x70
 #define I2C_PORT            i2c0
-#define PIN_SDA             8
-#define PIN_SCL             9
+#define PIN_SDA             4
+#define PIN_SCL             5
 
 // Timing configurations for click detection (in milliseconds)
 #define DEBOUNCE_MS         30
@@ -263,8 +263,8 @@ int main() {
     uint8_t enc_raw_data[32];
     int32_t hardware_encoders[8] = {0};
     int32_t last_hardware_encoders[8] = {0};
-    uint8_t button_byte = 0xFF;
-    uint8_t last_button_byte = 0xFF;
+    uint8_t button_states[8] = {0};
+    uint8_t last_button_states[8] = {0};
     uint8_t switch_state = 0;
     uint8_t last_switch_state = 0xFF;
 
@@ -313,7 +313,7 @@ int main() {
         uint32_t now = to_ms_since_boot(get_absolute_time());
 
         bool enc_success = u153_read_registers(REG_ENCODER_START, enc_raw_data, 32);
-        bool btn_success = u153_read_registers(REG_BUTTON_BYTE, &button_byte, 1);
+        bool btn_success = u153_read_registers(REG_BUTTON_START, button_states, sizeof(button_states));
         bool sw_success  = u153_read_registers(REG_SWITCH_BYTE, &switch_state, 1);
 
         if (enc_success && btn_success && sw_success) {
@@ -354,8 +354,8 @@ int main() {
                 }
 
                 // STATE MACHINE: DOUBLE CLICK RESET DETECTION
-                bool is_pressed = !(button_byte & (1 << i));
-                bool was_pressed = !(last_button_byte & (1 << i));
+                bool is_pressed = (button_states[i] == 0);
+                bool was_pressed = (last_button_states[i] == 0);
 
                 if (is_pressed && !was_pressed) { // Edge Trigger: Button Just Pressed
                     if ((now - last_press_time[i]) > DEBOUNCE_MS) {
@@ -398,7 +398,9 @@ int main() {
                 }
             }
 
-            last_button_byte = button_byte;
+            for (int i = 0; i < 8; i++) {
+                last_button_states[i] = button_states[i];
+            }
             u153_update_all_leds(led_states);
 
             if (print_update) {
