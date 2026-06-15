@@ -69,15 +69,19 @@ void pico_set_led(bool led_on) {
 #define UART_RX_PIN 1
 #define GPIO_FUNC_UART 2
 
-// U153 Registers
+// U153 / M5Stack 8Encoder (U153) register map (from I2C protocol spec):
+//   0x00-0x1F: Encoder counters (4 bytes per channel, channels 0-7)
+//   0x50-0x57: Button status (1 byte per channel; 1=pressed, 0=released)
+//   0x60:      Toggle switch status (0 or 1)
+//   0x70-0x87: LED RGB data (3 bytes per LED, LEDs 0-7)
 #define U153_I2C_ADDR       0x41
 #define REG_ENCODER_START   0x00
 #define REG_BUTTON_START    0x50
 #define REG_SWITCH_BYTE     0x60
 #define REG_LED_START       0x70
 #define I2C_PORT            i2c0
-#define PIN_SDA             4
-#define PIN_SCL             5
+#define PIN_SDA             8
+#define PIN_SCL             9
 
 // Timing configurations for click detection (in milliseconds)
 #define DEBOUNCE_MS         30
@@ -278,6 +282,13 @@ int main() {
     uint32_t last_release_time[8] = {0};
     uint32_t flash_end_time[8] = {0};	
 
+    // Startup LED test: briefly light all LEDs at low brightness to confirm I2C is alive
+    memset(led_states, 20, sizeof(led_states)); // 20/255 = dim white
+    u153_update_all_leds(led_states);
+    sleep_ms(500);
+    memset(led_states, 0, sizeof(led_states));
+    u153_update_all_leds(led_states);
+
     while (true) {
 		tud_task(); // tinyusb device task		
 		
@@ -354,8 +365,9 @@ int main() {
                 }
 
                 // STATE MACHINE: DOUBLE CLICK RESET DETECTION
-                bool is_pressed = (button_states[i] == 0);
-                bool was_pressed = (last_button_states[i] == 0);
+                // The 8Encoder returns 1 when a button is pressed, 0 when released.
+                bool is_pressed = (button_states[i] != 0);
+                bool was_pressed = (last_button_states[i] != 0);
 
                 if (is_pressed && !was_pressed) { // Edge Trigger: Button Just Pressed
                     if ((now - last_press_time[i]) > DEBOUNCE_MS) {
