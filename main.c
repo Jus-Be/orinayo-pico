@@ -24,6 +24,7 @@
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
+#include "hardware/i2c.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -75,8 +76,8 @@ void pico_set_led(bool led_on) {
 #define REG_BUTTON_BYTE     0x70
 #define REG_SWITCH_BYTE     0x80
 #define I2C_PORT            i2c0
-#define PIN_SDA             4
-#define PIN_SCL             5
+#define PIN_SDA             8
+#define PIN_SCL             9
 
 // Timing configurations for click detection (in milliseconds)
 #define DEBOUNCE_MS         30
