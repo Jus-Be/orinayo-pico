@@ -78,7 +78,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PI
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to libraries
-target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_clocks hardware_i2c pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb  tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
+target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_clocks pico_multicore pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb  tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 orinayobt)
 
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
