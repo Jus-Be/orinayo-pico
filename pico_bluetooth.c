@@ -2162,7 +2162,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 5) {										// MODX/Montage
 		enable_modx = !enable_modx;
-		enable_style_play = enable_modx;
+		enable_style_play = !enable_modx;
 		
 		if (enable_style_play) 	config_style_play();		
 		if (enable_modx) 		config_modx();
