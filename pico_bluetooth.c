@@ -2162,7 +2162,7 @@ void config_guitar(uint8_t mode) {
 		
 	if (mode == 5) {										// MODX/Montage
 		enable_modx = !enable_modx;
-		enable_style_play = !enable_modx;
+		enable_style_play = enable_modx;
 		
 		if (enable_style_play) 	config_style_play();		
 		if (enable_modx) 		config_modx();
@@ -2172,9 +2172,11 @@ void config_guitar(uint8_t mode) {
 void config_style_play() {
 	midi_play_chord(false, 0, 0, 0);					// reset chord  keys
 	
-	midi_send_program_change(0xC1, 89);					// warm pad	(blue)
-	midi_send_program_change(0xC2, 99);					// FX4 (orange)	
-	midi_send_program_change(0xC3, 89);		
+	if (!enable_modx) {
+		midi_send_program_change(0xC1, 89);					// warm pad	(blue)
+		midi_send_program_change(0xC2, 99);					// FX4 (orange)	
+		midi_send_program_change(0xC3, 89);		
+	}
 	
 	if (active_strum_pattern > 2 || active_strum_pattern == -1) {
 		midi_send_control_change(0xB1, 7, 48);	
