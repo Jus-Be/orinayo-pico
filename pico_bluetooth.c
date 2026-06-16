@@ -1193,6 +1193,38 @@ void midi_bluetooth_handle_data() {
 			old_style = style_section;
 		}
 
+		if (green && red) 
+		{
+			if (dpad_down) {
+				style_section = 4;
+			}
+		}
+		else
+			
+		if (red && yellow) 
+		{
+			if (dpad_down) {
+				style_section = 5;
+			}
+		}
+		else
+			
+		if (yellow && blue) 
+		{
+			if (dpad_down) {
+				style_section = 6;
+			}
+		}
+		else
+			
+		if (blue && orange) 
+		{
+			if (dpad_down) {
+				style_section = 7;
+			}
+		}
+		else		
+			
 		if (green) 
 		{
 			if (dpad_down) {
