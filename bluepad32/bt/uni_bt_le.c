@@ -75,6 +75,11 @@
 #include "uni_log.h"
 #include "uni_property.h"
 
+static const uint8_t MIDI_SERVICE_UUID128_LE[16] = {
+    0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7,
+    0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03
+};
+
 bool smc_pad_enabled = false;
 bool liberlive_enabled = false;
 
@@ -208,9 +213,13 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 
     //resume_scanning_hint();
 }
-
-static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
+static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name, bool* is_midi) {
     ad_context_t context;
+    
+    // Clear old state tracking values on initial run
+    if (is_midi) {
+        *is_midi = false;
+    }
 
     for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context);
          ad_iterator_next(&context)) {
@@ -234,6 +243,15 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
                 break;
             case BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS:
             case BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS:
+                // Correctly loop through BTstack's size context data buffer
+                for (uint8_t offset = 0; offset + 16 <= size; offset += 16) {
+                    if (memcmp(&data[offset], MIDI_SERVICE_UUID128_LE, 16) == 0) {
+                        if (is_midi) {
+                            *is_midi = true;
+                        }
+                    }
+                }
+                break;			
             case BLUETOOTH_DATA_TYPE_LIST_OF_128_BIT_SERVICE_SOLICITATION_UUIDS:
                 break;
             case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
@@ -253,7 +271,6 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_RANDOM_TARGET_ADDRESS:
                 break;
             case BLUETOOTH_DATA_TYPE_APPEARANCE:
-                // https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.gap.appearance.xml
                 *appearance = little_endian_read_16(data, 0);
                 break;
             case BLUETOOTH_DATA_TYPE_ADVERTISING_INTERVAL:
@@ -273,7 +290,6 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_LE_BLUETOOTH_DEVICE_ADDRESS:
             case BLUETOOTH_DATA_TYPE_MESH_BEACON:
             case BLUETOOTH_DATA_TYPE_MESH_MESSAGE:
-                // Safely ignore these messages
                 break;
             case BLUETOOTH_DATA_TYPE_SECURITY_MANAGER_OUT_OF_BAND_FLAGS:
                 // fall-through
@@ -284,7 +300,7 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
     }
 }
 
-static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char* name) {
+static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char* name, bool* is_midi_controller) {
     const uint8_t* ad_data;
     uint16_t ad_len;
 
@@ -292,7 +308,7 @@ static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char
     ad_len = gap_event_advertising_report_get_data_length(packet);
 
     // if (!ad_data_contains_uuid16(ad_len, ad_data, ORG_BLUETOOTH_SERVICE_HUMAN_INTERFACE_DEVICE))
-    get_advertisement_data(ad_data, ad_len, appearance, name);
+    get_advertisement_data(ad_data, ad_len, appearance, name, is_midi_controller);
 }
 
 static void parse_report(const uint8_t* packet, uint16_t size) {
@@ -1308,30 +1324,22 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
 void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
-    uint16_t appearance;
+
     uint16_t cod;
     uint8_t rssi;
     char name[64];
 
-    appearance = 0;
+    uint16_t appearance = 0;
+	bool is_midi_controller = false;
     name[0] = 0;
 
     ARG_UNUSED(size);
 
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
-    adv_event_get_data(packet, &appearance, name);
+    adv_event_get_data(packet, &appearance, name, &is_midi_controller);
 
-   if (name[0] == 'S' || name[0] == 's') {
-		midi_send_note(0x90, 0, name[0]);	
-		midi_send_note(0x91, 0, name[1]);	
-		midi_send_note(0x92, 0, name[2]);	
-		midi_send_note(0x93, 0, name[3]);	
-		midi_send_note(0x94, 0, name[4]);
-		midi_send_note(0x95, 0, name[5]);	
-   }		
-	
-    if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')
+    if (is_midi_controller)
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
