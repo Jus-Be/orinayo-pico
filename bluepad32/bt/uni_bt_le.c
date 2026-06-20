@@ -82,12 +82,15 @@ enum {
     BLE_DEVICE_NAME_MAX_LEN = 64,
 };
 
+static const char* kSmcPadName = "SMC-PAD";
+static const char* kPocketMasterBleName = "Pocket Master BLE";
+
 static bool is_scanning;
 static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-static bool name_starts_with(const char* name, size_t name_capacity, const char* expected) {
+static bool ble_name_starts_with(const char* name, size_t name_capacity, const char* expected) {
     size_t i;
 
     if (name == NULL || expected == NULL)
@@ -102,8 +105,8 @@ static bool name_starts_with(const char* name, size_t name_capacity, const char*
 }
 
 static bool is_smc_pad_name(const char* name) {
-    return name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, "SMC-PAD") ||
-           name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, "Pocket Master BLE");
+    return ble_name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, kSmcPadName) ||
+           ble_name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, kPocketMasterBleName);
 }
 
 static void complete_ble_midi_setup(void) {
