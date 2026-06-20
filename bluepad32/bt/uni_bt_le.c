@@ -293,7 +293,7 @@ static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char
 
     ad_data = gap_event_advertising_report_get_data(packet);
     ad_len = gap_event_advertising_report_get_data_length(packet);
-	
+ 	
 	uint8_t index = 0;
 	
 	while (index < ad_len) {
@@ -303,7 +303,7 @@ static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char
 		uint8_t ad_type = ad_data[index + 1];
 		
 		// Check if AD type matches a complete list of 128-bit Service UUIDs
-		if (ad_type == AD_TYPE_COMPLETE_128_BIT_UUID) {
+		if (ad_type == 0x06 || ad_type == 0x07) {
 			// Points directly to the start of the 16-byte UUID field
 			const uint8_t *uuid_ptr = &ad_data[index + 2]; 
 
