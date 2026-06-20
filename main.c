@@ -245,7 +245,9 @@ int main() {
 			
 			watchdog_enable(1, 1); 			// force reboot
 			while(1); 
-		}	
+		}
+
+		cyw43_arch_poll();		
     }
 	
     //cancel_repeating_timer(&timer);	
