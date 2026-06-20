@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/bf5d0bad-dd6a-400b-bc92-5dadf5c17ba5
 |--------|----------|
 | Guitar Hero-style controllers (CRKD-Gibson, etc.) | Bluetooth Classic HID |
 | Liberlive BLE MIDI | BLE GATT |
-| Sonic Master BLE MIDI | BLE GATT |
+| M-VAVE SMC-PAD BLE MIDI | BLE GATT |
 | Generic HID gamepads | Bluetooth Classic HID |
 
 ### MIDI Output
