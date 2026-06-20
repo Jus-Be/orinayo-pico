@@ -294,6 +294,8 @@ static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char
     ad_data = gap_event_advertising_report_get_data(packet);
     ad_len = gap_event_advertising_report_get_data_length(packet);
 	
+	uint8_t index = 0;
+	
 	while (index < ad_len) {
 		uint8_t ad_length = ad_data[index];
 		if (ad_length == 0) break; // End of advertisement data
