@@ -1357,11 +1357,15 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	const uint8_t *data = gap_event_advertising_report_get_data(packet);
 
 	if (adv_data_has_midi_uuid128(len, data)) {
-		midi_send_note(0x90, 0, 0);
+	
+		if (!sonic_master_enabled) {
+			sonic_master_enabled = true;
+			hog_connect(addr, addr_type);	
+			return;	
+		}		
 	}	
 
     if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')	{	
-		midi_send_note(0x90, 1, 1);
 		
 		if (!sonic_master_enabled) {
 			sonic_master_enabled = true;
@@ -1371,7 +1375,6 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	}
 		
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
-		midi_send_note(0x90, 2, 2);
 		
 		if (!liberlive_enabled) {
 			liberlive_enabled = true;
