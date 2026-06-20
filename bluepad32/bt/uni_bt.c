@@ -504,7 +504,7 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                     // Just do nothing, don't call "start_scan" again.
                     break;
                 case GAP_EVENT_ADVERTISING_REPORT:
-                    if (IS_ENABLED(UNI_ENABLE_BLE))
+                    //if (IS_ENABLED(UNI_ENABLE_BLE))
                         uni_bt_le_on_gap_event_advertising_report(packet, size);
                     break;
                 case GAP_EVENT_RSSI_MEASUREMENT: {
