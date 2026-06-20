@@ -85,6 +85,9 @@ static bool ll_cannot_fire;
 static bool ll_have_fired;
 
 static bool is_smc_pad_name(const char* name) {
+    if (name == NULL)
+        return false;
+
     return strncmp(name, "SMC-PAD", sizeof("SMC-PAD") - 1) == 0 ||
            strncmp(name, "Pocket Master BLE", sizeof("Pocket Master BLE") - 1) == 0;
 }
@@ -871,6 +874,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		if (query_state == 2) 	{
 			if (smc_pad_enabled) {
 				mark_ble_midi_ready();
+				// SMC-PAD does not require the extra Liberlive-specific configuration writes.
 				query_state = 4;
 			}
 
