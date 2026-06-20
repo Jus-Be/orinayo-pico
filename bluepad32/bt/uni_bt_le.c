@@ -91,14 +91,14 @@ static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-static bool ble_name_starts_with(const char* name, size_t name_capacity, const char* expected) {
+static bool ble_name_starts_with(const char* name, size_t name_buffer_size, const char* expected) {
     size_t expected_len;
 
     if (name == NULL || expected == NULL)
         return false;
 
     expected_len = strlen(expected);
-    if (expected_len >= name_capacity)
+    if (expected_len > name_buffer_size)
         return false;
 
     return strncmp(name, expected, expected_len) == 0;
