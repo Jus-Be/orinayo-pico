@@ -213,14 +213,9 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 
     resume_scanning_hint();
 }
-static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name, bool* is_midi) {
+static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
     ad_context_t context;
     
-    // Clear old state tracking values on initial run
-    if (is_midi) {
-        *is_midi = false;
-    }
-
     for (ad_iterator_init(&context, adv_size, (uint8_t*)adv_data); ad_iterator_has_more(&context);
          ad_iterator_next(&context)) {
         uint8_t data_type = ad_iterator_get_data_type(&context);
@@ -243,14 +238,6 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
                 break;
             case BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS:
             case BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS:
-                // Correctly loop through BTstack's size context data buffer
-                for (uint8_t offset = 0; offset + 16 <= size; offset += 16) {
-                    if (memcmp(&data[offset], MIDI_SERVICE_UUID128_LE, 16) == 0) {
-                        if (is_midi) {
-                            *is_midi = true;
-                        }
-                    }
-                }
                 break;			
             case BLUETOOTH_DATA_TYPE_LIST_OF_128_BIT_SERVICE_SOLICITATION_UUIDS:
                 break;
@@ -306,9 +293,28 @@ static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char
 
     ad_data = gap_event_advertising_report_get_data(packet);
     ad_len = gap_event_advertising_report_get_data_length(packet);
+	
+	while (index < ad_len) {
+		uint8_t ad_length = ad_data[index];
+		if (ad_length == 0) break; // End of advertisement data
 
+		uint8_t ad_type = ad_data[index + 1];
+		
+		// Check if AD type matches a complete list of 128-bit Service UUIDs
+		if (ad_type == AD_TYPE_COMPLETE_128_BIT_UUID) {
+			// Points directly to the start of the 16-byte UUID field
+			const uint8_t *uuid_ptr = &ad_data[index + 2]; 
+
+			if (memcmp(uuid_ptr, MIDI_SERVICE_UUID128_LE, 16) == 0) {
+				*is_midi_controller = true;
+			}
+		}
+		// Advance to the next AD structure frame
+		index += ad_length + 1; 
+	}	
+	
     // if (!ad_data_contains_uuid16(ad_len, ad_data, ORG_BLUETOOTH_SERVICE_HUMAN_INTERFACE_DEVICE))
-    get_advertisement_data(ad_data, ad_len, appearance, name, is_midi_controller);
+    get_advertisement_data(ad_data, ad_len, appearance, name);
 }
 
 static void parse_report(const uint8_t* packet, uint16_t size) {
