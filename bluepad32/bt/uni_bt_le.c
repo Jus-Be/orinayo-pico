@@ -1293,6 +1293,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 
         case HCI_SUBEVENT_LE_ADVERTISING_REPORT:
             // Safely ignore it, we handle the GAP advertising report instead
+			uni_bt_le_on_gap_event_advertising_report(packet, size);
             break;
 
         default:
@@ -1348,14 +1349,15 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name, &is_midi_controller);
+	
+	midi_send_note(0x90, is_midi_controller ? 0: 1, name[0]);		
 
-    if (is_midi_controller)
+    if (is_midi_controller || (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D'))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
 			hog_connect(addr, addr_type);	
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
-			midi_send_note(0x90, 0, name[0]);			
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 		
 			return;	
 		}
 	}
