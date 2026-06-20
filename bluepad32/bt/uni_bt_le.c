@@ -74,12 +74,10 @@
 #include "uni_hid_device.h"
 #include "uni_log.h"
 #include "uni_property.h"
-#include "ad_parser.h"        
-#include "bluetooth_data_types.h" 
 
-
-static const uint8_t midi_service_uuid128[] = { 
-    0x1B, 0xC5, 0xD5, 0xA5, 0x02, 0x00, 0x60, 0xBA, 0xE5, 0x11, 0x97, 0x1C, 0x65, 0x97, 0xB1, 0x03 
+static const uint8_t MIDI_SERVICE_UUID128_LE[16] = {
+    0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7,
+    0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03
 };
 
 bool smc_pad_enabled = false;
@@ -289,13 +287,34 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
     }
 }
 
-static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char* name) {
+static void adv_event_get_data(const uint8_t* packet, uint16_t* appearance, char* name, bool* is_midi_controller) {
     const uint8_t* ad_data;
     uint16_t ad_len;
 
     ad_data = gap_event_advertising_report_get_data(packet);
     ad_len = gap_event_advertising_report_get_data_length(packet);
+ 	
+	uint8_t index = 0;
+	
+	while (index < ad_len) {
+		uint8_t ad_length = ad_data[index];
+		if (ad_length == 0) break; // End of advertisement data
 
+		uint8_t ad_type = ad_data[index + 1];
+		
+		// Check if AD type matches a complete list of 128-bit Service UUIDs
+		if (ad_type == 0x06 || ad_type == 0x07) {
+			// Points directly to the start of the 16-byte UUID field
+			const uint8_t *uuid_ptr = &ad_data[index + 2]; 
+
+			if (memcmp(uuid_ptr, MIDI_SERVICE_UUID128_LE, 16) == 0) {
+				*is_midi_controller = true;
+			}
+		}
+		// Advance to the next AD structure frame
+		index += ad_length + 1; 
+	}	
+	
     // if (!ad_data_contains_uuid16(ad_len, ad_data, ORG_BLUETOOTH_SERVICE_HUMAN_INTERFACE_DEVICE))
     get_advertisement_data(ad_data, ad_len, appearance, name);
 }
@@ -1313,31 +1332,6 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
     }
 }
 
-bool ad_advertisement_has_uuid128(uint8_t adv_size, const uint8_t *adv_data, const uint8_t *target_uuid128) {
-    ad_iterator_t it;
-    
-    // Initialize the official BTstack advertisement field iterator
-    for (ad_iterator_init(&it, adv_size, (uint8_t *)adv_data); ad_iterator_has_more(&it); ad_iterator_next(&it)) {
-        uint8_t ad_type = ad_iterator_get_data_type(&it);
-        uint8_t ad_len  = ad_iterator_get_data_len(&it);
-        const uint8_t *ad_payload = ad_iterator_get_data(&it);
-
-        // Check if field contains a 128-bit Service UUID list (Incomplete 0x06 or Complete 0x07)
-        if (ad_type == BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS ||
-            ad_type == BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS) {
-            
-            // Step through payload data in blocks of 16 bytes (128 bits)
-            for (int i = 0; i + 16 <= ad_len; i += 16) {
-                if (memcmp(&ad_payload[i], target_uuid128, 16) == 0) {
-                    return true; // Exact match located
-                }
-            }
-        }
-    }
-    
-    return false; // Traversed entire payload without a match
-}
-
 void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
@@ -1347,21 +1341,18 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     char name[64];
 
     uint16_t appearance = 0;
+	bool is_midi_controller = false;
     name[0] = 0;
 
     ARG_UNUSED(size);
 
     gap_event_advertising_report_get_address(packet, addr);
-    uint8_t adv_size = gap_event_advertising_report_get_data_length(packet);
-    const uint8_t *adv_data = gap_event_advertising_report_get_data(packet);
-			
     addr_type = gap_event_advertising_report_get_address_type(packet);
-    adv_event_get_data(packet, &appearance, name);
+    adv_event_get_data(packet, &appearance, name, &is_midi_controller);
 	
-	midi_send_note(0x90, 0, name[0]);		
-	midi_send_note(0x91, 0, name[1]);		
+	midi_send_note(0x90, is_midi_controller ? 0: 1, name[0]);		
 
-    if (ad_advertisement_has_uuid128(adv_size, adv_data, (uint8_t*)midi_service_uuid128))
+    if (is_midi_controller || (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D'))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
