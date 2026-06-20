@@ -62,6 +62,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pico/cyw43_arch.h>
 
 #include "sdkconfig.h"
@@ -82,6 +83,16 @@ static bool is_scanning;
 static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
+
+static bool is_smc_pad_name(const char* name) {
+    return strncmp(name, "SMC-PAD", sizeof("SMC-PAD") - 1) == 0 ||
+           strncmp(name, "Pocket Master BLE", sizeof("Pocket Master BLE") - 1) == 0;
+}
+
+static void mark_ble_midi_ready(void) {
+    uni_bt_stop_scanning_safe();
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+}
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
@@ -858,6 +869,10 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		else
 			
 		if (query_state == 2) 	{
+			if (smc_pad_enabled) {
+				mark_ble_midi_ready();
+				query_state = 4;
+			}
 
 			if (liberlive_enabled) {
 				//uint8_t set_chord[10] = {177, 30, 22, 5, 0, 0, 4, 12, 1, 1};	// chord paddle, group, item, key, difficulty
@@ -1322,7 +1337,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
 
-    if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')
+    if (is_smc_pad_name(name))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
