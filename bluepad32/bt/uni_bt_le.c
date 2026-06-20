@@ -175,7 +175,7 @@ static void hog_connect(bd_addr_t addr, bd_addr_type_t addr_type) {
     // Stop scan, otherwise it will be able to connect.
     // Happens in ESP32, but not in libusb
 
-	gap_stop_scan();
+	//gap_stop_scan();
     logi("BLE scan -> 0\n");
 
     gap_connect(addr, addr_type);
@@ -206,7 +206,7 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
     if (gap_get_connection_type(con_handle) != GAP_CONNECTION_INVALID)
         gap_disconnect(con_handle);
 
-    resume_scanning_hint();
+    //resume_scanning_hint();
 }
 
 static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name) {
@@ -850,7 +850,8 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			else
 				
 			if (smc_pad_enabled) {
-
+				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, &server_characteristic);				
+				gatt_client_write_client_characteristic_configuration(handle_gatt_client_event, connection_handle, &server_characteristic,  GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
 				query_state = 2;	
 			}
 		}
@@ -1206,7 +1207,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 		else
 			
 		if (smc_pad_enabled) {		
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);		
 		}
     }
 }
@@ -1244,9 +1245,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				
 			if (smc_pad_enabled) {	// "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 				uint8_t service_name[16] = {0x03, 0xB8, 0x0E, 0x5A, 0xED, 0xE8, 0x4B, 0x33, 0xA7, 0x51, 0x6C, 0xE3, 0x4E, 0xC4, 0xC7, 0x00} ;			
-				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);
-				gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, NULL);
-				
+				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);				
 			} 			
 			else {	
 			/*
