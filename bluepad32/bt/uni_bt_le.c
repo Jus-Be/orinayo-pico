@@ -91,22 +91,25 @@ static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-static bool ble_name_starts_with(const char* name, size_t name_buffer_size, const char* expected) {
+static bool ble_name_starts_with(const char* name, size_t name_buffer_capacity, const char* expected) {
     size_t expected_len;
 
     if (name == NULL || expected == NULL)
         return false;
 
     expected_len = strlen(expected);
-    if (expected_len > name_buffer_size)
+    if (expected_len > name_buffer_capacity)
+        return false;
+
+    if (strnlen(name, name_buffer_capacity) < expected_len)
         return false;
 
     return strncmp(name, expected, expected_len) == 0;
 }
 
-static bool is_smc_pad_name(const char* name) {
-    return ble_name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, kSmcPadName) ||
-           ble_name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, kPocketMasterBleName);
+static bool is_smc_pad_name(const char* name, size_t name_buffer_capacity) {
+    return ble_name_starts_with(name, name_buffer_capacity, kSmcPadName) ||
+           ble_name_starts_with(name, name_buffer_capacity, kPocketMasterBleName);
 }
 
 static void finalize_ble_midi_connection(void) {
@@ -1358,7 +1361,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
 
-    if (is_smc_pad_name(name))
+    if (is_smc_pad_name(name, sizeof(name)))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
