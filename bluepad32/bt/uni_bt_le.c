@@ -1357,7 +1357,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	const uint8_t *data = gap_event_advertising_report_get_data(packet);
 
 	if (adv_data_has_midi_uuid128(len, data)) {
-.		midi_send_note(0x90, 0, 0);
+		midi_send_note(0x90, 0, 0);
 	}	
 
     if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')	{	
