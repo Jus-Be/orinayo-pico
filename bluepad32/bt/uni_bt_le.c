@@ -91,22 +91,25 @@ static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-static bool ble_name_starts_with(const char* name, size_t name_buffer_capacity, const char* expected) {
+static bool ble_name_starts_with(const char* name, size_t name_capacity, const char* expected) {
     size_t expected_len;
 
     if (name == NULL || expected == NULL)
         return false;
 
+    if (memchr(name, '\0', name_capacity) == NULL)
+        return false;
+
     expected_len = strlen(expected);
-    if (expected_len > name_buffer_capacity)
+    if (expected_len > name_capacity)
         return false;
 
     return strncmp(name, expected, expected_len) == 0;
 }
 
-static bool is_smc_pad_name(const char* name, size_t name_buffer_capacity) {
-    return ble_name_starts_with(name, name_buffer_capacity, kSmcPadName) ||
-           ble_name_starts_with(name, name_buffer_capacity, kPocketMasterBleName);
+static bool is_smc_pad_name(const char* name, size_t name_capacity) {
+    return ble_name_starts_with(name, name_capacity, kSmcPadName) ||
+           ble_name_starts_with(name, name_capacity, kPocketMasterBleName);
 }
 
 static void finalize_ble_midi_connection(void) {
