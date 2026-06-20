@@ -74,8 +74,8 @@
 #include "uni_hid_device.h"
 #include "uni_log.h"
 #include "uni_property.h"
-#include "ble/ad_parser.h"        // Contains ad_iterator prototypes
-#include "bluetooth_data_types.h" // Contains BLUETOOTH_DATA_TYPE_... macros
+#include "ad_parser.h"        
+#include "bluetooth_data_types.h" 
 
 
 static const uint8_t midi_service_uuid128[] = { 
