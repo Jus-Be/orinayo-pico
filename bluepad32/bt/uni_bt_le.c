@@ -101,9 +101,6 @@ static bool ble_name_starts_with(const char* name, size_t name_buffer_capacity, 
     if (expected_len > name_buffer_capacity)
         return false;
 
-    if (strnlen(name, name_buffer_capacity) < expected_len)
-        return false;
-
     return strncmp(name, expected, expected_len) == 0;
 }
 
@@ -1361,7 +1358,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
 
-    if (is_smc_pad_name(name, sizeof(name)))
+    if (is_smc_pad_name(name, BLE_DEVICE_NAME_MAX_LEN))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
