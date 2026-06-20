@@ -1322,12 +1322,14 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);
 
-	midi_send_note(0x90, 1, name[0]);	
-	midi_send_note(0x90, 2, name[1]);	
-	midi_send_note(0x90, 3, name[2]);	
-	midi_send_note(0x90, 4, name[3]);	
-	midi_send_note(0x90, 5, name[4]);
-	midi_send_note(0x90, 6, name[5]);	
+   if (name[0] == 'S' || name[0] == 's') {
+		midi_send_note(0x90, 0, name[0]);	
+		midi_send_note(0x91, 0, name[1]);	
+		midi_send_note(0x92, 0, name[2]);	
+		midi_send_note(0x93, 0, name[3]);	
+		midi_send_note(0x94, 0, name[4]);
+		midi_send_note(0x95, 0, name[5]);	
+   }		
 	
     if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')
 	{	
