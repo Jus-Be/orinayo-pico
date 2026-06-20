@@ -112,7 +112,7 @@ static bool is_smc_pad_name(const char* name, size_t name_capacity) {
            ble_name_starts_with(name, name_capacity, kPocketMasterBleName);
 }
 
-static void finalize_ble_midi_connection(void) {
+static void indicate_ble_midi_ready(void) {
     uni_bt_stop_scanning_safe();
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
@@ -893,8 +893,9 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			
 		if (query_state == 2) 	{
 			if (smc_pad_enabled) {
-				finalize_ble_midi_connection();
-				// SMC-PAD does not require the extra Liberlive-specific configuration writes.
+				indicate_ble_midi_ready();
+				// SMC-PAD does not require the extra Liberlive-specific configuration writes and
+				// can move directly to query_state 4 (ready for notifications).
 				query_state = 4;
 			}
 
