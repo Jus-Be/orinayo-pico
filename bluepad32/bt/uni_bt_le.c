@@ -1310,6 +1310,31 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
     }
 }
 
+bool ad_advertisement_has_uuid128(uint8_t adv_size, const uint8_t *adv_data, const uint8_t *target_uuid128) {
+    ad_iterator_t it;
+    
+    // Initialize the official BTstack advertisement field iterator
+    for (ad_iterator_init(&it, adv_size, (uint8_t *)adv_data); ad_iterator_has_more(&it); ad_iterator_next(&it)) {
+        uint8_t ad_type = ad_iterator_get_data_type(&it);
+        uint8_t ad_len  = ad_iterator_get_data_len(&it);
+        const uint8_t *ad_payload = ad_iterator_get_data(&it);
+
+        // Check if field contains a 128-bit Service UUID list (Incomplete 0x06 or Complete 0x07)
+        if (ad_type == BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS ||
+            ad_type == BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_128_BIT_SERVICE_CLASS_UUIDS) {
+            
+            // Step through payload data in blocks of 16 bytes (128 bits)
+            for (int i = 0; i + 16 <= ad_len; i += 16) {
+                if (memcmp(&ad_payload[i], target_uuid128, 16) == 0) {
+                    return true; // Exact match located
+                }
+            }
+        }
+    }
+    
+    return false; // Traversed entire payload without a match
+}
+
 void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
@@ -1333,7 +1358,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 	midi_send_note(0x90, 0, name[0]);		
 	midi_send_note(0x91, 0, name[1]);		
 
-    if (ad_advertisement_has_uuid128(adv_size, adv_data, (uint8_t*)midi_service_uuid128)) {
+    if (ad_advertisement_has_uuid128(adv_size, adv_data, (uint8_t*)midi_service_uuid128))
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
