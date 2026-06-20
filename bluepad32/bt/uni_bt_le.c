@@ -1296,6 +1296,46 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
     }
 }
 
+bool adv_data_has_midi_uuid128(uint8_t adv_len, const uint8_t *adv_data) {
+    uint8_t index = 0;
+	static const uint8_t TARGET_MIDI_UUID_LE[16] = {0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7,	0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03};	
+
+    // Step 1: Loop through the advertising data structure step-by-step
+    while (index < adv_len) {
+        uint8_t field_length = adv_data[index];
+        
+        // A field length of 0 means we hit the padding at the end of the packet
+        if (field_length == 0) break;
+
+        // Validation check to prevent malicious buffer overflows / memory faults
+        if (index + field_length >= adv_len) {
+            break; 
+        }
+
+        uint8_t ad_type = adv_data[index + 1];
+        const uint8_t *ad_value = &adv_data[index + 2];
+        uint8_t value_length = field_length - 1; // Subtract 1 byte for the AD Type
+
+        // Step 2: Check if the block contains 128-bit Service UUIDs (Type 0x06 or 0x07)
+        if (ad_type == 0x06 || ad_type == 0x07) {
+            
+            // Step 3: A field can contain multiple UUIDs. Loop through them in 16-byte chunks.
+            for (uint8_t offset = 0; offset + 16 <= value_length; offset += 16) {
+                
+                // Step 4: Perform a memory comparison against our target Little-Endian layout
+                if (memcmp(&ad_value[offset], TARGET_MIDI_UUID_LE, 16) == 0) {
+                    return true; // Target matched successfully!
+                }
+            }
+        }
+
+        // Jump to the next LTV structure block
+        index += field_length + 1; // Add 1 byte for the Length field itself
+    }
+
+    return false; // Target UUID not found in this advertisement packet
+}
+
 void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
@@ -1312,9 +1352,17 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
+	
+	uint8_t len = gap_event_advertising_report_get_data_length(packet);
+	const uint8_t *data = gap_event_advertising_report_get_data(packet);
 
-    if (name[0] == 'P' && name[1] == 'o' && name[2] == 'c' && name[3] == 'k' && name[4] == 'e' && name[5] == 't' && name[6] == ' ' && name[7] == 'M' && name[8] == 'a' && name[9] == 's' && name[10] == 't' && name[11] == 'e' && name[12] == 'r' && name[13] == ' ' && name[14] == 'B' && name[15] == 'L' && name[16] == 'E')
-	{	
+	if (adv_data_has_midi_uuid128(len, data)) {
+.		midi_send_note(0x90, 0, 0);
+	}	
+
+    if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')	{	
+		midi_send_note(0x90, 1, 1);
+		
 		if (!sonic_master_enabled) {
 			sonic_master_enabled = true;
 			hog_connect(addr, addr_type);	
@@ -1322,8 +1370,9 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 		}
 	}
 		
-    if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') 
-	{
+    if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
+		midi_send_note(0x90, 2, 2);
+		
 		if (!liberlive_enabled) {
 			liberlive_enabled = true;
 			hog_connect(addr, addr_type);		
