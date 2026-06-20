@@ -62,7 +62,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <pico/cyw43_arch.h>
 
 #include "sdkconfig.h"
@@ -84,15 +83,26 @@ static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-static bool is_smc_pad_name(const char* name) {
-    if (name == NULL)
+static bool name_starts_with(const char* name, size_t name_capacity, const char* expected) {
+    size_t i;
+
+    if (name == NULL || expected == NULL)
         return false;
 
-    return strncmp(name, "SMC-PAD", sizeof("SMC-PAD") - 1) == 0 ||
-           strncmp(name, "Pocket Master BLE", sizeof("Pocket Master BLE") - 1) == 0;
+    for (i = 0; expected[i] != '\0'; i++) {
+        if (i >= name_capacity || name[i] == '\0' || name[i] != expected[i])
+            return false;
+    }
+
+    return true;
 }
 
-static void mark_ble_midi_ready(void) {
+static bool is_smc_pad_name(const char* name) {
+    return name_starts_with(name, 64, "SMC-PAD") ||
+           name_starts_with(name, 64, "Pocket Master BLE");
+}
+
+static void complete_ble_midi_setup(void) {
     uni_bt_stop_scanning_safe();
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
@@ -873,7 +883,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			
 		if (query_state == 2) 	{
 			if (smc_pad_enabled) {
-				mark_ble_midi_ready();
+				complete_ble_midi_setup();
 				// SMC-PAD does not require the extra Liberlive-specific configuration writes.
 				query_state = 4;
 			}
