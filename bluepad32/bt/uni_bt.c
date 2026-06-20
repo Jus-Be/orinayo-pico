@@ -347,7 +347,7 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
             switch (event) {
                 // HCI EVENTS
                 case HCI_EVENT_LE_META:
-                    //if (IS_ENABLED(UNI_ENABLE_BLE))
+                    if (IS_ENABLED(UNI_ENABLE_BLE))
                         uni_bt_le_on_hci_event_le_meta(packet, size);
                     break;
                 case HCI_EVENT_ENCRYPTION_CHANGE:
@@ -491,13 +491,6 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                     if (IS_ENABLED(UNI_ENABLE_BREDR))
                         uni_bt_bredr_on_l2cap_channel_closed(channel, packet, size);
                     break;
-					
-				case BTSTACK_EVENT_STATE:
-					if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING) {
-						gap_set_scan_parameters(1, 0x0030, 0x0030);
-						gap_start_scan();
-					}
-					break;					
 
                 // GAP EVENTS
                 case GAP_EVENT_INQUIRY_RESULT:
@@ -511,7 +504,7 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                     // Just do nothing, don't call "start_scan" again.
                     break;
                 case GAP_EVENT_ADVERTISING_REPORT:
-                    //if (IS_ENABLED(UNI_ENABLE_BLE))
+                    if (IS_ENABLED(UNI_ENABLE_BLE))
                         uni_bt_le_on_gap_event_advertising_report(packet, size);
                     break;
                 case GAP_EVENT_RSSI_MEASUREMENT: {

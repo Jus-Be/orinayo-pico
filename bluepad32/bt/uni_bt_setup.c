@@ -110,6 +110,7 @@ void uni_bt_setup_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t*
         case BTSTACK_EVENT_STATE:
             if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING) {
                 setup_state = SETUP_STATE_BLUEPAD32_IN_PROGRESS;
+
                 setup_call_next_fn();
             }
             break;
@@ -132,9 +133,9 @@ int uni_bt_setup(void) {
     // Initialize L2CAP
     l2cap_init();
 
-    //if (IS_ENABLED(UNI_ENABLE_BREDR))
+    if (IS_ENABLED(UNI_ENABLE_BREDR))
         bredr_enabled = uni_bt_bredr_is_enabled();
-    //if (IS_ENABLED(UNI_ENABLE_BLE))
+    if (IS_ENABLED(UNI_ENABLE_BLE))
         ble_enabled = uni_bt_le_is_enabled();
 
     logi("Max connected gamepads: %d\n", CONFIG_BLUEPAD32_MAX_DEVICES);
