@@ -78,6 +78,10 @@
 bool smc_pad_enabled = false;
 bool liberlive_enabled = false;
 
+enum {
+    BLE_DEVICE_NAME_MAX_LEN = 64,
+};
+
 static bool is_scanning;
 static bool ble_enabled;
 static bool ll_cannot_fire;
@@ -98,8 +102,8 @@ static bool name_starts_with(const char* name, size_t name_capacity, const char*
 }
 
 static bool is_smc_pad_name(const char* name) {
-    return name_starts_with(name, 64, "SMC-PAD") ||
-           name_starts_with(name, 64, "Pocket Master BLE");
+    return name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, "SMC-PAD") ||
+           name_starts_with(name, BLE_DEVICE_NAME_MAX_LEN, "Pocket Master BLE");
 }
 
 static void complete_ble_midi_setup(void) {
