@@ -74,6 +74,9 @@
 #include "uni_hid_device.h"
 #include "uni_log.h"
 #include "uni_property.h"
+#include "ble/ad_parser.h"        // Contains ad_iterator prototypes
+#include "bluetooth_data_types.h" // Contains BLUETOOTH_DATA_TYPE_... macros
+
 
 static const uint8_t midi_service_uuid128[] = { 
     0x1B, 0xC5, 0xD5, 0xA5, 0x02, 0x00, 0x60, 0xBA, 0xE5, 0x11, 0x97, 0x1C, 0x65, 0x97, 0xB1, 0x03 
