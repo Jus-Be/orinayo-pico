@@ -110,8 +110,10 @@ void uni_bt_setup_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t*
         case BTSTACK_EVENT_STATE:
             if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING) {
                 setup_state = SETUP_STATE_BLUEPAD32_IN_PROGRESS;
-
                 setup_call_next_fn();
+				
+                gap_set_scan_parameters(1, 0x0030, 0x0030); // Active scanning
+                gap_start_scan();				
             }
             break;
         case BTSTACK_EVENT_POWERON_FAILED:
