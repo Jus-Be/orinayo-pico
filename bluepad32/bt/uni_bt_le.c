@@ -1320,13 +1320,17 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
-    adv_event_get_data(packet, &appearance, name);	
+    adv_event_get_data(packet, &appearance, name);
+
+	midi_send_note(0x90, 1, 1);	
 
     if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')
 	{	
 		if (!smc_pad_enabled) {
 			smc_pad_enabled = true;
-			hog_connect(addr, addr_type);	
+			//hog_connect(addr, addr_type);	
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+			midi_send_note(0x90, 2, 2);
 			return;	
 		}
 	}
