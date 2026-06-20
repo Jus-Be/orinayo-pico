@@ -180,7 +180,7 @@ static void hog_connect(bd_addr_t addr, bd_addr_type_t addr_type) {
     // Stop scan, otherwise it will be able to connect.
     // Happens in ESP32, but not in libusb
 
-	//gap_stop_scan();
+	gap_stop_scan();
     logi("BLE scan -> 0\n");
 
     gap_connect(addr, addr_type);
@@ -211,7 +211,7 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
     if (gap_get_connection_type(con_handle) != GAP_CONNECTION_INVALID)
         gap_disconnect(con_handle);
 
-    //resume_scanning_hint();
+    resume_scanning_hint();
 }
 static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, uint16_t* appearance, char* name, bool* is_midi) {
     ad_context_t context;
@@ -1243,6 +1243,8 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 
     switch (subevent) {
         case HCI_SUBEVENT_LE_CONNECTION_COMPLETE:
+			midi_send_note(0x91, 1, 1);
+			
             hci_subevent_le_connection_complete_get_peer_address(packet, event_addr);
 
             connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
@@ -1345,6 +1347,7 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 			smc_pad_enabled = true;
 			hog_connect(addr, addr_type);	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false); 
+			midi_send_note(0x90, 0, name[0]);			
 			return;	
 		}
 	}
