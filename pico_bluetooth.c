@@ -18,6 +18,7 @@
 #include "looper.h"
 #include "storage.h"
 #include "ghost_note.h"
+#include "ble_midi_controller.h"
 
 #ifndef CONFIG_BLUEPAD32_PLATFORM_CUSTOM
 #error "Pico W must use BLUEPAD32_PLATFORM_CUSTOM"
@@ -223,6 +224,87 @@ void sp404_stop_loops();
 void mpc_stop_loops();
 void mpx_stop_loops();
 void wav_trigger_pro_stop_loops();
+
+/* -------------------------------------------------------------------------
+ * BLE MIDI receive handler
+ *
+ * Called by ble_midi_controller_task() with each decoded standard MIDI byte
+ * from a connected BLE-MIDI controller.  Bytes are accumulated into complete
+ * MIDI messages; when a message is complete the mapped actions are executed.
+ * -------------------------------------------------------------------- */
+
+static uint8_t ble_midi_expected_len(uint8_t s)
+{
+    uint8_t type = s & 0xF0;
+    /* Single-byte real-time and System messages */
+    if (s == 0xF6 || s == 0xF8 || s == 0xFA ||
+        s == 0xFB || s == 0xFC || s == 0xFE || s == 0xFF)
+        return 1;
+    if (s == 0xF1 || s == 0xF3) return 2;
+    if (s == 0xF2)               return 3;
+    /* Channel messages */
+    if (type == 0xC0 || type == 0xD0) return 2;
+    if (type == 0x80 || type == 0x90 ||
+        type == 0xA0 || type == 0xB0 || type == 0xE0)
+        return 3;
+    return 0; /* SysEx or unknown */
+}
+
+void midi_bluetooth_handle_ble_midi_byte(uint8_t midi_byte)
+{
+    static uint8_t status  = 0;
+    static uint8_t data[2] = {0, 0};
+    static uint8_t count   = 0;
+
+    /* Status byte */
+    if (midi_byte & 0x80) {
+        if (midi_byte == 0xF0 || midi_byte == 0xF7) {
+            /* SysEx start/end: flush accumulator */
+            status = midi_byte;
+            count  = 0;
+            return;
+        }
+        status = midi_byte;
+        count  = 0;
+    }
+
+    uint8_t expected = ble_midi_expected_len(status);
+    if (expected == 0 || expected == 1)
+        return; /* SysEx / real-time / unknown */
+
+    /* Accumulate data bytes (up to 2) */
+    if (count < 2)
+        data[count] = midi_byte;
+    count++;
+
+    if (count < (expected - 1u))
+        return; /* need more bytes */
+
+    /* ---- Complete MIDI message assembled ---- */
+    uint8_t type    = status & 0xF0;
+    uint8_t channel = status & 0x0F;
+    (void)channel;
+
+    switch (type) {
+        case 0x90: /* Note On */
+            if (data[1] > 0) {
+                applied_velocity = data[1] > 64 ? data[1] : 64;
+            }
+            /* Note On with velocity 0 is treated as Note Off */
+            break;
+        case 0x80: /* Note Off */
+            break;
+        case 0xB0: /* Control Change */
+            break;
+        case 0xC0: /* Program Change */
+            break;
+        default:
+            break;
+    }
+
+    /* Reset accumulator; running status keeps same status byte */
+    count = 0;
+}
 
 
 int chord_chat[12][3][6] = {
@@ -3362,9 +3444,17 @@ void bluetooth_init(void) {
   uni_platform_set_custom(get_my_platform());
   // PICO_DEBUG("[INIT] Custom platform registered\n");
 
+  // Initialise the BLE MIDI client BEFORE bluepad32 sets up BTstack.
+  // ble_midi_client_init() registers its HCI/SM event handlers; these
+  // survive the subsequent bluepad32 reinitialisation of the BTstack layers.
+  ble_midi_controller_init();
+
   // Initialize BP32
   uni_init(0, NULL);
   // PICO_INFO("Bluepad32 initialized\n");
+
+  // Begin active BLE scanning for BLE-MIDI servers.
+  ble_midi_controller_scan_begin();
 }
 
 void midi_process_state(uint64_t start_us) {

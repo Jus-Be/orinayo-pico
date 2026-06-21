@@ -120,7 +120,7 @@ static int     midi_data_count = 0;
 
 uint8_t device_addr = 255;
 
-void send_ble_midi(uint8_t* midi_data, int len);
+#include "ble_midi_controller.h"
 void midi_task(void);
 void midi_start_stop(bool start);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
@@ -238,6 +238,8 @@ int main() {
 		}	
 		
 		note_scheduler_dispatch_pending();
+
+		ble_midi_controller_task();
 
 		if (preferences_changed) {
 			preferences_changed = false;

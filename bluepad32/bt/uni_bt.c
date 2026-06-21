@@ -88,8 +88,6 @@ static bool bt_allow_incoming_connections = true;
 static void start_scan(void);
 static void stop_scan(void);
 
-void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
-
 enum {
     CMD_BT_DEL_KEYS,
     CMD_BT_LIST_KEYS,
@@ -523,10 +521,8 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                     logd("--> GATT_EVENT_LONG_CHARACTERISTIC_VALUE_QUERY_RESULT\n");
                     break;
 				case GATT_EVENT_SERVICE_QUERY_RESULT:
-					handle_gatt_client_event(packet_type, channel, packet, size);
 					break;
 				case GATT_EVENT_CHARACTERISTIC_QUERY_RESULT:
-					handle_gatt_client_event(packet_type, channel, packet, size);				
 					break;
                 default:
                     break;

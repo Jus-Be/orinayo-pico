@@ -44,6 +44,25 @@ add_subdirectory(${PICO_TINYUSB_PATH}/src)
 add_subdirectory(${PICO_PIO_USB_PATH})
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bluepad32)
 
+# BLE MIDI client library (rppicomidi/pico-w-ble-midi-lib + ring_buffer_lib)
+set(BLE_MIDI_LIB_PATH ${CMAKE_CURRENT_LIST_DIR}/ble_midi_lib)
+add_library(ble_midi_lib STATIC
+    ${BLE_MIDI_LIB_PATH}/ble_midi_client.c
+    ${BLE_MIDI_LIB_PATH}/ble_midi_pkt_codec.c
+    ${BLE_MIDI_LIB_PATH}/ring_buffer_lib/ring_buffer_lib.c
+)
+target_include_directories(ble_midi_lib PUBLIC
+    ${BLE_MIDI_LIB_PATH}
+    ${BLE_MIDI_LIB_PATH}/ring_buffer_lib
+    ${PICO_SDK_PATH}/lib/btstack/src
+)
+target_link_libraries(ble_midi_lib
+    pico_stdlib
+    pico_btstack_ble
+    pico_btstack_cyw43
+    pico_cyw43_arch_none
+)
+
 add_compile_definitions(
     PICO_DEFAULT_PIO_USB_DP_PIN=17
 	CFG_TUH_RPI_PIO_USB=1
@@ -61,9 +80,9 @@ pico_generate_pio_header(tinyusb_pico_pio_usb ${PICO_PIO_USB_PATH}/src/usb_tx.pi
 pico_generate_pio_header(tinyusb_pico_pio_usb ${PICO_PIO_USB_PATH}/src/usb_rx.pio)
 
 # Add source files 
-add_library(orinayobt STATIC pico_bluetooth.c async_timer.c display.c storage.c)
-target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PICO_TINYUSB_PATH}/src ${PICO_TINYUSB_PATH}/src/class/audio ${PICO_TINYUSB_PATH}/src/class/midi ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb/src)
-target_link_libraries(orinayobt pico_stdlib hardware_clocks pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32)
+add_library(orinayobt STATIC pico_bluetooth.c ble_midi_controller.c async_timer.c display.c storage.c)
+target_include_directories(orinayobt PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PICO_TINYUSB_PATH}/src ${PICO_TINYUSB_PATH}/src/class/audio ${PICO_TINYUSB_PATH}/src/class/midi ${CMAKE_CURRENT_LIST_DIR}/bluepad32/include ${PICO_SDK_PATH}/lib/btstack/src ${CMAKE_CURRENT_LIST_DIR}/pico_pio_usb/src ${BLE_MIDI_LIB_PATH} ${BLE_MIDI_LIB_PATH}/ring_buffer_lib)
+target_link_libraries(orinayobt pico_stdlib hardware_clocks pico_cyw43_arch_none pico_cyw43_arch_threadsafe_background tinyusb_device tinyusb_host tinyusb_board pico_btstack_classic pico_pio_usb tinyusb_pico_pio_usb pico_btstack_ble pico_btstack_cyw43 bluepad32 ble_midi_lib)
 add_compile_definitions(orinayobt PICO_CYW43_ARCH_THREADSAFE_BACKGROUND)
 
 add_executable(${PROJECT_NAME} main.c usb_descriptors.c tap_tempo.c looper.c note_scheduler.c ghost_note.c)
