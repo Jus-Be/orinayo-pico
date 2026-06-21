@@ -1,4 +1,5 @@
 #include "pico_bluetooth.h"
+#include "ble_midi_controller.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -340,6 +341,11 @@ static void pico_bluetooth_on_init_complete(void) {
   // PICO_INFO("Started Bluetooth scanning for new devices.\n");
 
   uni_property_dump_all();
+
+  // Start the BLE MIDI client scan.  BTStack is now in HCI_STATE_WORKING so
+  // ble_midi_controller_scan_begin() can start scanning directly.
+  ble_midi_controller_scan_begin();
+
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
@@ -3358,13 +3364,18 @@ void bluetooth_init(void) {
   // cyw43_arch_disable_sta_mode();
   cyw43_arch_disable_ap_mode();
 
+  // Initialise the BLE MIDI client *before* uni_init() so that its BTStack
+  // event handlers are registered in the chain before Bluepad32 powers on the
+  // BT controller and raises HCI_STATE_WORKING.
+  ble_midi_controller_init();
+
   // Must be called before uni_init()
   uni_platform_set_custom(get_my_platform());
   // PICO_DEBUG("[INIT] Custom platform registered\n");
 
   // Initialize BP32
   uni_init(0, NULL);
-  // PICO_INFO("Bluepad32 initialized\n");
+  // PICO_INFO("Bluepad32 initialized\n")
 }
 
 void midi_process_state(uint64_t start_us) {

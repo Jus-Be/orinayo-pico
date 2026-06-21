@@ -207,6 +207,23 @@ void ble_midi_client_cancel_connection_request();
 
 bool ble_midi_client_get_keep_connected();
 void ble_midi_client_set_keep_connected(bool keep_client_connected_);
+
+/**
+ * @brief Force the internal client state from DEINIT to IDLE.
+ *
+ * When the BLE MIDI client is initialised alongside a pre-existing BTStack
+ * environment (e.g. Bluepad32 called uni_init() before
+ * ble_midi_client_init()), the HCI_STATE_WORKING event fires before the
+ * client's handler is registered, leaving the internal state stuck at
+ * BLEMC_DEINIT.  Call this function once, immediately after
+ * ble_midi_client_init(), to advance the state machine so that a subsequent
+ * ble_midi_client_scan_begin() takes the fast path (gap_start_scan()) rather
+ * than attempting to power the BT controller on again.
+ *
+ * This is a no-op when the state is anything other than BLEMC_DEINIT.
+ */
+void ble_midi_client_promote_to_idle(void);
+
 #if defined __cplusplus
 }
 #endif
