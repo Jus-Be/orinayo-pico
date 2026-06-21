@@ -23,7 +23,7 @@
  */
 
 /**
- * To the extent this code is solely for use on the Rapsberry Pi Pico W or
+ * To the extent this code is solely for use on the Raspberry Pi Pico W or
  * Pico WH, the license file ${PICO_SDK_PATH}/src/rp2_common/pico_btstack/LICENSE.RP may
  * apply.
  */
@@ -82,7 +82,7 @@ extern "C" {
 void ble_midi_client_init(const char* profile_name, uint8_t profile_name_len, io_capability_t iocaps, uint8_t secmask);
 void ble_midi_client_deinit();
 void ble_midi_client_set_last_connected(int addr_type, uint8_t* addr);
-int  ble_midi_client_get_last_conntected(uint8_t* addr);
+int  ble_midi_client_get_last_connected(uint8_t* addr);
 void ble_midi_client_scan_begin();
 void ble_midi_client_scan_end();
 void ble_midi_client_dump_midi_peripherals();

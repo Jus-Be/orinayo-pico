@@ -5,7 +5,7 @@
  * - decode BLE-MIDI 1.0 packets into a series of timestamped MIDI 1.0 byte
  *   stream messages
  *
- * To the be of my knowledge, this code is an orignal work.
+ * To the best of my knowledge, this code is an original work.
  *
  * MIT License
  *

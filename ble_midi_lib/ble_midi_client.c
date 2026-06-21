@@ -633,7 +633,7 @@ void ble_midi_client_set_last_connected(int addr_type, uint8_t* addr)
     }
 }
 
-int ble_midi_client_get_last_conntected(uint8_t* addr)
+int ble_midi_client_get_last_connected(uint8_t* addr)
 {
     int result = last_connected_bd_addr_type;
     if (result != BD_ADDR_TYPE_UNKNOWN) {
