@@ -17,6 +17,8 @@
 #include "tusb.h"
 #include "pio_usb.h"
 #include "pico_bluetooth.h"
+#include "ble_midi_controller.h"
+#include "ble_midi_client.h"
 #include "async_timer.h"
 #include "storage.h"
 #include "looper.h"
@@ -233,11 +235,14 @@ int main() {
 			
 			uart_write_blocking(UART_ID, buffer, 4);
 			uart_tx_wait_blocking(UART_ID); 	
-	
+		
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}	
 		
 		note_scheduler_dispatch_pending();
+
+		// Poll for incoming MIDI events from any connected BLE MIDI peripheral.
+		ble_midi_controller_poll();
 
 		if (preferences_changed) {
 			preferences_changed = false;
@@ -1246,4 +1251,21 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
+}
+
+/**
+ * @brief Send a MIDI 1.0 byte stream to the connected BLE MIDI peripheral.
+ *
+ * The buffer must contain a complete MIDI message without running status
+ * (i.e. each message starts with a full status byte).  The library will
+ * timestamp and encode the bytes into a BLE-MIDI 1.0 packet and transmit it
+ * when the connection allows.
+ *
+ * @param midi_data Pointer to the MIDI byte stream.
+ * @param len       Number of bytes to send (must fit in a uint8_t, max 255).
+ */
+void send_ble_midi(uint8_t* midi_data, int len) {
+	if (midi_data == NULL || len <= 0 || len > 255) return;
+	if (!ble_midi_controller_is_ready()) return;
+	ble_midi_client_stream_write((uint8_t)len, midi_data);
 }

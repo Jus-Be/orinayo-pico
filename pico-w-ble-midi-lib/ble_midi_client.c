@@ -848,3 +848,10 @@ void ble_midi_client_set_keep_connected(bool keep_client_connected_)
 {
     keep_client_connected = keep_client_connected_;
 }
+
+void ble_midi_client_promote_to_idle(void)
+{
+    if (state == BLEMC_DEINIT) {
+        state = BLEMC_IDLE;
+    }
+}
