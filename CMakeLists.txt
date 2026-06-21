@@ -52,6 +52,7 @@ add_library(ble_midi_lib STATIC
     ${BLE_MIDI_LIB_PATH}/ring_buffer_lib/ring_buffer_lib.c
 )
 target_include_directories(ble_midi_lib PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}
     ${BLE_MIDI_LIB_PATH}
     ${BLE_MIDI_LIB_PATH}/ring_buffer_lib
     ${PICO_SDK_PATH}/lib/btstack/src
