@@ -53,14 +53,14 @@
  * How long (ms) to wait between auto-connect attempts when scanning.
  * Increase this if you see repeated failed connection attempts.
  */
-#define BMC_RECONNECT_INTERVAL_MS 2000u
+#define BMC_RECONNECT_INTERVAL_MS 4000u
 
 /**
  * Maximum size (bytes) of a single timestamped MIDI stream returned by
  * ble_midi_client_stream_read().  16 bytes covers any standard MIDI message
  * including short SysEx payloads; increase if you expect longer SysEx bursts.
  */
-#define BMC_RX_BUF_SIZE 16u
+#define BMC_RX_BUF_SIZE 128u
 
 // ── Internal state ────────────────────────────────────────────────────────
 

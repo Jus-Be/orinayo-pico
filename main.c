@@ -252,7 +252,7 @@ int main() {
 			while(1); 
 		}
 
-		cyw43_arch_poll();		
+		//cyw43_arch_poll();		
     }
 	
     //cancel_repeating_timer(&timer);	
