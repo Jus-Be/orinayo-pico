@@ -40,6 +40,8 @@ extern "C" {
 #define MAX_BLE_MIDI_PACKET ATT_DEFAULT_MTU-3
 #endif
 
+#define BLE_MIDI_SERVER_MAX_CONNECTIONS 4
+
 // This structure is used to hold BLE-MIDI 1.0 data packets in a ring_buffer
 typedef struct ble_midi_packet_s {
     uint16_t nbytes;
