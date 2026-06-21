@@ -25,7 +25,7 @@
 #ifdef ENABLE_CLASSIC
 #define ENABLE_L2CAP_ENHANCED_RETRANSMISSION_MODE
 #define ENABLE_GOEP_L2CAP
-#else
+#elif defined(BLUEPAD32_BUILD)
 #error "BP32: ENABLE_CLASSIC should be defined"
 #endif
 

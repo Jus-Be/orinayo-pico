@@ -161,6 +161,7 @@ elseif(PICO_SDK_VERSION_STRING OR BLUEPAD32_TARGET_POSIX)
     # Valid for Pico W and Linux
     add_library(bluepad32 ${srcs})
     target_include_directories(bluepad32 PUBLIC ./include)
+    target_compile_definitions(bluepad32 PUBLIC BLUEPAD32_BUILD=1)
 else()
     message(FATAL_ERROR "Define target")
 endif()

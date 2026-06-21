@@ -63,6 +63,9 @@ target_link_libraries(ble_midi_lib
     pico_btstack_cyw43
     pico_cyw43_arch_none
 )
+target_compile_definitions(ble_midi_lib PUBLIC
+    BLE_MIDI_SERVER_MAX_CONNECTIONS=1
+)
 
 add_compile_definitions(
     PICO_DEFAULT_PIO_USB_DP_PIN=17
