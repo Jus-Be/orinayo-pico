@@ -170,10 +170,12 @@ static RING_BUFFER_SIZE_TYPE ring_buffer_peek_core(ring_buffer_t *ring_buf, uint
     assert(ring_buf);
     assert(vals);
     RING_BUFFER_SIZE_TYPE npopped = 0;
+    RING_BUFFER_SIZE_TYPE num_buffered = ring_buf->num_buffered;
     RING_BUFFER_SIZE_TYPE out_idx = ring_buf->out_idx;
-    while (ring_buf->num_buffered > 0 && npopped < maxvals) {
+    while (num_buffered > 0 && npopped < maxvals) {
         vals[npopped++] = ring_buf->buf[out_idx];
         out_idx = (out_idx+1) % ring_buf->bufsize;
+        --num_buffered;
     }
     return npopped;
 }
