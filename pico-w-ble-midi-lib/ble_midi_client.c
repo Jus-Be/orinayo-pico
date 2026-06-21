@@ -294,9 +294,8 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
                 gap_start_scan();
             }
             else if (state == BLEMC_WAIT_FOR_CONNECTION) {
-                if (next_connect_bd_addr_type != BD_ADDR_TYPE_UNKNOWN) {
-                    gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
-                }
+                if (next_connect_bd_addr_type == BD_ADDR_TYPE_UNKNOWN) next_connect_bd_addr_type = BD_ADDR_TYPE_LE_PUBLIC;
+                gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);                
             }
             break;
         case GAP_EVENT_ADVERTISING_REPORT:
