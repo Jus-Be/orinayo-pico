@@ -75,7 +75,6 @@
 #include "uni_log.h"
 #include "uni_property.h"
 
-bool sonic_master_enabled = false;
 bool liberlive_enabled = false;
 
 static bool is_scanning;
@@ -83,7 +82,6 @@ static bool ble_enabled;
 static bool ll_cannot_fire;
 static bool ll_have_fired;
 
-void send_ble_midi(uint8_t* midi_data, int len);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 void midi_play_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3);
 void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4);
@@ -813,11 +811,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			if (liberlive_enabled) {				
 				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, liberlive_name);						
 			}
-			else
-				
-			if (sonic_master_enabled) {	// "7772e5db-3868-4112-a1a9-f2669d106bf3"
-				gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &server_service, sonic_master_name);																		
-			}
 		}
 		else		
 		
@@ -846,12 +839,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 				//gatt_client_write_value_of_characteristic(handle_gatt_client_event, connection_handle, server_characteristic.value_handle, 6, set_key);
 				
 				query_state = 2;
-			}
-			else
-				
-			if (sonic_master_enabled) {
-
-				query_state = 2;	
 			}
 		}
 		else
@@ -1203,10 +1190,6 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
     }
 }
 
-void send_ble_midi(uint8_t* midi_data, int len) {
-	gatt_client_write_value_of_characteristic_without_response(connection_handle, server_characteristic.value_handle, len, midi_data);
-}
-
 void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
     uni_hid_device_t* device;
     bd_addr_t event_addr;
@@ -1231,13 +1214,7 @@ void uni_bt_le_on_hci_event_le_meta(const uint8_t* packet, uint16_t size) {
 				ll_cannot_fire = true;
 				ll_have_fired = false;
 				
-			} 
-			else
-				
-			if (sonic_master_enabled) {	// "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
-				uint8_t service_name[16] = {0x03, 0xB8, 0x0E, 0x5A, 0xED, 0xE8, 0x4B, 0x33, 0xA7, 0x51, 0x6C, 0xE3, 0x4E, 0xC4, 0xC7, 0x00} ;			
-				gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, service_name);			
-			} 			
+			}  			
 			else {	
 			/*
 				device = uni_hid_device_get_instance_for_address(event_addr);
@@ -1296,46 +1273,6 @@ void uni_bt_le_on_hci_event_encryption_change(const uint8_t* packet, uint16_t si
     }
 }
 
-bool adv_data_has_midi_uuid128(uint8_t adv_len, const uint8_t *adv_data) {
-    uint8_t index = 0;
-	static const uint8_t TARGET_MIDI_UUID_LE[16] = {0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7,	0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03};	
-
-    // Step 1: Loop through the advertising data structure step-by-step
-    while (index < adv_len) {
-        uint8_t field_length = adv_data[index];
-        
-        // A field length of 0 means we hit the padding at the end of the packet
-        if (field_length == 0) break;
-
-        // Validation check to prevent malicious buffer overflows / memory faults
-        if (index + field_length >= adv_len) {
-            break; 
-        }
-
-        uint8_t ad_type = adv_data[index + 1];
-        const uint8_t *ad_value = &adv_data[index + 2];
-        uint8_t value_length = field_length - 1; // Subtract 1 byte for the AD Type
-
-        // Step 2: Check if the block contains 128-bit Service UUIDs (Type 0x06 or 0x07)
-        if (ad_type == 0x06 || ad_type == 0x07) {
-            
-            // Step 3: A field can contain multiple UUIDs. Loop through them in 16-byte chunks.
-            for (uint8_t offset = 0; offset + 16 <= value_length; offset += 16) {
-                
-                // Step 4: Perform a memory comparison against our target Little-Endian layout
-                if (memcmp(&ad_value[offset], TARGET_MIDI_UUID_LE, 16) == 0) {
-                    return true; // Target matched successfully!
-                }
-            }
-        }
-
-        // Jump to the next LTV structure block
-        index += field_length + 1; // Add 1 byte for the Length field itself
-    }
-
-    return false; // Target UUID not found in this advertisement packet
-}
-
 void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t size) {	// GAP_EVENT_ADVERTISING_REPORT
     bd_addr_t addr;
     bd_addr_type_t addr_type;
@@ -1352,27 +1289,6 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
     gap_event_advertising_report_get_address(packet, addr);
     addr_type = gap_event_advertising_report_get_address_type(packet);
     adv_event_get_data(packet, &appearance, name);	
-	
-	uint8_t len = gap_event_advertising_report_get_data_length(packet);
-	const uint8_t *data = gap_event_advertising_report_get_data(packet);
-
-	if (adv_data_has_midi_uuid128(len, data)) {
-	
-		if (!sonic_master_enabled) {
-			sonic_master_enabled = true;
-			hog_connect(addr, addr_type);	
-			return;	
-		}		
-	}	
-
-    if (name[0] == 'S' && name[1] == 'M' && name[2] == 'C' && name[3] == '-' && name[4] == 'P' && name[5] == 'A' && name[6] == 'D')	{	
-		
-		if (!sonic_master_enabled) {
-			sonic_master_enabled = true;
-			hog_connect(addr, addr_type);	
-			return;	
-		}
-	}
 		
     if (name[0] == 'L' && name[1] == 'i' && name[2] == 'b' && name[3] == 'e' && name[4] == 'r') {
 		
@@ -1448,7 +1364,6 @@ void uni_bt_le_on_hci_disconnection_complete(uint16_t channel, const uint8_t* pa
     ARG_UNUSED(size);
 
 	liberlive_enabled = false;
-	sonic_master_enabled = false;	
     resume_scanning_hint();
 }
 
