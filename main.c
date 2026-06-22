@@ -511,7 +511,7 @@ static void chord_detect(void) {
 // ────────────────────────────────────────────────────────────────────────────
 
 void process_midi_byte(uint8_t b) {	
-	uint8_t* buffer[1];
+	uint8_t buffer[1];
 	buffer[0] = b;
 	
 	tud_midi_n_stream_write(idx, cable_num, buffer, 1);
