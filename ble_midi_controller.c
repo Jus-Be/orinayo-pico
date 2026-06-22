@@ -53,7 +53,7 @@
  * How long (ms) to wait between auto-connect attempts when scanning.
  * Increase this if you see repeated failed connection attempts.
  */
-#define BMC_RECONNECT_INTERVAL_MS 4000u
+#define BMC_RECONNECT_INTERVAL_MS 10000u
 
 /**
  * Maximum size (bytes) of a single timestamped MIDI stream returned by
@@ -397,12 +397,14 @@ void ble_midi_controller_poll(void)
             break;
 
         case BMC_STATE_CONNECTING:
+			midi_send_note(0x94, 4, 4);			
+			
             if (ble_midi_client_is_ready()) {
-				midi_send_note(0x94, 4, 4);					
+				midi_send_note(0x95, 5, 5);					
                 printf("[BLE MIDI] Connected and ready.\n");
                 bmc_state = BMC_STATE_READY;
             } else if (!ble_midi_client_is_connected() && !ble_midi_client_waiting_for_connection()) {
-				midi_send_note(0x95, 5, 5);					
+				midi_send_note(0x96, 6, 6);					
                 // The connection attempt was rejected or timed out.
                 printf("[BLE MIDI] Connection failed. Resuming scan.\n");
                 ble_midi_controller_scan_begin();
@@ -412,7 +414,7 @@ void ble_midi_controller_poll(void)
         case BMC_STATE_READY:
 			
             if (!ble_midi_client_is_connected()) {
-				midi_send_note(0x96, 6, 6);					
+				midi_send_note(0x97, 7, 7);					
                 printf("[BLE MIDI] Disconnected. Resuming scan.\n");
                 ble_midi_controller_scan_begin();
                 break;
