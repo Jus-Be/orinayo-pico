@@ -299,8 +299,9 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
                 gap_start_scan();
             }
             else if (state == BLEMC_WAIT_FOR_CONNECTION) {
-                if (next_connect_bd_addr_type == BD_ADDR_TYPE_UNKNOWN) next_connect_bd_addr_type = BD_ADDR_TYPE_LE_PUBLIC;
-                gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);                
+                if (next_connect_bd_addr_type != BD_ADDR_TYPE_UNKNOWN) {
+					gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);                
+				}
             }
             break;
         case GAP_EVENT_ADVERTISING_REPORT:
@@ -576,7 +577,7 @@ static void enter_client_mode()
     
 	//gap_set_connection_parameters(96, 48, 6, 12, 0, 1000, 0x01, 6 * 2);
 	//gap_set_connection_parameters(96, 48, 12, 24, 0, 200,  0x0000, 0xffff);
-	gap_set_connection_parameters(96, 48, 24, 48, 0, 100, 2, 8);	
+	gap_set_connection_parameters(96, 48, 24, 48, 0, 100, 2, 64);	
 }
 
 void ble_midi_client_init(const char* profile_name, uint8_t profile_name_len, io_capability_t iocaps_, uint8_t secmask_)
