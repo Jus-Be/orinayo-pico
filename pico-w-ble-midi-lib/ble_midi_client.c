@@ -574,7 +574,7 @@ static void enter_client_mode()
     // If your server can handled a shorter connection interval, please have it request
     // to update the parameters to the shorter interval
     
-	gap_set_connection_parameters(96, 48, 24, 48, 0, 100, 0x0000, 0xffff);	
+	gap_set_connection_parameters(96, 48, 48, 96, 0, 100, 2, 8);	
 }
 
 void ble_midi_client_init(const char* profile_name, uint8_t profile_name_len, io_capability_t iocaps_, uint8_t secmask_)
@@ -762,7 +762,6 @@ bool ble_midi_client_request_connect(uint8_t idx)
             break;
     }
 	
-	midi_is_ready = true;
     return true;
 }
 
