@@ -155,6 +155,7 @@ void mpx_trigger_loop();
 void sp404_trigger_loop();
 void config_nanobox_tangerine();
 void config_mpx_looper();
+void process_midi_byte(uint8_t b);
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -237,7 +238,12 @@ int main() {
 			uart_tx_wait_blocking(UART_ID); 	
 		
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
-		}	
+		}
+
+		while (uart_is_readable(UART_ID)) {
+			uint8_t ch = uart_getc(UART_ID);
+			process_midi_byte(ch);
+		}		
 		
 		note_scheduler_dispatch_pending();
 
@@ -504,6 +510,151 @@ static void chord_detect(void) {
 
 // ────────────────────────────────────────────────────────────────────────────
 
+void process_midi_byte(uint8_t b) {
+	
+	if (b & 0x80) {
+		// Status byte.
+		if (b >= 0xF8) {
+			// Real-time message (single byte); does not affect running status.
+			continue;
+		}
+		if (b >= 0xF0) {
+			// System Common message; cancels running status per MIDI spec.
+			midi_running_status = 0;
+			midi_data_count = 0;
+			continue;
+		}
+		// Channel message: update running status; reset data accumulator.
+		midi_running_status = b;
+		midi_data_count = 0;
+	} else {
+		// Data byte — only process Note On / Note Off messages.
+		uint8_t cmd = midi_running_status & 0xF0;
+		
+		if (cmd == 0x80 || cmd == 0x90) 
+		{
+			if (midi_data_count == 0) {
+				midi_data0 = b;        // first data byte: note number
+				midi_data_count = 1;
+			} else {
+				// Second data byte: velocity.  Complete the message.
+				uint8_t note     = midi_data0;
+				uint8_t velocity = b;
+				midi_data_count  = 0;  // ready for next running-status pair
+
+				if (style_started) {
+					bool note_on = (cmd == 0x90) && (velocity > 0);
+					
+					if (note_on) {
+						chord_note_on(note);
+					} else {
+						chord_note_off(note);
+					}
+					
+					chord_detect();
+				}
+				else 
+					
+				if (style_end_requested && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
+					sampler_trigger_loop();
+				}							
+			}
+		}
+		else
+			
+		if (cmd == 0xB0) 
+		{				
+			if (midi_data_count == 0) {
+				midi_data0 = b;        			// first data byte: cc command
+				midi_data_count = 1;
+			} else {						
+				uint8_t cc_cmd	= midi_data0;	
+				uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
+				midi_data_count  = 0; 			// ready for next running-status pair
+				
+				if (cc_cmd == 0x17 && cc_value == 0x7F) {			// data button press
+				
+					if (held_note_count < 3) {						// start/stop
+						mbut0 = 1; logo = 0;
+						gamepad_bluetooth_handle_data();
+					
+					} else {										// fill
+						joy_up = true; joystick_up = 0;
+						gamepad_bluetooth_handle_data();									
+					}
+				}
+				else
+
+				if (cc_cmd == 0x16) {								// data button dial
+				
+					if (style_started) {
+						if (cc_value == 0x1) {							// next style
+							dpad_down = 1; starpower = 0;	
+							gamepad_bluetooth_handle_data();
+						}
+						else
+							
+						if (cc_value == 0x7F) {							// previous style
+							dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
+							gamepad_bluetooth_handle_data();								
+						}
+					} else {
+						
+						if (cc_value == 0x1) {							// next style group
+							style_group = style_group + 1;
+							if (style_group > 20) style_group = 0;
+						}
+						else
+							
+						if (cc_value == 0x7F) {							// previous style group
+							style_group = style_group - 1;
+							if (style_group < 0) style_group = 20;								
+						}
+
+						if (enable_wav_trigger_pro) {
+							sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset  
+						} 									
+						else
+
+						if (enable_nanobox_tangerine) {
+							midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+						}																		
+					}
+				}
+				else
+					
+				if (cc_cmd == 0x0C) {			// drum volume
+					sample_drum_velocity = cc_value > 0 ? cc_value : 64;
+				}
+				else
+					
+				if (cc_cmd == 0x0D) {			// bass volume
+					sample_bass_velocity = cc_value > 0 ? cc_value : 64;
+				}
+				else
+
+				if (cc_cmd == 0x0E) {			// chord volume
+					sample_chord_velocity = cc_value > 0 ? cc_value : 64;
+				}
+				else
+
+				if (cc_cmd == 0x0F) {			// midi guitar volume
+					midi_guitar_velocity = cc_value > 0 ? cc_value : 64;
+				}							
+			}						
+			
+		} else {
+			// Other channel messages: Program Change (0xC0) and Channel
+			// Pressure (0xD0) carry one data byte; all others carry two.
+			uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
+			midi_data_count++;
+			if (midi_data_count >= expected) midi_data_count = 0;
+		}
+	}
+	
+}
+
+
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	if (xferred_bytes == 0) return;
 
@@ -524,146 +675,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		{
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine || enable_wav_trigger_pro) {
 				// Parse the raw MIDI byte stream to track note on/off events.
-				uint8_t b = buffer[i];
-				if (b & 0x80) {
-					// Status byte.
-					if (b >= 0xF8) {
-						// Real-time message (single byte); does not affect running status.
-						continue;
-					}
-					if (b >= 0xF0) {
-						// System Common message; cancels running status per MIDI spec.
-						midi_running_status = 0;
-						midi_data_count = 0;
-						continue;
-					}
-					// Channel message: update running status; reset data accumulator.
-					midi_running_status = b;
-					midi_data_count = 0;
-				} else {
-					// Data byte — only process Note On / Note Off messages.
-					uint8_t cmd = midi_running_status & 0xF0;
-					
-					if (cmd == 0x80 || cmd == 0x90) 
-					{
-						if (midi_data_count == 0) {
-							midi_data0 = b;        // first data byte: note number
-							midi_data_count = 1;
-						} else {
-							// Second data byte: velocity.  Complete the message.
-							uint8_t note     = midi_data0;
-							uint8_t velocity = b;
-							midi_data_count  = 0;  // ready for next running-status pair
-
-							if (style_started) {
-								bool note_on = (cmd == 0x90) && (velocity > 0);
-								
-								if (note_on) {
-									chord_note_on(note);
-								} else {
-									chord_note_off(note);
-								}
-								
-								chord_detect();
-							}
-							else 
-								
-							if (style_end_requested && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
-								sampler_trigger_loop();
-							}							
-						}
-					}
-					else
-						
-					if (cmd == 0xB0) 
-					{				
-						if (midi_data_count == 0) {
-							midi_data0 = b;        			// first data byte: cc command
-							midi_data_count = 1;
-						} else {						
-							uint8_t cc_cmd	= midi_data0;	
-							uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
-							midi_data_count  = 0; 			// ready for next running-status pair
-							
-							if (cc_cmd == 0x17 && cc_value == 0x7F) {			// data button press
-							
-								if (held_note_count < 3) {						// start/stop
-									mbut0 = 1; logo = 0;
-									gamepad_bluetooth_handle_data();
-								
-								} else {										// fill
-									joy_up = true; joystick_up = 0;
-									gamepad_bluetooth_handle_data();									
-								}
-							}
-							else
-
-							if (cc_cmd == 0x16) {								// data button dial
-							
-								if (style_started) {
-									if (cc_value == 0x1) {							// next style
-										dpad_down = 1; starpower = 0;	
-										gamepad_bluetooth_handle_data();
-									}
-									else
-										
-									if (cc_value == 0x7F) {							// previous style
-										dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
-										gamepad_bluetooth_handle_data();								
-									}
-								} else {
-									
-									if (cc_value == 0x1) {							// next style group
-										style_group = style_group + 1;
-										if (style_group > 20) style_group = 0;
-									}
-									else
-										
-									if (cc_value == 0x7F) {							// previous style group
-										style_group = style_group - 1;
-										if (style_group < 0) style_group = 20;								
-									}
-
-									if (enable_wav_trigger_pro) {
-										sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset  
-									} 									
-									else
-
-									if (enable_nanobox_tangerine) {
-										midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
-									}																		
-								}
-							}
-							else
-								
-							if (cc_cmd == 0x0C) {			// drum volume
-								sample_drum_velocity = cc_value > 0 ? cc_value : 64;
-							}
-							else
-								
-							if (cc_cmd == 0x0D) {			// bass volume
-								sample_bass_velocity = cc_value > 0 ? cc_value : 64;
-							}
-							else
-
-							if (cc_cmd == 0x0E) {			// chord volume
-								sample_chord_velocity = cc_value > 0 ? cc_value : 64;
-							}
-							else
-
-							if (cc_cmd == 0x0F) {			// midi guitar volume
-								midi_guitar_velocity = cc_value > 0 ? cc_value : 64;
-							}							
-						}						
-						
-					} else {
-						// Other channel messages: Program Change (0xC0) and Channel
-						// Pressure (0xD0) carry one data byte; all others carry two.
-						uint8_t expected = ((cmd == 0xC0) || (cmd == 0xD0)) ? 1 : 2;
-						midi_data_count++;
-						if (midi_data_count >= expected) midi_data_count = 0;
-					}
-				}
+				process_midi_byte(buffer[i]);
 			}
 		}
 	
