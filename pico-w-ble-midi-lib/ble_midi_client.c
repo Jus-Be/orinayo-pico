@@ -35,7 +35,7 @@ typedef struct {
     uint8_t n_midi_peripherals;
 } BLEMC_client_t;
 
-// void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 static uint32_t const scan_blink_timeout_ms = 500;
 static int32_t const scan_remove_timeout = 6; // when decremented to 0, remove entry from midi_peripherals (in units of scan_blink_timeout_ms)
@@ -168,6 +168,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                 else {
                     printf("wrote client characteristic configuration\r\n");
                 }
+                midi_is_ready = true;				
             }
             else if (state == BLEMC_WAIT_FOR_ENABLE_NOTIFICATIONS_COMPLETE) {
                 state = BLEMC_WAIT_FOR_MIDI_DATA_RX;
@@ -575,7 +576,7 @@ static void enter_client_mode()
     
 	//gap_set_connection_parameters(96, 48, 6, 12, 0, 1000, 0x01, 6 * 2);
 	//gap_set_connection_parameters(96, 48, 12, 24, 0, 200,  0x0000, 0xffff);
-	gap_set_connection_parameters(96, 48, 12, 24, 0, 200, 0x0000, 0xfff);	
+	gap_set_connection_parameters(96, 48, 12, 24, 0, 200, 0x0000, 0xffff);	
 }
 
 void ble_midi_client_init(const char* profile_name, uint8_t profile_name_len, io_capability_t iocaps_, uint8_t secmask_)
