@@ -155,7 +155,7 @@ void mpx_trigger_loop();
 void sp404_trigger_loop();
 void config_nanobox_tangerine();
 void config_mpx_looper();
-void process_midi_byte(uint8_t b);
+void process_midi_byte(uint8_t b, uint8_t idx);
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -514,7 +514,7 @@ void process_midi_byte(uint8_t b) {
 	uint8_t buffer[1];
 	buffer[0] = b;
 	
-	tud_midi_n_stream_write(idx, cable_num, buffer, 1);
+	tud_midi_n_stream_write(0, 0, buffer, 1);
 
 	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
 		uart_write_blocking(UART_ID, buffer, 1);
@@ -677,7 +677,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 		{
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine || enable_wav_trigger_pro) {
 				// Parse the raw MIDI byte stream to track note on/off events.
-				process_midi_byte(buffer[i]);
+				process_midi_byte(buffer[i], idx);
 			}
 		}
 	
