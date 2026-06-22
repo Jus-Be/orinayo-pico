@@ -668,11 +668,12 @@ void ble_midi_client_scan_begin()
 
 void ble_midi_client_scan_end()
 {
+    btstack_run_loop_remove_timer(&scan_timer);
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
+	
     if (state != BLEMC_WAIT_FOR_SCAN_COMPLETE)
         return;
     gap_stop_scan();
-    btstack_run_loop_remove_timer(&scan_timer);
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
     state = BLEMC_IDLE;
 }
 

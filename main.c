@@ -510,7 +510,13 @@ static void chord_detect(void) {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-void process_midi_byte(uint8_t b) {
+void process_midi_byte(uint8_t b) {	
+	tud_midi_n_stream_write(idx, cable_num, b, 1);
+
+	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
+		uart_write_blocking(UART_ID, b, 1);
+		uart_tx_wait_blocking(UART_ID);			
+	}	
 	
 	if (b & 0x80) {
 		// Status byte.
@@ -663,14 +669,7 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	uint32_t bytes_read = 0;
 
 	while ((bytes_read = tuh_midi_stream_read(idx, &cable_num, buffer, sizeof(buffer))) > 0) 
-	{	
-		tud_midi_n_stream_write(idx, cable_num, buffer, bytes_read);
-
-		if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
-			uart_write_blocking(UART_ID, buffer, bytes_read);
-			uart_tx_wait_blocking(UART_ID);			
-		}
-		
+	{			
 		for (uint32_t i=0; i<bytes_read; i++) 
 		{
 			if (enable_mpc_sample || enable_sp404mk2 || enable_nanobox_tangerine || enable_wav_trigger_pro) {
