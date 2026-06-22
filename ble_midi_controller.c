@@ -397,7 +397,6 @@ void ble_midi_controller_poll(void)
             break;
 
         case BMC_STATE_CONNECTING:
-			midi_send_note(0x94, 4, 4);			
 			
             if (ble_midi_client_is_ready()) {
 				midi_send_note(0x95, 5, 5);					
