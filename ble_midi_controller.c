@@ -373,7 +373,7 @@ void ble_midi_controller_poll(void)
             break;
 
         case BMC_STATE_SCANNING:
-			midi_send_note(0x90, 0, 0);
+
             // Once the reconnect deadline expires, attempt to auto-connect to
             // the first BLE MIDI peripheral discovered during the scan.
             if (!ble_midi_client_waiting_for_connection() && !ble_midi_client_is_connected() && time_reached(bmc_reconnect_deadline))  {
@@ -410,10 +410,9 @@ void ble_midi_controller_poll(void)
             break;
 
         case BMC_STATE_READY:
-			midi_send_note(0x96, 6, 6);			
 			
             if (!ble_midi_client_is_connected()) {
-				midi_send_note(0x97, 7, 7);					
+				midi_send_note(0x96, 6, 6);					
                 printf("[BLE MIDI] Disconnected. Resuming scan.\n");
                 ble_midi_controller_scan_begin();
                 break;
