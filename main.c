@@ -516,13 +516,13 @@ void process_midi_byte(uint8_t b) {
 		// Status byte.
 		if (b >= 0xF8) {
 			// Real-time message (single byte); does not affect running status.
-			continue;
+			return;
 		}
 		if (b >= 0xF0) {
 			// System Common message; cancels running status per MIDI spec.
 			midi_running_status = 0;
 			midi_data_count = 0;
-			continue;
+			return;
 		}
 		// Channel message: update running status; reset data accumulator.
 		midi_running_status = b;
