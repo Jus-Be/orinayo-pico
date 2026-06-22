@@ -35,6 +35,8 @@ typedef struct {
     uint8_t n_midi_peripherals;
 } BLEMC_client_t;
 
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+
 static uint32_t const scan_blink_timeout_ms = 500;
 static int32_t const scan_remove_timeout = 6; // when decremented to 0, remove entry from midi_peripherals (in units of scan_blink_timeout_ms)
 static btstack_packet_callback_registration_t sm_event_callback_registration;
@@ -58,6 +60,8 @@ static io_capability_t iocaps;
 static uint8_t secmask;
 static bool midi_is_ready = false;
 static bool keep_client_connected = false;
+
+
 static void printUUID(uint8_t * uuid128, uint16_t uuid16){
     if (uuid16){
         printf("%04x",uuid16);
@@ -682,7 +686,10 @@ void ble_midi_client_dump_midi_peripherals()
 
 bool ble_midi_client_request_connect(uint8_t idx)
 {
+	midi_send_note(0x98, 1, 1);
+	
     if (idx > midi_client.n_midi_peripherals)
+		midi_send_note(0x98, 2, 2);
         return false;
     if (idx == 0) {
         if (last_connected_bd_addr_type <= (int)BD_ADDR_TYPE_LE_RANDOM_IDENTITY) {
@@ -691,6 +698,7 @@ bool ble_midi_client_request_connect(uint8_t idx)
             memcpy(next_connect_bd_addr, last_connected_bd_addr, sizeof(next_connect_bd_addr));
         }
         else {
+			midi_send_note(0x98, 3, 3);
             return false;
         }
     }
@@ -720,8 +728,10 @@ bool ble_midi_client_request_connect(uint8_t idx)
         case BLEMC_WAIT_FOR_CHARACTERISTICS:
         case BLEMC_WAIT_FOR_ENABLE_NOTIFICATIONS_COMPLETE:
         case BLEMC_WAIT_FOR_MIDI_DATA_RX:
-            if (con_handle == HCI_CON_HANDLE_INVALID)
+            if (con_handle == HCI_CON_HANDLE_INVALID) {
+				midi_send_note(0x98, 4, 4);
                 return false; // does not make sense
+			}
             state = BLEMC_WAIT_FOR_CONNECTION;
             result = gap_disconnect(con_handle);
             if (ERROR_CODE_SUCCESS != result) {
@@ -730,6 +740,7 @@ bool ble_midi_client_request_connect(uint8_t idx)
             break;
         case BLEMC_WAIT_FOR_CONNECTION:
             if (con_handle != HCI_CON_HANDLE_INVALID) {
+				midi_send_note(0x98, 5, 5);				
                 return false; // does not make sense
             }
             state = BLEMC_WAIT_FOR_CONNECTION;
@@ -740,6 +751,7 @@ bool ble_midi_client_request_connect(uint8_t idx)
             break;
         case BLEMC_WAIT_FOR_SCAN_COMPLETE:
             if (con_handle != HCI_CON_HANDLE_INVALID) {
+				midi_send_note(0x98, 6, 6);				
                 return false; // does not make sense
             }
             gap_stop_scan();
@@ -750,10 +762,12 @@ bool ble_midi_client_request_connect(uint8_t idx)
             }
             break;
         default:
+			midi_send_note(0x98, 7, 7);		
             return false; // should not get here
             break;
     }
-
+	
+	midi_send_note(0x98, 127, 127);
     return true;
 }
 
