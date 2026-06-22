@@ -167,8 +167,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                 }
                 else {
                     printf("wrote client characteristic configuration\r\n");
-                }
-                midi_is_ready = true;				
+                }			
             }
             else if (state == BLEMC_WAIT_FOR_ENABLE_NOTIFICATIONS_COMPLETE) {
                 state = BLEMC_WAIT_FOR_MIDI_DATA_RX;
@@ -763,6 +762,7 @@ bool ble_midi_client_request_connect(uint8_t idx)
             break;
     }
 	
+	midi_is_ready = true;
     return true;
 }
 
