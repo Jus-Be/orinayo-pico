@@ -718,7 +718,6 @@ bool ble_midi_client_request_connect(uint8_t idx)
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
-				return false; 
             }
             break;
         case BLEMC_WAIT_FOR_DISCONNECTION:
@@ -743,7 +742,6 @@ bool ble_midi_client_request_connect(uint8_t idx)
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
-				return false; 
             }
             break;
         case BLEMC_WAIT_FOR_SCAN_COMPLETE:
@@ -755,7 +753,6 @@ bool ble_midi_client_request_connect(uint8_t idx)
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
-				return false; 
             }
             break;
         default:		

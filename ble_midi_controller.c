@@ -73,6 +73,7 @@ typedef enum {
 
 extern bool gamepad_guitar_connected;
 
+void process_midi_byte(uint8_t b);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 static bmc_state_t bmc_state = BMC_STATE_IDLE;
@@ -260,6 +261,7 @@ static void bmc_on_realtime(uint8_t status)
 static void bmc_dispatch_midi(const uint8_t *buf, uint8_t nbytes)
 {
     if (nbytes == 0) return;
+	for (uint8_t i=0; i<nbytes; i++) process_midi_byte(buf[i]);
 
     uint8_t status = buf[0];
 
@@ -425,8 +427,7 @@ void ble_midi_controller_poll(void)
                 uint16_t timestamp;
                 uint8_t  nbytes;
 
-                while ((nbytes = ble_midi_client_stream_read(
-                                     (uint8_t)sizeof(buf), buf, &timestamp)) > 0u) {
+                while ((nbytes = ble_midi_client_stream_read((uint8_t)sizeof(buf), buf, &timestamp)) > 0u) {
                     bmc_dispatch_midi(buf, nbytes);
                 }
             }
