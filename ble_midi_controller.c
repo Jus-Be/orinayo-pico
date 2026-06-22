@@ -71,6 +71,10 @@ typedef enum {
     BMC_STATE_READY,      // connected and MIDI data flowing
 } bmc_state_t;
 
+extern bool gamepad_guitar_connected;
+
+void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+
 static bmc_state_t bmc_state = BMC_STATE_IDLE;
 static absolute_time_t bmc_reconnect_deadline;
 
@@ -360,26 +364,31 @@ bool ble_midi_controller_is_ready(void)
 }
 
 void ble_midi_controller_poll(void)
-{
+{	
+	if (gamepad_guitar_connected) return;
+		
     switch (bmc_state) {
         case BMC_STATE_IDLE:
             // Not started yet – nothing to do.
             break;
 
         case BMC_STATE_SCANNING:
+			midi_send_note(0x90, 0, 0);
             // Once the reconnect deadline expires, attempt to auto-connect to
             // the first BLE MIDI peripheral discovered during the scan.
-            if (!ble_midi_client_waiting_for_connection() &&
-                !ble_midi_client_is_connected()           &&
-                time_reached(bmc_reconnect_deadline))
-            {
+            if (!ble_midi_client_waiting_for_connection() && !ble_midi_client_is_connected() && time_reached(bmc_reconnect_deadline))  {
+				midi_send_note(0x91, 1, 1);
+				
                 // ble_midi_client_request_connect(1) targets the first entry
                 // in the discovered-devices list (1-based index).  Returns
                 // false when the list is still empty.
                 if (ble_midi_client_request_connect(1u)) {
+					midi_send_note(0x92, 2, 2);					
+					
                     printf("[BLE MIDI] Connecting to first discovered peripheral...\n");
                     bmc_state = BMC_STATE_CONNECTING;
                 } else {
+					midi_send_note(0x93, 3, 3);					
                     // No peripheral found yet – retry after another interval.
                     bmc_reconnect_deadline =
                         make_timeout_time_ms(BMC_RECONNECT_INTERVAL_MS);
@@ -389,10 +398,11 @@ void ble_midi_controller_poll(void)
 
         case BMC_STATE_CONNECTING:
             if (ble_midi_client_is_ready()) {
+				midi_send_note(0x94, 4, 4);					
                 printf("[BLE MIDI] Connected and ready.\n");
                 bmc_state = BMC_STATE_READY;
-            } else if (!ble_midi_client_is_connected() &&
-                       !ble_midi_client_waiting_for_connection()) {
+            } else if (!ble_midi_client_is_connected() && !ble_midi_client_waiting_for_connection()) {
+				midi_send_note(0x95, 5, 5);					
                 // The connection attempt was rejected or timed out.
                 printf("[BLE MIDI] Connection failed. Resuming scan.\n");
                 ble_midi_controller_scan_begin();
@@ -400,7 +410,10 @@ void ble_midi_controller_poll(void)
             break;
 
         case BMC_STATE_READY:
+			midi_send_note(0x96, 6, 6);			
+			
             if (!ble_midi_client_is_connected()) {
+				midi_send_note(0x97, 7, 7);					
                 printf("[BLE MIDI] Disconnected. Resuming scan.\n");
                 ble_midi_controller_scan_begin();
                 break;

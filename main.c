@@ -589,11 +589,11 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 							
 								if (held_note_count < 3) {						// start/stop
 									mbut0 = 1; logo = 0;
-									midi_bluetooth_handle_data();
+									gamepad_bluetooth_handle_data();
 								
 								} else {										// fill
 									joy_up = true; joystick_up = 0;
-									midi_bluetooth_handle_data();									
+									gamepad_bluetooth_handle_data();									
 								}
 							}
 							else
@@ -603,13 +603,13 @@ void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 								if (style_started) {
 									if (cc_value == 0x1) {							// next style
 										dpad_down = 1; starpower = 0;	
-										midi_bluetooth_handle_data();
+										gamepad_bluetooth_handle_data();
 									}
 									else
 										
 									if (cc_value == 0x7F) {							// previous style
 										dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
-										midi_bluetooth_handle_data();								
+										gamepad_bluetooth_handle_data();								
 									}
 								} else {
 									

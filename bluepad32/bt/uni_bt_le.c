@@ -89,13 +89,14 @@ void midi_ketron_arr(uint8_t code, bool on);
 void midi_ketron_footsw(uint8_t code, bool on);
 void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
-void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
-void midi_bluetooth_handle_data();
 void midi_modx_tempo(int tempo);
 void midi_modx_key(uint8_t key);
 void midi_seqtrak_arp();
 void midi_seqtrak_key(uint8_t key);
 void midi_seqtrak_tempo(int tempo);
+
+void play_chord(bool on, bool up, uint8_t green, uint8_t red, uint8_t yellow, uint8_t blue, uint8_t orange);
+void gamepad_bluetooth_handle_data();
 void config_guitar(uint8_t mode);
 
 extern int applied_velocity;
@@ -906,7 +907,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			else if (event_data[4] == 16)  config_guitar(4);		// yamaha seqtrak
 			else if (event_data[4] == 32)  config_guitar(5);		// yamaha modx/montage					
 			else if (event_data[4] == 64)  config_guitar(11);		// mpc sample
-			else if (event_data[4] == 128) config_guitar(12);		// sp404 mk2	
+			else if (event_data[4] == 128) config_guitar(19);		// wav trigger pro	
 		}		
 		
 		// detect paddle neutral
@@ -919,7 +920,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
 			left = 1; 			
 			green = 0; red = 0; yellow = 0; blue = 0; orange = 0;
-			midi_bluetooth_handle_data();	
+			gamepad_bluetooth_handle_data();	
 			return;
 		}	
 		
@@ -1184,7 +1185,7 @@ void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *pa
 			ll_have_fired = true;
 			ll_cannot_fire = true;
 			
-			midi_bluetooth_handle_data();						
+			gamepad_bluetooth_handle_data();						
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}	
     }

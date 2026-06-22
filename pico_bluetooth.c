@@ -195,7 +195,7 @@ void midi_ketron_footsw(uint8_t code, bool on);
 void midi_yamaha_start_stop(uint8_t code, bool on);
 void midi_yamaha_arr(uint8_t code, bool on);
 void midi_process_state(uint64_t start_us);
-void midi_bluetooth_handle_data();
+void gamepad_bluetooth_handle_data();
 
 void config_guitar(uint8_t mode);
 void config_ample_guitar();
@@ -489,7 +489,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 
 	switch (ctl->klass) {
 		case UNI_CONTROLLER_CLASS_GAMEPAD:		
-			midi_bluetooth_handle_data(); 
+			gamepad_bluetooth_handle_data(); 
 			break;
 		case UNI_CONTROLLER_CLASS_BALANCE_BOARD:
 			// DO NOTHING
@@ -506,7 +506,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
   }			
 }
 
-void midi_bluetooth_handle_data() {
+void gamepad_bluetooth_handle_data() {
 	if (!finished_processing) return;	
 	finished_processing = false;
 	
