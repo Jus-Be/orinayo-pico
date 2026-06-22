@@ -53,7 +53,7 @@
  * How long (ms) to wait between auto-connect attempts when scanning.
  * Increase this if you see repeated failed connection attempts.
  */
-#define BMC_RECONNECT_INTERVAL_MS 2000u
+#define BMC_RECONNECT_INTERVAL_MS 20000u
 
 /**
  * Maximum size (bytes) of a single timestamped MIDI stream returned by
