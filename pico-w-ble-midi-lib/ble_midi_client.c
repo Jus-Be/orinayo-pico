@@ -685,27 +685,23 @@ void ble_midi_client_dump_midi_peripherals()
 }
 
 bool ble_midi_client_request_connect(uint8_t idx)
-{
-	//midi_send_note(0x98, 1, 1);
-	
+{	
     if (idx > midi_client.n_midi_peripherals)
-		//midi_send_note(0x98, 2, 2);
         return false;
     if (idx == 0) {
         if (last_connected_bd_addr_type <= (int)BD_ADDR_TYPE_LE_RANDOM_IDENTITY) {
             // for some reason, gap_connect() runs into issues if the addr type is BD_ADDR_TYPE_LE_PUBLIC_IDENTITY but works if it is BD_ADDR_TYPE_LE_PUBLIC
-            next_connect_bd_addr_type = (last_connected_bd_addr_type == BD_ADDR_TYPE_LE_PUBLIC_IDENTITY) ? BD_ADDR_TYPE_LE_PUBLIC: last_connected_bd_addr_type;
+            //next_connect_bd_addr_type = (last_connected_bd_addr_type == BD_ADDR_TYPE_LE_PUBLIC_IDENTITY) ? BD_ADDR_TYPE_LE_PUBLIC: last_connected_bd_addr_type;
             memcpy(next_connect_bd_addr, last_connected_bd_addr, sizeof(next_connect_bd_addr));
         }
         else {
-			//midi_send_note(0x98, 3, 3);
             return false;
         }
     }
     else {
         idx -= 1;
         // for some reason, gap_connect() runs into issues if the addr type is BD_ADDR_TYPE_LE_PUBLIC_IDENTITY but works if it is BD_ADDR_TYPE_LE_PUBLIC
-        next_connect_bd_addr_type = (midi_client.midi_peripherals[idx].addr_type == BD_ADDR_TYPE_LE_PUBLIC_IDENTITY) ? BD_ADDR_TYPE_LE_PUBLIC: midi_client.midi_peripherals[idx].addr_type;
+        //next_connect_bd_addr_type = (midi_client.midi_peripherals[idx].addr_type == BD_ADDR_TYPE_LE_PUBLIC_IDENTITY) ? BD_ADDR_TYPE_LE_PUBLIC: midi_client.midi_peripherals[idx].addr_type;
         memcpy(next_connect_bd_addr, midi_client.midi_peripherals[idx].bdaddr, sizeof(next_connect_bd_addr));
     }
     uint8_t result;
@@ -721,6 +717,7 @@ bool ble_midi_client_request_connect(uint8_t idx)
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
+				return false; 
             }
             break;
         case BLEMC_WAIT_FOR_DISCONNECTION:
@@ -729,7 +726,6 @@ bool ble_midi_client_request_connect(uint8_t idx)
         case BLEMC_WAIT_FOR_ENABLE_NOTIFICATIONS_COMPLETE:
         case BLEMC_WAIT_FOR_MIDI_DATA_RX:
             if (con_handle == HCI_CON_HANDLE_INVALID) {
-				//midi_send_note(0x98, 4, 4);
                 return false; // does not make sense
 			}
             state = BLEMC_WAIT_FOR_CONNECTION;
@@ -739,19 +735,18 @@ bool ble_midi_client_request_connect(uint8_t idx)
             }
             break;
         case BLEMC_WAIT_FOR_CONNECTION:
-            if (con_handle != HCI_CON_HANDLE_INVALID) {
-				//midi_send_note(0x98, 5, 5);				
+            if (con_handle != HCI_CON_HANDLE_INVALID) {				
                 return false; // does not make sense
             }
             state = BLEMC_WAIT_FOR_CONNECTION;
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
+				return false; 
             }
             break;
         case BLEMC_WAIT_FOR_SCAN_COMPLETE:
-            if (con_handle != HCI_CON_HANDLE_INVALID) {
-				//midi_send_note(0x98, 6, 6);				
+            if (con_handle != HCI_CON_HANDLE_INVALID) {				
                 return false; // does not make sense
             }
             gap_stop_scan();
@@ -759,15 +754,14 @@ bool ble_midi_client_request_connect(uint8_t idx)
             result = gap_connect(next_connect_bd_addr, next_connect_bd_addr_type);
             if (ERROR_CODE_SUCCESS != result) {
                 printf("gap_connect: Bluetooth error code %u", result);
+				return false; 
             }
             break;
-        default:
-			//midi_send_note(0x98, 7, 7);		
+        default:		
             return false; // should not get here
             break;
     }
 	
-	//midi_send_note(0x98, 127, 127);
     return true;
 }
 
