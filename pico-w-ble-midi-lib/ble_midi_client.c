@@ -35,7 +35,7 @@ typedef struct {
     uint8_t n_midi_peripherals;
 } BLEMC_client_t;
 
-void //midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
+// void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
 static uint32_t const scan_blink_timeout_ms = 500;
 static int32_t const scan_remove_timeout = 6; // when decremented to 0, remove entry from midi_peripherals (in units of scan_blink_timeout_ms)
