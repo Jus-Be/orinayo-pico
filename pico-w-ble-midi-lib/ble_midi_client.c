@@ -572,7 +572,10 @@ static void enter_client_mode()
     // https://developer.apple.com/accessories/Accessory-Design-Guidelines.pdf
     // If your server can handled a shorter connection interval, please have it request
     // to update the parameters to the shorter interval
-    gap_set_connection_parameters(96, 48, 12, 24, 0, 200,  0x0000, 0xffff);
+    
+	//gap_set_connection_parameters(96, 48, 6, 12, 0, 1000, 0x01, 6 * 2);
+	//gap_set_connection_parameters(96, 48, 12, 24, 0, 200,  0x0000, 0xffff);
+	gap_set_connection_parameters(96, 48, 12, 24, 0, 1000, 0x01, 6 * 2);	
 }
 
 void ble_midi_client_init(const char* profile_name, uint8_t profile_name_len, io_capability_t iocaps_, uint8_t secmask_)
