@@ -511,10 +511,13 @@ static void chord_detect(void) {
 // ────────────────────────────────────────────────────────────────────────────
 
 void process_midi_byte(uint8_t b) {	
-	tud_midi_n_stream_write(idx, cable_num, b, 1);
+	uint8_t* buffer[1];
+	buffer[0] = b;
+	
+	tud_midi_n_stream_write(idx, cable_num, buffer, 1);
 
 	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
-		uart_write_blocking(UART_ID, b, 1);
+		uart_write_blocking(UART_ID, buffer, 1);
 		uart_tx_wait_blocking(UART_ID);			
 	}	
 	
