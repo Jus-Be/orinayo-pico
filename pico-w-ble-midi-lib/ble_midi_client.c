@@ -686,7 +686,7 @@ void ble_midi_client_dump_midi_peripherals()
 
 bool ble_midi_client_request_connect(uint8_t idx)
 {
-	midi_send_note(0x98, 1, 1);
+	//midi_send_note(0x98, 1, 1);
 	
     if (idx > midi_client.n_midi_peripherals)
 		midi_send_note(0x98, 2, 2);
