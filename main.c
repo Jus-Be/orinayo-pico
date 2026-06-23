@@ -671,7 +671,12 @@ void process_midi_byte(uint8_t b) {
 				else
 
 				if (cc_cmd == 0x13 || cc_cmd == 0x25) {			// master volume
-					for (uint8_t i=0; i<16; i++) midi_send_control_change(0xB0 + i, 7, cc_value);
+					midi_send_control_change(0xB0, 7, cc_value);
+					midi_send_control_change(0xB1, 7, cc_value);
+					midi_send_control_change(0xB2, 7, cc_value);					
+					midi_send_control_change(0xB9, 7, cc_value);
+
+					midi_guitar_velocity = cc_value;					
 				}				
 			}						
 			
@@ -1058,12 +1063,7 @@ void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	
 	msg[0] = command + channel;
 	msg[1] = note;
-	
-	if (!enable_nanobox_tangerine) {									// tangerine only uses velocity to trigger or not
-		msg[2] = (uint8_t) (velocity * (midi_guitar_velocity / 127)); 
-	} else {
-		msg[2] = (uint8_t) (velocity);	
-	}
+	msg[2] = velocity;	
 		
 	midi_n_stream_write(0, 0, msg, 3);			
 }
