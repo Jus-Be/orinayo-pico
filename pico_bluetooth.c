@@ -345,7 +345,8 @@ static void pico_bluetooth_on_init_complete(void) {
 
   // Start the BLE MIDI client scan.  BTStack is now in HCI_STATE_WORKING so
   // ble_midi_controller_scan_begin() can start scanning directly.
-  ble_midi_controller_scan_begin();
+  // BAO TODO - Fix SMC-PAD
+  // ble_midi_controller_scan_begin();
 
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
