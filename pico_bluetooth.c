@@ -3368,7 +3368,8 @@ void bluetooth_init(void) {
   // Initialise the BLE MIDI client *before* uni_init() so that its BTStack
   // event handlers are registered in the chain before Bluepad32 powers on the
   // BT controller and raises HCI_STATE_WORKING.
-  ble_midi_controller_init();
+  // BAO TODO - Fix SMC-PAD  
+  // ble_midi_controller_init();
 
   // Must be called before uni_init()
   uni_platform_set_custom(get_my_platform());
