@@ -134,8 +134,9 @@ int last_chord_type = 0;
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
 uint8_t sample_chord_velocity = 100;
-uint8_t midi_guitar_velocity = 127;
 uint8_t worship_pad_velocity = 127;
+
+uint8_t midi_guitar_volume = 127;
 
 uint8_t sampler_drum_note = 0;
 uint8_t sampler_chord_note = 0;
@@ -484,8 +485,8 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			sample_chord_velocity = abs(axis_rx) % 128;				
 			sample_chord_velocity = sample_chord_velocity > 64 ? sample_chord_velocity : 64;
 		} else {
-			midi_guitar_velocity = abs(axis_ry) % 128;			
-			midi_guitar_velocity = midi_guitar_velocity > 64 ? midi_guitar_velocity : 64;
+			midi_guitar_volume = abs(axis_ry) % 128;			
+			midi_guitar_volume = midi_guitar_volume > 64 ? midi_guitar_volume : 64;
 		}
 	}	
 
@@ -915,7 +916,7 @@ void gamepad_bluetooth_handle_data() {
 			sample_drum_velocity = 127;
 			sample_bass_velocity = 120;
 			sample_chord_velocity = 90;
-			midi_guitar_velocity = 127;	
+			midi_guitar_volume = 127;	
 			worship_pad_velocity = 127;			
 		}	
 		finished_processing = true;	
@@ -2213,9 +2214,9 @@ void config_style_play() {
 	midi_play_chord(false, 0, 0, 0);					// reset chord  keys
 	
 	if (!enable_modx) {
-		midi_send_control_change(0xB0, 7, midi_guitar_velocity);	
-		midi_send_control_change(0xB1, 7, midi_guitar_velocity);
-		midi_send_control_change(0xB2, 7, midi_guitar_velocity);			
+		midi_send_control_change(0xB0, 7, midi_guitar_volume);	
+		midi_send_control_change(0xB1, 7, midi_guitar_volume);
+		midi_send_control_change(0xB2, 7, midi_guitar_volume);			
 			
 		midi_send_program_change(0xC1, 89);					// warm pad	(blue)
 		midi_send_program_change(0xC2, 99);					// FX4 (orange)	
@@ -2294,9 +2295,9 @@ void config_midi_drums() {
 
 void config_arranger() {
 	midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
-	midi_send_control_change(0xB0, 7, midi_guitar_velocity);	
-	midi_send_control_change(0xB1, 7, midi_guitar_velocity);
-	midi_send_control_change(0xB2, 7, midi_guitar_velocity);	
+	midi_send_control_change(0xB0, 7, midi_guitar_volume);	
+	midi_send_control_change(0xB1, 7, midi_guitar_volume);
+	midi_send_control_change(0xB2, 7, midi_guitar_volume);	
 }
 
 void config_ample_guitar() {
@@ -3386,7 +3387,7 @@ void bluetooth_init(void) {
   // PICO_INFO("Bluepad32 initialized\n")
 }
 
-void midi_process_state(uint64_t start_us) {
+void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer
 	(void) start_us;
 	
 	int O = 12;

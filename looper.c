@@ -104,6 +104,7 @@ static uint32_t midi_clock_tick_count = 0;
 static uint64_t midi_clock_last_tick_us = 0;
 
 extern bool enable_midi_drums;
+extern uint8_t sample_drum_velocity;
 extern int style_section; 
 extern int style_group;
 
@@ -120,7 +121,7 @@ static bool looper_perform_ready(void) {
 void looper_perform_note(uint8_t channel, uint8_t note, uint8_t velocity) {
     uint8_t const cable_num = 0;
     // Send Note On for current position at full velocity (127) on channel 1.
-    uint8_t note_on[] = {0x90 | channel, note, velocity * 0.75};
+    uint8_t note_on[] = {0x90 | channel, note, sample_drum_velocity};			// use global drum velocity
 	midi_n_stream_write(0, 0, note_on, sizeof(note_on));	
 
     // Send Note Off for previous note.

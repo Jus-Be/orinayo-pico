@@ -80,8 +80,9 @@ extern int style_group;
 extern uint8_t sample_drum_velocity;
 extern uint8_t sample_bass_velocity;
 extern uint8_t sample_chord_velocity;
-extern uint8_t midi_guitar_velocity;
 extern uint8_t worship_pad_velocity;
+
+extern uint8_t midi_guitar_volume;
 
 extern bool style_started;
 extern bool enable_ample_guitar;
@@ -635,37 +636,38 @@ void process_midi_byte(uint8_t b) {
 				else	// These values are for iRig or SMC-PAD
 					
 				if (cc_cmd == 0x0C || cc_cmd == 0x1E) {			// drum volume 
-					sample_drum_velocity = cc_value > 0 ? cc_value : 64;
+					sample_drum_velocity = cc_value;
 				}
 				else
 					
 				if (cc_cmd == 0x0D || cc_cmd == 0x1F) {			// bass volume
-					sample_bass_velocity = cc_value > 0 ? cc_value : 64;
+					sample_bass_velocity = cc_value;
 				}
 				else
 
 				if (cc_cmd == 0x0E || cc_cmd == 0x20) {			// chord volume
-					sample_chord_velocity = cc_value > 0 ? cc_value : 64;
+					sample_chord_velocity = cc_value;
 				}
 				else
 
 				if (cc_cmd == 0x0F || cc_cmd == 0x21) {			// midi guitar volume
-					midi_guitar_velocity = cc_value > 0 ? cc_value : 64;
+					midi_guitar_volume = cc_value;
+					midi_send_control_change(0xB0, 7, midi_guitar_volume);					
 				}	
 				else
 
 				if (cc_cmd == 0x10 || cc_cmd == 0x22) {			// worship pad volume
-					worship_pad_velocity = cc_value > 0 ? cc_value : 64;
+					worship_pad_velocity = cc_value;
 				}
 				else
 
 				if (cc_cmd == 0x11 || cc_cmd == 0x23) {			// chord1 pad volume
-					chord1_pad_velocity = cc_value > 0 ? cc_value : 64;
+					chord1_pad_velocity = cc_value;
 				}	
 				else
 
 				if (cc_cmd == 0x12 || cc_cmd == 0x24) {			// chord2 pad volume
-					chord2_pad_velocity = cc_value > 0 ? cc_value : 64;
+					chord2_pad_velocity = cc_value;
 				}
 
 				else
@@ -676,7 +678,7 @@ void process_midi_byte(uint8_t b) {
 					midi_send_control_change(0xB2, 7, cc_value);					
 					midi_send_control_change(0xB9, 7, cc_value);
 
-					midi_guitar_velocity = cc_value;					
+					midi_guitar_volume = cc_value;					
 				}				
 			}						
 			
