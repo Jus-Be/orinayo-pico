@@ -81,6 +81,7 @@ extern uint8_t sample_drum_velocity;
 extern uint8_t sample_bass_velocity;
 extern uint8_t sample_chord_velocity;
 extern uint8_t midi_guitar_velocity;
+extern uint8_t worship_pad_velocity;
 
 extern bool style_started;
 extern bool enable_ample_guitar;
@@ -121,6 +122,8 @@ static uint8_t midi_data0 = 0;
 static int     midi_data_count = 0;
 
 uint8_t device_addr = 255;
+uint8_t chord1_pad_velocity = 48;
+uint8_t chord2_pad_velocity = 32;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
@@ -629,26 +632,47 @@ void process_midi_byte(uint8_t b) {
 						}																		
 					}
 				}
-				else
+				else	// These values are for iRig or SMC-PAD
 					
-				if (cc_cmd == 0x0C) {			// drum volume
+				if (cc_cmd == 0x0C || cc_cmd == 0x1E) {			// drum volume 
 					sample_drum_velocity = cc_value > 0 ? cc_value : 64;
 				}
 				else
 					
-				if (cc_cmd == 0x0D) {			// bass volume
+				if (cc_cmd == 0x0D || cc_cmd == 0x1F) {			// bass volume
 					sample_bass_velocity = cc_value > 0 ? cc_value : 64;
 				}
 				else
 
-				if (cc_cmd == 0x0E) {			// chord volume
+				if (cc_cmd == 0x0E || cc_cmd == 0x20) {			// chord volume
 					sample_chord_velocity = cc_value > 0 ? cc_value : 64;
 				}
 				else
 
-				if (cc_cmd == 0x0F) {			// midi guitar volume
+				if (cc_cmd == 0x0F || cc_cmd == 0x21) {			// midi guitar volume
 					midi_guitar_velocity = cc_value > 0 ? cc_value : 64;
-				}							
+				}	
+				else
+
+				if (cc_cmd == 0x10 || cc_cmd == 0x22) {			// worship pad volume
+					worship_pad_velocity = cc_value > 0 ? cc_value : 64;
+				}
+				else
+
+				if (cc_cmd == 0x11 || cc_cmd == 0x23) {			// chord1 pad volume
+					chord1_pad_velocity = cc_value > 0 ? cc_value : 64;
+				}	
+				else
+
+				if (cc_cmd == 0x12 || cc_cmd == 0x24) {			// chord2 pad volume
+					chord2_pad_velocity = cc_value > 0 ? cc_value : 64;
+				}
+
+				else
+
+				if (cc_cmd == 0x13 || cc_cmd == 0x25) {			// master volume
+					for (uint8_t i=0; i<16; i++) midi_send_control_change(0xB0 + i, 7, cc_value);
+				}				
 			}						
 			
 		} else {
@@ -1159,9 +1183,11 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
 				msg[0] = command + 2;
 				msg[1] = (note % 12) + 48;
+				msg[2] = chord2_pad_velocity;  
 				midi_n_stream_write(0, 0, msg, 3);	// CH 3	
 
 				msg[0] = command + 1;
+				msg[2] = chord1_pad_velocity;  				
 				midi_n_stream_write(0, 0, msg, 3);	// CH 2		
 			}
 		}
