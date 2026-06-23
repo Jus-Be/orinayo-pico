@@ -391,7 +391,6 @@ static void pico_bluetooth_on_device_connected(uni_hid_device_t* d) {
 static void pico_bluetooth_on_device_disconnected(uni_hid_device_t* d) {
   (void) d;	
   gamepad_guitar_connected = false;	
-  ble_midi_client_scan_end();
   // PICO_INFO("Device disconnected: %s (%02X:%02X:%02X:%02X:%02X:%02X)\n", d->name, d->conn.btaddr[0], d->conn.btaddr[1], d->conn.btaddr[2], d->conn.btaddr[3], d->conn.btaddr[4], d->conn.btaddr[5]);
 
   // Re-enable scanning when a device is disconnected

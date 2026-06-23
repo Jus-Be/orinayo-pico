@@ -574,18 +574,8 @@ static void enter_client_mode()
     // If your server can handled a shorter connection interval, please have it request
     // to update the parameters to the shorter interval
     
-	//gap_set_connection_parameters(96, 48, 12, 24, 0, 200, 0x0000, 0xffff);	
-	
-	gap_set_connection_parameters(
-		0x0030, // 1. conn_scan_interval: 30 ms (48 * 0.625 ms) - Responsive scanning
-		0x0030, // 2. conn_scan_window: 30 ms (48 * 0.625 ms) - Scan continuously during init
-		0x0006, // 3. conn_interval_min: 7.5 ms (6 * 1.25 ms) - Absolute lowest BLE interval
-		0x000C, // 4. conn_interval_max: 15.0 ms (12 * 1.25 ms) - Keeps iOS/macOS environments happy
-		0x0000, // 5. conn_latency: 0 (No skipped events allowed for the SMC-PAD)
-		0x0064, // 6. supervision_timeout: 1000 ms (100 * 10 ms) - Drop dead link rapidly
-		0x0002, // 7. min_ce_length: 1.25 ms (2 * 0.625 ms) - Secure at least 2 slots per burst
-		0x0008  // 8. max_ce_length: 5.0 ms (8 * 0.625 ms) - Wide enough window for polyphonic midi streams
-	);
+	//gap_set_connection_parameters(96, 48, 12, 24, 0, 200, 0x0000, 0xffff);
+	gap_set_connection_parameters(96, 48, 12, 24, 0, 200, 0x01, 6 * 2);
 	
 }
 

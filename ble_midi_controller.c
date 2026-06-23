@@ -71,8 +71,6 @@ typedef enum {
     BMC_STATE_READY,      // connected and MIDI data flowing
 } bmc_state_t;
 
-extern bool gamepad_guitar_connected;
-
 void process_midi_byte(uint8_t b);
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity);
 
@@ -366,9 +364,7 @@ bool ble_midi_controller_is_ready(void)
 }
 
 void ble_midi_controller_poll(void)
-{	
-	if (gamepad_guitar_connected) return;
-		
+{			
     switch (bmc_state) {
         case BMC_STATE_IDLE:
             // Not started yet – nothing to do.

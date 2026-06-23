@@ -248,7 +248,8 @@ int main() {
 		note_scheduler_dispatch_pending();
 
 		// Poll for incoming MIDI events from any connected BLE MIDI peripheral.
-		ble_midi_controller_poll();
+		// TODO - Fix SMC-PAD
+		// ble_midi_controller_poll();
 
 		if (preferences_changed) {
 			preferences_changed = false;
@@ -256,9 +257,7 @@ int main() {
 			
 			watchdog_enable(1, 1); 			// force reboot
 			while(1); 
-		}
-
-		//cyw43_arch_poll();		
+		}		
     }
 	
     //cancel_repeating_timer(&timer);	
