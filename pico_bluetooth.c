@@ -880,7 +880,7 @@ void gamepad_bluetooth_handle_data() {
 			}
 		}	
 		
-		if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_nanobox_tangerine && !enable_wav_trigger_pro) {
+		if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_nanobox_tangerine && !enable_wav_trigger_pro && enable_arranger_mode) {
 			if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
 			else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
 			else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
@@ -1390,7 +1390,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (red && orange) 
+		if (green && orange) 
 		{
 			if (mbut2) {
 				style_group = 14;
@@ -1398,18 +1398,26 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 
-		if (green && orange) 
+		if (green && blue) 
 		{
 			if (mbut2) {
 				style_group = 13;
 			}
 		}
+		else
+			
+		if (red && orange) 
+		{
+			if (mbut2) {
+				style_group = 12;	
+			}
+		}		
 		else		
 
 		if (green && yellow) 
 		{
 			if (mbut2) {
-				style_group = 12;	
+				style_group = 11;	
 			}
 		}
 		else
@@ -1417,7 +1425,7 @@ void gamepad_bluetooth_handle_data() {
 		if (red && blue) 
 		{
 			if (mbut2) {
-				style_group = 11;	
+				style_group = 10;	
 			}
 		}
 		else
@@ -1425,17 +1433,9 @@ void gamepad_bluetooth_handle_data() {
 		if (yellow && orange) 
 		{
 			if (mbut2) {
-				style_group = 10;
+				style_group = 9;
 			}
 		}				
-		else
-			
-		if (green && blue) 
-		{
-			if (mbut2) {
-				style_group = 9;	
-			}
-		}
 		else
 			
 		if (green && red) 
