@@ -1183,10 +1183,9 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 			midi_n_stream_write(0, 0, msg, 3);	// CH 1
 
 			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
-				msg[0] = command + 2;
+				msg[0] = command + 2;				
 				
 				if (velocity > 0 ) {				// (respect note off)
-					msg[1] = (note % 12) + 48;
 					msg[2] = chord2_pad_velocity;  
 				}
 				midi_n_stream_write(0, 0, msg, 3);	// CH 3	 
