@@ -347,7 +347,7 @@ static void pico_bluetooth_on_init_complete(void) {
   // Start the BLE MIDI client scan.  BTStack is now in HCI_STATE_WORKING so
   // ble_midi_controller_scan_begin() can start scanning directly.
   // BAO TODO - Fix SMC-PAD
-  // ble_midi_controller_scan_begin();
+  ble_midi_controller_scan_begin();
 
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
@@ -3376,7 +3376,7 @@ void bluetooth_init(void) {
   // event handlers are registered in the chain before Bluepad32 powers on the
   // BT controller and raises HCI_STATE_WORKING.
   // BAO TODO - Fix SMC-PAD  
-  // ble_midi_controller_init();
+  ble_midi_controller_init();
 
   // Must be called before uni_init()
   uni_platform_set_custom(get_my_platform());

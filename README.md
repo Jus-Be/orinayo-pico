@@ -26,14 +26,16 @@ https://github.com/user-attachments/assets/bf5d0bad-dd6a-400b-bc92-5dadf5c17ba5
 | Device | Protocol |
 |--------|----------|
 | Guitar Hero-style controllers (CRKD-Gibson, etc.) | Bluetooth Classic HID |
-| Liberlive | BLE |
 | Generic HID gamepads | Bluetooth Classic HID |
+| Liberlive | BLE |
+| Midi Controller | BLE
 
-### MIDI Output
+### MIDI Input/Output
 | Interface | Connection |
 |-----------|------------|
-| USB MIDI | USB cable to computer (DAW, etc.) |
-| UART MIDI | GPIO 0 (TX) → 220 Ω resistor → 5-pin DIN circuit |
+| USB Client MIDI | USB cable to computer (DAW, etc.) |
+| USB Host MIDI | USB cable to Midi compliant devices |
+| UART MIDI | UART0 GPIO Pins 0 (TX) and 1 (RX) to SAM2695 from M5Stack|
 
 ---
 
@@ -50,17 +52,18 @@ Select a mode at runtime using a button combination on the controller — no ref
 | **MPX8** | Trigger 8 chord audio loops via MIDI |
 | **MPC Sample** | Trigger 124 audio loops via MIDI with independent tracks for drums, bass and other instruments |
 | **SP404 Mk2** | Trigger 160 audio loops via MIDI with independent tracks for drums, bass and other instruments |
-| **Nanobox Tangerine** | Play up to 4 multi-sampled instruments and trigger audio loops on Nanobox Tangerine from 1010Music via MIDI with independent tracks for drums, bass and other instruments |
+| **WAV Trigger Pro** | Play a single multi-sampled instrument and trigger audio loops on WAV trigger Pro from SparkFun via MIDI with independent tracks for drums, bass and other instruments |
+| **Nanobox Tangerine** | Play up to 4 multi-sampled instruments with effects and trigger audio loops on Nanobox Tangerine from 1010Music via MIDI with independent tracks for drums, bass and other instruments |
 
 ---
 
 ## Hardware Requirements
 
 - **Raspberry Pi Pico 2 W** (RP2350 + CYW43439 — the Pico 2 W specifically, not Pico W)
-- USB cable for power and USB MIDI
+- USB cable for power and USB Client MIDI
+- USB cable for USB Host MIDI and supplied power
 - A supported Bluetooth input device (see above)
-- *(Optional)* 220 Ω resistors + 5-pin DIN connector for hardware UART MIDI output
-- *(Optional)* GPIO buttons for looper record/play/tap-tempo control
+- *(Optional)* 5-pin DIN connector for hardware UART MIDI input/output
 
 ---
 
