@@ -59,8 +59,6 @@ bool enable_bass_track = true;
 bool enable_drum_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
-bool enable_audio_drums = false;
-bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 bool style_change_requested = false;
@@ -2041,13 +2039,13 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 16) {										// play audio file as audio drum/percussion
-		enable_audio_drums = !enable_audio_drums;
+	if (mode == 16) {										// unused
+
 	}
 	else
 		
-	if (mode == 15) {										// play audio file as worship pad in selected song key
-		enable_worship_pads = !enable_worship_pads;
+	if (mode == 15) {										// unused
+
 	}
 	else
 		
