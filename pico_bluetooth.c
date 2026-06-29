@@ -1029,7 +1029,7 @@ void gamepad_bluetooth_handle_data() {
 					}
 					else						
 						
-					if (enable_nanobox_tangerine || enable_wav_trigger_pro) 
+					if (enable_nanobox_tangerine || enable_wav_trigger_pro) {
 						sampler_drum_note = INT1;
 						sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);	
 						sampler_old_drum_note = sampler_drum_note;
