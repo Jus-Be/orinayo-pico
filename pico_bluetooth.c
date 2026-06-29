@@ -2629,10 +2629,10 @@ void play_chord(bool on, bool up) {
 				if (on) {
 					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
 					nanobox_stop_loops();
-					style_end_requested = false;
 					
 				} else { // again to stop
 					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+					style_end_requested = false;					
 				}					
 			}			
 		}
