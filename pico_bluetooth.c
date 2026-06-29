@@ -2617,23 +2617,25 @@ void play_chord(bool on, bool up) {
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (handled) 
+		if (handled && on) 
 		{
-			if (style_started && on) {
-				sampler_trigger_loop();				
+			if (style_started) {
+				if (on) sampler_trigger_loop();				
 			}
 			else
 				
-			if (style_end_requested) 
+			if (style_end_requested || !up) 
 			{
-				if (on) {
+				if (up) {
 					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-					nanobox_stop_loops();
+					style_end_requested = false;					
 					
 				} else { // again to stop
 					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
 					style_end_requested = false;					
-				}					
+				}
+
+				nanobox_stop_loops();				
 			}			
 		}
 	}
