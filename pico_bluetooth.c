@@ -1030,15 +1030,6 @@ void gamepad_bluetooth_handle_data() {
 					else						
 						
 					if (enable_nanobox_tangerine || enable_wav_trigger_pro) 
-					{	
-						if (style_end_requested) {
-							style_end_requested = false;
-							
-							if (enable_nanobox_tangerine) {
-								sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);			
-							}
-						}	
-						
 						sampler_drum_note = INT1;
 						sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);	
 						sampler_old_drum_note = sampler_drum_note;
@@ -1117,35 +1108,27 @@ void gamepad_bluetooth_handle_data() {
 				if (mbut0) 
 				{		
 					if (enable_mpx_looper && mpx_old_sample_note) {
-						mpx_stop_loops();
-						mpx_old_sample_note = 0;
-						style_change_requested = false;						
+						style_end_requested = true;						
 					}			
 					else
 					
 					if (enable_mpc_sample) {
-						sampler_midi_note(0x94, 45, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
-						mpc_stop_loops();						
+						style_end_requested = true;							
 					}
 					else
 						
 					if (enable_nanobox_tangerine) {
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-						nanobox_stop_loops();
-						style_end_requested = true;		// need to stop the end loop playing with strum or start (logo) button						
+						style_end_requested = true;						
 					}
 					else
 						
 					if (enable_wav_trigger_pro) {
-						wav_trigger_pro_stop_loops();						
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop	
-						sampler_midi_note(0x9F,  68 + transpose, 127);								 // stop backing track					
+						style_end_requested = true;									 // stop backing track					
 					}					
 					else
 						
 					if (enable_sp404mk2) {
-						sampler_midi_note(0x90, 40, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
-						sp404_stop_loops();
+						style_end_requested = true;	
 					}					
 					else
 						
@@ -2599,40 +2582,90 @@ void play_chord(bool on, bool up) {
 	
 	if (enable_mpx_looper) 			// trigger chord loop on mpx
 	{					
-		if (handled && style_started && on) {
-			mpx_trigger_loop();
+		if (handled && on) 
+		{
+			if (style_started) {
+				mpx_trigger_loop();
+			}
+			else 
+				
+			if (style_end_requested) {
+				mpx_stop_loops();
+				style_end_requested = false;
+			}
 		}
 	}		
 	else
 
 	if (enable_mpc_sample)			// trigger chord loop on mpc sample
 	{
-		if (handled && style_started && on) {			
-			mpc_trigger_loop();				
+		if (handled && on) 
+		{			
+			if (style_started) {
+				mpc_trigger_loop();				
+			}
+			else
+				
+			if (style_end_requested) {
+				sampler_midi_note(0x94, 45, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
+				mpc_stop_loops();
+				style_end_requested = false;				
+			}
 		}
 	}
 	else
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (handled && on && (style_started || style_end_requested)) {
-			sampler_trigger_loop();				
+		if (handled && on) 
+		{
+			if (style_started) {
+				sampler_trigger_loop();				
+			}
+			else
+				
+			if (style_end_requested) {
+				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+				nanobox_stop_loops();
+				style_end_requested = false;				
+			}			
 		}
 	}
 	else
 				
 	if (enable_wav_trigger_pro)								// trigger chord loop on w
 	{
-		if (handled && on && style_started) {
-			sampler_trigger_loop();				
+		if (handled && on) 
+		{
+			if (style_started) {
+				sampler_trigger_loop();				
+			}
+			else
+				
+			if (style_end_requested) {
+				wav_trigger_pro_stop_loops();						
+				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop	
+				sampler_midi_note(0x9F,  68 + transpose, 127);	
+				style_end_requested = false;				
+			}		
 		}
 	}
 	else
 		
 	if (enable_sp404mk2) 			// trigger chord loop on sp404 mk2
 	{		
-		if (handled && style_started && on) {				
-			sp404_trigger_loop();	
+		if (handled && on) 
+		{	
+			if (style_started) {
+				sp404_trigger_loop();		
+			}
+			else
+				
+			if (style_end_requested) {
+				sampler_midi_note(0x90, 40, enable_drum_track ? sample_drum_velocity : 1);		// .\01\SAMPLE\1-09-085.wav
+				sp404_stop_loops();
+				style_end_requested = false;				
+			}		
 		}
 	}		
 
@@ -2862,15 +2895,6 @@ void sampler_trigger_loop() {
 	
 	uint8_t bass_tonic = (sampler_bass + transpose - 1) % 12;
 	uint8_t chord_tonic = (sampler_chord + transpose - 1) % 12;	
-
-	if (style_end_requested) {
-		style_end_requested = false;
-		
-		if (enable_nanobox_tangerine) {		
-			sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-		} 		
-		return;
-	}
 	
 	if (sampler_type == 0) {												// Major 
 		sampler_bass_note = (bass_tonic + 36) % 128;
