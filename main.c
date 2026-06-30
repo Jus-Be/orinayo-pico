@@ -1185,10 +1185,11 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 	} else {
 		
 		if (!enable_mpc_sample && !enable_sp404mk2 && !enable_mpx_looper && !enable_wav_trigger_pro) {
-			midi_n_stream_write(0, 0, msg, 3);	// CH 1
+			midi_n_stream_write(0, 0, msg, 3);	// CH 4
 
 			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
-				msg[0] = command + 2;				
+				msg[0] = command + 2;
+				msg[1] = note + 24;				
 				
 				if (velocity > 0 ) {				// (respect note off)
 					msg[2] = chord2_pad_velocity;  
@@ -1196,6 +1197,7 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 				midi_n_stream_write(0, 0, msg, 3);	// CH 3	 
 
 				msg[0] = command + 1;
+				msg[1] = note + 36;					
 				
 				if (velocity > 0 ) {				// (respect note off)
 					msg[2] = chord1_pad_velocity;  				
