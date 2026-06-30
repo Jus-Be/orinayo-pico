@@ -128,6 +128,7 @@ int ample_old_key = 0;
 int basic_chord = 0;
 int advanced_chord = 0;
 int last_chord_note = 0;
+int last_bass_note = 0;
 int last_chord_type = 0;
 
 uint8_t sample_drum_velocity = 127;
@@ -2680,6 +2681,7 @@ void play_chord(bool on, bool up) {
 	if (handled) {
 		last_chord_note = chord_note;
 		last_chord_type = chord_type;
+		last_bass_note = bass_note;
 	}
 	
 	if (active_strum_pattern > -1) 
@@ -2761,7 +2763,7 @@ void play_chord(bool on, bool up) {
 					if (!up && enable_midi_drums && active_strum_pattern == 0) {
 						// play bass note on downstroke with auto-strum
 						
-						note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 1));
+						note = ((last_bass_note ? last_bass_note : last_chord_note) % 12) + (O * (active_neck_pos + 1));
 						if ((note % 12) > 4) note = note - 12;
 
 						if (!enable_modx && !enable_ample_guitar && !enable_seqtrak && !enable_wav_trigger_pro && !enable_nanobox_tangerine && !enable_synth && active_neck_pos > 1) midi_send_program_change(0xC0, 33);						
@@ -2776,7 +2778,7 @@ void play_chord(bool on, bool up) {
 				}						
 				
 			} else {
-				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
+				note = ((last_bass_note ? last_bass_note : last_chord_note) % 12) + (O * (active_neck_pos + 2));
 				
 				if (!strum_last_chord && (active_strum_pattern == 1 || active_neck_pos == 1)) {
 					if ((note % 12) > 4) note = note - 12; 	// bass needs another octave lower for strum pattern 2 or bass
