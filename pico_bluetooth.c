@@ -2684,7 +2684,7 @@ void play_chord(bool on, bool up) {
 	
 	if (active_strum_pattern > -1) 
 	{	
-		if (!handled && active_strum_pattern > 1 && active_neck_pos > 1) {	// play strum of last chord for ample guitar arppergio noises and non bass notes
+		if (!handled && active_strum_pattern > 0 && active_neck_pos > 1) {	// play strum of last chord for ample guitar arppergio noises and non bass notes
 			handled = true;
 			strum_last_chord = true;
 		}
@@ -2705,12 +2705,12 @@ void play_chord(bool on, bool up) {
 					int strum_index = active_strum_pattern;
 					
 					if (active_strum_pattern > 1 && active_neck_pos > 1) {
-						strum_index = active_strum_pattern + ((style_section % 4) * 3);	// use 4 style variations to cover arps 3-14
+						strum_index = active_strum_pattern + ((style_section % 4) * 3);							// use 4 style variations to cover arps 3-14
 					}
 					
-					int play_pattern = strum_last_chord ? 0 : strum_index;	// select default strum for strum_last_chord
+					int play_pattern = strum_last_chord ? (active_strum_pattern == 1 ? 1 : 0) : strum_index;	// use strum (0) when playing arpergios and arpegio (1) when playing strum/bass
 					
-					while (strum_pattern[play_pattern][seq_index][0] == 0 ) {		// ignore empty pattern steps	
+					while (strum_pattern[play_pattern][seq_index][0] == 0 ) {									// ignore empty pattern steps	
 						seq_index++;
 						if (seq_index > 11) seq_index = 0;
 					}
@@ -3417,7 +3417,7 @@ void bluetooth_init(void) {
   // PICO_INFO("Bluepad32 initialized\n")
 }
 
-void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer
+void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer for auto-strum
 	(void) start_us;
 	
 	int O = 12;
