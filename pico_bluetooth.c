@@ -2708,7 +2708,7 @@ void play_chord(bool on, bool up) {
 						strum_index = active_strum_pattern + ((style_section % 4) * 3);							// use 4 style variations to cover arps 3-14
 					}
 					
-					int play_pattern = strum_last_chord ? (active_strum_pattern == 1 ? 1 : 0) : strum_index;	// use strum (0) when playing arpergios and arpegio (1) when playing strum/bass
+					int play_pattern = strum_last_chord ? (active_strum_pattern == 1 ? 2 : 0) : strum_index;	// use strum (0) when playing arpergios and arpegio (2) when playing strum/bass
 					
 					while (strum_pattern[play_pattern][seq_index][0] == 0 ) {									// ignore empty pattern steps	
 						seq_index++;
