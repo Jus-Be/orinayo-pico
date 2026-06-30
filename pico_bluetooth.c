@@ -2691,7 +2691,7 @@ void play_chord(bool on, bool up) {
 		
 		if (handled) 
 		{			
-			if (up || (active_strum_pattern == 0) || strum_last_chord) 
+			if (up || (active_strum_pattern == 0) || (strum_last_chord && up)) 
 			{	
 				if (enable_ample_guitar && active_strum_pattern == 0) 
 				{	
