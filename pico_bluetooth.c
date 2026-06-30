@@ -63,6 +63,7 @@ bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 bool style_change_requested = false;
 bool style_end_requested = false;
+bool style_end_started = false;
 bool preferences_changed = false;
 
 uint8_t but0 = 0;
@@ -2620,22 +2621,21 @@ void play_chord(bool on, bool up) {
 		if (handled && on) 
 		{
 			if (style_started) {
-				if (on) sampler_trigger_loop();				
+				sampler_trigger_loop();				
 			}
 			else
 				
-			if (style_end_requested || !up) 
-			{
-				if (up) {
-					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-					style_end_requested = false;					
-					
-				} else { // again to stop
-					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
-					style_end_requested = false;					
-				}
-
+			if (style_end_requested)  {
+				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
 				nanobox_stop_loops();				
+				style_end_requested = false;
+				style_end_started = true;
+			}
+			else
+				
+			if (style_end_started) {
+				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+				style_end_started = false;	
 			}			
 		}
 	}
