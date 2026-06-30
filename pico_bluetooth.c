@@ -2778,7 +2778,7 @@ void play_chord(bool on, bool up) {
 			} else {
 				note = ((bass_note ? bass_note : chord_note) % 12) + (O * (active_neck_pos + 2));
 				
-				if ((active_strum_pattern == 1 && !strum_last_chord) || active_neck_pos == 1) {
+				if (!strum_last_chord && (active_strum_pattern == 1 || active_neck_pos == 1)) {
 					if ((note % 12) > 4) note = note - 12; 	// bass needs another octave lower for strum pattern 2 or bass
 				}
 				
