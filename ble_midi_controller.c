@@ -51,7 +51,8 @@
 
 /**
  * How long (ms) to wait between auto-connect attempts when scanning.
- * Increase this if you see repeated failed connection attempts.
+ * 2.5s is short enough to reconnect to peripherals with brief advertisements
+ * while still leaving backoff between failed connection attempts.
  */
 #define BMC_RECONNECT_INTERVAL_MS 2500u
 
@@ -336,6 +337,8 @@ void ble_midi_controller_init(void)
     // Initialise the BLE MIDI client library.  This registers BTStack event
     // handlers and prepares the packet codec.  Call before uni_init() so that
     // the handlers are in the chain when BTStack first reaches HCI_STATE_WORKING.
+    // Use bonding for better compatibility with peripherals that reject
+    // non-bonded reconnects (e.g., M-VAVE SMC-PAD).
     ble_midi_client_init(BMC_PROFILE_NAME, (uint8_t)BMC_PROFILE_NAME_LEN,
                          IO_CAPABILITY_NO_INPUT_NO_OUTPUT,
                          SM_AUTHREQ_BONDING);
