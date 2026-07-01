@@ -1,4 +1,4 @@
-# Orinayo
+# Jus-Be-orinayo-pico-DeepWiki
 
 ## Content Index
 
@@ -43,3 +43,4 @@
 - [10.1-midi-implementation-chart](10.1-midi-implementation-chart.md)
 - [10.2-configuration-reference](10.2-configuration-reference.md)
 - [10.3-troubleshooting](10.3-troubleshooting.md)
+- [11-glossary](11-glossary.md)

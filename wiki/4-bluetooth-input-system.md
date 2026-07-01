@@ -1,9 +1,14 @@
 # Bluetooth Input System
 
 > **Relevant source files**
-> * [bluepad32/bt/uni_bt.c](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/bluepad32/bt/uni_bt.c)
-> * [bluepad32/bt/uni_bt_le.c](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/bluepad32/bt/uni_bt_le.c)
-> * [pico_bluetooth.c](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c)
+> * [ble_midi_controller.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.c)
+> * [ble_midi_controller.h](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h)
+> * [bluepad32/bt/uni_bt.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt.c)
+> * [bluepad32/bt/uni_bt_le.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c)
+> * [bluepad32/bt/uni_bt_setup.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_setup.c)
+> * [pico-w-ble-midi-lib/ble_midi_client.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c)
+> * [pico-w-ble-midi-lib/ble_midi_client.h](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.h)
+> * [pico_bluetooth.c](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c)
 
 ## Purpose and Scope
 
@@ -36,6 +41,7 @@ BLE_ADV["uni_bt_le_on_gap_event_advertising_report()"]
 GATT_EVENT["handle_gatt_client_event()"]
 LL_CHECK["Liberlive Name Check<br>Sonic Master Name Check"]
 HOG_CONNECT["hog_connect()"]
+BLE_MIDI_CONTROLLER["ble_midi_controller_poll()"]
 PACKET_HANDLER["uni_bt_packet_handler()"]
 HCI_EVENTS["HCI Event Routing"]
 L2CAP["L2CAP Data Packets"]
@@ -62,9 +68,11 @@ subgraph subGraph3 ["BLE MIDI Processing Path"]
     GATT_EVENT
     LL_CHECK
     HOG_CONNECT
+    BLE_MIDI_CONTROLLER
     BLE_ADV --> LL_CHECK
     LL_CHECK --> HOG_CONNECT
     HOG_CONNECT --> GATT_EVENT
+    BLE_MIDI_CONTROLLER --> GATT_EVENT
 end
 
 subgraph subGraph2 ["HID Processing Path"]
@@ -94,15 +102,17 @@ subgraph subGraph0 ["Application Layer"]
 end
 ```
 
-Sources: [pico_bluetooth.c L200-L218](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L200-L218)
+Sources: [pico_bluetooth.c L199](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L199-L199)
 
- [pico_bluetooth.c L1857-L1872](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1857-L1872)
+ [pico_bluetooth.c L201-L213](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L213)
 
- [pico_bluetooth.c L1874-L1888](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1874-L1888)
+ [bluepad32/bt/uni_bt.c L91](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt.c#L91-L91)
 
- [uni_bt.c L333-L543](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt.c#L333-L543)
+ [bluepad32/bt/uni_bt.c L149-L184](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt.c#L149-L184)
 
- [uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1298-L1390)
+ [bluepad32/bt/uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1298-L1390)
+
+ [ble_midi_controller.h L46-L56](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h#L46-L56)
 
 ---
 
@@ -119,12 +129,15 @@ sequenceDiagram
   participant BTstack Scanner
   participant pico_bluetooth_on_device_discovered()
   participant uni_bt_le_on_gap_event_advertising_report()
+  participant ble_midi_client_scan_begin()
   participant Connection Handler
 
   Application->>pico_bluetooth_on_init_complete(): System Startup
   pico_bluetooth_on_init_complete()->>pico_bluetooth_on_init_complete(): uni_bt_del_keys_unsafe()
   pico_bluetooth_on_init_complete()->>pico_bluetooth_on_init_complete(): uni_bt_start_scanning_and_autoconnect_safe()
-  pico_bluetooth_on_init_complete()->>BTstack Scanner: Start BT/BLE Scanning
+  pico_bluetooth_on_init_complete()->>BTstack Scanner: Start BT/BLE Scanning (Bluepad32)
+  Application->>ble_midi_client_scan_begin(): ble_midi_controller_scan_begin()
+  ble_midi_client_scan_begin()->>BTstack Scanner: Start BLE MIDI Scanning (ble_midi_client)
   loop [Generic HID Controller]
     BTstack Scanner->>pico_bluetooth_on_device_discovered(): GAP_EVENT with device info
     pico_bluetooth_on_device_discovered()->>pico_bluetooth_on_device_discovered(): Check name for "STANDARD GAMEPAD"
@@ -138,40 +151,62 @@ sequenceDiagram
     uni_bt_le_on_gap_event_advertising_report()->>uni_bt_le_on_gap_event_advertising_report(): Set liberlive_enabled or sonic_master_enabled
     uni_bt_le_on_gap_event_advertising_report()->>Connection Handler: hog_connect(addr, addr_type)
     Connection Handler->>Connection Handler: GATT Service Discovery
+    BTstack Scanner->>ble_midi_client_scan_begin(): GAP_EVENT_ADVERTISING_REPORT (via ble_midi_client)
+    ble_midi_client_scan_begin()->>ble_midi_client_scan_begin(): Add to internal list of MIDI peripherals
+    ble_midi_client_scan_begin()->>Connection Handler: ble_midi_client_request_connect(idx)
+    Connection Handler->>Connection Handler: GATT Service Discovery
   end
 ```
 
-Sources: [pico_bluetooth.c L205-L218](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L205-L218)
+Sources: [pico_bluetooth.c L205-L218](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L205-L218)
 
- [pico_bluetooth.c L220-L243](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L220-L243)
+ [pico_bluetooth.c L220-L243](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L220-L243)
 
- [pico_bluetooth.c L245-L252](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L245-L252)
+ [pico_bluetooth.c L245-L252](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L245-L252)
 
- [uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1298-L1390)
+ [bluepad32/bt/uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1298-L1390)
+
+ [ble_midi_controller.h L38-L43](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h#L38-L43)
+
+ [ble_midi_controller.h L46-L56](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h#L46-L56)
+
+ [ble_midi_client.h L118-L125](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_client.h#L118-L125)
+
+ [ble_midi_client.h L139-L141](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_client.h#L139-L141)
 
 ### Connection Lifecycle
 
 Device connections follow a state machine with security/pairing phases for BLE devices and a simpler flow for BR/EDR HID devices.
 
-| State | HID Controller Path | BLE MIDI Path |
-| --- | --- | --- |
-| **Discovery** | `pico_bluetooth_on_device_discovered()` filters by name/CoD | `uni_bt_le_on_gap_event_advertising_report()` matches device name |
-| **Connection** | `pico_bluetooth_on_device_connected()` sets `gamepad_guitar_connected = true` | `hog_connect()` initiates GATT connection |
-| **Security** | N/A (no pairing required) | `uni_sm_packet_handler()` handles SM_EVENT_PAIRING_COMPLETE |
-| **Service Query** | Bluepad32 handles internally | `handle_gatt_client_event()` discovers services by UUID128 |
-| **Ready** | `pico_bluetooth_on_device_ready()` returns UNI_ERROR_SUCCESS | GATT notification listener registered |
-| **Data Flow** | `pico_bluetooth_on_controller_data()` receives `uni_controller_t` | `handle_gatt_client_event()` receives GATT_EVENT_NOTIFICATION |
-| **Disconnection** | `pico_bluetooth_on_device_disconnected()` sets flag false, resumes scan | `uni_bt_le_on_hci_disconnection_complete()` clears enabled flags |
+| State | HID Controller Path | Specialized BLE MIDI Path | Generic BLE MIDI Path |
+| --- | --- | --- | --- |
+| **Discovery** | `pico_bluetooth_on_device_discovered()` filters by name/CoD | `uni_bt_le_on_gap_event_advertising_report()` matches device name | `ble_midi_client_scan_begin()` finds devices |
+| **Connection** | `pico_bluetooth_on_device_connected()` sets `gamepad_guitar_connected = true` | `hog_connect()` initiates GATT connection | `ble_midi_client_request_connect()` initiates GATT connection |
+| **Security** | N/A (no pairing required) | `uni_sm_packet_handler()` handles `SM_EVENT_PAIRING_COMPLETE` | `ble_midi_client.c` handles `SM_EVENT_PAIRING_COMPLETE` [pico-w-ble-midi-lib/ble_midi_client.c L121-L122](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L121-L122) |
+| **Service Query** | Bluepad32 handles internally | `handle_gatt_client_event()` discovers services by UUID128 | `handle_gatt_client_event()` discovers services by UUID128 [pico-w-ble-midi-lib/ble_midi_client.c L131-L171](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L131-L171) |
+| **Ready** | `pico_bluetooth_on_device_ready()` returns `UNI_ERROR_SUCCESS` | GATT notification listener registered | `ble_midi_client_is_connected()` returns true [pico-w-ble-midi-lib/ble_midi_client.h L185-L188](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.h#L185-L188) |
+| **Data Flow** | `pico_bluetooth_on_controller_data()` receives `uni_controller_t` | `handle_gatt_client_event()` receives `GATT_EVENT_NOTIFICATION` | `ble_midi_controller_poll()` drains `ble_midi_client_stream_read()` [ble_midi_controller.h L46-L56](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h#L46-L56) |
+| **Disconnection** | `pico_bluetooth_on_device_disconnected()` sets flag false, resumes scan | `uni_bt_le_on_hci_disconnection_complete()` clears enabled flags | `ble_midi_client_request_disconnect()` [pico-w-ble-midi-lib/ble_midi_client.h L144-L147](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.h#L144-L147) |
 
-Sources: [pico_bluetooth.c L245-L263](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L245-L263)
+Sources: [pico_bluetooth.c L245-L263](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L245-L263)
 
- [pico_bluetooth.c L265-L269](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L265-L269)
+ [pico_bluetooth.c L265-L269](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L265-L269)
 
- [uni_bt_le.c L632-L768](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L632-L768)
+ [bluepad32/bt/uni_bt_le.c L632-L768](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L632-L768)
 
- [uni_bt_le.c L1219-L1256](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1219-L1256)
+ [bluepad32/bt/uni_bt_le.c L1219-L1256](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1219-L1256)
 
- [uni_bt_le.c L1392-L1400](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1392-L1400)
+ [bluepad32/bt/uni_bt_le.c L1392-L1400](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1392-L1400)
+
+ [pico-w-ble-midi-lib/ble_midi_client.c L121-L122](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L121-L122)
+
+ [pico-w-ble-midi-lib/ble_midi_client.c L131-L171](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L131-L171)
+
+ [pico-w-ble-midi-lib/ble_midi_client.h L144-L147](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.h#L144-L147)
+
+ [pico-w-ble-midi-lib/ble_midi_client.h L185-L188](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.h#L185-L188)
+
+ [ble_midi_controller.h L46-L56](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/ble_midi_controller.h#L46-L56)
 
 ---
 
@@ -183,39 +218,32 @@ Generic HID controllers (Guitar Hero, gamepads) send button/axis data through th
 
 **Primary Buttons** (Fret Buttons on Guitar Hero controllers):
 
-* `but0` (bit 0) → Red fret
-* `but1` (bit 1) → Green fret
-* `but2` (bit 2) → Yellow fret
-* `but3` (bit 3) → Blue fret
-* `but4` (bit 4) → Orange fret
-* `but6` (bit 6) → Pitch/Select button (strumming style selector)
-* `but7` (bit 7) → Song key selector
-* `but9` (bit 9) → Start button
+* `but0` [pico_bluetooth.c L70](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L70-L70)  → Red fret
+* `but1` [pico_bluetooth.c L71](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L71-L71)  → Green fret
+* `but2` [pico_bluetooth.c L72](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L72-L72)  → Yellow fret
+* `but3` [pico_bluetooth.c L73](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L73-L73)  → Blue fret
+* `but4` [pico_bluetooth.c L74](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L74-L74)  → Orange fret
+* `but6` [pico_bluetooth.c L76](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L76-L76)  → Pitch/Select button (strumming style selector)
+* `but7` [pico_bluetooth.c L77](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L77-L77)  → Song key selector
+* `but9` [pico_bluetooth.c L79](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L79-L79)  → Start button
 
 **Miscellaneous Buttons** (Menu/Config buttons):
 
-* `mbut0` (misc bit 0) → Logo button (start/stop playback)
-* `mbut1` (misc bit 1) → Star Power (style section selector)
-* `mbut2` (misc bit 2) → Menu button (registration/group selector)
-* `mbut3` (misc bit 3) → Config button (mode configuration)
+* `mbut0` [pico_bluetooth.c L81](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L81-L81)  → Logo button (start/stop playback)
+* `mbut1` [pico_bluetooth.c L82](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L82-L82)  → Star Power (style section selector)
+* `mbut2` [pico_bluetooth.c L83](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L83-L83)  → Menu button (registration/group selector)
+* `mbut3` [pico_bluetooth.c L84](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L84-L84)  → Config button (mode configuration)
 
 **D-Pad** (Strum bar mapping):
 
-* `dpad_left` → Strum down
-* `dpad_right` → Strum up
-* `dpad_up` → Transpose down
-* `dpad_down` → Transpose up
+* `dpad_left` [pico_bluetooth.c L86](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L86-L86)  → Strum down
+* `dpad_right` [pico_bluetooth.c L87](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L87-L87)  → Strum up
+* `dpad_up` [pico_bluetooth.c L88](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L88-L88)  → Transpose down
+* `dpad_down` [pico_bluetooth.c L89](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L89-L89)  → Transpose up
 
-**Analog Axes**:
+Sources: [pico_bluetooth.c L70-L89](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L70-L89)
 
-* `axis_x`, `axis_y` → Analyzed for `joy_up`/`joy_down` (fill/break actions)
-* `axis_rx`, `axis_ry` → Analyzed for `knob_up`/`knob_down` (tempo/recording controls)
-
-Sources: [pico_bluetooth.c L276-L325](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L276-L325)
-
- [pico_bluetooth.c L42-L88](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L42-L88)
-
- [pico_bluetooth.c L289-L306](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L289-L306)
+ [pico_bluetooth.c L279-L306](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L279-L306)
 
 ### Data Extraction Process
 
@@ -268,9 +296,9 @@ subgraph subGraph0 ["Bluepad32 Callback"]
 end
 ```
 
-Sources: [pico_bluetooth.c L279-L306](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L279-L306)
+Sources: [pico_bluetooth.c L279-L306](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L279-L306)
 
- [pico_bluetooth.c L327-L346](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L327-L346)
+ [pico_bluetooth.c L327-L346](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L327-L346)
 
 ---
 
@@ -302,9 +330,9 @@ SET_FLAG --> HOG
 HOG --> GATT_DISC
 ```
 
-Sources: [uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1298-L1390)
+Sources: [bluepad32/bt/uni_bt_le.c L1298-L1390](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1298-L1390)
 
- [uni_bt_le.c L1219-L1256](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1219-L1256)
+ [bluepad32/bt/uni_bt_le.c L1219-L1256](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1219-L1256)
 
 ### GATT Event Processing
 
@@ -318,22 +346,11 @@ GATT notifications arrive in `handle_gatt_client_event()` with multi-byte event 
 * `event_data[7]` → Tempo (BPM)
 * `event_data[9]`, `event_data[10]` → Paddle position (velocity)
 
-**Chord Mapping Table** (subset):
-
-| event_data[2] | event_data[3] | event_data[4] | Chord | Mapped Buttons |
-| --- | --- | --- | --- | --- |
-| 8 | - | - | 7 | green, red, yellow, blue |
-| - | 4 | - | 5♭ | yellow, green, red |
-| - | - | 4 | 6m | red |
-| 16 or 8 | - | - | 6 | red, yellow, blue |
-| - | - | 8 | 5 | green |
-| 32 | - | - | 5sus | green, yellow |
-
 The system translates these patterns into the same `but0-4` variables used by HID controllers, allowing unified processing by `midi_bluetooth_handle_data()`.
 
-Sources: [uni_bt_le.c L771-L1203](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L771-L1203)
+Sources: [bluepad32/bt/uni_bt_le.c L771-L1203](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L771-L1203)
 
- [uni_bt_le.c L882-L1121](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L882-L1121)
+ [bluepad32/bt/uni_bt_le.c L882-L1121](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L882-L1121)
 
 ### Paddle Velocity and Direction
 
@@ -351,9 +368,9 @@ Paddle DOWN (event_data[9/10] > 58):
 
 The `ll_cannot_fire` and `ll_have_fired` flags implement edge detection to ensure one strum per paddle motion. When the paddle returns to neutral (`event_data[5] == 0`), the system sends a note-off event.
 
-Sources: [uni_bt_le.c L913-L923](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L913-L923)
+Sources: [bluepad32/bt/uni_bt_le.c L913-L923](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L913-L923)
 
- [uni_bt_le.c L1140-L1193](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1140-L1193)
+ [bluepad32/bt/uni_bt_le.c L1140-L1193](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1140-L1193)
 
 ---
 
@@ -363,31 +380,64 @@ Sources: [uni_bt_le.c L913-L923](https://github.com/Jus-Be/orinayo-pico/blob/122
 
 The `midi_bluetooth_handle_data()` function implements a large state machine that processes button state changes in priority order. It uses a flag-based early-return mechanism where each button handler sets `finished_processing = true` and returns after handling.
 
-```css
-#mermaid-auur7heskk{font-family:ui-sans-serif,-apple-system,system-ui,Segoe UI,Helvetica;font-size:16px;fill:#333;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-auur7heskk .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-auur7heskk .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-auur7heskk .error-icon{fill:#dddddd;}#mermaid-auur7heskk .error-text{fill:#222222;stroke:#222222;}#mermaid-auur7heskk .edge-thickness-normal{stroke-width:1px;}#mermaid-auur7heskk .edge-thickness-thick{stroke-width:3.5px;}#mermaid-auur7heskk .edge-pattern-solid{stroke-dasharray:0;}#mermaid-auur7heskk .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-auur7heskk .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-auur7heskk .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-auur7heskk .marker{fill:#999;stroke:#999;}#mermaid-auur7heskk .marker.cross{stroke:#999;}#mermaid-auur7heskk svg{font-family:ui-sans-serif,-apple-system,system-ui,Segoe UI,Helvetica;font-size:16px;}#mermaid-auur7heskk p{margin:0;}#mermaid-auur7heskk defs #statediagram-barbEnd{fill:#999;stroke:#999;}#mermaid-auur7heskk g.stateGroup text{fill:#dddddd;stroke:none;font-size:10px;}#mermaid-auur7heskk g.stateGroup text{fill:#333;stroke:none;font-size:10px;}#mermaid-auur7heskk g.stateGroup .state-title{font-weight:bolder;fill:#333;}#mermaid-auur7heskk g.stateGroup rect{fill:#ffffff;stroke:#dddddd;}#mermaid-auur7heskk g.stateGroup line{stroke:#999;stroke-width:1;}#mermaid-auur7heskk .transition{stroke:#999;stroke-width:1;fill:none;}#mermaid-auur7heskk .stateGroup .composit{fill:#f4f4f4;border-bottom:1px;}#mermaid-auur7heskk .stateGroup .alt-composit{fill:#e0e0e0;border-bottom:1px;}#mermaid-auur7heskk .state-note{stroke:#e6d280;fill:#fff5ad;}#mermaid-auur7heskk .state-note text{fill:#333;stroke:none;font-size:10px;}#mermaid-auur7heskk .stateLabel .box{stroke:none;stroke-width:0;fill:#ffffff;opacity:0.5;}#mermaid-auur7heskk .edgeLabel .label rect{fill:#ffffff;opacity:0.5;}#mermaid-auur7heskk .edgeLabel{background-color:#ffffff;text-align:center;}#mermaid-auur7heskk .edgeLabel p{background-color:#ffffff;}#mermaid-auur7heskk .edgeLabel rect{opacity:0.5;background-color:#ffffff;fill:#ffffff;}#mermaid-auur7heskk .edgeLabel .label text{fill:#333;}#mermaid-auur7heskk .label div .edgeLabel{color:#333;}#mermaid-auur7heskk .stateLabel text{fill:#333;font-size:10px;font-weight:bold;}#mermaid-auur7heskk .node circle.state-start{fill:#999;stroke:#999;}#mermaid-auur7heskk .node .fork-join{fill:#999;stroke:#999;}#mermaid-auur7heskk .node circle.state-end{fill:#dddddd;stroke:#f4f4f4;stroke-width:1.5;}#mermaid-auur7heskk .end-state-inner{fill:#f4f4f4;stroke-width:1.5;}#mermaid-auur7heskk .node rect{fill:#ffffff;stroke:#dddddd;stroke-width:1px;}#mermaid-auur7heskk .node polygon{fill:#ffffff;stroke:#dddddd;stroke-width:1px;}#mermaid-auur7heskk #statediagram-barbEnd{fill:#999;}#mermaid-auur7heskk .statediagram-cluster rect{fill:#ffffff;stroke:#dddddd;stroke-width:1px;}#mermaid-auur7heskk .cluster-label,#mermaid-auur7heskk .nodeLabel{color:#333;}#mermaid-auur7heskk .statediagram-cluster rect.outer{rx:5px;ry:5px;}#mermaid-auur7heskk .statediagram-state .divider{stroke:#dddddd;}#mermaid-auur7heskk .statediagram-state .title-state{rx:5px;ry:5px;}#mermaid-auur7heskk .statediagram-cluster.statediagram-cluster .inner{fill:#f4f4f4;}#mermaid-auur7heskk .statediagram-cluster.statediagram-cluster-alt .inner{fill:#f8f8f8;}#mermaid-auur7heskk .statediagram-cluster .inner{rx:0;ry:0;}#mermaid-auur7heskk .statediagram-state rect.basic{rx:5px;ry:5px;}#mermaid-auur7heskk .statediagram-state rect.divider{stroke-dasharray:10,10;fill:#f8f8f8;}#mermaid-auur7heskk .note-edge{stroke-dasharray:5;}#mermaid-auur7heskk .statediagram-note rect{fill:#fff5ad;stroke:#e6d280;stroke-width:1px;rx:0;ry:0;}#mermaid-auur7heskk .statediagram-note rect{fill:#fff5ad;stroke:#e6d280;stroke-width:1px;rx:0;ry:0;}#mermaid-auur7heskk .statediagram-note text{fill:#333;}#mermaid-auur7heskk .statediagram-note .nodeLabel{color:#333;}#mermaid-auur7heskk .statediagram .edgeLabel{color:red;}#mermaid-auur7heskk #dependencyStart,#mermaid-auur7heskk #dependencyEnd{fill:#999;stroke:#999;stroke-width:1;}#mermaid-auur7heskk .statediagramTitleText{text-anchor:middle;font-size:18px;fill:#333;}#mermaid-auur7heskk :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}finished_processing == truefinished_processing == false (skip)but6 changedbut6 unchangedbut7 changedbut7 unchangedbut9 unchangeddpad_up unchangeddpad_down unchangedmbut0 changedmbut0 unchangedenable_midi_drumsenable_arranger_modeenable_seqtrakenable_modxmbut1 changedmbut1 unchangedmbut2 unchangedmbut3 unchangedjoystick_up unchangeddpad_right unchangeddpad_left changedall buttons processedCheckProcessingExtractButtonStateCheckPitchButtonHandleStrumStyleCheckSongKeySetActiveStrumPatternSetActiveNeckPosSendModeCommandsReturnHandleKeyChangeCheckStartButtonSetTransposeCheckDpadUpCheckDpadDownCheckLogoButtonHandleStartStopCheckStarpowerButtonLooperControlArrangerControlSeqtrakControlModxControlHandleStyleSectionCheckMenuButtonCheckConfigButtonCheckJoystickUpCheckStrumRightCheckStrumLeft
+```mermaid
+stateDiagram-v2
+    [*] --> CheckProcessing : "finished_processing == true"
+    CheckProcessing --> ExtractButtonState : "finished_processing == true"
+    CheckProcessing --> [*] : "dpad_down unchanged"
+    ExtractButtonState --> CheckPitchButton : "finished_processing == true"
+    CheckPitchButton --> HandleStrumStyle
+    CheckPitchButton --> CheckSongKey : "but6 unchanged"
+    HandleStrumStyle --> SetActiveStrumPattern
+    SetActiveStrumPattern --> SetActiveNeckPos
+    SetActiveNeckPos --> SendModeCommands
+    SendModeCommands --> Return : "enable_midi_drums"
+    CheckSongKey --> HandleKeyChange
+    CheckSongKey --> CheckStartButton : "but7 unchanged"
+    HandleKeyChange --> SetTranspose
+    SetTranspose --> Return : "enable_midi_drums"
+    CheckStartButton --> CheckDpadUp : "but9 unchanged"
+    CheckDpadUp --> CheckDpadDown : "dpad_up unchanged"
+    CheckDpadDown --> CheckLogoButton : "dpad_down unchanged"
+    CheckLogoButton --> HandleStartStop : "mbut0 changed"
+    CheckLogoButton --> CheckStarpowerButton : "mbut0 unchanged"
+    HandleStartStop --> LooperControl : "enable_arranger_mode"
+    HandleStartStop --> ArrangerControl : "enable_arranger_mode"
+    HandleStartStop --> SeqtrakControl : "enable_seqtrak"
+    HandleStartStop --> ModxControl : "enable_seqtrak"
+    LooperControl --> Return : "enable_arranger_mode"
+    ArrangerControl --> Return : "enable_arranger_mode"
+    SeqtrakControl --> Return : "enable_seqtrak"
+    ModxControl --> Return : "enable_seqtrak"
+    CheckStarpowerButton --> HandleStyleSection : "mbut1 changed"
+    CheckStarpowerButton --> CheckMenuButton : "mbut1 unchanged"
+    CheckMenuButton --> CheckConfigButton : "mbut2 unchanged"
+    CheckConfigButton --> CheckJoystickUp : "mbut3 unchanged"
+    CheckJoystickUp --> CheckStrumRight : "joystick_up unchanged"
+    CheckStrumRight --> CheckStrumLeft : "dpad_right unchanged"
+    CheckStrumLeft --> Return : "enable_modx"
+    Return --> [*]
 ```
 
-Sources: [pico_bluetooth.c L327-L1274](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L327-L1274)
+Sources: [pico_bluetooth.c L327-L1274](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L327-L1274)
 
 ### Button Priority Order
 
 The state machine processes buttons in this strict order:
 
-1. **Pitch button** (`but6`) - Strum pattern and neck position selection [372-542](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/372-542)
-2. **Song key button** (`but7`) - Direct key changes [546-560](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/546-560)
-3. **Start button** (`but9`) - Unused in current implementation [564-568](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/564-568)
-4. **D-pad up/down** - Transpose controls [570-596](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/570-596)
-5. **Logo button** (`mbut0`) - Start/stop playback [601-739](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/601-739)
-6. **Star power button** (`mbut1`) - Style section selection [741-839](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/741-839)
-7. **Menu button** (`mbut2`) - Registration/group selection [841-975](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/841-975)
-8. **Config button** (`mbut3`) - Mode configuration [977-998](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/977-998)
-9. **Joystick up/down** - Tempo/fill controls [1000-1099](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/1000-1099)
-10. **Knob up/down** - Recording/break controls [1101-1219](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/1101-1219)
-11. **Strum right/left** - Chord playback [1221-1271](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/1221-1271)
+1. **Pitch button** (`but6`) - Strum pattern and neck position selection [pico_bluetooth.c L372-L542](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L372-L542)
+2. **Song key button** (`but7`) - Direct key changes [pico_bluetooth.c L546-L560](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L546-L560)
+3. **Start button** (`but9`) - Unused in current implementation [pico_bluetooth.c L564-L568](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L564-L568)
+4. **D-pad up/down** - Transpose controls [pico_bluetooth.c L570-L596](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L570-L596)
+5. **Logo button** (`mbut0`) - Start/stop playback [pico_bluetooth.c L601-L739](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L601-L739)
+6. **Star power button** (`mbut1`) - Style section selection [pico_bluetooth.c L741-L839](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L741-L839)
+7. **Menu button** (`mbut2`) - Registration/group selection [pico_bluetooth.c L841-L975](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L841-L975)
+8. **Config button** (`mbut3`) - Mode configuration [pico_bluetooth.c L977-L998](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L977-L998)
+9. **Joystick up/down** - Tempo/fill controls [pico_bluetooth.c L1000-L1099](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L1000-L1099)
+10. **Knob up/down** - Recording/break controls [pico_bluetooth.c L1101-L1219](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L1101-L1219)
+11. **Strum right/left** - Chord playback [pico_bluetooth.c L1221-L1271](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L1221-L1271)
 
-This priority system ensures that mode-switching buttons are handled before performance buttons.
-
-Sources: [pico_bluetooth.c L327-L1274](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L327-L1274)
+Sources: [pico_bluetooth.c L327-L1274](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L327-L1274)
 
 ---
 
@@ -395,131 +445,21 @@ Sources: [pico_bluetooth.c L327-L1274](https://github.com/Jus-Be/orinayo-pico/bl
 
 ### Operational Modes
 
-The system supports five mutually-exclusive operational modes controlled by boolean flags. Only one primary mode can be active at a time (excluding `enable_midi_drums` which overlays drum sequencing).
+The system supports five mutually-exclusive operational modes controlled by boolean flags.
 
 | Mode Flag | Mode Name | Target Device | Configuration Function |
 | --- | --- | --- | --- |
-| `enable_arranger_mode` | Arranger Mode | Yamaha/Ketron arrangers | `config_guitar(1)` |
-| `enable_ample_guitar` | Ample Guitar VST | Ample Guitar plugin | `config_guitar(2)` |
-| `enable_midi_drums` | MIDI Drums Looper | Drum sequencer | `config_guitar(3)` |
-| `enable_seqtrak` | SeqTrak Mode | Yamaha SeqTrak | `config_guitar(4)` |
-| `enable_modx` | MODX Mode | Yamaha MODX | `config_guitar(5)` |
+| `enable_arranger_mode` | Arranger Mode | Yamaha/Ketron arrangers | `config_guitar(1)` [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201) |
+| `enable_ample_guitar` | Ample Guitar VST | Ample Guitar plugin | `config_guitar(2)` [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201) |
+| `enable_midi_drums` | MIDI Drums Looper | Drum sequencer | `config_guitar(3)` [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201) |
+| `enable_seqtrak` | SeqTrak Mode | Yamaha SeqTrak | `config_guitar(4)` [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201) |
+| `enable_modx` | MODX Mode | Yamaha MODX | `config_guitar(5)` [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201) |
 
-**Mode Switching**: Hold **Config button** (`mbut3`) and press a **fret button**:
+Sources: [pico_bluetooth.c L977-L998](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L977-L998)
 
-* Green → Toggle Arranger Mode
-* Red → Toggle Ample Guitar
-* Yellow → Toggle MIDI Drums
-* Blue → Toggle SeqTrak
-* Orange → Toggle MODX
+ [pico_bluetooth.c L1309-L1399](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L1309-L1399)
 
-Sources: [pico_bluetooth.c L977-L998](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L977-L998)
-
- [pico_bluetooth.c L1309-L1399](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1309-L1399)
-
-### Mode State Variables
-
-```mermaid
-flowchart TD
-
-LOGO_BTN["mbut0 (Logo Button)"]
-DECISION["Check Mode"]
-LOOPER["Looper State Control"]
-KETRON["Ketron Arranger Commands"]
-YAMAHA["Yamaha Arranger Commands"]
-SEQTRAK_CMD["SeqTrak Commands"]
-MODX_CMD["MODX Commands"]
-ARR["enable_arranger_mode"]
-AMP["enable_ample_guitar"]
-DRUM["enable_midi_drums"]
-SEQ["enable_seqtrak"]
-MODX["enable_modx"]
-STYLE_PLAY["enable_style_play<br>(set when mode active)"]
-AUTO_HOLD["enable_auto_hold<br>(sustain notes)"]
-CHORD_TRACK["enable_chord_track"]
-BASS_TRACK["enable_bass_track"]
-
-ARR --> STYLE_PLAY
-AMP --> STYLE_PLAY
-SEQ --> STYLE_PLAY
-MODX --> STYLE_PLAY
-
-subgraph subGraph1 ["Supporting Flags"]
-    STYLE_PLAY
-    AUTO_HOLD
-    CHORD_TRACK
-    BASS_TRACK
-end
-
-subgraph subGraph0 ["Mode Flags (Global)"]
-    ARR
-    AMP
-    DRUM
-    SEQ
-    MODX
-end
-
-subgraph subGraph2 ["Mode-Dependent Behavior"]
-    LOGO_BTN
-    DECISION
-    LOOPER
-    KETRON
-    YAMAHA
-    SEQTRAK_CMD
-    MODX_CMD
-    LOGO_BTN --> DECISION
-    DECISION --> LOOPER
-    DECISION --> KETRON
-    DECISION --> YAMAHA
-    DECISION --> SEQTRAK_CMD
-    DECISION --> MODX_CMD
-end
-```
-
-Sources: [pico_bluetooth.c L28-L40](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L28-L40)
-
- [pico_bluetooth.c L604-L735](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L604-L735)
-
- [pico_bluetooth.c L1349-L1398](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1349-L1398)
-
-### Configuration Sequence
-
-When a mode is activated via `config_guitar()`:
-
-**Arranger Mode** (mode=1):
-
-1. Toggles `enable_arranger_mode`
-2. Sets `enable_style_play = enable_arranger_mode`
-3. Sends Program Change 0xC3/89 (warm pad on channel 4)
-4. Sends Control Change 0xB3/7/0 (mute pads by default)
-5. Sends Program Change 0xC0/guitar_pc_code (jazz guitar on channel 1)
-
-**Ample Guitar** (mode=2):
-
-1. Toggles `enable_ample_guitar`
-2. Sets `enable_style_play = enable_ample_guitar`
-3. Sends Note 0x90/97/127 (strum mode keyswitch)
-4. Sends Note 0x90/86/127 (chord detection enable)
-
-**MIDI Drums** (mode=3):
-
-1. Calls `looper_clear_all_tracks()` if currently enabled
-2. Toggles `enable_midi_drums`
-3. No MIDI commands sent (internal mode only)
-
-**SeqTrak** (mode=4):
-
-1. Toggles `enable_seqtrak`
-2. Sets `enable_style_play = enable_seqtrak`
-3. Sends mute commands for tracks 7 and 9 (arpeggiator muted initially)
-
-**MODX** (mode=5):
-
-1. Toggles `enable_modx`
-2. Sets `enable_style_play = enable_modx`
-3. Sends Control Change 0xB3/92/0 (scene 1 selection)
-
-Sources: [pico_bluetooth.c L1349-L1398](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1349-L1398)
+ [pico_bluetooth.c L201](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L201-L201)
 
 ---
 
@@ -527,132 +467,27 @@ Sources: [pico_bluetooth.c L1349-L1398](https://github.com/Jus-Be/orinayo-pico/b
 
 ### Neck Position and Octave Control
 
-The `active_neck_pos` variable (1=Low, 2=Normal, 3=High) controls the octave range for chord voicings. It's set by pressing **Pitch button** + **fret combination**:
+The `active_neck_pos` [pico_bluetooth.c L123](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L123-L123)
 
-* Green + Red → Low (1)
-* Yellow + Red → Normal (2)
-* Yellow + Blue → High (3)
+ variable (1=Low, 2=Normal, 3=High) controls the octave range for chord voicings. It's set by pressing **Pitch button** + **fret combination**.
 
-The neck position affects the base MIDI note calculation:
+Sources: [pico_bluetooth.c L123](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L123-L123)
 
-```
-base = 24 + transpose
-octave = O * (active_neck_pos + 2)  // where O = 12
-
-Example (C major chord, Normal position):
-  String 6 (E): E + 12*(2+2) = E + 48 = note 52
-  String 5 (A): A + 12*(2+2) = A + 48 = note 57
-  ...
-```
-
-Sources: [pico_bluetooth.c L93](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L93-L93)
-
- [pico_bluetooth.c L411-L459](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L411-L459)
-
- [pico_bluetooth.c L1635-L1638](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1635-L1638)
+ [pico_bluetooth.c L411-L459](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L411-L459)
 
 ### Strum Patterns
 
-The `active_strum_pattern` variable (-1 to 4) selects how strumming triggers notes:
+The `active_strum_pattern` [pico_bluetooth.c L122](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L122-L122)
 
-| Pattern | Name | Behavior |
-| --- | --- | --- |
-| -1 | None | No strumming (manual note control) |
-| 0 | Full Chord | All strings, up/down motion |
-| 1 | Chord Up / Root Down | Chord on upstroke, bass on downstroke |
-| 2 | Root Note | Single root note alternating |
-| 3 | Arpeggio | Third note up / root down |
-| 4 | Fifth Note | Fifth note up / root down |
+ variable (-1 to 4) selects how strumming triggers notes. The pattern index selects from the `strum_pattern` [pico_bluetooth.c L246](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L246-L246)
 
-Set by pressing **Pitch button** + **single fret**:
+ array.
 
-* Green → Pattern 0
-* Red → Pattern 1
-* Yellow → Pattern 2
-* Blue → Pattern 3
-* Orange → Pattern 4
+Sources: [pico_bluetooth.c L122](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L122-L122)
 
-The pattern index selects from the `strum_pattern[5][12][6]` array, which defines string sequences for sequential note playback.
+ [pico_bluetooth.c L246](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L246-L246)
 
-Sources: [pico_bluetooth.c L92](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L92-L92)
-
- [pico_bluetooth.c L153-L159](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L153-L159)
-
- [pico_bluetooth.c L468-L525](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L468-L525)
-
-### Transpose System
-
-The global `transpose` variable (0-11 semitones) shifts all chord root notes. It can be set three ways:
-
-1. **Direct key selection**: Hold **Song Key button** (`but7`) + fret: * Green → D (transpose = 2) * Red → E (transpose = 4) * Yellow → F (transpose = 5) * Blue → G (transpose = 7) * Orange → A (transpose = 9)
-2. **Incremental**: Press **D-pad up/down**: * Up → transpose--; wraps 0→11 * Down → transpose++; wraps 11→0
-3. **BLE MIDI**: Liberlive sends key directly in `event_data[1]`
-
-The transpose value is used in chord calculation: `chord_note + transpose`
-
-Sources: [pico_bluetooth.c L101](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L101-L101)
-
- [pico_bluetooth.c L546-L596](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L546-L596)
-
- [uni_bt_le.c L936-L949](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L936-L949)
-
----
-
-## Auto-Strum System
-
-### MIDI Current Step Sequencer
-
-When `enable_midi_drums` is active and `active_strum_pattern == 0`, the system uses a 16-step auto-strum sequencer driven by `midi_process_state()`. This function is called from the main loop at each 16th note timing tick.
-
-```mermaid
-sequenceDiagram
-  participant Main Loop
-  participant midi_process_state()
-  participant strum_styles[5][5][16][3]
-  participant midi_send_note()
-
-  Main Loop->>midi_process_state(): Called every 16th note
-  midi_process_state()->>midi_process_state(): midi_current_step = (step + 1) % 16
-  midi_process_state()->>strum_styles[5][5][16][3]: Read [style_group][style_section][step]
-  strum_styles[5][5][16][3]-->>midi_process_state(): {start_action, stop_action, velocity}
-  loop [stop_action is chord strum]
-    midi_process_state()->>midi_send_note(): 0x80 for chord_notes[0-5]
-    midi_process_state()->>midi_send_note(): 0x80 for voice_note
-    midi_process_state()->>midi_process_state(): Calculate string note from chord_chat[]
-    midi_process_state()->>midi_send_note(): 0x90 single string note
-    midi_process_state()->>midi_process_state(): Sort mute_midinotes[] (up/down)
-    midi_process_state()->>midi_send_note(): 0x90 for all 6 chord notes
-    midi_process_state()->>midi_process_state(): Play root note
-    midi_process_state()->>midi_send_note(): 0x90 voice note
-  end
-```
-
-Sources: [pico_bluetooth.c L1890-L2006](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1890-L2006)
-
- [pico_bluetooth.c L102](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L102-L102)
-
-### Strum Styles Array
-
-The `strum_styles[5][5][16][3]` array defines 16-step patterns for 5 style groups, each with 5 style sections. Each step contains:
-
-* `[0]` start_action (MIDI note or action code)
-* `[1]` stop_action (note to stop)
-* `[2]` velocity (0-127)
-
-**Action Codes**:
-
-* **62-71**: Single string notes (62=string 6, 64=string 5, 65=string 4, 67=string 3, 69=string 2, 71=string 1)
-* **72, 74**: Chord strum down
-* **76, 83**: Chord strum up (83 uses muted guitar PC 28)
-* **77, 78**: Root voice note
-* **79, 81**: Muted chord strum down
-* **0**: Rest (no action)
-
-Only `strum_styles[0][*][*][*]` is populated in the current codebase; other groups are zero-filled for future expansion.
-
-Sources: [pico_bluetooth.c L161-L197](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L161-L197)
-
- [pico_bluetooth.c L1902-L2005](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1902-L2005)
+ [pico_bluetooth.c L468-L525](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L468-L525)
 
 ---
 
@@ -683,50 +518,9 @@ DEL_KEYS --> START_SCAN
 START_SCAN --> LED_ON
 ```
 
-Sources: [pico_bluetooth.c L1874-L1888](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1874-L1888)
+Sources: [pico_bluetooth.c L1874-L1888](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L1874-L1888)
 
- [pico_bluetooth.c L200-L218](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L200-L218)
-
-### Connection State Management
-
-The `gamepad_guitar_connected` flag controls whether `pico_bluetooth_on_controller_data()` processes incoming data. For BLE MIDI devices, `liberlive_enabled` and `sonic_master_enabled` flags gate GATT event processing.
-
-**Connection**:
-
-```
-pico_bluetooth_on_device_connected():
-  gamepad_guitar_connected = true
-  uni_bt_stop_scanning_safe()  // Save power
-  
-uni_bt_le_on_gap_event_advertising_report():
-  if name == "Liber": liberlive_enabled = true
-  if name == "Pocket Master BLE": sonic_master_enabled = true
-  hog_connect()
-```
-
-**Disconnection**:
-
-```
-pico_bluetooth_on_device_disconnected():
-  gamepad_guitar_connected = false
-  uni_bt_start_scanning_and_autoconnect_safe()  // Resume scanning
-  cyw43_arch_gpio_put(LED, true)
-
-uni_bt_le_on_hci_disconnection_complete():
-  liberlive_enabled = false
-  sonic_master_enabled = false
-  resume_scanning_hint()
-```
-
-Sources: [pico_bluetooth.c L245-L263](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L245-L263)
-
- [pico_bluetooth.c L39](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L39-L39)
-
- [uni_bt_le.c L78-L79](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L78-L79)
-
- [uni_bt_le.c L1315-L1331](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1315-L1331)
-
- [uni_bt_le.c L1392-L1400](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1392-L1400)
+ [pico_bluetooth.c L200-L218](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L200-L218)
 
 ---
 
@@ -734,35 +528,15 @@ Sources: [pico_bluetooth.c L245-L263](https://github.com/Jus-Be/orinayo-pico/blo
 
 ### BLE Security Events
 
-The `uni_sm_packet_handler()` function processes Security Manager events for BLE devices. The system uses `SM_AUTHREQ_BONDING` authentication requirements (bonding enabled, secure connections optional).
+The `uni_sm_packet_handler()` function processes Security Manager events for BLE devices. If re-encryption fails with `ERROR_CODE_PIN_OR_KEY_MISSING`, the system deletes local bonding and requests new pairing. The `ble_midi_client.c` also registers a Security Manager event handler [pico-w-ble-midi-lib/ble_midi_client.c L42](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L42-L42)
 
-**Event Flow**:
+ to manage pairing and encryption for BLE MIDI devices.
 
-1. **SM_EVENT_JUST_WORKS_REQUEST** → Auto-confirm with `sm_just_works_confirm()`
-2. **SM_EVENT_NUMERIC_COMPARISON_REQUEST** → Auto-confirm comparison
-3. **SM_EVENT_PAIRING_COMPLETE** → Status checked, device information query initiated
-4. **SM_EVENT_REENCRYPTION_COMPLETE** → Bonding restored, continue to device info query
+Sources: [bluepad32/bt/uni_bt_le.c L632-L768](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L632-L768)
 
-If re-encryption fails with `ERROR_CODE_PIN_OR_KEY_MISSING`, the system deletes local bonding and requests new pairing.
+ [bluepad32/bt/uni_bt_le.c L1447-L1490](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/bluepad32/bt/uni_bt_le.c#L1447-L1490)
 
-Sources: [uni_bt_le.c L632-L768](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L632-L768)
-
- [uni_bt_le.c L1447-L1490](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1447-L1490)
-
-### Key Management
-
-Bonded device keys are stored by BTstack's `le_device_db`. The system deletes all stored keys on startup to ensure fresh pairing:
-
-```
-pico_bluetooth_on_init_complete():
-  uni_bt_del_keys_unsafe()  // Calls gap_delete_bonding() for all entries
-```
-
-This improves connection reliability for controllers that frequently lose pairing state (e.g., Xbox Wireless).
-
-Sources: [pico_bluetooth.c L210](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L210-L210)
-
- [uni_bt_le.c L1424-L1445](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1424-L1445)
+ [pico-w-ble-midi-lib/ble_midi_client.c L42](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico-w-ble-midi-lib/ble_midi_client.c#L42-L42)
 
 ---
 
@@ -770,78 +544,12 @@ Sources: [pico_bluetooth.c L210](https://github.com/Jus-Be/orinayo-pico/blob/122
 
 ### Async Context Isolation
 
-Button state extraction happens in the CYW43 async context (Bluetooth radio interrupt), while `midi_bluetooth_handle_data()` processes state changes. The `finished_processing` flag prevents re-entrant processing:
+Button state extraction happens in the CYW43 async context, while `midi_bluetooth_handle_data()` processes state changes. The `finished_processing` [pico_bluetooth.c L65](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L65-L65)
 
-```
-void midi_bluetooth_handle_data() {
-  if (!finished_processing) return;  // Skip if still processing previous event
-  finished_processing = false;
-  
-  // ... process button state changes ...
-  
-  finished_processing = true;
-}
-```
+ flag prevents re-entrant processing.
 
-This ensures one button event completes before the next begins, avoiding MIDI command interleaving.
+Sources: [pico_bluetooth.c L65](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L65-L65)
 
-Sources: [pico_bluetooth.c L40](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L40-L40)
+ [pico_bluetooth.c L328-L329](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L328-L329)
 
- [pico_bluetooth.c L328-L329](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L328-L329)
-
- [pico_bluetooth.c L540-L541](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L540-L541)
-
-### GATT Notification Handling
-
-BLE MIDI notifications from Liberlive/Sonic Master bypass `finished_processing` checks temporarily, directly setting button states and calling `midi_bluetooth_handle_data()` within the GATT callback context. This is safe because BLE MIDI devices and HID controllers never connect simultaneously (enforced by the `if (gamepad_guitar_connected) return;` check at the start of GATT notification handling).
-
-Sources: [uni_bt_le.c L882-L883](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L882-L883)
-
- [uni_bt_le.c L1195-L1201](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L1195-L1201)
-
----
-
-## Error Handling and Recovery
-
-### Device Discovery Filters
-
-The `pico_bluetooth_on_device_discovered()` callback filters devices by Class of Device (CoD) to prevent connection attempts to unsupported devices:
-
-```
-if (((cod & UNI_BT_COD_MINOR_MASK) & UNI_BT_COD_MINOR_KEYBOARD) == UNI_BT_COD_MINOR_KEYBOARD) {
-  return UNI_ERROR_IGNORE_DEVICE;  // Ignore keyboards
-}
-```
-
-This reduces spurious connections and improves discovery reliability for target controllers.
-
-Sources: [pico_bluetooth.c L237-L240](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L237-L240)
-
-### Connection Timeout
-
-If a BLE connection fails during pairing or service discovery, the system calls `hog_disconnect()`, which triggers `gap_disconnect()` and resumes scanning. This prevents hanging on devices with incomplete GATT services.
-
-Sources: [uni_bt_le.c L192-L210](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L192-L210)
-
- [uni_bt_le.c L496-L497](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L496-L497)
-
- [uni_bt_le.c L696-L697](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L696-L697)
-
-### LED Status Indicator
-
-The onboard LED (CYW43_WL_GPIO_LED_PIN) indicates system state:
-
-* **ON** during initialization and when idle (scanning)
-* **OFF** when BLE MIDI device is ready for input
-* **Toggled** during strumming (HID controller mode)
-* **Toggled** when style playback is running
-
-Sources: [pico_bluetooth.c L217](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L217-L217)
-
- [pico_bluetooth.c L735](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L735-L735)
-
- [pico_bluetooth.c L1241](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/pico_bluetooth.c#L1241-L1241)
-
- [uni_bt_le.c L825](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L825-L825)
-
- [uni_bt_le.c L870](https://github.com/Jus-Be/orinayo-pico/blob/122fa496/uni_bt_le.c#L870-L870)
+ [pico_bluetooth.c L540-L541](https://github.com/Jus-Be/orinayo-pico/blob/6dde5a75/pico_bluetooth.c#L540-L541)
