@@ -252,8 +252,7 @@ int main() {
 		note_scheduler_dispatch_pending();
 
 		// Poll for incoming MIDI events from any connected BLE MIDI peripheral.
-		// BAO TODO - Fix SMC-PAD
-		// ble_midi_controller_poll();
+		ble_midi_controller_poll();
 
 		if (preferences_changed) {
 			preferences_changed = false;
