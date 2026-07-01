@@ -1332,7 +1332,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (green && red && yellow) 
+		if (green && yellow && blue) 
 		{
 			if (mbut2) {
 				style_group = 19;
@@ -1340,7 +1340,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (red && yellow && blue) 
+		if (red && blue && orange) 
 		{
 			if (mbut2) {
 				style_group = 18;
@@ -1348,7 +1348,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (yellow && blue && orange) 
+		if (green && red && yellow) 
 		{
 			if (mbut2) {
 				style_group = 17;
@@ -1356,7 +1356,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (green && yellow && blue) 
+		if (red && yellow && blue) 
 		{
 			if (mbut2) {
 				style_group = 16;
@@ -1364,7 +1364,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 			
-		if (red && blue && orange) 
+		if (yellow && blue && orange) 
 		{
 			if (mbut2) {
 				style_group = 15;
