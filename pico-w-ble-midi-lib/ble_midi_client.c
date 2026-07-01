@@ -339,7 +339,7 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
                     midi_client.midi_peripherals[idx].addr_type = gap_event_advertising_report_get_address_type(packet);
                     memcpy(midi_client.midi_peripherals[idx].bdaddr, bdaddr, sizeof(bdaddr));
                     if (has_local_name) {
-                        memcpy(midi_client.midi_peripherals[idx].name, discovered.name, sizeof(discovered.name));
+                        memcpy(midi_client.midi_peripherals[idx].name, discovered.name, sizeof(midi_client.midi_peripherals[idx].name));
                         midi_client.midi_peripherals[idx].type = discovered.type;
                     } else {
                         strncpy(midi_client.midi_peripherals[idx].name, bd_addr_to_str(bdaddr), strlen(bd_addr_to_str(bdaddr))+1);
