@@ -232,6 +232,16 @@ static bool get_local_name_from_ad_data(uint8_t ad_len, const uint8_t* ad_data, 
     return success;
 }
 
+static bool should_track_ble_midi_by_name(const char* name)
+{
+    if (name == NULL) {
+        return false;
+    }
+    // Some BLE MIDI controllers (e.g. M-VAVE SMC-PAD) do not always advertise
+    // the standard BLE MIDI service UUID in every advertising packet.
+    return strstr(name, "SMC-PAD") != NULL;
+}
+
 static void midi_service_emit_state(hci_con_handle_t con_handle, bool enabled)
 {
     // TODO Right now, all BT Stack messages are handled in this module
@@ -309,7 +319,10 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
             gap_event_advertising_report_get_address(packet, bdaddr);
             idx = find_midi_peripheral(&midi_client, bdaddr);
             mapped = idx < midi_client.n_midi_peripherals;
-            if (ad_data_contains_uuid128(ad_data_len, ad_data, midi_service_uuid128) || mapped) {
+            Advertised_MIDI_Peripheral_t discovered = {0};
+            bool has_local_name = get_local_name_from_ad_data(ad_data_len, ad_data, &discovered);
+            bool should_map_by_name = has_local_name && should_track_ble_midi_by_name(discovered.name);
+            if (ad_data_contains_uuid128(ad_data_len, ad_data, midi_service_uuid128) || should_map_by_name || mapped) {
                 if (mapped) {
                     if (midi_client.midi_peripherals[idx].type == BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME) {
                         midi_client.midi_peripherals[idx].timeout = scan_remove_timeout;
@@ -317,12 +330,20 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
                     }
                 }
                 else {
+                    if (midi_client.n_midi_peripherals >= BLEMC_MAX_SCAN_ITEMS) {
+                        break;
+                    }
                     // initialize the map with the BD_ADDR as the name and record the address type
                     midi_client.midi_peripherals[idx].type = 0;
                     // Need the address type to connect
                     midi_client.midi_peripherals[idx].addr_type = gap_event_advertising_report_get_address_type(packet);
                     memcpy(midi_client.midi_peripherals[idx].bdaddr, bdaddr, sizeof(bdaddr));
-                    strncpy(midi_client.midi_peripherals[idx].name, bd_addr_to_str(bdaddr), strlen(bd_addr_to_str(bdaddr))+1);
+                    if (has_local_name) {
+                        memcpy(midi_client.midi_peripherals[idx].name, discovered.name, sizeof(discovered.name));
+                        midi_client.midi_peripherals[idx].type = discovered.type;
+                    } else {
+                        strncpy(midi_client.midi_peripherals[idx].name, bd_addr_to_str(bdaddr), strlen(bd_addr_to_str(bdaddr))+1);
+                    }
                     midi_client.n_midi_peripherals++;
                 }
                 midi_client.midi_peripherals[idx].timeout = scan_remove_timeout; // do not time out this entry
@@ -336,12 +357,18 @@ static void handle_hci_event(uint8_t packet_type, uint16_t channel, uint8_t *pac
                     if (state != BLEMC_WAIT_FOR_CONNECTION) {
                         break;
                     }
-                    if (hci_subevent_le_connection_complete_get_status(packet) == ERROR_CODE_UNKNOWN_CONNECTION_IDENTIFIER) {
-                        printf("\nCONNECT REQUEST Canceled\r\n");
+                    uint8_t status = hci_subevent_le_connection_complete_get_status(packet);
+                    if (status != ERROR_CODE_SUCCESS) {
+                        printf("\nclient: CONNECT FAILED status=%u\n", status);
+                        if (status == ERROR_CODE_UNKNOWN_CONNECTION_IDENTIFIER) {
+                            printf("CONNECT REQUEST Canceled\r\n");
+                        }
+                        con_handle = HCI_CON_HANDLE_INVALID;
+                        midi_is_ready = false;
                         state = BLEMC_IDLE;
                         break;
                     }
-                    printf("\nclient: CONNECTED status=%u\n", hci_subevent_le_connection_complete_get_status(packet));
+                    printf("\nclient: CONNECTED status=%u\n", status);
                     con_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
                     // print connection parameters (without using float operations)
                     conn_interval = hci_subevent_le_connection_complete_get_conn_interval(packet);
