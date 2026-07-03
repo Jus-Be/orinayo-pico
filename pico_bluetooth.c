@@ -2049,6 +2049,12 @@ int compUp(const void *a, const void *b) {
 }
 
 void config_guitar(uint8_t mode) {
+	
+	if (mode > 5 && mode < 10 && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
+		// midi guitar control clash with sampler
+		// sampler wins. don't send any midi control/program message to channel 1
+		return;
+	}
 
 	if (mode == 19) {										// WAV Trigger Pro
 		enable_wav_trigger_pro = !enable_wav_trigger_pro;
