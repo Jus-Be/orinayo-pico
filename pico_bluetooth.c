@@ -1499,6 +1499,8 @@ void gamepad_bluetooth_handle_data() {
 			}
 		}
 		
+		// Now check what device ia active and act accordingly
+		
 		if (enable_mpx_looper)
 		{
 			if (mbut2) {
@@ -1573,7 +1575,7 @@ void gamepad_bluetooth_handle_data() {
 			} 			
 			else if (green && red && yellow) config_guitar(18);		// Reset Preferences
 			else if (red && yellow && blue) config_guitar(16);		// Used
-			else if (green && red && blue) config_guitar(13);		// Used			
+			else if (green && red && blue) config_guitar(15);		// Used			
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
 			else if (green && orange) config_guitar(13);			// Behringer Synth (JT-Micro, UB-1 Micro)
