@@ -42,6 +42,7 @@ bool strum_neutral = true;
 bool style_started = false;
 bool enable_style_play = false;
 bool enable_auto_hold = false;
+bool enable_auto_strum = false;
 bool enable_stacatto_mode = false;
 bool enable_seqtrak = false;
 bool enable_dream_midi = false;
@@ -228,7 +229,7 @@ void wav_trigger_pro_stop_loops();
 void ble_midi_client_scan_end();
 
 
-int chord_chat[12][3][6] = {
+int chord_chart[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
 	{{-1, -1, 3, 1, 2, 1}, {-1, -1, 2, 1, 2, 0}, {-1, -1, 3, 3, 4, 1}},
 	{{-1, -1, 0, 2, 3, 2}, {-1, -1, 0, 2, 3, 1}, {-1, -1, 0, 2, 3, 3}},
@@ -842,10 +843,25 @@ void gamepad_bluetooth_handle_data() {
 				midi_send_note(0x90, 99, 127);						
 			}			
 		}
-		else {		
+		
+		if (but6) {
+			if (!enable_sp404mk2 && !enable_mpc_sample && !enable_nanobox_tangerine && !enable_wav_trigger_pro && enable_arranger_mode) {
+				if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
+				else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
+				else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
+				else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
+				else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
+			}			
+
+			if (enable_style_play) config_style_play();
 			
-			if (but6) {
-				stop_chord();						// kill any sustained notes
+			if (!green && !red && !yellow && !blue && !orange) {
+				enable_auto_strum = !enable_auto_strum;	
+				
+				if (enable_ample_guitar) 					enable_auto_strum = false;		// clash. ample guitar wins.
+				if (style_started && !enable_midi_drums) 	enable_auto_strum = false;		// only midi drums can sync with internal clock. not possible with loopers
+				
+				stop_chord();											// kill any sustained notes
 				
 				if (!style_change_requested) 
 				{
@@ -875,19 +891,10 @@ void gamepad_bluetooth_handle_data() {
 					}
 					
 					style_change_requested = true;
-				}
+				}				
 			}
-		}	
+		}
 		
-		if (but6 && !enable_sp404mk2 && !enable_mpc_sample && !enable_nanobox_tangerine && !enable_wav_trigger_pro && enable_arranger_mode) {
-			if (green) midi_send_control_change(0xB3, 9, 1); 		// Melody voice -1
-			else if (red) midi_send_control_change(0xB3, 9, 2); 	// Melody voice -2					
-			else if (yellow) midi_send_control_change(0xB3, 9, 3); 	// Melody voice -3						
-			else if (blue) midi_send_control_change(0xB3, 9, 4); 	// Melody voice -4	
-			else if (orange) midi_send_control_change(0xB3, 9, 5); 	// Melody voice -5
-		}			
-
-		if (but6 && enable_style_play) config_style_play();
 		finished_processing = true;
 		return;
 	}
@@ -2724,8 +2731,8 @@ void play_chord(bool on, bool up) {
 						
 						if (string > -1 && string < 6) 
 						{
-							if (chord_chat[last_chord_note % 12][last_chord_type][string] > -1) {	// ignore unused strings
-								chord_midinotes[notes_count] = string_frets[string] + chord_chat[last_chord_note % 12][last_chord_type][string];
+							if (chord_chart[last_chord_note % 12][last_chord_type][string] > -1) {	// ignore unused strings
+								chord_midinotes[notes_count] = string_frets[string] + chord_chart[last_chord_note % 12][last_chord_type][string];
 								notes_count++;						
 							}
 						}
@@ -3431,7 +3438,7 @@ void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer f
 	
 	midi_current_step = (midi_current_step + 1) % 128; // 8 bars of of 16 (1/16) beats per bar
 	
-	if (enable_midi_drums && active_strum_pattern == 0 && (enable_auto_hold || !strum_neutral)) {
+	if ((enable_midi_drums || enable_auto_strum) && active_strum_pattern == 0 && (enable_auto_hold || !strum_neutral)) {
 		uint8_t start_action = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][0];
 		uint8_t stop_action = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][1];
 		uint8_t velocity = strum_styles[style_group % 5][style_section % 5][midi_current_step % 16][2];
@@ -3451,37 +3458,37 @@ void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer f
 		// play string 1 -6
 
 		if (start_action == 62) {
-			voice_note = __6th + chord_chat[last_chord_note % 12][last_chord_type][0];
+			voice_note = __6th + chord_chart[last_chord_note % 12][last_chord_type][0];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 64) {
-			voice_note = __5th + chord_chat[last_chord_note % 12][last_chord_type][1];
+			voice_note = __5th + chord_chart[last_chord_note % 12][last_chord_type][1];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 65) {
-			voice_note = __4th + chord_chat[last_chord_note % 12][last_chord_type][2];
+			voice_note = __4th + chord_chart[last_chord_note % 12][last_chord_type][2];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 67) {
-			voice_note = __3rd + chord_chat[last_chord_note % 12][last_chord_type][3];
+			voice_note = __3rd + chord_chart[last_chord_note % 12][last_chord_type][3];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 69) {
-			voice_note = __2nd + chord_chat[last_chord_note % 12][last_chord_type][4];
+			voice_note = __2nd + chord_chart[last_chord_note % 12][last_chord_type][4];
 			midi_send_note(0x90, voice_note, velocity);
 		}
 		else
 			
 		if (start_action == 71) {
-			voice_note = __1st + chord_chat[last_chord_note % 12][last_chord_type][5];
+			voice_note = __1st + chord_chart[last_chord_note % 12][last_chord_type][5];
 			midi_send_note(0x90, voice_note, velocity);				
 		}
 		else
