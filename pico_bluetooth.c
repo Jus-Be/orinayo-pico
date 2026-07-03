@@ -915,7 +915,7 @@ void gamepad_bluetooth_handle_data() {
 		return;			
 	}
 
-	if (but9 != start)  {									// unused because start button clashes with axis (knob_up/knob_down)
+	if (but9 != start)  {									// volume reset
 		start = but9;
 	
 		if (but9) {
@@ -1602,27 +1602,78 @@ void gamepad_bluetooth_handle_data() {
 
 	if (joy_up != joystick_up) {							// style control - fill, tempo
 		joystick_up = joy_up;
-
+			
 		if (green && red) 
 		{
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(85);	
 				if (enable_midi_drums) 	looper_update_bpm(85);
+				if (enable_auto_strum) 	looper_update_bpm(85);				
 				if (enable_seqtrak) 	midi_seqtrak_tempo(85);
 				if (enable_modx) 		midi_modx_tempo(85);					
 			}
 		}
 		else
 			
+		if (red && yellow) 
+		{
+			if (joy_up) {
+				if (enable_dream_midi)  dream_set_delay(95);	
+				if (enable_midi_drums) 	looper_update_bpm(95);
+				if (enable_auto_strum) 	looper_update_bpm(95);				
+				if (enable_seqtrak) 	midi_seqtrak_tempo(95);
+				if (enable_modx) 		midi_modx_tempo(95);					
+			}
+		}
+		else
+
+		if (yellow && blue) 
+		{
+			if (joy_up) {
+				if (enable_dream_midi)  dream_set_delay(105);				
+				if (enable_midi_drums) 	looper_update_bpm(105);
+				if (enable_auto_strum) 	looper_update_bpm(105);					
+				if (enable_seqtrak) 	midi_seqtrak_tempo(105);
+				if (enable_modx) 		midi_modx_tempo(105);					
+			}
+		}
+		else
+			
+		if (blue && orange) 
+		{
+			if (joy_up) {
+				if (enable_dream_midi)  dream_set_delay(115);	
+				if (enable_midi_drums) 	looper_update_bpm(115);
+				if (enable_auto_strum) 	looper_update_bpm(115);				
+				if (enable_seqtrak) 	midi_seqtrak_tempo(115);
+				if (enable_modx) 		midi_modx_tempo(115);					
+			}
+		}
+		else
+
+		if (orange && green) 
+		{
+			if (joy_up) {
+				if (enable_dream_midi)  dream_set_delay(125);				
+				if (enable_midi_drums) 	looper_update_bpm(125);
+				if (enable_auto_strum) 	looper_update_bpm(125);					
+				if (enable_seqtrak) 	midi_seqtrak_tempo(125);
+				if (enable_modx) 		midi_modx_tempo(125);					
+			}
+		}
+		else			
+			
 		if (green) 
 		{
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(80);	
 				if (enable_midi_drums) 	looper_update_bpm(80);
+				if (enable_auto_strum) 	looper_update_bpm(80);					
 				if (enable_seqtrak) 	midi_seqtrak_tempo(80);
 				if (enable_modx) 		midi_modx_tempo(80);					
 			}
 		}
+		
 		else
 			
 		if (red) 
@@ -1630,6 +1681,7 @@ void gamepad_bluetooth_handle_data() {
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(90);					
 				if (enable_midi_drums) 	looper_update_bpm(90);
+				if (enable_auto_strum) 	looper_update_bpm(90);					
 				if (enable_seqtrak) 	midi_seqtrak_tempo(90);
 				if (enable_modx) 		midi_modx_tempo(90);					
 			}
@@ -1641,6 +1693,7 @@ void gamepad_bluetooth_handle_data() {
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(100);				
 				if (enable_midi_drums) 	looper_update_bpm(100);
+				if (enable_auto_strum) 	looper_update_bpm(100);					
 				if (enable_seqtrak) 	midi_seqtrak_tempo(100);
 				if (enable_modx) 		midi_modx_tempo(100);					
 			}
@@ -1652,6 +1705,7 @@ void gamepad_bluetooth_handle_data() {
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(110);	
 				if (enable_midi_drums) 	looper_update_bpm(110);
+				if (enable_auto_strum) 	looper_update_bpm(110);					
 				if (enable_seqtrak) 	midi_seqtrak_tempo(110);
 				if (enable_modx) 		midi_modx_tempo(110);					
 			}
@@ -1663,6 +1717,7 @@ void gamepad_bluetooth_handle_data() {
 			if (joy_up) {
 				if (enable_dream_midi)  dream_set_delay(120);					
 				if (enable_midi_drums) 	looper_update_bpm(120);
+				if (enable_auto_strum) 	looper_update_bpm(120);					
 				if (enable_seqtrak) 	midi_seqtrak_tempo(120);
 				if (enable_modx) 		midi_modx_tempo(120);					
 			}
