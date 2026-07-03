@@ -1571,12 +1571,12 @@ void gamepad_bluetooth_handle_data() {
 					enable_mpx_drums = !enable_mpx_drums;
 				}
 			} 			
-			else if (green && red && yellow) config_guitar(15);		// Worship Pads
-			else if (red && yellow && blue) config_guitar(16);		// Audio Drums
-			else if (green && red && blue) config_guitar(13);		// Behringer JT-Micro Synth			
+			else if (green && red && yellow) config_guitar(18);		// Reset Preferences
+			else if (red && yellow && blue) config_guitar(16);		// Used
+			else if (green && red && blue) config_guitar(13);		// Used			
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
-			else if (green && orange) config_guitar(18);			// Reset Preferences	
+			else if (green && orange) config_guitar(13);			// Behringer Synth (JT-Micro, UB-1 Micro)
 			else if (green && yellow) config_guitar(10);			// Akai MPX Looper			
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
