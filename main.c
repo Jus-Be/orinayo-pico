@@ -160,6 +160,7 @@ void sp404_trigger_loop();
 void config_nanobox_tangerine();
 void config_mpx_looper();
 void process_midi_byte(uint8_t b);
+void set_tempo(uint8_t tempo);
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
@@ -190,6 +191,8 @@ void core1_main() {
 		tuh_task(); // tinyusb host task
 	}
 }
+
+// core0: main handle host events
 
 int main() {
 	set_sys_clock_khz(120000, true);
@@ -632,46 +635,52 @@ void process_midi_byte(uint8_t b) {
 						}																		
 					}
 				}
-				else	// These values are for iRig or SMC-PAD
+				else	// These values are for iRig or SMC-PAD or x-touch-mini
 					
-				if (cc_cmd == 0x0C || cc_cmd == 0x1E) {			// drum volume 
+				if (cc_cmd == 0x0C || cc_cmd == 0x1E || cc_cmd == 0x01) {			// drum volume 
 					sample_drum_velocity = cc_value;
 				}
 				else
 					
-				if (cc_cmd == 0x0D || cc_cmd == 0x1F) {			// bass volume
+				if (cc_cmd == 0x0D || cc_cmd == 0x1F || cc_cmd == 0x02) {			// bass volume
 					sample_bass_velocity = cc_value;
 				}
 				else
 
-				if (cc_cmd == 0x0E || cc_cmd == 0x20) {			// chord volume
+				if (cc_cmd == 0x0E || cc_cmd == 0x20 || cc_cmd == 0x03) {			// chord volume
 					sample_chord_velocity = cc_value;
 				}
 				else
 
-				if (cc_cmd == 0x0F || cc_cmd == 0x21) {			// midi guitar volume
+				if (cc_cmd == 0x0F || cc_cmd == 0x21 || cc_cmd == 0x04) {			// midi guitar volume
 					midi_guitar_volume = cc_value;
 					midi_send_control_change(0xB0, 7, midi_guitar_volume);					
 				}	
 				else
 
-				if (cc_cmd == 0x10 || cc_cmd == 0x22) {			// worship pad volume
+				if (cc_cmd == 0x10 || cc_cmd == 0x22 || cc_cmd == 0x05) {			// worship pad volume
 					worship_pad_velocity = cc_value;
 				}
 				else
 
-				if (cc_cmd == 0x11 || cc_cmd == 0x23) {			// chord1 pad volume
+				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// chord1 & chord2 pad volumes
 					chord1_pad_velocity = cc_value;
-				}	
-				else
-
-				if (cc_cmd == 0x12 || cc_cmd == 0x24) {			// chord2 pad volume
-					chord2_pad_velocity = cc_value;
+					chord2_pad_velocity = cc_value;					
 				}
-
 				else
 
-				if (cc_cmd == 0x13 || cc_cmd == 0x25) {			// master volume
+				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// tempo
+					uint8_t tempo = 60 + (cc_value / 127 * 80);
+					set_tempo(tempo);
+				}
+				else
+
+				if (cc_cmd == 0x08) {												// unused
+
+				}				
+				else
+
+				if (cc_cmd == 0x13 || cc_cmd == 0x25 || cc_cmd == 0x09) {			// master volume
 					midi_send_control_change(0xB0, 7, cc_value);
 					midi_send_control_change(0xB1, 7, cc_value);
 					midi_send_control_change(0xB2, 7, cc_value);					

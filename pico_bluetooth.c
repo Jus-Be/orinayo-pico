@@ -227,6 +227,7 @@ void mpc_stop_loops();
 void mpx_stop_loops();
 void wav_trigger_pro_stop_loops();
 void ble_midi_client_scan_end();
+void set_tempo(uint8_t tempo);
 
 
 int chord_chart[12][3][6] = {
@@ -1608,11 +1609,7 @@ void gamepad_bluetooth_handle_data() {
 		if (green && red) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(85);	
-				if (enable_midi_drums) 	looper_update_bpm(85);
-				if (enable_auto_strum) 	looper_update_bpm(85);				
-				if (enable_seqtrak) 	midi_seqtrak_tempo(85);
-				if (enable_modx) 		midi_modx_tempo(85);					
+				set_tempo(85);					
 			}
 		}
 		else
@@ -1620,11 +1617,7 @@ void gamepad_bluetooth_handle_data() {
 		if (red && yellow) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(95);	
-				if (enable_midi_drums) 	looper_update_bpm(95);
-				if (enable_auto_strum) 	looper_update_bpm(95);				
-				if (enable_seqtrak) 	midi_seqtrak_tempo(95);
-				if (enable_modx) 		midi_modx_tempo(95);					
+				set_tempo(95);						
 			}
 		}
 		else
@@ -1632,11 +1625,7 @@ void gamepad_bluetooth_handle_data() {
 		if (yellow && blue) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(105);				
-				if (enable_midi_drums) 	looper_update_bpm(105);
-				if (enable_auto_strum) 	looper_update_bpm(105);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(105);
-				if (enable_modx) 		midi_modx_tempo(105);					
+				set_tempo(105);						
 			}
 		}
 		else
@@ -1644,11 +1633,7 @@ void gamepad_bluetooth_handle_data() {
 		if (blue && orange) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(115);	
-				if (enable_midi_drums) 	looper_update_bpm(115);
-				if (enable_auto_strum) 	looper_update_bpm(115);				
-				if (enable_seqtrak) 	midi_seqtrak_tempo(115);
-				if (enable_modx) 		midi_modx_tempo(115);					
+				set_tempo(115);					
 			}
 		}
 		else
@@ -1656,11 +1641,7 @@ void gamepad_bluetooth_handle_data() {
 		if (orange && green) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(125);				
-				if (enable_midi_drums) 	looper_update_bpm(125);
-				if (enable_auto_strum) 	looper_update_bpm(125);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(125);
-				if (enable_modx) 		midi_modx_tempo(125);					
+				set_tempo(125);					
 			}
 		}
 		else			
@@ -1668,11 +1649,7 @@ void gamepad_bluetooth_handle_data() {
 		if (green) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(80);	
-				if (enable_midi_drums) 	looper_update_bpm(80);
-				if (enable_auto_strum) 	looper_update_bpm(80);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(80);
-				if (enable_modx) 		midi_modx_tempo(80);					
+				set_tempo(80);						
 			}
 		}
 		
@@ -1681,11 +1658,7 @@ void gamepad_bluetooth_handle_data() {
 		if (red) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(90);					
-				if (enable_midi_drums) 	looper_update_bpm(90);
-				if (enable_auto_strum) 	looper_update_bpm(90);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(90);
-				if (enable_modx) 		midi_modx_tempo(90);					
+				set_tempo(90);						
 			}
 		}
 		else
@@ -1693,11 +1666,7 @@ void gamepad_bluetooth_handle_data() {
 		if (yellow) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(100);				
-				if (enable_midi_drums) 	looper_update_bpm(100);
-				if (enable_auto_strum) 	looper_update_bpm(100);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(100);
-				if (enable_modx) 		midi_modx_tempo(100);					
+				set_tempo(100);						
 			}
 		}
 		else
@@ -1705,11 +1674,7 @@ void gamepad_bluetooth_handle_data() {
 		if (blue) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(110);	
-				if (enable_midi_drums) 	looper_update_bpm(110);
-				if (enable_auto_strum) 	looper_update_bpm(110);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(110);
-				if (enable_modx) 		midi_modx_tempo(110);					
+				set_tempo(110);					
 			}
 		}
 		else	
@@ -1717,11 +1682,7 @@ void gamepad_bluetooth_handle_data() {
 		if (orange) 
 		{
 			if (joy_up) {
-				if (enable_dream_midi)  dream_set_delay(120);					
-				if (enable_midi_drums) 	looper_update_bpm(120);
-				if (enable_auto_strum) 	looper_update_bpm(120);					
-				if (enable_seqtrak) 	midi_seqtrak_tempo(120);
-				if (enable_modx) 		midi_modx_tempo(120);					
+				set_tempo(120);						
 			}
 		}
 		else					
@@ -3605,4 +3566,12 @@ void midi_process_state(uint64_t start_us) {		// called by looper.c real-timer f
 			midi_send_note(0x90, voice_note, velocity);
 		}		
 	}
+}
+
+void set_tempo(uint8_t tempo) {
+	if (enable_dream_midi)  dream_set_delay(tempo);	
+	if (enable_midi_drums) 	looper_update_bpm(tempo);
+	if (enable_auto_strum) 	looper_update_bpm(tempo);				
+	if (enable_seqtrak) 	midi_seqtrak_tempo(tempo);
+	if (enable_modx) 		midi_modx_tempo(tempo);	
 }
