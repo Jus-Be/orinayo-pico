@@ -60,6 +60,7 @@ bool enable_bass_track = true;
 bool enable_drum_track = true;
 bool enable_ample_guitar = false;
 bool enable_midi_drums = false;
+bool enable_worship_pads = false;
 bool gamepad_guitar_connected = false;
 bool finished_processing = true;
 bool style_change_requested = false;
@@ -135,8 +136,7 @@ int last_chord_type = 0;
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
 uint8_t sample_chord_velocity = 100;
-uint8_t worship_pad_velocity = 5;
-uint8_t control_pad_velocity = 5;
+uint8_t worship_pad_velocity = 1;
 uint8_t midi_guitar_volume = 127;
 
 uint8_t sampler_drum_note = 0;
@@ -576,8 +576,7 @@ void gamepad_bluetooth_handle_data() {
 		if (green && orange) 													// toggle worship pads/backing tracks
 		{			
 			if (enable_wav_trigger_pro) {
-				control_pad_velocity = control_pad_velocity > 0 ? 0 : worship_pad_velocity;
-				sampler_midi_note(0x9F,  56 + transpose, control_pad_velocity);	
+				enable_worship_pads = !enable_worship_pads;
 			}			
 		}
 		else
@@ -1060,7 +1059,7 @@ void gamepad_bluetooth_handle_data() {
 						style_change_requested = true;
 						style_section = 0;	
 
-						if (enable_wav_trigger_pro) {			// start backing track on midi channel 11
+						if (enable_wav_trigger_pro && enable_worship_pads) {			// start backing track on midi channel 16
 							sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
 						}
 					}
