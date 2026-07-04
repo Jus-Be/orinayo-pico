@@ -136,7 +136,7 @@ uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
 uint8_t sample_chord_velocity = 100;
 uint8_t worship_pad_velocity = 5;
-
+uint8_t control_pad_velocity = 5;
 uint8_t midi_guitar_volume = 127;
 
 uint8_t sampler_drum_note = 0;
@@ -570,6 +570,15 @@ void gamepad_bluetooth_handle_data() {
 				enable_auto_hold = !enable_auto_hold;
 				if (enable_modx) midi_modx_arp_hold(0, enable_auto_hold);	// only control part 1
 			}					
+		}
+		else
+
+		if (green && orange) 													// toggle worship pads/backing tracks
+		{			
+			if (enable_wav_trigger_pro) {
+				control_pad_velocity = control_pad_velocity > 0 ? 0 : worship_pad_velocity;
+				sampler_midi_note(0x9F,  56 + transpose, control_pad_velocity);	
+			}			
 		}
 		else
 
