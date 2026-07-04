@@ -310,7 +310,13 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			config_mpx_looper();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
-		else
+		else		// WAVTriggerPro MIDI
+			
+		if (name[0] == 'W' && name[1] == 'A' && name[2] == 'V' && name[3] == 'T' && name[4] == 'r' && name[5] == 'i' && name[6] == 'g' && name[7] == 'g' && name[8] == 'e' && name[9] == 'r'  && name[10] == 'P' && name[11] == 'r' && name[12] == 'o') {
+			enable_wav_trigger_pro = true;
+			config_wav_trigger_pro();
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);			
+		}
 			
 		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'C' && name[3] == ' ' && name[4] == 'S' && name[5] == 'a' && name[6] == 'm' && name[7] == 'p' && name[8] == 'l' && name[9] == 'e') {		
 			enable_mpc_sample = true;	
