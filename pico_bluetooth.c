@@ -135,7 +135,7 @@ int last_chord_type = 0;
 uint8_t sample_drum_velocity = 127;
 uint8_t sample_bass_velocity = 120;
 uint8_t sample_chord_velocity = 100;
-uint8_t worship_pad_velocity = 127;
+uint8_t worship_pad_velocity = 40;
 
 uint8_t midi_guitar_volume = 127;
 
@@ -2672,7 +2672,7 @@ void play_chord(bool on, bool up) {
 	}
 	else
 				
-	if (enable_wav_trigger_pro)								// trigger chord loop on w
+	if (enable_wav_trigger_pro)		// trigger chord loop on w
 	{
 		if (handled && on) 
 		{
