@@ -577,6 +577,12 @@ void gamepad_bluetooth_handle_data() {
 		{			
 			if (enable_wav_trigger_pro) {
 				enable_worship_pads = !enable_worship_pads;
+				
+				if (enable_worship_pads) {			// start backing track on midi channel 16
+					sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
+				} else {
+					sampler_midi_note(0x9F,  68 + transpose, 127);
+				}					
 			}			
 		}
 		else
@@ -1058,10 +1064,6 @@ void gamepad_bluetooth_handle_data() {
 						
 						style_change_requested = true;
 						style_section = 0;	
-
-						if (enable_wav_trigger_pro && enable_worship_pads) {			// start backing track on midi channel 16
-							sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
-						}
 					}
 					else
 						
@@ -2691,8 +2693,7 @@ void play_chord(bool on, bool up) {
 				
 			if (style_end_requested) {
 				wav_trigger_pro_stop_loops();						
-				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop	
-				sampler_midi_note(0x9F,  68 + transpose, 127);	
+				sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop		
 				style_end_requested = false;				
 			}		
 		}
