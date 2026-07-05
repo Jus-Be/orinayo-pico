@@ -574,16 +574,19 @@ void gamepad_bluetooth_handle_data() {
 		else
 
 		if (green && orange) 													// toggle worship pads/backing tracks
-		{			
-			if (enable_wav_trigger_pro) {
-				enable_worship_pads = !enable_worship_pads;
-				
-				if (enable_worship_pads) {			// start backing track on midi channel 16
-					sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
-				} else {
-					sampler_midi_note(0x9F,  68 + transpose, 127);
-				}					
-			}			
+		{	
+			if (but6)	
+			{				
+				if (enable_wav_trigger_pro) {
+					enable_worship_pads = !enable_worship_pads;
+					
+					if (enable_worship_pads) {			// start backing track/worship pads track with midi channel 16 trigger
+						sampler_midi_note(0x9F,  56 + transpose, worship_pad_velocity);	
+					} else {
+						sampler_midi_note(0x9F,  68 + transpose, 127);
+					}					
+				}			
+			}
 		}
 		else
 
