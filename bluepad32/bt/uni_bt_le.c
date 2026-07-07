@@ -197,7 +197,7 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
     if (device) {
         status = hids_host_disconnect(device->hids_cid);
         if (status != ERROR_CODE_SUCCESS) {
-            loge("Failed to disconnect HIDS client for hids_cid=%d, status=%d\n", device->hids_cid, status);
+            loge("Failed to disconnect HIDS host for hids_cid=%d, status=%d\n", device->hids_cid, status);
         }
         // gap_delete_bonding(0, device->conn.btaddr);
     }
@@ -362,7 +362,7 @@ static void uni_hids_client_packet_handler(uint8_t packet_type, uint16_t channel
             switch (status) {
                 case ERROR_CODE_SUCCESS:
                     protocol_mode = gattservice_subevent_hid_service_connected_get_protocol_mode(packet);
-                    logi("HID service client connected, found %d services, protocol_mode=%d\n",
+                    logi("HID service host connected, found %d services, protocol_mode=%d\n",
                          gattservice_subevent_hid_service_connected_get_num_instances(packet), protocol_mode);
 
                     // XXX TODO: store device as bonded
@@ -375,9 +375,9 @@ static void uni_hids_client_packet_handler(uint8_t packet_type, uint16_t channel
 #if 0
                     status = hids_host_enable_notifications(hids_cid);
                     if (status != ERROR_CODE_SUCCESS)
-                        logi("Failed to enable client notifications for hids_cid=%d, status=%#x\n", hids_cid, status);
+                        logi("Failed to enable host notifications for hids_cid=%d, status=%#x\n", hids_cid, status);
                     else
-                        logi("Client notifications enabled for for hids_cid=%d\n", hids_cid);
+                        logi("Host notifications enabled for hids_cid=%d\n", hids_cid);
 #endif
 
                     uni_hid_device_guess_controller_type_from_pid_vid(device);
@@ -387,7 +387,7 @@ static void uni_hids_client_packet_handler(uint8_t packet_type, uint16_t channel
                     resume_scanning_hint();
                     break;
                 default:
-                    loge("HID service client connection failed, err 0x%02x.\n", status);
+                    loge("HID service host connection failed, err 0x%02x.\n", status);
                     break;
             }
             break;
@@ -485,13 +485,13 @@ static void uni_device_information_packet_handler(uint8_t packet_type,
                     status = hids_host_connect(con_handle, uni_hids_client_packet_handler, HID_PROTOCOL_MODE_REPORT,
                                                  &hids_cid);
                     if (status == ERROR_CODE_COMMAND_DISALLOWED) {
-                        logi("HID client connection failed with COMMAND_DISALLOWED, ignoring \n");
-                        // Means that a HIDS client connection is already present.
+                        logi("HID host connection failed with COMMAND_DISALLOWED, ignoring \n");
+                        // Means that a HIDS host connection is already present.
                         // We forgot to delete it.
                         // hids_host_disconnect(con_handle);
                     }
                     if (status != ERROR_CODE_SUCCESS) {
-                        logi("HID client connection failed, status=%#x\n", status);
+                        logi("HID host connection failed, status=%#x\n", status);
                         hog_disconnect(con_handle);
                         break;
                     }
@@ -1455,7 +1455,7 @@ void uni_bt_le_setup(void) {
     // libusb works with mostly any configuration
 
     gatt_client_init();
-	gatt_client_set_required_security_level(0);	// BAO no encrption needed
+	gatt_client_set_required_security_level(0);	// BAO no encryption needed
     hids_host_init(hid_descriptor_storage, sizeof(hid_descriptor_storage));
     // FIXME: this is an empty function and PicoW toolchain is removing empty function (?)
     // scan_parameters_service_client_init();
