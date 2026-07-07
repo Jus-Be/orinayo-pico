@@ -195,7 +195,7 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 
     device = uni_hid_device_get_instance_for_connection_handle(con_handle);
     if (device) {
-        status = hids_client_disconnect(device->hids_cid);
+        status = hids_host_disconnect(device->hids_cid);
         if (status != ERROR_CODE_SUCCESS) {
             loge("Failed to disconnect HIDS client for hids_cid=%d, status=%d\n", device->hids_cid, status);
         }
@@ -318,8 +318,8 @@ static void parse_report(const uint8_t* packet, uint16_t size) {
     // to set the correct parser.
     // But not clear how to get the "service_index" from setup
     if (device->hid_descriptor_len == 0) {
-        descriptor_data = hids_client_descriptor_storage_get_descriptor_data(hids_cid, service_index);
-        descriptor_len = hids_client_descriptor_storage_get_descriptor_len(hids_cid, service_index);
+        descriptor_data = hids_host_descriptor_storage_get_descriptor_data(hids_cid, service_index);
+        descriptor_len = hids_host_descriptor_storage_get_descriptor_len(hids_cid, service_index);
 
         uni_hid_device_set_hid_descriptor(device, descriptor_data, descriptor_len);
     }
@@ -373,7 +373,7 @@ static void uni_hids_client_packet_handler(uint8_t packet_type, uint16_t channel
                         break;
                     }
 #if 0
-                    status = hids_client_enable_notifications(hids_cid);
+                    status = hids_host_enable_notifications(hids_cid);
                     if (status != ERROR_CODE_SUCCESS)
                         logi("Failed to enable client notifications for hids_cid=%d, status=%#x\n", hids_cid, status);
                     else
@@ -482,13 +482,13 @@ static void uni_device_information_packet_handler(uint8_t packet_type,
 
                     // Continue - query primary services.
                     logi("Search for HID service, con_handle: %#x\n", con_handle);
-                    status = hids_client_connect(con_handle, uni_hids_client_packet_handler, HID_PROTOCOL_MODE_REPORT,
+                    status = hids_host_connect(con_handle, uni_hids_client_packet_handler, HID_PROTOCOL_MODE_REPORT,
                                                  &hids_cid);
                     if (status == ERROR_CODE_COMMAND_DISALLOWED) {
                         logi("HID client connection failed with COMMAND_DISALLOWED, ignoring \n");
                         // Means that a HIDS client connection is already present.
                         // We forgot to delete it.
-                        // hids_client_disconnect(con_handle);
+                        // hids_host_disconnect(con_handle);
                     }
                     if (status != ERROR_CODE_SUCCESS) {
                         logi("HID client connection failed, status=%#x\n", status);
@@ -1456,7 +1456,7 @@ void uni_bt_le_setup(void) {
 
     gatt_client_init();
 	gatt_client_set_required_security_level(0);	// BAO no encrption needed
-    hids_client_init(hid_descriptor_storage, sizeof(hid_descriptor_storage));
+    hids_host_init(hid_descriptor_storage, sizeof(hid_descriptor_storage));
     // FIXME: this is an empty function and PicoW toolchain is removing empty function (?)
     // scan_parameters_service_client_init();
     device_information_service_client_init();
