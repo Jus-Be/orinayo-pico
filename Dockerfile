@@ -11,7 +11,7 @@ RUN \
 RUN \
     mkdir -p /project/src/ && \
     cd /project/ && \
-    git clone https://github.com/raspberrypi/pico-sdk.git --branch master && \
+    git clone https://github.com/raspberrypi/pico-sdk.git --branch 2.2.0 && \
     cd pico-sdk/ && \
     git submodule update --init && \
     cd /
