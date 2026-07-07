@@ -57,6 +57,9 @@ Select a mode at runtime using a button combination on the controller — no ref
 
 ---
 
+## Software Requirements to Build
+- Rasberry Pico SDK 2.2 with BTstack 1.6.2
+
 ## Hardware Requirements
 
 - **Raspberry Pi Pico 2 W** (RP2350 + CYW43439 — the Pico 2 W specifically, not Pico W)
