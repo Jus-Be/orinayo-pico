@@ -480,6 +480,7 @@ static void uni_device_information_packet_handler(uint8_t packet_type,
                         break;
                     }
 
+					/*
                     // Continue - query primary services.
                     logi("Search for HID service, con_handle: %#x\n", con_handle);
                     status = hids_client_connect(con_handle, uni_hids_client_packet_handler, HID_PROTOCOL_MODE_REPORT,
@@ -495,6 +496,7 @@ static void uni_device_information_packet_handler(uint8_t packet_type,
                         hog_disconnect(con_handle);
                         break;
                     }
+					*/
                     logi("Using hids_cid=%d\n", hids_cid);
                     device->hids_cid = hids_cid;
                     break;
