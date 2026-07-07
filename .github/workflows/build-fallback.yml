@@ -1,0 +1,31 @@
+name: Pico Build Action Fallback
+
+on:
+  workflow_run:
+    workflows: ["Pico Build Action"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  test_build_fallback:
+    name: Build Orinayo (fallback pinned action)
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Orinayo firmware (fallback)
+        id: build
+        uses: deleolajide/Pico-Build-Action@dbb9ed078bfed217ef917dd09860c2c5096e8eb9
+        with:
+          source_dir: "."
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace_artifacts_fallback
+          path: ${{steps.build.outputs.output_dir}}
