@@ -195,10 +195,10 @@ static void hog_disconnect(hci_con_handle_t con_handle) {
 
     device = uni_hid_device_get_instance_for_connection_handle(con_handle);
     if (device) {
-        status = hids_client_disconnect(device->hids_cid);
-        if (status != ERROR_CODE_SUCCESS) {
-            loge("Failed to disconnect HIDS client for hids_cid=%d, status=%d\n", device->hids_cid, status);
-        }
+        //status = hids_client_disconnect(device->hids_cid);
+        //if (status != ERROR_CODE_SUCCESS) {
+        //    loge("Failed to disconnect HIDS client for hids_cid=%d, status=%d\n", device->hids_cid, status);
+        //}
         // gap_delete_bonding(0, device->conn.btaddr);
     }
 

@@ -613,6 +613,7 @@ static void xboxone_stop_rumble_now(uni_hid_device_t* d) {
         .loop_count = 0,
     };
 
+	/*
     if (ins->version == XBOXONE_FIRMWARE_V5) {
         status = hids_client_send_write_report(d->hids_cid, XBOX_RUMBLE_REPORT_ID, HID_REPORT_TYPE_OUTPUT,
                                                &ff.enable_actuators,  // skip the first type bytes,
@@ -630,6 +631,7 @@ static void xboxone_stop_rumble_now(uni_hid_device_t* d) {
     } else {
         uni_hid_device_send_intr_report(d, (uint8_t*)&ff, sizeof(ff));
     }
+	*/
 }
 
 static void xboxone_play_quad_rumble_now(uni_hid_device_t* d,
@@ -673,6 +675,7 @@ static void xboxone_play_quad_rumble_now(uni_hid_device_t* d,
                            // the max 65535 ms accepted for duration: 255 * 10ms * 26 = 66300ms
     };
 
+	/*
     if (ins->version == XBOXONE_FIRMWARE_V5) {
         status = hids_client_send_write_report(d->hids_cid, XBOX_RUMBLE_REPORT_ID, HID_REPORT_TYPE_OUTPUT,
                                                &ff.enable_actuators,  // skip the first two bytes,
@@ -690,6 +693,7 @@ static void xboxone_play_quad_rumble_now(uni_hid_device_t* d,
     } else {
         uni_hid_device_send_intr_report(d, (uint8_t*)&ff, sizeof(ff));
     }
+	*/
 
     // Set timer to turn off rumble
     ins->rumble_timer_duration.process = &on_xboxone_set_rumble_off;
