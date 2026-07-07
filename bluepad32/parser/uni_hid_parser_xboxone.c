@@ -615,7 +615,7 @@ static void xboxone_stop_rumble_now(uni_hid_device_t* d) {
 
     if (ins->version == XBOXONE_FIRMWARE_V5) {
         status = hids_host_send_write_report(d->hids_cid, XBOX_RUMBLE_REPORT_ID, HID_REPORT_TYPE_OUTPUT,
-                                               &ff.enable_actuators,  // skip the first type bytes,
+                                               &ff.enable_actuators,  // skip the first two bytes,
                                                sizeof(ff) - 2         // subtract the 2 bytes from total
         );
         if (status == ERROR_CODE_COMMAND_DISALLOWED) {
