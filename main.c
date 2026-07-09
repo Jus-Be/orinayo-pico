@@ -264,6 +264,7 @@ int main() {
 	
 	// setup I2C - WAV Trigger Pro	
 	
+	/*
     i2c_init(I2C_ID, I2C_SPEED_HZ);
     gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
@@ -272,7 +273,8 @@ int main() {
 	sleep_ms(500);	
 	
 	wav_trigger_pro_connected = is_wav_trigger_connected();
-
+	*/
+	
     while (true) {
 		tud_task(); // tinyusb device task		
 		
