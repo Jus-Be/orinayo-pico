@@ -84,8 +84,8 @@ void pico_set_led(bool led_on) {
 #define WAV_TRIGGER_PRO_ADDR 0x13
 
 // I2C Command Protocol Constants 
-#define CMD_I2C_LOAD_PRESET  0x0C
-#define CMD_I2C_MIDI_MSG     0x0B
+#define CMD_LOAD_PRESET  0x0C
+#define CMD_MIDI_MSG     0x0B
 
 extern int midi_current_step;
 extern int style_section;
@@ -143,6 +143,7 @@ static int     midi_data_count = 0;
 uint8_t device_addr = 255;
 uint8_t chord1_pad_velocity = 48;
 uint8_t chord2_pad_velocity = 32;
+uint8_t previous = 0;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
@@ -190,7 +191,6 @@ enum {
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
-	static uint8_t previous = 0;
 	uint8_t current = 60;
 	
 	//if (previous) midi_send_note(0x89, previous, 0);
@@ -1344,7 +1344,7 @@ void wav_trigger_send_packet(uint8_t *payload, uint8_t payload_len) {
     i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, total_len, false); 
 }
 
-void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
+void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
 	
 	if (!enable_wav_trigger_pro || (enable_wav_trigger_pro && buffer[0] < 0xA0)) 	// don't send control events to wav trigger pro
