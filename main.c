@@ -182,7 +182,7 @@ void process_midi_byte(uint8_t b);
 void set_tempo(uint8_t tempo);
 
 uint8_t get_arp_template(void);
-void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize);
+void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize);
 
 enum {
 	// Balanced size: enough to batch multiple MIDI packets per callback while keeping stack usage small.
