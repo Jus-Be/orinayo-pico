@@ -62,12 +62,18 @@ void pico_set_led(bool led_on) {
 }
 
 
-// UART settings
+// M5Stack Midi UART settings
 #define UART_ID uart0
 #define BAUD_RATE 31250
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
 #define GPIO_FUNC_UART 2
+
+// WAV Trigger Pro UART settings
+#define UART_ID_1      uart1
+#define BAUD_RATE_1    57600
+#define UART_TX_PIN_1  4
+#define UART_RX_PIN_1  5
 
 extern int midi_current_step;
 extern int style_section;
@@ -219,13 +225,20 @@ int main() {
 	looper_schedule_step_timer();
     note_scheduler_init();
 	
-	// set UART0 speed.
+	// setup UART0 - M5Stack MIDI
 	uart_init(UART_ID, BAUD_RATE);
 	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	uart_set_fifo_enabled(UART_ID, true);
 	uart_set_translate_crlf(UART_ID, false);
 	sleep_ms(500);	
+	
+	// setup UART1 - WAV Trigger Pro	
+    uart_init(UART_ID_1, BAUD_RATE_1);
+    gpio_set_function(UART_TX_PIN_1, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN_1, GPIO_FUNC_UART);
+    uart_set_hw_flow(UART_ID_1, false, false);	
+	sleep_ms(500);		
 
     while (true) {
 		tud_task(); // tinyusb device task		
@@ -1318,6 +1331,9 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
+	
+	uart_write_blocking(UART_ID_1, buffer, bufsize);
+	uart_tx_wait_blocking(UART_ID_1);	
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
