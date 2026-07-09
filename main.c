@@ -1331,7 +1331,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
-void wav_trigger_send_packet(uint8_t* payload, uint8_t payload_len) {
+void wav_trigger_send_packet(uint8_t *payload, uint8_t payload_len) {
     uint8_t total_len = payload_len + 1;
 	uint8_t buffer[16];
     
