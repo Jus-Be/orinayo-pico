@@ -1318,6 +1318,24 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
+void wav_trigger_send_packet(uint8_t cmd, uint8_t* payload, uint8_t payload_len) {
+    uint8_t total_len = payload_len + 5; // 2 start bytes + 1 length + 1 cmd + payload + 1 end byte
+    
+    // Construct packet header
+    uart_putc(UART_ID_1, 0xf0);
+    uart_putc(UART_ID_1, 0xaa);
+    uart_putc(UART_ID_1, total_len);
+    uart_putc(UART_ID_1, cmd);
+    
+    // Construct payload
+    for (uint8_t i = 0; i < payload_len; i++) {
+        uart_putc(UART_ID_1, payload[i]);
+    }
+    
+    // Construct packet footer
+    uart_putc(UART_ID_1, 0x55);
+}
+
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
 	
@@ -1332,8 +1350,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-	uart_write_blocking(UART_ID_1, buffer, bufsize);
-	uart_tx_wait_blocking(UART_ID_1);	
+    wav_trigger_send_packet(0x0C, buffer, bufsize);	
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
