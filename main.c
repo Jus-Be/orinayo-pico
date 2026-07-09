@@ -131,6 +131,8 @@ static uint32_t old_p2 = 0;
 static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
+bool wav_trigger_pro_connected = false;
+
 // 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
 static uint32_t held_notes_mask[4] = {0};
 static int held_note_count = 0;
@@ -200,6 +202,21 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
     return true;
 }
 
+bool is_wav_trigger_connected() {
+    uint8_t dummy_data = 0x00;
+    
+    // We send a single dummy byte to address 0x13.
+    // If the device is present, it will pull the SDA line low to ACK the transfer.
+    int result = i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, &dummy_data, 1, false);
+    
+    // If result equals PICO_ERROR_GENERIC (-1), the hardware did not respond.
+    if (result == PICO_ERROR_GENERIC) {
+        return false;
+    }
+    
+    return true;
+}
+
 // core1: handle host events
 void core1_main() {
 	//sleep_ms(10);
@@ -246,12 +263,15 @@ int main() {
 	sleep_ms(500);	
 	
 	// setup I2C - WAV Trigger Pro	
+	
     i2c_init(I2C_ID, I2C_SPEED_HZ);
     gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);	
-	sleep_ms(500);		
+	sleep_ms(500);	
+	
+	wav_trigger_pro_connected = is_wav_trigger_connected();
 
     while (true) {
 		tud_task(); // tinyusb device task		
@@ -1358,7 +1378,9 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-    wav_trigger_send_packet(buffer, bufsize);	
+	if (wav_trigger_pro_connected) {
+		wav_trigger_send_packet(buffer, bufsize);	
+	}
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
