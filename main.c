@@ -25,6 +25,7 @@
 #include "note_scheduler.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
+#include "hardware/i2c.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -74,6 +75,17 @@ void pico_set_led(bool led_on) {
 #define BAUD_RATE_1    57600
 #define UART_TX_PIN_1  4
 #define UART_RX_PIN_1  5
+
+// WAV Trigger I2C Peripheral Block and Pin Mapping
+#define I2C_ID          i2c1
+#define I2C_SDA_PIN     2
+#define I2C_SCL_PIN     3
+#define I2C_SPEED_HZ    100000     // Standard 100kHz clock speed
+#define WAV_TRIGGER_PRO_ADDR 0x13
+
+// I2C Command Protocol Constants 
+#define CMD_I2C_LOAD_PRESET  0x0C
+#define CMD_I2C_MIDI_MSG     0x0B
 
 extern int midi_current_step;
 extern int style_section;
@@ -233,11 +245,12 @@ int main() {
 	uart_set_translate_crlf(UART_ID, false);
 	sleep_ms(500);	
 	
-	// setup UART1 - WAV Trigger Pro	
-    uart_init(UART_ID_1, BAUD_RATE_1);
-    gpio_set_function(UART_TX_PIN_1, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN_1, GPIO_FUNC_UART);
-    uart_set_hw_flow(UART_ID_1, false, false);	
+	// setup I2C - WAV Trigger Pro	
+    i2c_init(I2C_ID, I2C_SPEED_HZ);
+    gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_SDA_PIN);
+    gpio_pull_up(I2C_SCL_PIN);	
 	sleep_ms(500);		
 
     while (true) {
@@ -1318,22 +1331,17 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
-void wav_trigger_send_packet(uint8_t cmd, uint8_t* payload, uint8_t payload_len) {
-    uint8_t total_len = payload_len + 5; // 2 start bytes + 1 length + 1 cmd + payload + 1 end byte
+void wav_trigger_send_packet(uint8_t* payload, uint8_t payload_len) {
+    uint8_t total_len = payload_len + 1;
+	uint8_t buffer[16];
     
-    // Construct packet header
-    uart_putc(UART_ID_1, 0xf0);
-    uart_putc(UART_ID_1, 0xaa);
-    uart_putc(UART_ID_1, total_len);
-    uart_putc(UART_ID_1, cmd);
+	buffer[0] = CMD_MIDI_MSG;
     
-    // Construct payload
     for (uint8_t i = 0; i < payload_len; i++) {
-        uart_putc(UART_ID_1, payload[i]);
+		buffer[i + 1] = payload[i];
     }
-    
-    // Construct packet footer
-    uart_putc(UART_ID_1, 0x55);
+ 
+    i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, total_len, false); 
 }
 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, uint32_t bufsize) {
@@ -1350,7 +1358,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-    //wav_trigger_send_packet(0x0C, buffer, bufsize);	
+    wav_trigger_send_packet(buffer, bufsize);	
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
