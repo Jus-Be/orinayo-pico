@@ -1350,7 +1350,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *buffer, 
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-    wav_trigger_send_packet(0x0C, buffer, bufsize);	
+    //wav_trigger_send_packet(0x0C, buffer, bufsize);	
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
