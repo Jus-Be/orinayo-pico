@@ -78,8 +78,8 @@ void pico_set_led(bool led_on) {
 
 // WAV Trigger I2C Peripheral Block and Pin Mapping
 #define I2C_ID          i2c1
-#define I2C_SDA_PIN     2
-#define I2C_SCL_PIN     3
+#define I2C_SDA_PIN     3
+#define I2C_SCL_PIN     2
 #define I2C_SPEED_HZ    100000     // Standard 100kHz clock speed
 #define WAV_TRIGGER_PRO_ADDR 0x13
 
