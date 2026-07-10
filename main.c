@@ -271,7 +271,7 @@ int main() {
     gpio_pull_up(I2C_SCL_PIN);	
 	sleep_ms(500);	
 	
-	wav_trigger_pro_connected = is_wav_trigger_connected();
+	//wav_trigger_pro_connected = is_wav_trigger_connected();
 	
 	
     while (true) {
@@ -1379,9 +1379,9 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-	if (wav_trigger_pro_connected) {
+	//if (wav_trigger_pro_connected) {
 		wav_trigger_send_packet(buffer, bufsize);	
-	}
+	//}
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
