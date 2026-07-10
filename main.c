@@ -1356,7 +1356,7 @@ void wav_trigger_send_packet(uint8_t *payload, uint8_t payload_len) {
     uint8_t total_len = payload_len + 1;
 	uint8_t buffer[16];
     
-	buffer[0] = total_len;
+	buffer[0] = 11;
     
     for (uint8_t i = 0; i < payload_len; i++) {
 		buffer[i + 1] = payload[i];
