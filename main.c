@@ -78,8 +78,8 @@ void pico_set_led(bool led_on) {
 
 // WAV Trigger I2C Peripheral Block and Pin Mapping
 #define I2C_ID          i2c1
-#define I2C_SDA_PIN     3
-#define I2C_SCL_PIN     2
+#define I2C_SDA_PIN     2
+#define I2C_SCL_PIN     3
 #define I2C_SPEED_HZ    100000     // Standard 100kHz clock speed
 #define WAV_TRIGGER_PRO_ADDR 0x13
 
@@ -1356,7 +1356,7 @@ void wav_trigger_send_packet(uint8_t *payload, uint8_t payload_len) {
     uint8_t total_len = payload_len + 1;
 	uint8_t buffer[16];
     
-	buffer[0] = CMD_MIDI_MSG;
+	buffer[0] = total_len;
     
     for (uint8_t i = 0; i < payload_len; i++) {
 		buffer[i + 1] = payload[i];
