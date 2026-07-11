@@ -741,8 +741,10 @@ void process_midi_byte(uint8_t b) {
 						if (cc_value != previous_drum_vol) {
 							previous_drum_vol = cc_value;
 							
-							uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
-							wav_trigger_pro_set_volume(track_no, cc_value);
+							if (sampler_old_drum_note != 255) {							
+								uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);
+							}
 	
 						}
 					} else {
@@ -758,8 +760,10 @@ void process_midi_byte(uint8_t b) {
 						if (cc_value != previous_bass_vol) {
 							previous_bass_vol = cc_value;
 							
-							uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
-							wav_trigger_pro_set_volume(track_no, cc_value);							
+							if (sampler_old_bass_note != 255) {
+								uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);	
+							}								
 	
 						}
 					} else {				
@@ -775,8 +779,10 @@ void process_midi_byte(uint8_t b) {
 						if (cc_value != previous_chord_vol) {
 							previous_chord_vol = cc_value;
 							
-							uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
-							wav_trigger_pro_set_volume(track_no, cc_value);		
+							if (sampler_old_chord_note != 255) {							
+								uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);		
+							}
 						}
 					} else {				
 						sample_chord_velocity = cc_value;
@@ -1633,8 +1639,9 @@ bool wav_trigger_pro_track_stop(uint16_t track, uint16_t release_ms) {
 }
 
 bool wav_trigger_pro_set_volume(uint16_t track, uint8_t cc_value) {
-	float calc_db = 20.0 * log10((float)cc_value / 127.0);	
-	int target_gain = constrain((int)calc_db, -80, 0); 							
+	//float calc_db = 20.0 * log10((float)cc_value / 127.0);	
+	//int target_gain = constrain((int)calc_db, -80, 0);
+	int16_t target_gain = (80 * (float)(cc_value / 127.0)) - 80;
 	return wav_trigger_pro_track_fade(track, target_gain, 0);	
 }
 
