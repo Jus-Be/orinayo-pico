@@ -1395,9 +1395,9 @@ static bool wav_trigger_pro_read_response(uint8_t *buffer, size_t len) {
 	return i2c_read_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, len, false) == (int)len;
 }
 
-static uint16_t wav_trigger_pro_encode_int16(int16_t value) {
-	// Match the upstream library's unsigned-short packing so negative dB / cents
-	// values are sent as their two's-complement 16-bit representation.
+static uint16_t wav_trigger_pro_pack_signed_16bit(int16_t value) {
+	// Match WAVTriggerPro.cpp, which casts signed values to unsigned short before
+	// splitting them into little-endian bytes for transport over Qwiic.
 	return (uint16_t)value;
 }
 
@@ -1440,8 +1440,8 @@ int wav_trigger_pro_get_num_tracks(void) {
 
 bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t balance, uint16_t attack_ms, int16_t cents, uint8_t flags) {
 	uint8_t payload[10];
-	uint16_t gain = wav_trigger_pro_encode_int16(gain_db);
-	uint16_t pitch = wav_trigger_pro_encode_int16(cents);
+	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
+	uint16_t pitch = wav_trigger_pro_pack_signed_16bit(cents);
 
 	payload[0] = (uint8_t)track;
 	payload[1] = (uint8_t)(track >> 8);
@@ -1516,7 +1516,7 @@ bool wav_trigger_pro_track_stop(uint16_t track, uint16_t release_ms) {
 
 bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_ms) {
 	uint8_t payload[6];
-	uint16_t gain = wav_trigger_pro_encode_int16(gain_db);
+	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
 
 	payload[0] = (uint8_t)track;
 	payload[1] = (uint8_t)(track >> 8);
@@ -1533,6 +1533,8 @@ bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
 	// Qwiic MIDI bridge aligned with standard 3-byte channel messages.
 	if ((cmd & MIDI_STATUS_BYTE_MASK) == 0) return false;
 
+	// Standard MIDI data bytes are 7-bit values, so clear bit 7 before sending
+	// them through the WAV Trigger Pro's 3-byte MIDI message command.
 	uint8_t payload[3] = {
 		cmd,
 		(uint8_t)(dat1 & 0x7f),
@@ -1552,7 +1554,7 @@ bool wav_trigger_pro_load_preset(uint16_t preset) {
 }
 
 bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
-	uint16_t gain = wav_trigger_pro_encode_int16(gain_db);
+	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
 	uint8_t payload[2] = {
 		(uint8_t)gain,
 		(uint8_t)(gain >> 8),
@@ -1577,7 +1579,6 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_tx_wait_blocking(UART_ID);
 	
 	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
-		if (bufsize < 2) return;
 		uint8_t dat1 = buffer[1];
 		uint8_t dat2 = (bufsize == 3) ? buffer[2] : 0;
 		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
