@@ -1406,6 +1406,15 @@ static uint16_t wav_trigger_pro_unpack_uint16(const uint8_t *bytes) {
 	return (uint16_t)(((uint16_t)bytes[1] << 8) | bytes[0]);
 }
 
+static void wav_trigger_pro_pack_uint16(uint8_t *bytes, uint16_t value) {
+	bytes[0] = (uint8_t)value;
+	bytes[1] = (uint8_t)(value >> 8);
+}
+
+static void wav_trigger_pro_pack_int16(uint8_t *bytes, int16_t value) {
+	wav_trigger_pro_pack_uint16(bytes, wav_trigger_pro_pack_signed_16bit(value));
+}
+
 static bool wav_trigger_pro_can_send_midi_message(const uint8_t *buffer, uint32_t bufsize) {
 	if (!wav_trigger_pro_connected || buffer == NULL) return false;
 	if (bufsize < 2 || bufsize > 3) return false;
@@ -1445,18 +1454,12 @@ int wav_trigger_pro_get_num_tracks(void) {
 
 bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t balance, uint16_t attack_ms, int16_t cents, uint8_t flags) {
 	uint8_t payload[10];
-	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
-	uint16_t pitch = wav_trigger_pro_pack_signed_16bit(cents);
 
-	payload[0] = (uint8_t)track;
-	payload[1] = (uint8_t)(track >> 8);
-	payload[2] = (uint8_t)gain;
-	payload[3] = (uint8_t)(gain >> 8);
+	wav_trigger_pro_pack_uint16(&payload[0], track);
+	wav_trigger_pro_pack_int16(&payload[2], gain_db);
 	payload[4] = balance;
-	payload[5] = (uint8_t)attack_ms;
-	payload[6] = (uint8_t)(attack_ms >> 8);
-	payload[7] = (uint8_t)pitch;
-	payload[8] = (uint8_t)(pitch >> 8);
+	wav_trigger_pro_pack_uint16(&payload[5], attack_ms);
+	wav_trigger_pro_pack_int16(&payload[7], cents);
 	payload[9] = flags;
 
 	return wav_trigger_pro_write_command(CMD_TRACK_PLAY_POLY, payload, sizeof(payload));
@@ -1465,10 +1468,8 @@ bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t ba
 bool wav_trigger_pro_track_get_status(uint16_t track, uint8_t *status) {
 	if (status == NULL) return false;
 
-	uint8_t payload[2] = {
-		(uint8_t)track,
-		(uint8_t)(track >> 8),
-	};
+	uint8_t payload[2];
+	wav_trigger_pro_pack_uint16(payload, track);
 
 	if (!wav_trigger_pro_write_command(CMD_GET_TRACK_STATUS, payload, sizeof(payload))) return false;
 
@@ -1485,21 +1486,17 @@ bool wav_trigger_pro_get_num_active_voices(uint8_t *voices) {
 }
 
 bool wav_trigger_pro_track_set_loop(uint16_t track, bool loop) {
-	uint8_t payload[3] = {
-		(uint8_t)track,
-		(uint8_t)(track >> 8),
-		loop ? 1u : 0u,
-	};
+	uint8_t payload[3];
+	wav_trigger_pro_pack_uint16(payload, track);
+	payload[2] = loop ? 1u : 0u;
 
 	return wav_trigger_pro_write_command(CMD_TRACK_SET_LOOP, payload, sizeof(payload));
 }
 
 bool wav_trigger_pro_track_set_lock(uint16_t track, bool lock) {
-	uint8_t payload[3] = {
-		(uint8_t)track,
-		(uint8_t)(track >> 8),
-		lock ? 1u : 0u,
-	};
+	uint8_t payload[3];
+	wav_trigger_pro_pack_uint16(payload, track);
+	payload[2] = lock ? 1u : 0u;
 
 	return wav_trigger_pro_write_command(CMD_TRACK_SET_LOCK, payload, sizeof(payload));
 }
@@ -1509,26 +1506,19 @@ bool wav_trigger_pro_stop_all(void) {
 }
 
 bool wav_trigger_pro_track_stop(uint16_t track, uint16_t release_ms) {
-	uint8_t payload[4] = {
-		(uint8_t)track,
-		(uint8_t)(track >> 8),
-		(uint8_t)release_ms,
-		(uint8_t)(release_ms >> 8),
-	};
+	uint8_t payload[4];
+	wav_trigger_pro_pack_uint16(&payload[0], track);
+	wav_trigger_pro_pack_uint16(&payload[2], release_ms);
 
 	return wav_trigger_pro_write_command(CMD_TRACK_STOP, payload, sizeof(payload));
 }
 
 bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_ms) {
 	uint8_t payload[6];
-	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
 
-	payload[0] = (uint8_t)track;
-	payload[1] = (uint8_t)(track >> 8);
-	payload[2] = (uint8_t)gain;
-	payload[3] = (uint8_t)(gain >> 8);
-	payload[4] = (uint8_t)time_ms;
-	payload[5] = (uint8_t)(time_ms >> 8);
+	wav_trigger_pro_pack_uint16(&payload[0], track);
+	wav_trigger_pro_pack_int16(&payload[2], gain_db);
+	wav_trigger_pro_pack_uint16(&payload[4], time_ms);
 
 	return wav_trigger_pro_write_command(CMD_TRACK_FADE, payload, sizeof(payload));
 }
@@ -1550,20 +1540,15 @@ bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
 }
 
 bool wav_trigger_pro_load_preset(uint16_t preset) {
-	uint8_t payload[2] = {
-		(uint8_t)preset,
-		(uint8_t)(preset >> 8),
-	};
+	uint8_t payload[2];
+	wav_trigger_pro_pack_uint16(payload, preset);
 
 	return wav_trigger_pro_write_command(CMD_LOAD_PRESET, payload, sizeof(payload));
 }
 
 bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
-	uint16_t gain = wav_trigger_pro_pack_signed_16bit(gain_db);
-	uint8_t payload[2] = {
-		(uint8_t)gain,
-		(uint8_t)(gain >> 8),
-	};
+	uint8_t payload[2];
+	wav_trigger_pro_pack_int16(payload, gain_db);
 
 	return wav_trigger_pro_write_command(CMD_SET_OUTPUT_GAIN, payload, sizeof(payload));
 }
@@ -1585,7 +1570,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	
 	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
 		uint8_t dat1 = buffer[1];
-		uint8_t dat2 = (bufsize == 3) ? buffer[2] : 0;
+		uint8_t dat2 = (bufsize >= 3) ? buffer[2] : 0;
 		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
 	}
 }
