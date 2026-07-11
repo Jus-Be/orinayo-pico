@@ -704,7 +704,7 @@ void process_midi_byte(uint8_t b) {
 						}
 
 						if (enable_wav_trigger_pro) {
-							wav_trigger_pro_load_preset(style_group + 1);
+							sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset
 						} 									
 						else
 
@@ -1378,8 +1378,8 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 }
 
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
-	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
 	if (payload_len > 0 && payload == NULL) return false;
+	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
 
 	uint8_t buffer[WAV_TRIGGER_PRO_MAX_MESSAGE_LEN];
 	buffer[0] = cmd;
@@ -1421,7 +1421,14 @@ static bool wav_trigger_pro_can_send_midi_message(const uint8_t *buffer, uint32_
 
 	// MIDI status bytes must have bit 7 set so we don't forward data bytes as
 	// standalone commands over the Qwiic API.
-	return (buffer[0] & MIDI_STATUS_BYTE_MASK) != 0;
+	if ((buffer[0] & MIDI_STATUS_BYTE_MASK) == 0) return false;
+
+	if (bufsize == 2) {
+		uint8_t command = (uint8_t)(buffer[0] & 0xF0);
+		return command == 0xC0 || command == 0xD0;
+	}
+
+	return true;
 }
 
 bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
@@ -1434,7 +1441,7 @@ bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
 	if (!wav_trigger_pro_read_response(version, sizeof(version))) return false;
 
 	size_t copy_len = sizeof(version);
-	if (copy_len >= dst_len) copy_len = dst_len - 1;
+	if (dst_len <= copy_len) copy_len = dst_len - 1;
 
 	memcpy(dst, version, copy_len);
 	dst[copy_len] = '\0';
@@ -1570,6 +1577,8 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	
 	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
 		uint8_t dat1 = buffer[1];
+		// Only Program Change / Channel Pressure messages should arrive here with
+		// two bytes, so a zero dat2 preserves the library's fixed 3-byte API.
 		uint8_t dat2 = (bufsize >= 3) ? buffer[2] : 0;
 		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
 	}
