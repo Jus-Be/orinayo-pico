@@ -245,7 +245,10 @@ bool is_wav_trigger_connected() {
     return wav_trigger_pro_get_version(version, sizeof(version));
 }
 
-// core1: handle host events
+//--------------------------------------------------------------------+
+// core main handle handlers
+//--------------------------------------------------------------------+
+
 void core1_main() {
 	//sleep_ms(10);
 	tuh_init(BOARD_TUH_RHPORT);
@@ -255,9 +258,7 @@ void core1_main() {
 	}
 }
 
-// core0: main handle host events
-
-int main() {
+int main() {	
 	set_sys_clock_khz(120000, true);
 	sleep_ms(10);
 	
@@ -450,7 +451,9 @@ void tuh_midi_umount_cb(uint8_t idx) {
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
-// ─── Chord detection helpers ────────────────────────────────────────────────
+//--------------------------------------------------------------------+
+// Chord detection helpers 
+//--------------------------------------------------------------------+
 
 static void chord_note_on(uint8_t note) {
     uint32_t bit = 1u << (note & 31);
@@ -468,9 +471,10 @@ static void chord_note_off(uint8_t note) {
     }
 }
 
-// Collect unique pitch classes of all held notes into pcs[]; set *lowest to
-// the lowest held MIDI note number.  Returns the number of unique pitch classes.
 static int chord_collect_pcs(uint8_t pcs[12], uint8_t *lowest) {
+	// Collect unique pitch classes of all held notes into pcs[]; set *lowest to
+	// the lowest held MIDI note number.  Returns the number of unique pitch classes.
+	
     int count = 0;
     *lowest = 255;
     for (int n = 0; n < 128; n++) {
@@ -486,8 +490,8 @@ static int chord_collect_pcs(uint8_t pcs[12], uint8_t *lowest) {
     return count;
 }
 
-// Returns true when pcs[0..2] is exactly the set {root, root+i0, root+i1} mod 12.
 static bool triad_match(uint8_t root, const uint8_t pcs[3], uint8_t i0, uint8_t i1) {
+	// Returns true when pcs[0..2] is exactly the set {root, root+i0, root+i1} mod 12.	
     uint8_t t1 = (root + i0) % 12;
     uint8_t t2 = (root + i1) % 12;
     int found = 0;
@@ -497,11 +501,12 @@ static bool triad_match(uint8_t root, const uint8_t pcs[3], uint8_t i0, uint8_t 
     return found == 3;
 }
 
-// Analyse the currently held notes and print the detected chord whenever 3 or
-// 4 notes are pressed simultaneously.  Recognised chord types:
-//   3-note: major {0,4,7}, minor {0,3,7}, sus4 {0,5,7}
-//   4-note: maj7  {0,4,7,11}; falls back to a slash-chord triad + bass note.
 static void chord_detect(void) {
+	// Analyse the currently held notes and print the detected chord whenever 3 or
+	// 4 notes are pressed simultaneously.  Recognised chord types:
+	//   3-note: major {0,4,7}, minor {0,3,7}, sus4 {0,5,7}
+	//   4-note: maj7  {0,4,7,11}; falls back to a slash-chord triad + bass note.
+	
     if (held_note_count < 3) return;
 
     uint8_t pcs[12];
@@ -593,8 +598,6 @@ static void chord_detect(void) {
         }
     }
 }
-
-// ────────────────────────────────────────────────────────────────────────────
 
 void process_midi_byte(uint8_t b) {	
 	uint8_t buffer[1];
@@ -782,7 +785,6 @@ void process_midi_byte(uint8_t b) {
 	
 }
 
-
 void tuh_midi_rx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	if (xferred_bytes == 0) return;
 
@@ -809,32 +811,25 @@ void tuh_midi_tx_cb(uint8_t idx, uint32_t xferred_bytes) {
 	(void) xferred_bytes;
 }
 
-
-// Invoked when device is mounted
-void tud_mount_cb(void)
-{
+void tud_mount_cb(void) {
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
-// Invoked when device is unmounted
-void tud_umount_cb(void)
-{
+void tud_umount_cb(void) {
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
-// Invoked when usb bus is suspended
-// remote_wakeup_en : if host allow us  to perform remote wakeup
-// Within 7ms, device must draw an average of current less than 2.5 mA from bus
-void tud_suspend_cb(bool remote_wakeup_en)
-{
+void tud_suspend_cb(bool remote_wakeup_en) {
+	// Invoked when usb bus is suspended
+	// remote_wakeup_en : if host allow us  to perform remote wakeup
+	// Within 7ms, device must draw an average of current less than 2.5 mA from bus	
   (void) remote_wakeup_en;
   cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
-// Invoked when usb bus is resumed
-void tud_resume_cb(void)
-{
-  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
+void tud_resume_cb(void) {
+	// Invoked when usb bus is resumed	
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
 }
 
 //--------------------------------------------------------------------+
@@ -1380,6 +1375,44 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
+void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize) {
+	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
+	
+	if (!enable_wav_trigger_pro || (enable_wav_trigger_pro && buffer[0] < 0xA0)) 	// don't send control events to wav trigger pro
+	{
+		if (device_addr != 255) {
+			tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
+			tuh_midi_write_flush(device_addr);
+		}
+	}
+
+	uart_write_blocking(UART_ID, buffer, bufsize);
+	uart_tx_wait_blocking(UART_ID);
+	
+	wav_trigger_pro_forward_midi_message(buffer, bufsize);
+}
+
+void send_ble_midi(uint8_t* midi_data, int len) {
+	/**
+	* @brief Send a MIDI 1.0 byte stream to the connected BLE MIDI peripheral.
+	*
+	* The buffer must contain a complete MIDI message without running status
+	* (i.e. each message starts with a full status byte).  The library will
+	* timestamp and encode the bytes into a BLE-MIDI 1.0 packet and transmit it
+	* when the connection allows.
+	*
+	* @param midi_data Pointer to the MIDI byte stream.
+	* @param len       Number of bytes to send (must fit in a uint8_t, max 255).
+	*/	
+	if (midi_data == NULL || len <= 0 || len > 255) return;
+	if (!ble_midi_controller_is_ready()) return;
+	ble_midi_client_stream_write((uint8_t)len, midi_data);
+}
+
+//--------------------------------------------------------------------+
+// WAV Trigger Pro
+//
+
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
 	if (payload == NULL && payload_len > 0) return false;
 	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
@@ -1576,39 +1609,4 @@ bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
 	wav_trigger_pro_pack_int16(payload, gain_db);
 
 	return wav_trigger_pro_write_command(CMD_SET_OUTPUT_GAIN, payload, sizeof(payload));
-}
-
-
-void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize) {
-	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
-	
-	if (!enable_wav_trigger_pro || (enable_wav_trigger_pro && buffer[0] < 0xA0)) 	// don't send control events to wav trigger pro
-	{
-		if (device_addr != 255) {
-			tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
-			tuh_midi_write_flush(device_addr);
-		}
-	}
-
-	uart_write_blocking(UART_ID, buffer, bufsize);
-	uart_tx_wait_blocking(UART_ID);
-	
-	wav_trigger_pro_forward_midi_message(buffer, bufsize);
-}
-
-void send_ble_midi(uint8_t* midi_data, int len) {
-	/**
-	* @brief Send a MIDI 1.0 byte stream to the connected BLE MIDI peripheral.
-	*
-	* The buffer must contain a complete MIDI message without running status
-	* (i.e. each message starts with a full status byte).  The library will
-	* timestamp and encode the bytes into a BLE-MIDI 1.0 packet and transmit it
-	* when the connection allows.
-	*
-	* @param midi_data Pointer to the MIDI byte stream.
-	* @param len       Number of bytes to send (must fit in a uint8_t, max 255).
-	*/	
-	if (midi_data == NULL || len <= 0 || len > 255) return;
-	if (!ble_midi_controller_is_ready()) return;
-	ble_midi_client_stream_write((uint8_t)len, midi_data);
 }
