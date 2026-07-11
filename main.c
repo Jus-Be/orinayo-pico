@@ -81,11 +81,23 @@ void pico_set_led(bool led_on) {
 #define I2C_SDA_PIN     6
 #define I2C_SCL_PIN     7
 #define I2C_SPEED_HZ    100000     // Standard 100kHz clock speed
-#define WAV_TRIGGER_PRO_ADDR 0x13
 
 // I2C Command Protocol Constants 
-#define CMD_LOAD_PRESET  0x0C
-#define CMD_MIDI_MSG     0x0B
+#define WAV_TRIGGER_PRO_ADDR 0x13
+#define CMD_GET_VERSION				1
+#define CMD_GET_NUM_TRACKS			2
+#define CMD_TRACK_PLAY_POLY			3
+#define CMD_GET_TRACK_STATUS        4
+#define CMD_GET_NUM_ACTIVE_VOICES	5
+#define CMD_TRACK_SET_LOOP			6
+#define CMD_TRACK_SET_LOCK			7
+#define CMD_STOP_ALL                8
+#define CMD_TRACK_STOP				9
+#define CMD_TRACK_FADE				10
+#define CMD_MIDI_MSG				11
+#define CMD_LOAD_PRESET				12
+#define CMD_SET_OUTPUT_GAIN			13
+
 
 extern int midi_current_step;
 extern int style_section;
@@ -1352,18 +1364,23 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
-void wav_trigger_send_packet(uint8_t *payload, uint8_t payload_len) {
+void triger_pro_write(uint8_t cmd, uint8_t *payload, uint8_t payload_len) {
     uint8_t total_len = payload_len + 1;
 	uint8_t buffer[16];
     
-	buffer[0] = 11;
+	buffer[0] = cmd;
     
     for (uint8_t i = 0; i < payload_len; i++) {
 		buffer[i + 1] = payload[i];
     }
  
-    i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, total_len, false); 
+    i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, total_len, false);	
 }
+
+void send_midi_msg(uint8_t *payload, uint8_t payload_len) {
+	triger_pro_write(CMD_MIDI_MSG, payload, payload_len);	
+}
+
 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
@@ -1380,7 +1397,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_tx_wait_blocking(UART_ID);
 	
 	if (wav_trigger_pro_connected) {
-		wav_trigger_send_packet(buffer, bufsize);	
+		send_midi_msg(buffer, bufsize);	
 	}
 }
 

@@ -1597,7 +1597,7 @@ void gamepad_bluetooth_handle_data() {
 			else if (red && blue) config_guitar(11);				// Akai MPC Sample
 			else if (yellow && orange) config_guitar(12);			// Roland SP-404Mk2
 			
-			else if (green && blue) config_guitar(19);				// WAV Trigger Pro
+			else if (green && blue) config_guitar(19);				// Yamaha SeqTrak
 			else if (red && orange) config_guitar(14);				// 1010Music Nanobox Tangerine
 			
 			else if (green && red) config_guitar(6);				// Acoustic/Electric
@@ -1608,7 +1608,7 @@ void gamepad_bluetooth_handle_data() {
 			else if (green) config_guitar(1);						// Ketron	
 			else if (red) config_guitar(2);							// Ample
 			else if (yellow) config_guitar(3);						// Dream MIDI Drums
-			else if (blue) config_guitar(4);						// Seqtrak
+			else if (blue) config_guitar(4);						// WAV Trigger Pro
 			else if (orange) config_guitar(5);						// MODX				
 		}
 
@@ -2031,17 +2031,18 @@ void config_guitar(uint8_t mode) {
 		// sampler wins. don't send any midi control/program message to channel 1
 		return;
 	}
-
-	if (mode == 19) {										// WAV Trigger Pro
-		enable_wav_trigger_pro = !enable_wav_trigger_pro;
-		enable_style_play = !enable_wav_trigger_pro;
-
-		if (enable_wav_trigger_pro) {
-			config_wav_trigger_pro();		
-		}
-	}
-	else
 		
+	
+		
+	if (mode == 19) {										// SeqTrak			
+		enable_seqtrak = !enable_seqtrak;
+		enable_style_play = enable_seqtrak;
+		
+		if (enable_style_play) 	config_style_play();		
+		if (enable_seqtrak) 	config_seqtrak();
+	}
+	else	
+
 	if (mode == 18) {										// Reset Preferences
 		enable_arranger_mode 	 = false;
 		enable_ample_guitar 	 = false;
@@ -2218,12 +2219,13 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 4) {										// SeqTrak			
-		enable_seqtrak = !enable_seqtrak;
-		enable_style_play = enable_seqtrak;
-		
-		if (enable_style_play) 	config_style_play();		
-		if (enable_seqtrak) 	config_seqtrak();
+	if (mode == 4) {										// WAV Trigger Pro
+		enable_wav_trigger_pro = !enable_wav_trigger_pro;
+		enable_style_play = !enable_wav_trigger_pro;
+
+		if (enable_wav_trigger_pro) {
+			config_wav_trigger_pro();		
+		}
 	}
 	else
 		
