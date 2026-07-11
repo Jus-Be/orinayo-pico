@@ -106,6 +106,7 @@ void pico_set_led(bool led_on) {
 #define WAV_TRIGGER_PRO_PITCH_BEND_FLAG   0x04
 #define WAV_TRIGGER_PRO_BALANCE_MID       64
 #define MIDI_STATUS_BYTE_MASK             0x80
+#define MIDI_DATA_BYTE_MASK               0x7f
 
 
 extern int midi_current_step;
@@ -1401,6 +1402,10 @@ static uint16_t wav_trigger_pro_pack_signed_16bit(int16_t value) {
 	return (uint16_t)value;
 }
 
+static uint16_t wav_trigger_pro_unpack_uint16(const uint8_t *bytes) {
+	return (uint16_t)(((uint16_t)bytes[1] << 8) | bytes[0]);
+}
+
 static bool wav_trigger_pro_can_send_midi_message(const uint8_t *buffer, uint32_t bufsize) {
 	if (!wav_trigger_pro_connected || buffer == NULL) return false;
 	if (bufsize < 2 || bufsize > 3) return false;
@@ -1435,7 +1440,7 @@ int wav_trigger_pro_get_num_tracks(void) {
 	uint8_t response[2];
 	if (!wav_trigger_pro_read_response(response, sizeof(response))) return -1;
 
-	return (int)(((uint16_t)response[1] << 8) | response[0]);
+	return (int)wav_trigger_pro_unpack_uint16(response);
 }
 
 bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t balance, uint16_t attack_ms, int16_t cents, uint8_t flags) {
@@ -1537,8 +1542,8 @@ bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
 	// them through the WAV Trigger Pro's 3-byte MIDI message command.
 	uint8_t payload[3] = {
 		cmd,
-		(uint8_t)(dat1 & 0x7f),
-		(uint8_t)(dat2 & 0x7f),
+		(uint8_t)(dat1 & MIDI_DATA_BYTE_MASK),
+		(uint8_t)(dat2 & MIDI_DATA_BYTE_MASK),
 	};
 
 	return wav_trigger_pro_write_command(CMD_MIDI_MSG, payload, sizeof(payload));
