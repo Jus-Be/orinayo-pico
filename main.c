@@ -1378,7 +1378,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 }
 
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
-	if (payload_len > 0 && payload == NULL) return false;
+	if (payload == NULL && payload_len > 0) return false;
 	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
 
 	uint8_t buffer[WAV_TRIGGER_PRO_MAX_MESSAGE_LEN];
@@ -1403,15 +1403,18 @@ static uint16_t wav_trigger_pro_pack_signed_16bit(int16_t value) {
 }
 
 static uint16_t wav_trigger_pro_unpack_uint16(const uint8_t *bytes) {
+	if (bytes == NULL) return 0;
 	return (uint16_t)(((uint16_t)bytes[1] << 8) | bytes[0]);
 }
 
 static void wav_trigger_pro_pack_uint16(uint8_t *bytes, uint16_t value) {
+	if (bytes == NULL) return;
 	bytes[0] = (uint8_t)value;
 	bytes[1] = (uint8_t)(value >> 8);
 }
 
 static void wav_trigger_pro_pack_int16(uint8_t *bytes, int16_t value) {
+	if (bytes == NULL) return;
 	wav_trigger_pro_pack_uint16(bytes, wav_trigger_pro_pack_signed_16bit(value));
 }
 
@@ -1441,7 +1444,8 @@ bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
 	if (!wav_trigger_pro_read_response(version, sizeof(version))) return false;
 
 	size_t copy_len = sizeof(version);
-	if (dst_len <= copy_len) copy_len = dst_len - 1;
+	size_t max_copy_len = dst_len - 1;
+	if (max_copy_len < copy_len) copy_len = max_copy_len;
 
 	memcpy(dst, version, copy_len);
 	dst[copy_len] = '\0';
