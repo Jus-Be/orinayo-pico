@@ -221,6 +221,8 @@ bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2);
 bool wav_trigger_pro_load_preset(uint16_t preset);
 bool wav_trigger_pro_set_output_gain(int16_t gain_db);
 
+static void wav_trigger_pro_forward_midi_message(const uint8_t *buffer, uint32_t bufsize);
+
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize);
 
