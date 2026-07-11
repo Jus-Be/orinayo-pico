@@ -1378,11 +1378,12 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
 	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
+	if (payload_len > 0 && payload == NULL) return false;
 
 	uint8_t buffer[WAV_TRIGGER_PRO_MAX_MESSAGE_LEN];
 	buffer[0] = cmd;
 
-	if (payload_len > 0 && payload != NULL) {
+	if (payload_len > 0) {
 		memcpy(&buffer[1], payload, payload_len);
 	}
 
@@ -1576,6 +1577,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_tx_wait_blocking(UART_ID);
 	
 	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
+		if (bufsize < 2) return;
 		uint8_t dat1 = buffer[1];
 		uint8_t dat2 = (bufsize == 3) ? buffer[2] : 0;
 		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
