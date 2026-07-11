@@ -98,6 +98,7 @@ void pico_set_led(bool led_on) {
 #define CMD_LOAD_PRESET				12
 #define CMD_SET_OUTPUT_GAIN			13
 #define WAV_TRIGGER_PRO_MAX_MESSAGE_LEN   32
+#define WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN   (WAV_TRIGGER_PRO_MAX_MESSAGE_LEN - 1)
 #define WAV_TRIGGER_PRO_VERSION_STRING_LEN 12
 #define WAV_TRIGGER_PRO_RESPONSE_DELAY_MS  2
 #define WAV_TRIGGER_PRO_LOOP_FLAG         0x01
@@ -702,7 +703,7 @@ void process_midi_byte(uint8_t b) {
 						}
 
 						if (enable_wav_trigger_pro) {
-							wav_trigger_pro_load_preset((uint16_t)(style_group + 1));
+							wav_trigger_pro_load_preset(style_group + 1);
 						} 									
 						else
 
@@ -1376,7 +1377,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 }
 
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
-	if (payload_len > (WAV_TRIGGER_PRO_MAX_MESSAGE_LEN - 1)) return false;
+	if (payload_len > WAV_TRIGGER_PRO_MAX_PAYLOAD_LEN) return false;
 
 	uint8_t buffer[WAV_TRIGGER_PRO_MAX_MESSAGE_LEN];
 	buffer[0] = cmd;
@@ -1397,6 +1398,15 @@ static uint16_t wav_trigger_pro_encode_int16(int16_t value) {
 	// Match the upstream library's unsigned-short packing so negative dB / cents
 	// values are sent as their two's-complement 16-bit representation.
 	return (uint16_t)value;
+}
+
+static bool wav_trigger_pro_can_send_midi_message(const uint8_t *buffer, uint32_t bufsize) {
+	if (!wav_trigger_pro_connected || buffer == NULL) return false;
+	if (bufsize < 2 || bufsize > 3) return false;
+
+	// MIDI status bytes must have bit 7 set so we don't forward data bytes as
+	// standalone commands over the Qwiic API.
+	return (buffer[0] & MIDI_STATUS_BYTE_MASK) != 0;
 }
 
 bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
@@ -1518,6 +1528,8 @@ bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_m
 }
 
 bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
+	// MIDI status bytes must have bit 7 set; reject data bytes here to keep the
+	// Qwiic MIDI bridge aligned with standard 3-byte channel messages.
 	if ((cmd & MIDI_STATUS_BYTE_MASK) == 0) return false;
 
 	uint8_t payload[3] = {
@@ -1563,7 +1575,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-	if (wav_trigger_pro_connected && bufsize >= 2 && bufsize <= 3 && (buffer[0] & MIDI_STATUS_BYTE_MASK)) {
+	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
 		uint8_t dat1 = buffer[1];
 		uint8_t dat2 = (bufsize == 3) ? buffer[2] : 0;
 		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
