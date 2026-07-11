@@ -170,7 +170,10 @@ static int     midi_data_count = 0;
 uint8_t device_addr = 255;
 uint8_t chord1_pad_velocity = 48;
 uint8_t chord2_pad_velocity = 32;
-uint8_t previous = 0;
+uint8_t previous_time = 0;
+uint8_t previous_drum_vol = 0;
+uint8_t previous_bass_vol = 0;
+uint8_t previous_chord_vol = 0;
 
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
@@ -233,12 +236,12 @@ enum {
 
 bool repeating_timer_callback(__unused struct repeating_timer *t) {
     //printf("Repeat at %lld\n", time_us_64());
-	uint8_t current = 60;
+	uint8_t current_time = 60;
 	
 	//if (previous) midi_send_note(0x89, previous, 0);
 	//midi_send_note(0x99, current, 100);	
 	//board_millis();	
-	previous = current;
+	previous_time = current_time;
     return true;
 }
 
@@ -724,23 +727,53 @@ void process_midi_byte(uint8_t b) {
 				else	// These values are for iRig or SMC-PAD or x-touch-mini
 					
 				if (cc_cmd == 0x0C || cc_cmd == 0x1E || cc_cmd == 0x01) {			// drum volume 
-					sample_drum_velocity = cc_value;
+				
+					if (enable_wav_trigger_pro) 
+					{ 
+						if (cc_value != previous_drum_vol) {
+							previous_drum_vol = cc_value;
+							midi_send_control_change(0xB4, 7, cc_value);	
+						}
+					} else {
+						sample_drum_velocity = cc_value;
+					}
 				}
 				else
 					
 				if (cc_cmd == 0x0D || cc_cmd == 0x1F || cc_cmd == 0x02) {			// bass volume
-					sample_bass_velocity = cc_value;
+				
+					if (enable_wav_trigger_pro) 
+					{ 
+						if (cc_value != previous_bass_vol) {
+							previous_bass_vol = cc_value;
+							midi_send_control_change(0xB5, 7, cc_value);	
+						}
+					} else {				
+						sample_bass_velocity = cc_value;
+					}
 				}
 				else
 
 				if (cc_cmd == 0x0E || cc_cmd == 0x20 || cc_cmd == 0x03) {			// chord volume
-					sample_chord_velocity = cc_value;
+				
+					if (enable_wav_trigger_pro) 
+					{ 
+						if (cc_value != previous_chord_vol) {
+							previous_chord_vol = cc_value;
+							midi_send_control_change(0xB6, 7, cc_value);	
+						}
+					} else {				
+						sample_chord_velocity = cc_value;
+					}
 				}
 				else
 
 				if (cc_cmd == 0x0F || cc_cmd == 0x21 || cc_cmd == 0x04) {			// midi guitar volume
-					midi_guitar_volume = cc_value;
-					midi_send_control_change(0xB0, 7, midi_guitar_volume);					
+				
+					if (cc_value != midi_guitar_volume) {				
+						midi_guitar_volume = cc_value;
+						midi_send_control_change(0xB0, 7, midi_guitar_volume);					
+					}
 				}	
 				else
 
@@ -767,12 +800,17 @@ void process_midi_byte(uint8_t b) {
 				else
 
 				if (cc_cmd == 0x13 || cc_cmd == 0x25 || cc_cmd == 0x09) {			// master volume
-					midi_send_control_change(0xB0, 7, cc_value);
-					midi_send_control_change(0xB1, 7, cc_value);
-					midi_send_control_change(0xB2, 7, cc_value);					
-					midi_send_control_change(0xB9, 7, cc_value);
+					uint8_t lead_vol = midi_guitar_volume * (cc_value / 127);
+					
+					midi_send_control_change(0xB0, 7, lead_vol);
+					midi_send_control_change(0xB1, 7, lead_vol);
+					midi_send_control_change(0xB2, 7, lead_vol);					
 
-					midi_guitar_volume = cc_value;					
+					midi_send_control_change(0xB4, 7, previous_drum_vol * (cc_value / 127));
+					midi_send_control_change(0xB5, 7, previous_bass_vol * (cc_value / 127));
+					midi_send_control_change(0xB6, 7, previous_chord_vol * (cc_value / 127));
+					
+					midi_send_control_change(0xB9, 7, lead_vol);					
 				}				
 			}						
 			
