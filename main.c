@@ -107,6 +107,9 @@ void pico_set_led(bool led_on) {
 #define WAV_TRIGGER_PRO_BALANCE_MID       64
 #define MIDI_STATUS_BYTE_MASK             0x80
 #define MIDI_DATA_BYTE_MASK               0x7f
+#define MIDI_COMMAND_MASK                 0xF0
+#define MIDI_PROGRAM_CHANGE               0xC0
+#define MIDI_CHANNEL_PRESSURE             0xD0
 
 
 extern int midi_current_step;
@@ -1427,11 +1430,22 @@ static bool wav_trigger_pro_can_send_midi_message(const uint8_t *buffer, uint32_
 	if ((buffer[0] & MIDI_STATUS_BYTE_MASK) == 0) return false;
 
 	if (bufsize == 2) {
-		uint8_t command = (uint8_t)(buffer[0] & 0xF0);
-		return command == 0xC0 || command == 0xD0;
+		uint8_t command = (uint8_t)(buffer[0] & MIDI_COMMAND_MASK);
+		return command == MIDI_PROGRAM_CHANGE || command == MIDI_CHANNEL_PRESSURE;
 	}
 
 	return true;
+}
+
+static void wav_trigger_pro_forward_midi_message(const uint8_t *buffer, uint32_t bufsize) {
+	if (!wav_trigger_pro_can_send_midi_message(buffer, bufsize)) return;
+	if (bufsize < 2) return;
+
+	uint8_t dat1 = buffer[1];
+	// Only Program Change / Channel Pressure messages should arrive here with
+	// two bytes, so a zero dat2 preserves the library's fixed 3-byte API.
+	uint8_t dat2 = (bufsize >= 3) ? buffer[2] : 0;
+	wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
 }
 
 bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
@@ -1579,13 +1593,7 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-	if (wav_trigger_pro_can_send_midi_message(buffer, bufsize)) {
-		uint8_t dat1 = buffer[1];
-		// Only Program Change / Channel Pressure messages should arrive here with
-		// two bytes, so a zero dat2 preserves the library's fixed 3-byte API.
-		uint8_t dat2 = (bufsize >= 3) ? buffer[2] : 0;
-		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
-	}
+	wav_trigger_pro_forward_midi_message(buffer, bufsize);
 }
 
 void send_ble_midi(uint8_t* midi_data, int len) {
