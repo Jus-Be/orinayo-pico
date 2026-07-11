@@ -97,6 +97,13 @@ void pico_set_led(bool led_on) {
 #define CMD_MIDI_MSG				11
 #define CMD_LOAD_PRESET				12
 #define CMD_SET_OUTPUT_GAIN			13
+#define WAV_TRIGGER_PRO_MAX_MESSAGE_LEN   32
+#define WAV_TRIGGER_PRO_VERSION_STRING_LEN 12
+#define WAV_TRIGGER_PRO_RESPONSE_DELAY_MS  2
+#define WAV_TRIGGER_PRO_LOOP_FLAG         0x01
+#define WAV_TRIGGER_PRO_LOCK_FLAG         0x02
+#define WAV_TRIGGER_PRO_PITCH_BEND_FLAG   0x04
+#define WAV_TRIGGER_PRO_BALANCE_MID       64
 
 
 extern int midi_current_step;
@@ -194,6 +201,19 @@ void config_nanobox_tangerine();
 void config_mpx_looper();
 void process_midi_byte(uint8_t b);
 void set_tempo(uint8_t tempo);
+bool wav_trigger_pro_get_version(char *dst, size_t dst_len);
+int wav_trigger_pro_get_num_tracks(void);
+bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t balance, uint16_t attack_ms, int16_t cents, uint8_t flags);
+bool wav_trigger_pro_track_get_status(uint16_t track, uint8_t *status);
+bool wav_trigger_pro_get_num_active_voices(uint8_t *voices);
+bool wav_trigger_pro_track_set_loop(uint16_t track, bool loop);
+bool wav_trigger_pro_track_set_lock(uint16_t track, bool lock);
+bool wav_trigger_pro_stop_all(void);
+bool wav_trigger_pro_track_stop(uint16_t track, uint16_t release_ms);
+bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_ms);
+bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2);
+bool wav_trigger_pro_load_preset(uint16_t preset);
+bool wav_trigger_pro_set_output_gain(int16_t gain_db);
 
 uint8_t get_arp_template(void);
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize);
@@ -215,18 +235,8 @@ bool repeating_timer_callback(__unused struct repeating_timer *t) {
 }
 
 bool is_wav_trigger_connected() {
-    uint8_t dummy_data = 0x00;
-    
-    // We send a single dummy byte to address 0x13.
-    // If the device is present, it will pull the SDA line low to ACK the transfer.
-    int result = i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, &dummy_data, 1, false);
-    
-    // If result equals PICO_ERROR_GENERIC (-1), the hardware did not respond.
-    if (result == PICO_ERROR_GENERIC) {
-        return false;
-    }
-    
-    return true;
+    char version[WAV_TRIGGER_PRO_VERSION_STRING_LEN + 1] = {0};
+    return wav_trigger_pro_get_version(version, sizeof(version));
 }
 
 // core1: handle host events
@@ -691,7 +701,7 @@ void process_midi_byte(uint8_t b) {
 						}
 
 						if (enable_wav_trigger_pro) {
-							sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset  
+							wav_trigger_pro_load_preset((uint16_t)(style_group + 1));
 						} 									
 						else
 
@@ -1364,21 +1374,169 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 	}
 }
 
-void triger_pro_write(uint8_t cmd, uint8_t *payload, uint8_t payload_len) {
-    uint8_t total_len = payload_len + 1;
-	uint8_t buffer[16];
-    
+static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
+	if (payload_len > (WAV_TRIGGER_PRO_MAX_MESSAGE_LEN - 1)) return false;
+
+	uint8_t buffer[WAV_TRIGGER_PRO_MAX_MESSAGE_LEN];
 	buffer[0] = cmd;
-    
-    for (uint8_t i = 0; i < payload_len; i++) {
-		buffer[i + 1] = payload[i];
-    }
- 
-    i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, total_len, false);	
+
+	if (payload_len > 0 && payload != NULL) {
+		memcpy(&buffer[1], payload, payload_len);
+	}
+
+	return i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, payload_len + 1, false) == (int)(payload_len + 1);
 }
 
-void send_midi_msg(uint8_t *payload, uint8_t payload_len) {
-	triger_pro_write(CMD_MIDI_MSG, payload, payload_len);	
+static bool wav_trigger_pro_read_response(uint8_t *buffer, size_t len) {
+	if (buffer == NULL || len == 0) return false;
+	return i2c_read_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, buffer, len, false) == (int)len;
+}
+
+bool wav_trigger_pro_get_version(char *dst, size_t dst_len) {
+	if (dst == NULL || dst_len == 0) return false;
+	if (!wav_trigger_pro_write_command(CMD_GET_VERSION, NULL, 0)) return false;
+
+	sleep_ms(WAV_TRIGGER_PRO_RESPONSE_DELAY_MS);
+
+	uint8_t version[WAV_TRIGGER_PRO_VERSION_STRING_LEN];
+	if (!wav_trigger_pro_read_response(version, sizeof(version))) return false;
+
+	size_t copy_len = sizeof(version);
+	if (copy_len >= dst_len) copy_len = dst_len - 1;
+
+	memcpy(dst, version, copy_len);
+	dst[copy_len] = '\0';
+	return true;
+}
+
+int wav_trigger_pro_get_num_tracks(void) {
+	if (!wav_trigger_pro_write_command(CMD_GET_NUM_TRACKS, NULL, 0)) return -1;
+
+	sleep_ms(WAV_TRIGGER_PRO_RESPONSE_DELAY_MS);
+
+	uint8_t response[2];
+	if (!wav_trigger_pro_read_response(response, sizeof(response))) return -1;
+
+	return (int)(((uint16_t)response[1] << 8) | response[0]);
+}
+
+bool wav_trigger_pro_track_play_poly(uint16_t track, int16_t gain_db, uint8_t balance, uint16_t attack_ms, int16_t cents, uint8_t flags) {
+	uint8_t payload[10];
+	uint16_t gain = (uint16_t)gain_db;
+	uint16_t pitch = (uint16_t)cents;
+
+	payload[0] = (uint8_t)track;
+	payload[1] = (uint8_t)(track >> 8);
+	payload[2] = (uint8_t)gain;
+	payload[3] = (uint8_t)(gain >> 8);
+	payload[4] = balance;
+	payload[5] = (uint8_t)attack_ms;
+	payload[6] = (uint8_t)(attack_ms >> 8);
+	payload[7] = (uint8_t)pitch;
+	payload[8] = (uint8_t)(pitch >> 8);
+	payload[9] = flags;
+
+	return wav_trigger_pro_write_command(CMD_TRACK_PLAY_POLY, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_track_get_status(uint16_t track, uint8_t *status) {
+	if (status == NULL) return false;
+
+	uint8_t payload[2] = {
+		(uint8_t)track,
+		(uint8_t)(track >> 8),
+	};
+
+	if (!wav_trigger_pro_write_command(CMD_GET_TRACK_STATUS, payload, sizeof(payload))) return false;
+
+	sleep_ms(WAV_TRIGGER_PRO_RESPONSE_DELAY_MS);
+	return wav_trigger_pro_read_response(status, 1);
+}
+
+bool wav_trigger_pro_get_num_active_voices(uint8_t *voices) {
+	if (voices == NULL) return false;
+	if (!wav_trigger_pro_write_command(CMD_GET_NUM_ACTIVE_VOICES, NULL, 0)) return false;
+
+	sleep_ms(WAV_TRIGGER_PRO_RESPONSE_DELAY_MS);
+	return wav_trigger_pro_read_response(voices, 1);
+}
+
+bool wav_trigger_pro_track_set_loop(uint16_t track, bool loop) {
+	uint8_t payload[3] = {
+		(uint8_t)track,
+		(uint8_t)(track >> 8),
+		loop ? 1u : 0u,
+	};
+
+	return wav_trigger_pro_write_command(CMD_TRACK_SET_LOOP, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_track_set_lock(uint16_t track, bool lock) {
+	uint8_t payload[3] = {
+		(uint8_t)track,
+		(uint8_t)(track >> 8),
+		lock ? 1u : 0u,
+	};
+
+	return wav_trigger_pro_write_command(CMD_TRACK_SET_LOCK, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_stop_all(void) {
+	return wav_trigger_pro_write_command(CMD_STOP_ALL, NULL, 0);
+}
+
+bool wav_trigger_pro_track_stop(uint16_t track, uint16_t release_ms) {
+	uint8_t payload[4] = {
+		(uint8_t)track,
+		(uint8_t)(track >> 8),
+		(uint8_t)release_ms,
+		(uint8_t)(release_ms >> 8),
+	};
+
+	return wav_trigger_pro_write_command(CMD_TRACK_STOP, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_ms) {
+	uint8_t payload[6];
+	uint16_t gain = (uint16_t)gain_db;
+
+	payload[0] = (uint8_t)track;
+	payload[1] = (uint8_t)(track >> 8);
+	payload[2] = (uint8_t)gain;
+	payload[3] = (uint8_t)(gain >> 8);
+	payload[4] = (uint8_t)time_ms;
+	payload[5] = (uint8_t)(time_ms >> 8);
+
+	return wav_trigger_pro_write_command(CMD_TRACK_FADE, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
+	uint8_t payload[3] = {
+		cmd,
+		(uint8_t)(dat1 & 0x7f),
+		(uint8_t)(dat2 & 0x7f),
+	};
+
+	return wav_trigger_pro_write_command(CMD_MIDI_MSG, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_load_preset(uint16_t preset) {
+	uint8_t payload[2] = {
+		(uint8_t)preset,
+		(uint8_t)(preset >> 8),
+	};
+
+	return wav_trigger_pro_write_command(CMD_LOAD_PRESET, payload, sizeof(payload));
+}
+
+bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
+	uint16_t gain = (uint16_t)gain_db;
+	uint8_t payload[2] = {
+		(uint8_t)gain,
+		(uint8_t)(gain >> 8),
+	};
+
+	return wav_trigger_pro_write_command(CMD_SET_OUTPUT_GAIN, payload, sizeof(payload));
 }
 
 
@@ -1396,8 +1554,10 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	uart_write_blocking(UART_ID, buffer, bufsize);
 	uart_tx_wait_blocking(UART_ID);
 	
-	if (wav_trigger_pro_connected) {
-		send_midi_msg(buffer, bufsize);	
+	if (wav_trigger_pro_connected && bufsize >= 2 && bufsize <= 3 && (buffer[0] & 0x80)) {
+		uint8_t dat1 = buffer[1];
+		uint8_t dat2 = (bufsize == 3) ? buffer[2] : 0;
+		wav_trigger_pro_send_midi_msg(buffer[0], dat1, dat2);
 	}
 }
 
