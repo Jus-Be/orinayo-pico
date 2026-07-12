@@ -1669,7 +1669,6 @@ bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_m
 	txbuf[6] = (uint8_t)(time_ms >> 8);	
 	return i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, txbuf, 7, false) == (int)(7);
 }
-}
 
 bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
 	// MIDI status bytes must have bit 7 set; reject data bytes here to keep the
