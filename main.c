@@ -742,9 +742,9 @@ void process_midi_byte(uint8_t b) {
 							previous_drum_vol = cc_value;
 							
 							if (sampler_old_drum_note != 255) {							
-								uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
-								wav_trigger_pro_set_volume(track_no, cc_value);
-								//sample_drum_velocity = cc_value;
+								//uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
+								//wav_trigger_pro_set_volume(track_no, cc_value);
+								sample_drum_velocity = cc_value;
 							}
 	
 						}
@@ -762,9 +762,9 @@ void process_midi_byte(uint8_t b) {
 							previous_bass_vol = cc_value;
 							
 							if (sampler_old_bass_note != 255) {
-								uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
-								wav_trigger_pro_set_volume(track_no, cc_value);
-								//sample_bass_velocity = cc_value;								
+								//uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
+								//wav_trigger_pro_set_volume(track_no, cc_value);
+								sample_bass_velocity = cc_value;								
 							}								
 	
 						}
@@ -782,9 +782,9 @@ void process_midi_byte(uint8_t b) {
 							previous_chord_vol = cc_value;
 							
 							if (sampler_old_chord_note != 255) {							
-								uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
-								wav_trigger_pro_set_volume(track_no, cc_value);		
-								//sample_chord_velocity = cc_value;								
+								//uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
+								//wav_trigger_pro_set_volume(track_no, cc_value);		
+								sample_chord_velocity = cc_value;								
 							}
 						}
 					} else {				
@@ -799,8 +799,8 @@ void process_midi_byte(uint8_t b) {
 						midi_guitar_volume = cc_value;	
 
 						if (enable_wav_trigger_pro) {
-							uint16_t track_no = (204 * style_group) + previous_guitar_note;
-							wav_trigger_pro_set_volume(track_no, cc_value);	
+							//uint16_t track_no = (204 * style_group) + previous_guitar_note;
+							//wav_trigger_pro_set_volume(track_no, cc_value);	
 							
 						} else {
 							midi_send_control_change(0xB0, 7, midi_guitar_volume);					
