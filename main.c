@@ -742,9 +742,9 @@ void process_midi_byte(uint8_t b) {
 							previous_drum_vol = cc_value;
 							
 							if (sampler_old_drum_note != 255) {							
-								//uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
-								//wav_trigger_pro_set_volume(track_no, cc_value);
-								sample_drum_velocity = cc_value;
+								uint16_t track_no = (204 * style_group) + 97 + sampler_old_drum_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);
+								//sample_drum_velocity = cc_value;
 							}
 	
 						}
@@ -762,9 +762,9 @@ void process_midi_byte(uint8_t b) {
 							previous_bass_vol = cc_value;
 							
 							if (sampler_old_bass_note != 255) {
-								//uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
-								//wav_trigger_pro_set_volume(track_no, cc_value);
-								sample_bass_velocity = cc_value;								
+								uint16_t track_no = (204 * style_group) + 180 + sampler_old_bass_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);
+								//sample_bass_velocity = cc_value;								
 							}								
 	
 						}
@@ -782,9 +782,9 @@ void process_midi_byte(uint8_t b) {
 							previous_chord_vol = cc_value;
 							
 							if (sampler_old_chord_note != 255) {							
-								//uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
-								//wav_trigger_pro_set_volume(track_no, cc_value);		
-								sample_chord_velocity = cc_value;								
+								uint16_t track_no = (204 * style_group) + 108 + sampler_old_chord_note - 36;
+								wav_trigger_pro_set_volume(track_no, cc_value);		
+								//sample_chord_velocity = cc_value;								
 							}
 						}
 					} else {				
@@ -799,8 +799,8 @@ void process_midi_byte(uint8_t b) {
 						midi_guitar_volume = cc_value;	
 
 						if (enable_wav_trigger_pro) {
-							//uint16_t track_no = (204 * style_group) + previous_guitar_note;
-							//wav_trigger_pro_set_volume(track_no, cc_value);	
+							uint16_t track_no = (204 * style_group) + previous_guitar_note;
+							wav_trigger_pro_set_volume(track_no, cc_value);	
 							
 						} else {
 							midi_send_control_change(0xB0, 7, midi_guitar_volume);					
@@ -1649,13 +1649,26 @@ bool wav_trigger_pro_set_volume(uint16_t track, uint8_t cc_value) {
 }
 
 bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_ms) {
+	/*
 	uint8_t payload[6];
 
 	wav_trigger_pro_pack_uint16(&payload[0], track);
 	wav_trigger_pro_pack_int16(&payload[2], gain_db);
 	wav_trigger_pro_pack_uint16(&payload[4], time_ms);
+	*/
+	
+	uint8_t txbuf[7];
+	unsigned short tmp16 (unsigned short)gain_db;	
 
-	return wav_trigger_pro_write_command(CMD_TRACK_FADE, payload, sizeof(payload));
+	txbuf[0] = CMD_TRACK_FADE;
+    txbuf[1] = (uint8_t)track;
+    txbuf[2] = (uint8_t)(track >> 8);
+    txbuf[3] = (uint8_t)tmp16;
+    txbuf[4] = (uint8_t)(tmp16 >> 8);
+	txbuf[5] = (uint8_t)time_ms;
+	txbuf[6] = (uint8_t)(time_ms >> 8);	
+	return i2c_write_blocking(I2C_ID, WAV_TRIGGER_PRO_ADDR, txbuf, 7, false) == (int)(7);
+}
 }
 
 bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2) {
