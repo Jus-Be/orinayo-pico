@@ -1658,7 +1658,7 @@ bool wav_trigger_pro_track_fade(uint16_t track, int16_t gain_db, uint16_t time_m
 	*/
 	
 	uint8_t txbuf[7];
-	unsigned short tmp16 (unsigned short)gain_db;	
+	unsigned short tmp16 = (unsigned short)gain_db;	
 
 	txbuf[0] = CMD_TRACK_FADE;
     txbuf[1] = (uint8_t)track;
