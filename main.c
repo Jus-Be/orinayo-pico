@@ -111,6 +111,8 @@ void pico_set_led(bool led_on) {
 #define MIDI_PROGRAM_CHANGE               0xC0
 #define MIDI_CHANNEL_PRESSURE             0xD0
 
+#define END1 46
+
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
 
