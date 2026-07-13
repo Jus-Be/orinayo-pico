@@ -185,6 +185,8 @@ uint8_t previous_bass_vol = 0;
 uint8_t previous_chord_vol = 0;
 uint8_t previous_guitar_note = 0;
 
+bool midi_keyboard_connected = false;
+
 void send_ble_midi(uint8_t* midi_data, int len);
 void midi_task(void);
 void midi_start_stop(bool start);
@@ -394,6 +396,8 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			
 			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
+			midi_keyboard_connected = true;
+			
 			config_wav_trigger_pro();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
 		}
@@ -401,25 +405,23 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			
 		if (name[0] == 'L' && name[1] == 'P' && name[2] == 'K' && name[3] == '2' && name[4] == '5') {		
 			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
+			midi_keyboard_connected = true;
+			
 			config_wav_trigger_pro();;
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
 			
 		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'X' && name[3] == '8') {		
+			midi_keyboard_connected = false;
 			enable_mpx_looper = true;	
 			config_mpx_looper();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
-		else		// WAVTriggerPro MIDI
-			
-		if (name[0] == 'W' && name[1] == 'A' && name[2] == 'V' && name[3] == 'T' && name[4] == 'r' && name[5] == 'i' && name[6] == 'g' && name[7] == 'g' && name[8] == 'e' && name[9] == 'r'  && name[10] == 'P' && name[11] == 'r' && name[12] == 'o') {
-			enable_wav_trigger_pro = true;
-			config_wav_trigger_pro();
-			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);			
-		}
+		else
 			
 		if (name[0] == 'M' && name[1] == 'P' && name[2] == 'C' && name[3] == ' ' && name[4] == 'S' && name[5] == 'a' && name[6] == 'm' && name[7] == 'p' && name[8] == 'l' && name[9] == 'e') {		
+			midi_keyboard_connected = false;
 			enable_mpc_sample = true;	
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
@@ -435,11 +437,13 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Dial press    (B) Note On/Off 0x18 - 0x1F (8 buttons)			
 			// Buttons       (B) Note On/Off 0x20 - 0x2F (16 buttons)
 			
+			midi_keyboard_connected = true;
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
 
 		if (name[0] == 'n' && name[1] == 'a' && name[2] == 'n' && name[3] == 'o' && name[4] == 'b' && name[5] == 'o' && name[6] == 'x' && name[7] == ' ' && name[8] == 't' && name[9] == 'a' && name[10] == 'n' && name[11] == 'g' && name[12] == 'e' && name[13] == 'r' && name[14] == 'i' && name[15] == 'n' && name[16] == 'e') {		
+			midi_keyboard_connected = false;
 			enable_nanobox_tangerine = true;
 			config_nanobox_tangerine();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
@@ -630,7 +634,7 @@ void process_midi_byte(uint8_t b) {
 	
 	tud_midi_n_stream_write(0, 0, buffer, 1);
 
-	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
+	if (!enable_mpx_looper) { 						// filter midi events from mpx pads	to midi synth			
 		uart_write_blocking(UART_ID, buffer, 1);
 		uart_tx_wait_blocking(UART_ID);			
 	}	
@@ -1478,7 +1482,7 @@ void midi_play_slash_chord(bool on, uint8_t p1, uint8_t p2, uint8_t p3, uint8_t 
 void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32_t bufsize) {
 	tud_midi_n_stream_write(itf, cable_num, buffer, bufsize);
 	
-	if (!enable_wav_trigger_pro || (enable_wav_trigger_pro && buffer[0] < 0xA0)) 	// don't send control events to wav trigger pro
+	if (!midi_keyboard_connected) 	// don't send control events to midi keyboard
 	{
 		if (device_addr != 255) {
 			tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
