@@ -148,6 +148,7 @@ extern bool enable_mpx_looper;
 extern bool enable_nanobox_tangerine;
 extern bool enable_wav_trigger_pro;
 extern bool style_end_requested;
+extern bool style_end_started;
 extern bool preferences_changed;
 
 extern uint8_t but4; 
