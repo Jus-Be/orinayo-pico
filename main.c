@@ -174,6 +174,8 @@ static uint8_t midi_data0 = 0;
 static int     midi_data_count = 0;
 
 uint8_t device_addr = 255;
+uint8_t chord1_pad_velocity = 48;
+uint8_t chord2_pad_velocity = 32;
 uint8_t previous_time = 0;
 uint8_t previous_drum_vol = 0;
 uint8_t previous_bass_vol = 0;
@@ -229,6 +231,8 @@ bool wav_trigger_pro_set_volume(uint16_t track, uint8_t cc_value);
 bool wav_trigger_pro_send_midi_msg(uint8_t cmd, uint8_t dat1, uint8_t dat2);
 bool wav_trigger_pro_load_preset(uint16_t preset);
 bool wav_trigger_pro_set_output_gain(int16_t gain_db);
+void nanobox_stop_loops();
+void wav_trigger_pro_stop_loops();
 
 static void wav_trigger_pro_forward_midi_message(const uint8_t *buffer, uint32_t bufsize);
 
@@ -386,9 +390,16 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			// Prev Style	CC22 (0x16, 0x16)
 			// Volume 		CCXX ((0x0C - 0x13), (0 - 7F)) 
 			
-			enable_nanobox_tangerine = true;									// assume nanobox tangerine is also connected by MIDI	
-			config_nanobox_tangerine();
+			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
+			config_wav_trigger_pro();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
+		}
+		else
+			
+		if (name[0] == 'L' && name[1] == 'P' && name[2] == 'K' && name[3] == '2' && name[4] == '5') {		
+			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
+			config_wav_trigger_pro();;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
 			
@@ -614,7 +625,7 @@ void process_midi_byte(uint8_t b) {
 	uint8_t buffer[1];
 	buffer[0] = b;
 	
-	tud_midi_n_stream_write(0, 0, buffer, 1);		// forward to midi device for debugging
+	tud_midi_n_stream_write(0, 0, buffer, 1);
 
 	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
 		uart_write_blocking(UART_ID, buffer, 1);
@@ -664,9 +675,27 @@ void process_midi_byte(uint8_t b) {
 				}
 				else 
 					
-				if (style_end_requested && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
-					sampler_trigger_loop();
-				}							
+				if (style_end_requested) {
+					style_end_requested = false;
+					
+					if (enable_nanobox_tangerine) {
+						style_end_started = true;	
+						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+						nanobox_stop_loops();						
+					} 
+					else 
+					
+					if (enable_wav_trigger_pro) {
+						wav_trigger_pro_stop_loops();						
+						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop								
+					}
+				}
+				else
+					
+				if (style_end_started) {
+					style_end_started = false;					
+					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);	
+				}				
 			}
 		}
 		else
@@ -812,14 +841,15 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 
-				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// tempo
-					uint8_t tempo = 60 + (cc_value / 127 * 80);
-					set_tempo(tempo);					
+				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// chord1 & chord2 pad volumes
+					chord1_pad_velocity = cc_value;
+					chord2_pad_velocity = cc_value;					
 				}
 				else
 
-				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// unused
-		
+				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// tempo
+					uint8_t tempo = 60 + (cc_value / 127 * 80);
+					set_tempo(tempo);
 				}
 				else
 
@@ -832,10 +862,12 @@ void process_midi_byte(uint8_t b) {
 					uint8_t lead_vol = cc_value;					
 					midi_send_control_change(0xB0, 7, lead_vol);
 					
-					if (!enable_wav_trigger_pro) {					
+					if (!enable_wav_trigger_pro) {
+						midi_send_control_change(0xB1, 7, lead_vol);
+						midi_send_control_change(0xB2, 7, lead_vol);					
 						midi_send_control_change(0xB9, 7, lead_vol);	
 					}						
-				}
+				}				
 			}						
 			
 		} else {
@@ -1179,7 +1211,7 @@ void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	msg[1] = note;
 	msg[2] = velocity;   
 		
-	midi_n_stream_write(0, 0, msg, 3);		
+	midi_n_stream_write(0, 0, msg, 3);	// includes sampler connected by UART0 MIDI	
 }
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
@@ -1334,7 +1366,25 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 	} else {
 		
 		if (!enable_mpc_sample && !enable_sp404mk2 && !enable_mpx_looper && !enable_wav_trigger_pro) {
-			midi_n_stream_write(0, 0, msg, 3);	// CH 4 chord note
+			midi_n_stream_write(0, 0, msg, 3);	// CH 4
+
+			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
+				msg[0] = command + 2;
+				msg[1] = note + 24;				
+				
+				if (velocity > 0 ) {				// (respect note off)
+					msg[2] = chord2_pad_velocity;  
+				}
+				midi_n_stream_write(0, 0, msg, 3);	// CH 3	 
+
+				msg[0] = command + 1;
+				msg[1] = note + 36;					
+				
+				if (velocity > 0 ) {				// (respect note off)
+					msg[2] = chord1_pad_velocity;  				
+				}
+				midi_n_stream_write(0, 0, msg, 3);	// CH 2						
+			}
 		}
 	}	
 }
