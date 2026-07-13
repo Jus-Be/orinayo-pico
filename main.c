@@ -680,21 +680,21 @@ void process_midi_byte(uint8_t b) {
 					
 					if (enable_nanobox_tangerine) {
 						style_end_started = true;	
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);
+						sampler_midi_note(0x94, END1, sample_drum_velocity);
 						nanobox_stop_loops();						
 					} 
 					else 
 					
 					if (enable_wav_trigger_pro) {
 						wav_trigger_pro_stop_loops();						
-						sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1); // not a loop								
+						sampler_midi_note(0x94, END1, sample_drum_velocity); // not a loop								
 					}
 				}
 				else
 					
 				if (style_end_started) {
 					style_end_started = false;					
-					sampler_midi_note(0x94, END1, enable_drum_track ? sample_drum_velocity : 1);	
+					sampler_midi_note(0x94, END1, sample_drum_velocity);	
 				}				
 			}
 		}
