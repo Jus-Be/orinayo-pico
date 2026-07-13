@@ -2243,21 +2243,7 @@ void config_style_play() {
 	
 	if (!enable_modx) {
 		midi_send_control_change(0xB0, 7, midi_guitar_volume);	
-		midi_send_control_change(0xB1, 7, midi_guitar_volume);
-		midi_send_control_change(0xB2, 7, midi_guitar_volume);			
-			
-		midi_send_program_change(0xC1, 89);					// warm pad	(blue)
-		midi_send_program_change(0xC2, 99);					// FX4 (orange)	
-		midi_send_program_change(0xC3, 89);		
-
-	
-		if (active_strum_pattern > 2 || active_strum_pattern == -1) {
-			midi_send_control_change(0xB1, 11, 127);			
-		}
-		
-		if (active_strum_pattern > 3 || active_strum_pattern == -1) {
-			midi_send_control_change(0xB2, 11, 127);			
-		}	
+		midi_send_program_change(0xC3, 89);			
 	}		
 }
 
@@ -2324,8 +2310,6 @@ void config_midi_drums() {
 void config_arranger() {
 	midi_send_program_change(0xC0, guitar_pc_code);	// jazz guitar on channel 1	
 	midi_send_control_change(0xB0, 7, midi_guitar_volume);	
-	midi_send_control_change(0xB1, 7, midi_guitar_volume);
-	midi_send_control_change(0xB2, 7, midi_guitar_volume);	
 }
 
 void config_ample_guitar() {

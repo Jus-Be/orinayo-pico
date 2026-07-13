@@ -174,8 +174,6 @@ static uint8_t midi_data0 = 0;
 static int     midi_data_count = 0;
 
 uint8_t device_addr = 255;
-uint8_t chord1_pad_velocity = 48;
-uint8_t chord2_pad_velocity = 32;
 uint8_t previous_time = 0;
 uint8_t previous_drum_vol = 0;
 uint8_t previous_bass_vol = 0;
@@ -616,7 +614,7 @@ void process_midi_byte(uint8_t b) {
 	uint8_t buffer[1];
 	buffer[0] = b;
 	
-	tud_midi_n_stream_write(0, 0, buffer, 1);
+	tud_midi_n_stream_write(0, 0, buffer, 1);		// forward to midi device for debugging
 
 	if (!enable_mpx_looper) { 						// filter midi events from mpx pads				
 		uart_write_blocking(UART_ID, buffer, 1);
@@ -814,15 +812,14 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 
-				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// chord1 & chord2 pad volumes
-					chord1_pad_velocity = cc_value;
-					chord2_pad_velocity = cc_value;					
+				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// tempo
+					uint8_t tempo = 60 + (cc_value / 127 * 80);
+					set_tempo(tempo);					
 				}
 				else
 
-				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// tempo
-					uint8_t tempo = 60 + (cc_value / 127 * 80);
-					set_tempo(tempo);
+				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// unused
+		
 				}
 				else
 
@@ -835,12 +832,10 @@ void process_midi_byte(uint8_t b) {
 					uint8_t lead_vol = cc_value;					
 					midi_send_control_change(0xB0, 7, lead_vol);
 					
-					if (!enable_wav_trigger_pro) {
-						midi_send_control_change(0xB1, 7, lead_vol);
-						midi_send_control_change(0xB2, 7, lead_vol);					
+					if (!enable_wav_trigger_pro) {					
 						midi_send_control_change(0xB9, 7, lead_vol);	
 					}						
-				}				
+				}
 			}						
 			
 		} else {
@@ -1339,25 +1334,7 @@ void midi_send_chord_note(uint8_t note, uint8_t velocity) {
 	} else {
 		
 		if (!enable_mpc_sample && !enable_sp404mk2 && !enable_mpx_looper && !enable_wav_trigger_pro) {
-			midi_n_stream_write(0, 0, msg, 3);	// CH 4
-
-			if (!enable_ample_guitar && !enable_modx && active_strum_pattern != 0 && active_strum_pattern != 1) {	// MIDI arpeggios only
-				msg[0] = command + 2;
-				msg[1] = note + 24;				
-				
-				if (velocity > 0 ) {				// (respect note off)
-					msg[2] = chord2_pad_velocity;  
-				}
-				midi_n_stream_write(0, 0, msg, 3);	// CH 3	 
-
-				msg[0] = command + 1;
-				msg[1] = note + 36;					
-				
-				if (velocity > 0 ) {				// (respect note off)
-					msg[2] = chord1_pad_velocity;  				
-				}
-				midi_n_stream_write(0, 0, msg, 3);	// CH 2						
-			}
+			midi_n_stream_write(0, 0, msg, 3);	// CH 4 chord note
 		}
 	}	
 }
