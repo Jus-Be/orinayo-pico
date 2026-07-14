@@ -2937,6 +2937,13 @@ void sampler_trigger_loop() {
 	if (style_change_requested) {
 		style_change_requested = false;
 		
+		uint8_t section = (style_section % 4);
+		sampler_drum_note = ARRA;
+		
+		if (section == 1) sampler_drum_note = ARRB;
+		if (section == 2) sampler_drum_note = ARRC;
+		if (section == 3) sampler_drum_note = ARRD;		
+		
 		if (sampler_old_drum_note != sampler_drum_note) 
 		{
 			if (sampler_old_drum_note != 255) 
@@ -2950,13 +2957,6 @@ void sampler_trigger_loop() {
 					sampler_midi_note(0x97, sampler_old_drum_note, 127);
 				}			
 			}				
-
-			uint8_t section = (style_section % 4);
-			sampler_drum_note = ARRA;
-			
-			if (section == 1) sampler_drum_note = ARRB;
-			if (section == 2) sampler_drum_note = ARRC;
-			if (section == 3) sampler_drum_note = ARRD;
 						
 			sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 			sampler_old_drum_note = sampler_drum_note;	
@@ -3048,6 +3048,7 @@ void mpc_trigger_loop() {
 			
 	if (style_change_requested) {
 		style_change_requested = false;
+		mpc_drum_note = 36 + style_section;		
 		
 		if (mpc_old_drum_note != mpc_drum_note)
 		{		
@@ -3055,7 +3056,6 @@ void mpc_trigger_loop() {
 				sampler_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 			}				
 
-			mpc_drum_note = 36 + style_section;
 			sampler_midi_note(0x94, mpc_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 			mpc_old_drum_note = mpc_drum_note;		
 		}			
@@ -3166,6 +3166,15 @@ void sp404_trigger_loop() {
 	if (style_change_requested) {
 		style_change_requested = false;
 		
+		if (style_section == 0) 		sp404_drum_note = 48;	
+		else if (style_section == 1) 	sp404_drum_note = 49;
+		else if (style_section == 2) 	sp404_drum_note = 50;
+		else if (style_section == 3) 	sp404_drum_note = 51;
+		else if (style_section == 4) 	sp404_drum_note = 44;
+		else if (style_section == 5) 	sp404_drum_note = 45;
+		else if (style_section == 6) 	sp404_drum_note = 46;
+		else if (style_section == 7) 	sp404_drum_note = 47;			
+		
 		if (sp404_old_drum_note != sp404_drum_note)
 		{		
 			// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
@@ -3175,15 +3184,6 @@ void sp404_trigger_loop() {
 			if (sp404_old_drum_note > 0) {
 				sampler_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 			}				
-
-			if (style_section == 0) 		sp404_drum_note = 48;	
-			else if (style_section == 1) 	sp404_drum_note = 49;
-			else if (style_section == 2) 	sp404_drum_note = 50;
-			else if (style_section == 3) 	sp404_drum_note = 51;
-			else if (style_section == 4) 	sp404_drum_note = 44;
-			else if (style_section == 5) 	sp404_drum_note = 45;
-			else if (style_section == 6) 	sp404_drum_note = 46;
-			else if (style_section == 7) 	sp404_drum_note = 47;	
 
 			sampler_midi_note(0x90, sp404_drum_note, enable_drum_track ? sample_drum_velocity : 1);
 			sp404_old_drum_note = sp404_drum_note;
@@ -3201,20 +3201,20 @@ void mpx_trigger_loop() {
 		if (style_change_requested) {
 			style_change_requested = false;
 			
+			if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-4 only
+			else if (style_section == 1) 	mpx_sample_note = 38;
+			else if (style_section == 2) 	mpx_sample_note = 40;
+			else if (style_section == 3) 	mpx_sample_note = 41;
+			else if (style_section == 4) 	mpx_sample_note = 36;
+			else if (style_section == 5) 	mpx_sample_note = 38;
+			else if (style_section == 6) 	mpx_sample_note = 40;
+			else if (style_section == 7) 	mpx_sample_note = 41;	
+					
 			if (mpx_old_sample_note != mpx_sample_note)
 			{			
 				if (mpx_old_sample_note) {
 					sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 				}				
-
-				if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-4 only
-				else if (style_section == 1) 	mpx_sample_note = 38;
-				else if (style_section == 2) 	mpx_sample_note = 40;
-				else if (style_section == 3) 	mpx_sample_note = 41;
-				else if (style_section == 4) 	mpx_sample_note = 36;
-				else if (style_section == 5) 	mpx_sample_note = 38;
-				else if (style_section == 6) 	mpx_sample_note = 40;
-				else if (style_section == 7) 	mpx_sample_note = 41;	
 			
 				sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
 				mpx_old_sample_note = mpx_sample_note;
