@@ -1203,6 +1203,7 @@ void gamepad_bluetooth_handle_data() {
 
 	if (dpad_down != starpower) { 							// Style selection
 		starpower = dpad_down;	
+		next_or_previous = false;
 		
 		if (dpad_down) {
 			old_style = style_section;
@@ -1293,12 +1294,11 @@ void gamepad_bluetooth_handle_data() {
 		if (enable_sp404mk2 || enable_mpc_sample || enable_nanobox_tangerine || enable_mpx_looper || enable_wav_trigger_pro)	
 		{
 			if (dpad_down && style_started) {
+				style_change_requested = true;
 				
 				if (next_or_previous) {			// play fill before style change request
 					sampler_trigger_fill();
-				}
-				
-				style_change_requested = true;						
+				}						
 			}				
 		}			
 		else
@@ -2570,9 +2570,9 @@ void play_chord(bool on, bool up) {
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (handled && on) 
+		if (on) 
 		{
-			if (style_started) {
+			if (style_started && handled) {	// chord played
 				sampler_trigger_loop();				
 			}
 			else
