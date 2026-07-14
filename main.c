@@ -351,7 +351,8 @@ int main() {
 		note_scheduler_dispatch_pending();
 
 		// Poll for incoming MIDI events from any connected BLE MIDI peripheral.
-		ble_midi_controller_poll();
+		// BAO disable BLE for now
+		//ble_midi_controller_poll();
 
 		if (preferences_changed) {
 			preferences_changed = false;
