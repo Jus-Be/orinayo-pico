@@ -576,7 +576,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 
-		if (green && orange) 													// toggle worship pads/backing tracks
+		if (green && orange) 								// toggle worship pads/backing tracks
 		{	
 			if (but6)	
 			{				
@@ -593,7 +593,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 
-		if (green && blue) 													// mute/unmute drums
+		if (green && blue) 									// mute/unmute drums
 		{
 			if (but6) {
 				enable_drum_track = !enable_drum_track;
@@ -644,7 +644,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else
 
-		if (green && yellow) 												// mute/unmute chords
+		if (green && yellow) 								// mute/unmute chords
 		{
 			if (but6) {
 				enable_chord_track = !enable_chord_track;
@@ -692,7 +692,7 @@ void gamepad_bluetooth_handle_data() {
 		}
 		else				
 			
-		if (red && blue) 													// mute/unmute bass
+		if (red && blue) 									// mute/unmute bass
 		{				
 			if (but6) {
 				enable_bass_track = !enable_bass_track;	
@@ -2570,9 +2570,9 @@ void play_chord(bool on, bool up) {
 				
 	if (enable_nanobox_tangerine)	// trigger chord loop on nanobox tangerine
 	{
-		if (on) 
+		if (handled && on) 
 		{
-			if (style_started && handled) {	// chord played
+			if (style_started) {	// chord played
 				sampler_trigger_loop();				
 			}
 			else
@@ -2937,27 +2937,30 @@ void sampler_trigger_loop() {
 	if (style_change_requested) {
 		style_change_requested = false;
 		
-		if (sampler_old_drum_note != 255) 
+		if (sampler_old_drum_note != sampler_drum_note) 
 		{
-			if (enable_nanobox_tangerine) {			
-				sampler_midi_note(0x94, sampler_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-			}
-			else
-				
-			if (enable_wav_trigger_pro) {
-				sampler_midi_note(0x97, sampler_old_drum_note, 127);
-			}			
-		}				
-
-		uint8_t section = (style_section % 4);
-		sampler_drum_note = ARRA;
-		
-		if (section == 1) sampler_drum_note = ARRB;
-		if (section == 2) sampler_drum_note = ARRC;
-		if (section == 3) sampler_drum_note = ARRD;
+			if (sampler_old_drum_note != 255) 
+			{
+				if (enable_nanobox_tangerine) {			
+					sampler_midi_note(0x94, sampler_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+				}
+				else
 					
-		sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-		sampler_old_drum_note = sampler_drum_note;				
+				if (enable_wav_trigger_pro) {
+					sampler_midi_note(0x97, sampler_old_drum_note, 127);
+				}			
+			}				
+
+			uint8_t section = (style_section % 4);
+			sampler_drum_note = ARRA;
+			
+			if (section == 1) sampler_drum_note = ARRB;
+			if (section == 2) sampler_drum_note = ARRC;
+			if (section == 3) sampler_drum_note = ARRD;
+						
+			sampler_midi_note(0x94, sampler_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			sampler_old_drum_note = sampler_drum_note;	
+		}			
 	}	
 }
 
@@ -3046,13 +3049,16 @@ void mpc_trigger_loop() {
 	if (style_change_requested) {
 		style_change_requested = false;
 		
-		if (mpc_old_drum_note != 255) {
-			sampler_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-		}				
+		if (mpc_old_drum_note != mpc_drum_note)
+		{		
+			if (mpc_old_drum_note != 255) {
+				sampler_midi_note(0x94, mpc_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			}				
 
-		mpc_drum_note = 36 + style_section;
-		sampler_midi_note(0x94, mpc_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-		mpc_old_drum_note = mpc_drum_note;				
+			mpc_drum_note = 36 + style_section;
+			sampler_midi_note(0x94, mpc_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			mpc_old_drum_note = mpc_drum_note;		
+		}			
 	}	
 }
 
@@ -3160,25 +3166,28 @@ void sp404_trigger_loop() {
 	if (style_change_requested) {
 		style_change_requested = false;
 		
-		// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
-		// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
-		// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
-		
-		if (sp404_old_drum_note > 0) {
-			sampler_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-		}				
+		if (sp404_old_drum_note != sp404_drum_note)
+		{		
+			// 13	14	15	16	9	10	11	12	5	6	7	8	1	2	3	4
+			// C2	C#2	D2	D#2	E2	F2	F#2	G2	G#2	A2	A#2	B2	C3	C#3	D3	D#3
+			// 36   37  38  39  40  41  42  43  44  45  46  47  48  49  50  51	
+			
+			if (sp404_old_drum_note > 0) {
+				sampler_midi_note(0x90, sp404_old_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			}				
 
-		if (style_section == 0) 		sp404_drum_note = 48;	
-		else if (style_section == 1) 	sp404_drum_note = 49;
-		else if (style_section == 2) 	sp404_drum_note = 50;
-		else if (style_section == 3) 	sp404_drum_note = 51;
-		else if (style_section == 4) 	sp404_drum_note = 44;
-		else if (style_section == 5) 	sp404_drum_note = 45;
-		else if (style_section == 6) 	sp404_drum_note = 46;
-		else if (style_section == 7) 	sp404_drum_note = 47;	
+			if (style_section == 0) 		sp404_drum_note = 48;	
+			else if (style_section == 1) 	sp404_drum_note = 49;
+			else if (style_section == 2) 	sp404_drum_note = 50;
+			else if (style_section == 3) 	sp404_drum_note = 51;
+			else if (style_section == 4) 	sp404_drum_note = 44;
+			else if (style_section == 5) 	sp404_drum_note = 45;
+			else if (style_section == 6) 	sp404_drum_note = 46;
+			else if (style_section == 7) 	sp404_drum_note = 47;	
 
-		sampler_midi_note(0x90, sp404_drum_note, enable_drum_track ? sample_drum_velocity : 1);
-		sp404_old_drum_note = sp404_drum_note;
+			sampler_midi_note(0x90, sp404_drum_note, enable_drum_track ? sample_drum_velocity : 1);
+			sp404_old_drum_note = sp404_drum_note;
+		}
 		
 	}	
 }
@@ -3189,24 +3198,27 @@ void mpx_trigger_loop() {
 
 	if (enable_mpx_drums) 
 	{
-		if (style_change_requested) 
-		{
-			if (mpx_old_sample_note) {
-				sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
-			}				
-
-			if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-4 only
-			else if (style_section == 1) 	mpx_sample_note = 38;
-			else if (style_section == 2) 	mpx_sample_note = 40;
-			else if (style_section == 3) 	mpx_sample_note = 41;
-			else if (style_section == 4) 	mpx_sample_note = 36;
-			else if (style_section == 5) 	mpx_sample_note = 38;
-			else if (style_section == 6) 	mpx_sample_note = 40;
-			else if (style_section == 7) 	mpx_sample_note = 41;	
-		
-			sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
-			mpx_old_sample_note = mpx_sample_note;
+		if (style_change_requested) {
 			style_change_requested = false;
+			
+			if (mpx_old_sample_note != mpx_sample_note)
+			{			
+				if (mpx_old_sample_note) {
+					sampler_midi_note(0x99, mpx_old_sample_note, enable_drum_track ? sample_drum_velocity : 0);
+				}				
+
+				if (style_section == 0) 		mpx_sample_note = 36;			// Variations 1-4 only
+				else if (style_section == 1) 	mpx_sample_note = 38;
+				else if (style_section == 2) 	mpx_sample_note = 40;
+				else if (style_section == 3) 	mpx_sample_note = 41;
+				else if (style_section == 4) 	mpx_sample_note = 36;
+				else if (style_section == 5) 	mpx_sample_note = 38;
+				else if (style_section == 6) 	mpx_sample_note = 40;
+				else if (style_section == 7) 	mpx_sample_note = 41;	
+			
+				sampler_midi_note(0x99, mpx_sample_note, enable_drum_track ? sample_drum_velocity : 0);
+				mpx_old_sample_note = mpx_sample_note;
+			}
 		}		
 	} else {
 		mpx_sample_note = 0;			
@@ -3230,7 +3242,7 @@ void mpx_trigger_loop() {
 			mpx_old_sample_note = mpx_sample_note;				
 		}
 		
-		if (style_change_requested) {
+		if (style_change_requested) {			// no audio drums
 			style_change_requested = false;
 		}		
 	}		
