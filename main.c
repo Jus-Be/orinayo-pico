@@ -166,6 +166,7 @@ static uint32_t old_p3 = 0;
 static uint32_t old_p4 = 0;
 
 bool wav_trigger_pro_connected = false;
+bool launchkey_connected = false;
 
 // 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
 static uint32_t held_notes_mask[4] = {0};
@@ -408,6 +409,16 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		if (name[0] == 'L' && name[1] == 'a' && name[2] == 'u' && name[3] == 'n' && name[4] == 'c' && name[5] == 'h' && name[6] == 'k' && name[7] == 'e'  && name[8] == 'y') {		
 			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
 			midi_keyboard_connected = true;
+			launchkey_connected = true;
+			
+			if (device_addr != 255) {
+				uint8_t msg[3];			
+				msg[0] = 0x9F;
+				msg[1] = 0x0C;
+				msg[2] = 0x7F;		
+				tuh_midi_stream_write(device_addr, 0, msg, 3);
+				tuh_midi_write_flush(device_addr);		
+			}			
 			
 			config_wav_trigger_pro();;
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
@@ -482,6 +493,15 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	
 	if (enable_mpc_sample) {
 		config_mpc_sample();
+	}
+	
+	if (launchkey_connected) {
+		uint8_t msg[3];			
+		msg[0] = 0x9F;
+		msg[1] = 0x0C;
+		msg[2] = 0x7F;		
+		tuh_midi_stream_write(device_addr, 0, msg, 3);
+		tuh_midi_write_flush(device_addr);		
 	}
 }
 
@@ -656,7 +676,11 @@ void process_midi_byte(uint8_t b) {
 			// Real-time message (single byte); does not affect running status.
 			if (b == 0xFC || b == 0xFA) {
 				mbut0 = 1; logo = 0;
-				gamepad_bluetooth_handle_data();				
+				gamepad_bluetooth_handle_data();
+
+				if (b == 0xFA) launchkey_set_led(0x90, 0, 36, 45);
+				if (b == 0xFC) launchkey_set_led(0x90, 2, 37, 5);
+				launchkey_display_text("Jamin Controller", true); 				
 			}
 			return;
 		}
@@ -1747,4 +1771,78 @@ bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
 	wav_trigger_pro_pack_int16(payload, gain_db);
 
 	return wav_trigger_pro_write_command(CMD_SET_OUTPUT_GAIN, payload, sizeof(payload));
+}
+
+void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t color_id) {
+	/**
+	 * 1. Change LED Color on Pads / Buttons
+	 * Novation MK4 surfaces process color indexing using specific MIDI Channels:
+	 * Channel 1 (0x00) = Static Color
+	 * Channel 2 (0x01) = Flashing Color
+	 * Channel 3 (0x02) = Pulsing Color
+	 *
+	 * @param msg_type  0x90 for Pads (Note On), 0xB0 for Buttons (Control Change)
+	 * @param channel   0 to 2 (Static, Flashing, Pulsing)
+	 * @param index     The Note or CC ID matching the physical Pad/Button
+	 * @param color_id  Velocity / value mapping to Novation's color palette lookup index (0-127)
+	 */	
+    uint8_t status_byte = (msg_type & 0xF0) | (channel & 0x0F);
+	
+    uint8_t msg[3];	
+	msg[0] = status_byte;
+	msg[1] = index;
+	msg[2] = color_id;
+	
+	if (device_addr != 255) {
+		tuh_midi_stream_write(device_addr, 0, msg, 3);
+		tuh_midi_write_flush(device_addr);
+	}	
+}
+
+void launchkey_display_text(const char* text, bool is_temp) {
+	/**
+	 * 2. Display Text on OLED Screen
+	 * Novation devices handle display updates using Manufacturer SysEx commands.
+	 * SysEx Structure: [0xF0, 0x00, 0x20, 0x29, 0x02, 0x0F, <Sub-ID>, <Display Type>, <Characters...>, 0xF7]
+	 *
+	 * @param text       ASCII null-terminated string to print on screen
+	 * @param is_temp    true = temporary alert window, false = stationary display string
+	 */	
+	 
+    // Novation Header: Sysex Open, Manufacturer ID (00 20 29), Launchkey Family ID
+    uint8_t sysex_header[] = { 0xF0, 0x00, 0x20, 0x29, 0x02, 0x0F };
+    
+    // MK4 Custom Command Sub-IDs (0x04 for display target handling)
+    uint8_t cmd_sub_id = 0x04; 
+    
+    // Display Mode: 0x01 for Temporary Popup Message, 0x00 for Stationary Default string
+    uint8_t display_mode = is_temp ? 0x01 : 0x00;
+    uint8_t msg[48];
+		
+    // Send Header
+    for (size_t i = 0; i < sizeof(sysex_header); i++) {
+        msg[i] = sysex_header[i];
+    }
+    
+    // Send Display Sub-command properties
+    msg[6] = cmd_sub_id;
+    msg[7] = display_mode;
+    
+    // Stream ASCII Text characters payload (Limit safely to 16-32 characters depending on UI layout)
+    size_t len = strlen(text);
+	
+    for (size_t i = 0; i < len; i++) {
+        // Enforce valid safe-range 7-bit ASCII text transmission
+        if (text[i] < 128) {
+            msg[8 + i] = (uint8_t)text[i];
+        }
+    }
+    
+    // Send End of Exclusive byte (EOX)
+    msg[8 + len] = 0xF7;
+
+	if (device_addr != 255) {
+		tuh_midi_stream_write(device_addr, 0, msg, 8 + len);
+		tuh_midi_write_flush(device_addr);
+	}	
 }
