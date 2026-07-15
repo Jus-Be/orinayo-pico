@@ -340,17 +340,7 @@ int main() {
 			}
 			
 			uart_write_blocking(UART_ID, buffer, 4);
-			uart_tx_wait_blocking(UART_ID); 
-
-			if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
-				uint8_t msg[3];			
-				msg[0] = 0x9F;
-				msg[1] = 0x0C;
-				msg[2] = 0x7F;		
-				tuh_midi_stream_write(device_addr, 0, msg, 3);
-				tuh_midi_write_flush(device_addr);
-				launchkey_daw_mode = true;				
-			}			
+			uart_tx_wait_blocking(UART_ID); 			
 		
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}
@@ -365,6 +355,17 @@ int main() {
 		// Poll for incoming MIDI events from any connected BLE MIDI peripheral.
 		// BAO disable BLE for now
 		//ble_midi_controller_poll();
+		
+
+		if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
+			uint8_t msg[3];			
+			msg[0] = 0x9F;
+			msg[1] = 0x0C;
+			msg[2] = 0x7F;		
+			tuh_midi_stream_write(device_addr, 0, msg, 3);
+			tuh_midi_write_flush(device_addr);
+			launchkey_daw_mode = true;				
+		}		
 
 		if (preferences_changed) {
 			preferences_changed = false;
