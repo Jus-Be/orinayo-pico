@@ -167,6 +167,7 @@ static uint32_t old_p4 = 0;
 
 bool wav_trigger_pro_connected = false;
 bool launchkey_connected = false;
+bool launchkey_daw_mode = false;
 
 // 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
 static uint32_t held_notes_mask[4] = {0};
@@ -321,7 +322,7 @@ int main() {
     gpio_pull_up(I2C_SCL_PIN);	
 	sleep_ms(500);	
 	
-	wav_trigger_pro_connected = is_wav_trigger_connected();
+	wav_trigger_pro_connected = is_wav_trigger_connected();	
 	
 	
     while (true) {
@@ -339,7 +340,17 @@ int main() {
 			}
 			
 			uart_write_blocking(UART_ID, buffer, 4);
-			uart_tx_wait_blocking(UART_ID); 	
+			uart_tx_wait_blocking(UART_ID); 
+
+			if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
+				uint8_t msg[3];			
+				msg[0] = 0x9F;
+				msg[1] = 0x0C;
+				msg[2] = 0x7F;		
+				tuh_midi_stream_write(device_addr, 0, msg, 3);
+				tuh_midi_write_flush(device_addr);
+				launchkey_daw_mode = true;				
+			}			
 		
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);				
 		}
@@ -410,15 +421,6 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
 			midi_keyboard_connected = true;
 			launchkey_connected = true;
-			
-			if (device_addr != 255) {
-				uint8_t msg[3];			
-				msg[0] = 0x9F;
-				msg[1] = 0x0C;
-				msg[2] = 0x7F;		
-				tuh_midi_stream_write(device_addr, 0, msg, 3);
-				tuh_midi_write_flush(device_addr);		
-			}			
 			
 			config_wav_trigger_pro();;
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
@@ -493,15 +495,6 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	
 	if (enable_mpc_sample) {
 		config_mpc_sample();
-	}
-	
-	if (launchkey_connected) {
-		uint8_t msg[3];			
-		msg[0] = 0x9F;
-		msg[1] = 0x0C;
-		msg[2] = 0x7F;		
-		tuh_midi_stream_write(device_addr, 0, msg, 3);
-		tuh_midi_write_flush(device_addr);		
 	}
 }
 
