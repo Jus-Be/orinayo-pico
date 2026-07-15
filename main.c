@@ -389,6 +389,7 @@ void name_received_cb(tuh_xfer_t* xfer) {
 		// MPC Sample
 		// X-TOUCH MINI
 		// nanobox tangerine
+		// Launchkey Mini MK4 37 MIDI
 		
 		if (name[0] == 'i' && name[1] == 'R' && name[2] == 'i' && name[3] == 'g' && name[4] == ' ' && name[5] == 'K' && name[6] == 'e' && name[7] == 'y' && name[8] == 's' && name[9] == ' ' && name[10] == '2' && name[11] == ' ' && name[12] == 'P' && name[13] == 'R' && name[14] == 'O') {		
 			// Start/stop 	CC23 (0x17, 0x7F)
@@ -401,6 +402,15 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			
 			config_wav_trigger_pro();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
+		}
+		else
+			
+		if (name[0] == 'L' && name[1] == 'a' && name[2] == 'u' && name[3] == 'n' && name[4] == 'c' && name[5] == 'h' && name[6] == 'k' && name[7] == 'e'  && name[8] == 'y') {		
+			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
+			midi_keyboard_connected = true;
+			
+			config_wav_trigger_pro();;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);		
 		}
 		else
 			
@@ -644,6 +654,10 @@ void process_midi_byte(uint8_t b) {
 		// Status byte.
 		if (b >= 0xF8) {
 			// Real-time message (single byte); does not affect running status.
+			if (b == 0xFC || b == 0xFA) {
+				mbut0 = 1; logo = 0;
+				gamepad_bluetooth_handle_data();				
+			}
 			return;
 		}
 		if (b >= 0xF0) {
