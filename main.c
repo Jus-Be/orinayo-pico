@@ -760,6 +760,16 @@ void process_midi_byte(uint8_t b) {
 				uint8_t cc_value = b;			// Second data byte: value.  Complete the message.
 				midi_data_count  = 0; 			// ready for next running-status pair
 				
+				if (cc_cmd == 0x73 && cc_value == 0x7F && launchkey_daw_mode) {
+					mbut0 = 1; logo = 0;
+					gamepad_bluetooth_handle_data();
+
+					if (style_started) launchkey_set_led(0x90, 0, 36, 45);
+					if (!style_started) launchkey_set_led(0x90, 2, 37, 5);
+					launchkey_display_text("Jamin Controller", true); 				
+				}				
+				else
+					
 				if (cc_cmd == 0x17 && cc_value == 0x7F) {			// data button press
 				
 					if (held_note_count < 3) {						// start/stop
