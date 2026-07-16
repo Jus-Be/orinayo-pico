@@ -113,6 +113,13 @@ void pico_set_led(bool led_on) {
 
 #define END1 46
 
+// launchkey_display_text SysEx buffer layout:
+//   6 bytes Novation header + 1 sub-ID + 1 display-mode + text + 1 EOX = 9 + len
+// Total msg[] is 48 bytes, so max text length = 48 - 9 = 39 characters.
+#define LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD  9
+#define LAUNCHKEY_DISPLAY_MSG_SIZE       48
+#define LAUNCHKEY_MAX_TEXT_LEN           (LAUNCHKEY_DISPLAY_MSG_SIZE - LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD)
+
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
 
@@ -178,7 +185,14 @@ static uint8_t midi_running_status = 0;
 static uint8_t midi_data0 = 0;
 static int     midi_data_count = 0;
 
-uint8_t device_addr = 255;
+// TinyUSB MIDI host interface index (not a USB device address).
+// Set by tuh_midi_mount_cb; 0xFF means no MIDI device is currently mounted.
+static uint8_t midi_itf_idx          = 0xFF;
+// USB device address of the currently mounted MIDI device (from mount_cb_data->daddr).
+static uint8_t midi_dev_addr         = 0;
+// Number of TX (OUT) virtual cables reported by the mounted device.
+// Must be >= 2 to use cable 1 for Launchkey DAW / LED / SysEx messages.
+static uint8_t launchkey_tx_cable_count = 0;
 uint8_t chord1_pad_velocity = 48;
 uint8_t chord2_pad_velocity = 32;
 uint8_t previous_time = 0;
@@ -338,9 +352,9 @@ int main() {
 			uint8_t buffer[4] = {0};			
 			tud_midi_packet_read(buffer);
 			
-			if (device_addr != 255) {
-				tuh_midi_stream_write(device_addr, 0, buffer, 4);
-				tuh_midi_write_flush(device_addr);
+			if (midi_itf_idx != 0xFF) {
+				tuh_midi_stream_write(midi_itf_idx, 0, buffer, 4);
+				tuh_midi_write_flush(midi_itf_idx);
 			}
 			
 			uart_write_blocking(UART_ID, buffer, 4);
@@ -361,16 +375,18 @@ int main() {
 		//ble_midi_controller_poll();
 		
 
-		if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
+		if (!launchkey_daw_mode && launchkey_connected && midi_itf_idx != 0xFF) {
 			launchkey_daw_mode = true;			
 			sleep_ms(500);
 			
 			uint8_t msg[3];			
 			msg[0] = 0x9F;
 			msg[1] = 0x0C;
-			msg[2] = 0x7F;		
-			tuh_midi_stream_write(device_addr, 1, msg, 3);
-			tuh_midi_write_flush(device_addr);				
+			msg[2] = 0x7F;
+			if (launchkey_tx_cable_count >= 2) {
+				tuh_midi_stream_write(midi_itf_idx, 1, msg, 3);
+				tuh_midi_write_flush(midi_itf_idx);
+			}
 		}		
 
 		if (preferences_changed) {
@@ -494,13 +510,19 @@ void tuh_mount_cb(uint8_t daddr) {
 }
 
 void tuh_umount_cb(uint8_t daddr) {
-	(void) daddr;
+	if (daddr == midi_dev_addr && midi_itf_idx != 0xFF) {
+		launchkey_connected = false;
+		launchkey_daw_mode = false;
+	}
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);	
 }
 
 void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
-	(void) mount_cb_data;
-	if (device_addr == 255) device_addr = idx;
+	if (midi_itf_idx == 0xFF) {
+		midi_itf_idx          = idx;
+		midi_dev_addr         = mount_cb_data->daddr;
+		launchkey_tx_cable_count = mount_cb_data->tx_cable_count;
+	}
 	
 	if (enable_mpc_sample) {
 		config_mpc_sample();
@@ -508,8 +530,13 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 }
 
 void tuh_midi_umount_cb(uint8_t idx) {
-	(void) idx;
-	device_addr = 255;
+	if (idx == midi_itf_idx) {
+		midi_itf_idx          = 0xFF;
+		midi_dev_addr         = 0;
+		launchkey_tx_cable_count = 0;
+		launchkey_connected   = false;
+		launchkey_daw_mode    = false;
+	}
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
 
@@ -682,9 +709,11 @@ void process_midi_byte(uint8_t b) {
 				mbut0 = 1; logo = 0;
 				gamepad_bluetooth_handle_data();
 
-				if (b == 0xFA) launchkey_set_led(0x90, 0, 36, 45);
-				if (b == 0xFC) launchkey_set_led(0x90, 2, 37, 5);
-				launchkey_display_text("Jamin Controller", true); 				
+				if (launchkey_connected && launchkey_daw_mode) {
+					if (b == 0xFA) launchkey_set_led(0x90, 0, 36, 45);
+					if (b == 0xFC) launchkey_set_led(0x90, 2, 37, 5);
+					launchkey_display_text("Jamin Controller", true);
+				}
 			}
 			return;
 		}
@@ -1543,9 +1572,9 @@ void midi_n_stream_write(uint8_t itf, uint8_t cable_num, uint8_t *buffer, uint32
 	
 	if (!midi_keyboard_connected) 	// don't send control events to midi keyboard
 	{
-		if (device_addr != 255) {
-			tuh_midi_stream_write(device_addr, cable_num, buffer, bufsize);
-			tuh_midi_write_flush(device_addr);
+		if (midi_itf_idx != 0xFF) {
+			tuh_midi_stream_write(midi_itf_idx, cable_num, buffer, bufsize);
+			tuh_midi_write_flush(midi_itf_idx);
 		}
 	}
 
@@ -1821,9 +1850,9 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 	msg[1] = index;
 	msg[2] = color_id;
 	
-	if (device_addr != 255) {
-		tuh_midi_stream_write(device_addr, 1, msg, 3);
-		tuh_midi_write_flush(device_addr);
+	if (midi_itf_idx != 0xFF && launchkey_tx_cable_count >= 2) {
+		tuh_midi_stream_write(midi_itf_idx, 1, msg, 3);
+		tuh_midi_write_flush(midi_itf_idx);
 	}	
 }
 
@@ -1845,7 +1874,7 @@ void launchkey_display_text(const char* text, bool is_temp) {
     
     // Display Mode: 0x01 for Temporary Popup Message, 0x00 for Stationary Default string
     uint8_t display_mode = is_temp ? 0x01 : 0x00;
-    uint8_t msg[48];
+    uint8_t msg[LAUNCHKEY_DISPLAY_MSG_SIZE];
 		
     // Send Header
     for (size_t i = 0; i < sizeof(sysex_header); i++) {
@@ -1858,6 +1887,7 @@ void launchkey_display_text(const char* text, bool is_temp) {
     
     // Stream ASCII Text characters payload (Limit safely to 16-32 characters depending on UI layout)
     size_t len = strlen(text);
+	if (len > LAUNCHKEY_MAX_TEXT_LEN) len = LAUNCHKEY_MAX_TEXT_LEN;
 	
     for (size_t i = 0; i < len; i++) {
         // Enforce valid safe-range 7-bit ASCII text transmission
@@ -1869,8 +1899,8 @@ void launchkey_display_text(const char* text, bool is_temp) {
     // Send End of Exclusive byte (EOX)
     msg[8 + len] = 0xF7;
 
-	if (device_addr != 255) {
-		tuh_midi_stream_write(device_addr, 1, msg, 8 + len);
-		tuh_midi_write_flush(device_addr);
+	if (midi_itf_idx != 0xFF && launchkey_tx_cable_count >= 2) {
+		tuh_midi_stream_write(midi_itf_idx, 1, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
+		tuh_midi_write_flush(midi_itf_idx);
 	}	
 }
