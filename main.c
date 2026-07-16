@@ -358,13 +358,15 @@ int main() {
 		
 
 		if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
+			launchkey_daw_mode = true;			
+			sleep_ms(1000);
+			
 			uint8_t msg[3];			
 			msg[0] = 0x9F;
 			msg[1] = 0x0C;
 			msg[2] = 0x7F;		
 			tuh_midi_stream_write(device_addr, 0, msg, 3);
-			tuh_midi_write_flush(device_addr);
-			launchkey_daw_mode = true;				
+			tuh_midi_write_flush(device_addr);				
 		}		
 
 		if (preferences_changed) {
@@ -700,7 +702,7 @@ void process_midi_byte(uint8_t b) {
 				// Second data byte: velocity.  Complete the message.
 				uint8_t note     = midi_data0;
 				uint8_t velocity = b;
-				midi_data_count  = 0;  // ready for next running-status pair
+				midi_data_count  = 0;  // ready for next running-status pair				
 
 				if (style_started) {
 					bool note_on = (cmd == 0x90) && (velocity > 0);
@@ -1250,8 +1252,12 @@ void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	msg[0] = command;
 	msg[1] = note;
 	msg[2] = velocity;   
-		
-	midi_n_stream_write(0, 0, msg, 3);	// includes sampler connected by UART0 MIDI	
+
+	if (enable_wav_trigger_pro) {
+		wav_trigger_pro_forward_midi_message(msg, 3);
+	} else {
+		midi_n_stream_write(0, 0, msg, 3);	// includes sampler connected by UART0 MIDI	
+	}
 }
 
 void midi_send_note(uint8_t command, uint8_t note, uint8_t velocity) {
