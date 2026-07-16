@@ -359,13 +359,13 @@ int main() {
 
 		if (!launchkey_daw_mode && launchkey_connected && device_addr != 255) {
 			launchkey_daw_mode = true;			
-			sleep_ms(1000);
+			sleep_ms(500);
 			
 			uint8_t msg[3];			
 			msg[0] = 0x9F;
 			msg[1] = 0x0C;
 			msg[2] = 0x7F;		
-			tuh_midi_stream_write(device_addr, 0, msg, 3);
+			tuh_midi_stream_write(device_addr, 1, msg, 3); cable 1 is DAW mode
 			tuh_midi_write_flush(device_addr);				
 		}		
 
@@ -1794,7 +1794,7 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 	msg[2] = color_id;
 	
 	if (device_addr != 255) {
-		tuh_midi_stream_write(device_addr, 0, msg, 3);
+		tuh_midi_stream_write(device_addr, 1, msg, 3);
 		tuh_midi_write_flush(device_addr);
 	}	
 }
@@ -1842,7 +1842,7 @@ void launchkey_display_text(const char* text, bool is_temp) {
     msg[8 + len] = 0xF7;
 
 	if (device_addr != 255) {
-		tuh_midi_stream_write(device_addr, 0, msg, 8 + len);
+		tuh_midi_stream_write(device_addr, 1, msg, 8 + len);
 		tuh_midi_write_flush(device_addr);
 	}	
 }
