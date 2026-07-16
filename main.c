@@ -175,6 +175,7 @@ static uint32_t old_p4 = 0;
 bool wav_trigger_pro_connected = false;
 bool launchkey_connected = false;
 bool launchkey_daw_mode = false;
+bool irig_pro_connected = false;
 
 // 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
 static uint32_t held_notes_mask[4] = {0};
@@ -383,10 +384,8 @@ int main() {
 			msg[0] = 0x9F;
 			msg[1] = 0x0C;
 			msg[2] = 0x7F;
-			if (launchkey_tx_cable_count >= 2) {
-				tuh_midi_stream_write(midi_itf_idx, 1, msg, 3);
-				tuh_midi_write_flush(midi_itf_idx);
-			}
+			tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, 3);
+			tuh_midi_write_flush(midi_itf_idx);
 		}		
 
 		if (preferences_changed) {
@@ -436,6 +435,7 @@ void name_received_cb(tuh_xfer_t* xfer) {
 			
 			enable_wav_trigger_pro = true;	// assume WAV Trigger Pro is available
 			midi_keyboard_connected = true;
+			irig_pro_connected = true;
 			
 			config_wav_trigger_pro();
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);	
@@ -511,6 +511,7 @@ void tuh_mount_cb(uint8_t daddr) {
 
 void tuh_umount_cb(uint8_t daddr) {
 	if (daddr == midi_dev_addr && midi_itf_idx != 0xFF) {
+		irig_pro_connected = false;
 		launchkey_connected = false;
 		launchkey_daw_mode = false;
 	}
@@ -536,6 +537,7 @@ void tuh_midi_umount_cb(uint8_t idx) {
 		launchkey_tx_cable_count = 0;
 		launchkey_connected   = false;
 		launchkey_daw_mode    = false;
+		irig_pro_connected	  = false;
 	}
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);
 }
@@ -705,16 +707,6 @@ void process_midi_byte(uint8_t b) {
 		// Status byte.
 		if (b >= 0xF8) {
 			// Real-time message (single byte); does not affect running status.
-			if (b == 0xFC || b == 0xFA) {
-				mbut0 = 1; logo = 0;
-				gamepad_bluetooth_handle_data();
-
-				if (launchkey_connected && launchkey_daw_mode) {
-					if (b == 0xFA) launchkey_set_led(0x90, 0, 36, 45);
-					if (b == 0xFC) launchkey_set_led(0x90, 2, 37, 5);
-					launchkey_display_text("Jamin Controller", true);
-				}
-			}
 			return;
 		}
 		if (b >= 0xF0) {
@@ -790,7 +782,7 @@ void process_midi_byte(uint8_t b) {
 				midi_data_count  = 0; 			// ready for next running-status pair
 				
 				if (cc_cmd == 0x73 && cc_value == 0x7F && launchkey_daw_mode) {
-					mbut0 = 1; logo = 0;
+					mbut0 = 1; logo = 0;										// start/stop
 					gamepad_bluetooth_handle_data();
 
 					if (style_started) launchkey_set_led(0x90, 0, 36, 45);
@@ -798,8 +790,26 @@ void process_midi_byte(uint8_t b) {
 					launchkey_display_text("Jamin Controller", true); 				
 				}				
 				else
+
+				if (cc_cmd == 0x75 && cc_value == 0x7F && launchkey_daw_mode) {
+					joy_up = true; joystick_up = 0;								// fill
+					gamepad_bluetooth_handle_data();				
+				}	
+				else
+
+				if (cc_cmd == 0x6A && cc_value == 0x7F && launchkey_daw_mode) {
+					dpad_down = 1; starpower = 0;								// next style
+					gamepad_bluetooth_handle_data();				
+				}
+				else
+
+				if (cc_cmd == 0x6B && cc_value == 0x7F && launchkey_daw_mode) {
+					dpad_down = 1; starpower = 0; orange = 0; but4 = 1;			// prev style
+					gamepad_bluetooth_handle_data();				
+				}				
+				else					
 					
-				if (cc_cmd == 0x17 && cc_value == 0x7F) {			// data button press
+				if (cc_cmd == 0x17 && cc_value == 0x7F && irig_pro_connected) {	// data button press
 				
 					if (held_note_count < 3) {						// start/stop
 						mbut0 = 1; logo = 0;
@@ -812,16 +822,16 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 
-				if (cc_cmd == 0x16) {								// data button dial
+				if (cc_cmd == 0x16 && irig_pro_connected) {						// data button dial
 				
 					if (style_started) {
-						if (cc_value == 0x1) {							// next style
+						if (cc_value == 0x1) {									// next style
 							dpad_down = 1; starpower = 0;	
 							gamepad_bluetooth_handle_data();
 						}
 						else
 							
-						if (cc_value == 0x7F) {							// previous style
+						if (cc_value == 0x7F) {									// previous style
 							dpad_down = 1; starpower = 0; orange = 0; but4 = 1;
 							gamepad_bluetooth_handle_data();								
 						}
@@ -848,9 +858,9 @@ void process_midi_byte(uint8_t b) {
 						}																		
 					}
 				}
-				else	// These values are for iRig or SMC-PAD or x-touch-mini
+				else	// These encoder values are for iRig or SMC-PAD or x-touch-mini or launchkey
 					
-				if (cc_cmd == 0x0C || cc_cmd == 0x1E || cc_cmd == 0x01) {			// drum volume 
+				if (cc_cmd == 0x0C || cc_cmd == 0x1E || cc_cmd == 0x01 || cc_cmd == 0x15) {			// drum volume 
 				
 					if (enable_wav_trigger_pro) 
 					{ 
@@ -870,7 +880,7 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 					
-				if (cc_cmd == 0x0D || cc_cmd == 0x1F || cc_cmd == 0x02) {			// bass volume
+				if (cc_cmd == 0x0D || cc_cmd == 0x1F || cc_cmd == 0x02 || cc_cmd == 0x16) {			// bass volume
 				
 					if (enable_wav_trigger_pro) 
 					{ 
@@ -890,7 +900,7 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 
-				if (cc_cmd == 0x0E || cc_cmd == 0x20 || cc_cmd == 0x03) {			// chord volume
+				if (cc_cmd == 0x0E || cc_cmd == 0x20 || cc_cmd == 0x03|| cc_cmd == 0x17) {			// chord volume
 				
 					if (enable_wav_trigger_pro) 
 					{ 
@@ -909,7 +919,7 @@ void process_midi_byte(uint8_t b) {
 				}
 				else
 
-				if (cc_cmd == 0x0F || cc_cmd == 0x21 || cc_cmd == 0x04) {			// midi guitar volume
+				if (cc_cmd == 0x0F || cc_cmd == 0x21 || cc_cmd == 0x04|| cc_cmd == 0x18) {			// midi guitar volume
 				
 					if (cc_value != midi_guitar_volume) {				
 						midi_guitar_volume = cc_value;	
@@ -925,18 +935,18 @@ void process_midi_byte(uint8_t b) {
 				}	
 				else
 
-				if (cc_cmd == 0x10 || cc_cmd == 0x22 || cc_cmd == 0x05) {			// worship pad volume
+				if (cc_cmd == 0x10 || cc_cmd == 0x22 || cc_cmd == 0x05 || cc_cmd == 0x19) {			// worship pad volume
 					worship_pad_velocity = cc_value;
 				}
 				else
 
-				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06) {			// chord1 & chord2 pad volumes
+				if (cc_cmd == 0x11 || cc_cmd == 0x23 || cc_cmd == 0x06 || cc_cmd == 0x1A) {			// chord1 & chord2 pad volumes
 					chord1_pad_velocity = cc_value;
 					chord2_pad_velocity = cc_value;					
 				}
 				else
 
-				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07) {			// tempo
+				if (cc_cmd == 0x12 || cc_cmd == 0x24 || cc_cmd == 0x07 || cc_cmd == 0x1B) {			// tempo
 					uint8_t tempo = 60 + (cc_value / 127 * 80);
 					set_tempo(tempo);
 				}
@@ -947,7 +957,7 @@ void process_midi_byte(uint8_t b) {
 				}				
 				else
 
-				if (cc_cmd == 0x13 || cc_cmd == 0x25 || cc_cmd == 0x09) {			// master volume
+				if (cc_cmd == 0x13 || cc_cmd == 0x25 || cc_cmd == 0x09 || cc_cmd == 0x1C) {			// master volume
 					uint8_t lead_vol = cc_value;					
 					midi_send_control_change(0xB0, 7, lead_vol);
 					
@@ -1843,15 +1853,16 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 	 * @param index     The Note or CC ID matching the physical Pad/Button
 	 * @param color_id  Velocity / value mapping to Novation's color palette lookup index (0-127)
 	 */	
-    uint8_t status_byte = (msg_type & 0xF0) | (channel & 0x0F);
 	
-    uint8_t msg[3];	
-	msg[0] = status_byte;
-	msg[1] = index;
-	msg[2] = color_id;
+	if (midi_itf_idx != 0xFF) {
+		uint8_t status_byte = (msg_type & 0xF0) | (channel & 0x0F);
+		
+		uint8_t msg[3];	
+		msg[0] = status_byte;
+		msg[1] = index;
+		msg[2] = color_id;
 	
-	if (midi_itf_idx != 0xFF && launchkey_tx_cable_count >= 2) {
-		tuh_midi_stream_write(midi_itf_idx, 1, msg, 3);
+		tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, 3);
 		tuh_midi_write_flush(midi_itf_idx);
 	}	
 }
@@ -1867,7 +1878,7 @@ void launchkey_display_text(const char* text, bool is_temp) {
 	 */	
 	 
     // Novation Header: Sysex Open, Manufacturer ID (00 20 29), Launchkey Family ID
-    uint8_t sysex_header[] = { 0xF0, 0x00, 0x20, 0x29, 0x02, 0x0F };
+    uint8_t sysex_header[] = { 0xF0, 0x00, 0x20, 0x29, 0x02, 0x13 }; //use 0x14 for full keys
     
     // MK4 Custom Command Sub-IDs (0x04 for display target handling)
     uint8_t cmd_sub_id = 0x04; 
@@ -1899,8 +1910,8 @@ void launchkey_display_text(const char* text, bool is_temp) {
     // Send End of Exclusive byte (EOX)
     msg[8 + len] = 0xF7;
 
-	if (midi_itf_idx != 0xFF && launchkey_tx_cable_count >= 2) {
-		tuh_midi_stream_write(midi_itf_idx, 1, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
+	if (midi_itf_idx != 0xFF) {
+		tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
 		tuh_midi_write_flush(midi_itf_idx);
 	}	
 }
