@@ -240,6 +240,8 @@ bool wav_trigger_pro_load_preset(uint16_t preset);
 bool wav_trigger_pro_set_output_gain(int16_t gain_db);
 void nanobox_stop_loops();
 void wav_trigger_pro_stop_loops();
+void launchkey_display_text(const char* text, bool is_temp);
+void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t color_id);
 
 static void wav_trigger_pro_forward_midi_message(const uint8_t *buffer, uint32_t bufsize);
 
@@ -268,7 +270,9 @@ bool is_wav_trigger_connected() {
 }
 
 //--------------------------------------------------------------------+
+//
 // core main handle handlers
+//
 //--------------------------------------------------------------------+
 
 void core1_main() {
@@ -365,7 +369,7 @@ int main() {
 			msg[0] = 0x9F;
 			msg[1] = 0x0C;
 			msg[2] = 0x7F;		
-			tuh_midi_stream_write(device_addr, 1, msg, 3); cable 1 is DAW mode
+			tuh_midi_stream_write(device_addr, 1, msg, 3); //cable 1 is DAW mode
 			tuh_midi_write_flush(device_addr);				
 		}		
 
@@ -382,7 +386,9 @@ int main() {
 }
 
 //--------------------------------------------------------------------+
+//
 // Device callbacks
+//
 //--------------------------------------------------------------------+
 
 void name_received_cb(tuh_xfer_t* xfer) {
@@ -508,7 +514,9 @@ void tuh_midi_umount_cb(uint8_t idx) {
 }
 
 //--------------------------------------------------------------------+
+//
 // Chord detection helpers 
+//
 //--------------------------------------------------------------------+
 
 static void chord_note_on(uint8_t note) {
@@ -971,7 +979,9 @@ void tud_resume_cb(void) {
 }
 
 //--------------------------------------------------------------------+
+//
 // MIDI Tasks
+//
 //--------------------------------------------------------------------+
 
 void dream_set_delay(int tempo) {
@@ -1553,8 +1563,10 @@ void send_ble_midi(uint8_t* midi_data, int len) {
 }
 
 //--------------------------------------------------------------------+
+//
 // WAV Trigger Pro
 //
+//--------------------------------------------------------------------+
 
 static bool wav_trigger_pro_write_command(uint8_t cmd, const uint8_t *payload, size_t payload_len) {
 	if (payload == NULL && payload_len > 0) return false;
@@ -1772,6 +1784,12 @@ bool wav_trigger_pro_set_output_gain(int16_t gain_db) {
 
 	return wav_trigger_pro_write_command(CMD_SET_OUTPUT_GAIN, payload, sizeof(payload));
 }
+
+//--------------------------------------------------------------------+
+//
+// WAV Trigger Pro
+//
+//--------------------------------------------------------------------+
 
 void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t color_id) {
 	/**
