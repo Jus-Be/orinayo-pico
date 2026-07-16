@@ -806,8 +806,32 @@ void process_midi_byte(uint8_t b) {
 				if (cc_cmd == 0x6B && cc_value == 0x7F && launchkey_daw_mode) {
 					dpad_down = 1; starpower = 0; orange = 0; but4 = 1;			// prev style
 					gamepad_bluetooth_handle_data();				
+				}
+				else
+
+				if ((cc_cmd == 0x33 || cc_cmd == 0x34) && cc_value == 0x7F && launchkey_daw_mode && !style_started) {
+
+					if (cc_cmd == 0x33) {							// next style group
+						style_group = style_group + 1;
+						if (style_group > 20) style_group = 0;
+					}
+					else
+						
+					if (cc_cmd == 0x34) {							// previous style group
+						style_group = style_group - 1;
+						if (style_group < 0) style_group = 20;								
+					}
+
+					if (enable_wav_trigger_pro) {
+						sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset
+					} 									
+					else
+
+					if (enable_nanobox_tangerine) {
+						midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+					}				
 				}				
-				else					
+				else	
 					
 				if (cc_cmd == 0x17 && cc_value == 0x7F && irig_pro_connected) {	// data button press
 				
