@@ -750,9 +750,11 @@ void process_midi_byte(uint8_t b) {
 					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro))
 					{
 						if (note_on) {
-							old_style = style_section;
-							style_section = note - 0x60;
-							style_change_requested = true;
+							//old_style = style_section;
+							//style_section = note - 0x60;
+							//style_change_requested = true;
+							dpad_down = 1; starpower = 0; yellow = 0; but2 = 1;	
+							gamepad_bluetooth_handle_data();							
 						}
 					}
 					else {
