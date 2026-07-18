@@ -740,7 +740,7 @@ void process_midi_byte(uint8_t b) {
 					
 				if (style_started) {
 					
-					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
+					if (note_on && (note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
 						style_section = note - 0x60;
 						style_change_requested = true;
 						forward_midi_event = false;
@@ -781,7 +781,7 @@ void process_midi_byte(uint8_t b) {
 					}
 					else		// use pad keys to load a new style from SD Card
 						
-					if (launchkey_daw_mode && !style_started && (note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
+					if (launchkey_daw_mode && (note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
 						forward_midi_event = false;
 						
 						if (note >= 0x60 && note <= 0x67) {							// launchkey top roww
