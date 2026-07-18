@@ -125,6 +125,7 @@ void pico_set_led(bool led_on) {
 
 extern int midi_current_step;
 extern int style_section;
+extern int old_style;
 extern int active_strum_pattern;
 extern int active_neck_pos;
 extern int basic_chord;
@@ -746,9 +747,13 @@ void process_midi_byte(uint8_t b) {
 					
 				if (style_started) 
 				{					
-					if (note_on && (note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
-						style_section = note - 0x60;
-						style_change_requested = true;
+					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro))
+					{
+						if (note_on) {
+							old_style = style_section;
+							style_section = note - 0x60;
+							style_change_requested = true;
+						}
 					}
 					else {
 						if (note_on) {
