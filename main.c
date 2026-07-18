@@ -259,6 +259,7 @@ bool wav_trigger_pro_load_preset(uint16_t preset);
 bool wav_trigger_pro_set_output_gain(int16_t gain_db);
 void nanobox_stop_loops();
 void wav_trigger_pro_stop_loops();
+void config_wav_trigger_pro();
 void launchkey_display_text(const char* text, bool is_temp);
 void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t color_id);
 
@@ -532,7 +533,7 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 	
 	if (daw_itf_idx == 0xFF) {
 		daw_itf_idx = idx;
-		daw_dev_addr = = mount_cb_data->daddr;
+		daw_dev_addr = mount_cb_data->daddr;
 	}
 	
 	if (enable_mpc_sample) {
