@@ -190,6 +190,7 @@ bool wav_trigger_pro_connected = false;
 bool launchkey_connected = false;
 bool launchkey_daw_mode = false;
 bool irig_pro_connected = false;
+bool mute_midi_controller = false;
 
 // 128-bit bitmask tracking currently held MIDI notes (one bit per note number).
 static uint32_t held_notes_mask[4] = {0};
@@ -783,11 +784,12 @@ void process_midi_byte(uint8_t b) {
 							else
 								
 							if (note >= 0x60 && note <= 0x67) {
-								pitch = 1;
+								but6 = 1;
 								
 								if (note == 0x60) {but1 = 1; but3 = 1;}	// toggle mute drums
 								if (note == 0x61) {but0 = 1; but3 = 1;}	// toggle mute bass										
-								if (note == 0x62) {but1 = 1; but2 = 1;}	// toggle mute chords						
+								if (note == 0x62) {but1 = 1; but2 = 1;}	// toggle mute chords
+								if (note == 0x63) {mute_midi_controller	= !mute_midi_controller;}
 								if (note == 0x64) {but1 = 1; but4 = 1;}	// toggle mute worship pads
 								
 								gamepad_bluetooth_handle_data();									
@@ -1095,7 +1097,7 @@ void process_midi_byte(uint8_t b) {
 	buffer[0] = b;	
 	tud_midi_n_stream_write(0, 0, buffer, 1);
 
-	if (!enable_mpx_looper) { 	// filter midi events from mpx pads	to midi synth			
+	if (!enable_mpx_looper && !mute_midi_controller) { 	// filter midi events from mpx pads	to midi synth			
 		uart_write_blocking(UART_ID, buffer, 1);
 		uart_tx_wait_blocking(UART_ID);			
 	}	
