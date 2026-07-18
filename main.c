@@ -755,15 +755,17 @@ void process_midi_byte(uint8_t b) {
 					
 				if (style_started) 
 				{					
-					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro))	{
+					if ((note >= 0x60 && note <= 0x77))	{
 						b = 0; // make note silent on midi synth
 						
-						if (note_on) {
+						if (note_on && note <= 0x63) {
+							but1 = 0; but0 = 0; but2 = 0; but3 = 0; dpad_down = 1; starpower = 0; green = 0; red = 0; blue = 0; yellow = 0; 
+							
 							if (note == 0x60) but1 = 1;
 							if (note == 0x61) but0 = 1;
 							if (note == 0x62) but2 = 1;
 							if (note == 0x63) but3 = 1;							
-							dpad_down = 1; starpower = 0; green = 0, red = 0, blue = 0, yellow = 0;
+							
 							gamepad_bluetooth_handle_data();							
 						}
 					}
