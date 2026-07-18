@@ -604,7 +604,8 @@ void gamepad_bluetooth_handle_data() {
 					if (!enable_drum_track) {
 						if (mpc_old_drum_note != 255) sampler_midi_note(0x94, mpc_old_drum_note, 1);
 						mpc_old_drum_note = 255;
-					}
+					
+					} else style_change_requested = true;
 				}				
 				else 
 					
@@ -613,7 +614,8 @@ void gamepad_bluetooth_handle_data() {
 					if (!enable_drum_track) {
 						sampler_midi_note(0x90, sp404_old_drum_note, 1);
 						sp404_old_drum_note = 0;
-					}
+						
+					} else style_change_requested = true;
 				}
 				else 
 					
@@ -622,7 +624,8 @@ void gamepad_bluetooth_handle_data() {
 					if (!enable_drum_track) {
 						if (sampler_old_drum_note != 255) sampler_midi_note(0x94, sampler_old_drum_note, 1);
 						sampler_old_drum_note = 255;
-					}
+					
+					} else style_change_requested = true;
 				}				
 				else 
 					
@@ -631,7 +634,8 @@ void gamepad_bluetooth_handle_data() {
 					if (!enable_drum_track) {
 						if (sampler_old_drum_note != 255) sampler_midi_note(0x97, sampler_old_drum_note, 127);
 						sampler_old_drum_note = 255;
-					}
+					
+					} else style_change_requested = true;
 				}				
 			}				
 		}
