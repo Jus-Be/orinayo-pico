@@ -705,7 +705,7 @@ static void chord_detect(void) {
 
 void process_midi_byte(uint8_t b) {	
 	uint8_t buffer[1];
-	bool forward_midi_event = true;
+	//bool forward_midi_event = true;
 	
 	if (b & 0x80) {
 		// Status byte.
@@ -743,7 +743,7 @@ void process_midi_byte(uint8_t b) {
 					if (note_on && (note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
 						style_section = note - 0x60;
 						style_change_requested = true;
-						forward_midi_event = false;
+						//forward_midi_event = false;
 					}
 					
 					if (note_on) {
@@ -782,7 +782,7 @@ void process_midi_byte(uint8_t b) {
 					else		// use pad keys to load a new style from SD Card
 						
 					if (launchkey_daw_mode && (note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
-						forward_midi_event = false;
+						//forward_midi_event = false;
 						
 						if (note >= 0x60 && note <= 0x67) {							// launchkey top roww
 							style_group = note - 0x60;
@@ -1041,7 +1041,7 @@ void process_midi_byte(uint8_t b) {
 	buffer[0] = b;	
 	tud_midi_n_stream_write(0, 0, buffer, 1);
 
-	if (forward_midi_event && !enable_mpx_looper) { 	// filter midi events from mpx pads	to midi synth			
+	if (!enable_mpx_looper) { 	// filter midi events from mpx pads	to midi synth			
 		uart_write_blocking(UART_ID, buffer, 1);
 		uart_tx_wait_blocking(UART_ID);			
 	}	
