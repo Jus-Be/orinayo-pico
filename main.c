@@ -130,6 +130,7 @@ extern int active_neck_pos;
 extern int basic_chord;
 extern int advanced_chord;
 extern int style_group;
+extern style_change_requested;
 
 extern uint8_t sample_drum_velocity;
 extern uint8_t sample_bass_velocity;
@@ -240,6 +241,7 @@ void sp404_trigger_loop();
 void config_nanobox_tangerine();
 void config_mpx_looper();
 void process_midi_byte(uint8_t b);
+void gamepad_bluetooth_handle_data();
 void set_tempo(uint8_t tempo);
 bool wav_trigger_pro_get_version(char *dst, size_t dst_len);
 int wav_trigger_pro_get_num_tracks(void);
