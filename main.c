@@ -165,10 +165,14 @@ extern uint8_t but1;
 extern uint8_t but2; 
 extern uint8_t but3; 
 extern uint8_t but4; 
+extern uint8_t but6; 
 extern uint8_t mbut0;
+
 extern uint8_t dpad_down;
 extern uint8_t logo;
 extern uint8_t starpower;
+extern uint8_t pitch;
+
 extern uint8_t green;
 extern uint8_t red;
 extern uint8_t yellow;
@@ -757,16 +761,37 @@ void process_midi_byte(uint8_t b) {
 				{					
 					if ((note >= 0x60 && note <= 0x77))	{
 						b = 0; // make note silent on midi synth
+
+						if (note_on) {						
+							but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 0; but6 = 0; starpower = 0; dpad_down = 0; pitch = 0;
+							green = 0; red = 0; blue = 0; yellow = 0; orange = 0;
 						
-						if (note_on && note <= 0x63) {
-							but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; dpad_down = 1; starpower = 0; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;
-							
-							if (note == 0x60) but1 = 1;
-							if (note == 0x61) but0 = 1;
-							if (note == 0x62) but2 = 1;
-							if (note == 0x63) but3 = 1;							
-							
-							gamepad_bluetooth_handle_data();							
+							if (note >= 0x70 && note <= 0x77) {	
+								dpad_down = 1; 							
+								
+								if (note == 0x70) {green = 1};
+								if (note == 0x71) {red = 1};
+								if (note == 0x72) {yellow = 1};
+								if (note == 0x73) {blue = 1};	
+								if (note == 0x74) {green = 1;  red = 1};
+								if (note == 0x75) {red = 1;    yellow = 1};
+								if (note == 0x76) {yellow = 1; blue = 1};
+								if (note == 0x77) {blue = 1;   orange = 1};								
+								
+								gamepad_bluetooth_handle_data();							
+							}
+							else
+								
+							if (note >= 0x60 && note <= 0x67) {
+								pitch = 1;
+								
+								if (note == 0x60) {green = 1; blue = 1};	// toggle mute drums
+								if (note == 0x61) {red = 1;   blue = 1};	// toggle mute bass										
+								if (note == 0x62) {green = 1; yellow = 1};	// toggle mute chords						
+								if (note == 0x64) {green = 1; orange = 1};	// toggle mute worship pads
+								
+								gamepad_bluetooth_handle_data();									
+							}																
 						}
 					}
 					else {
