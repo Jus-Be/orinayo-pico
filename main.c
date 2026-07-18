@@ -189,8 +189,10 @@ static int     midi_data_count = 0;
 // TinyUSB MIDI host interface index (not a USB device address).
 // Set by tuh_midi_mount_cb; 0xFF means no MIDI device is currently mounted.
 static uint8_t midi_itf_idx          = 0xFF;
+static uint8_t daw_itf_idx          = 0xFF;
 // USB device address of the currently mounted MIDI device (from mount_cb_data->daddr).
 static uint8_t midi_dev_addr         = 0;
+static uint8_t daw_dev_addr         = 0;
 // Number of TX (OUT) virtual cables reported by the mounted device.
 // Must be >= 2 to use cable 1 for Launchkey DAW / LED / SysEx messages.
 static uint8_t launchkey_tx_cable_count = 0;
@@ -523,6 +525,12 @@ void tuh_midi_mount_cb(uint8_t idx, const tuh_midi_mount_cb_t* mount_cb_data) {
 		midi_itf_idx          = idx;
 		midi_dev_addr         = mount_cb_data->daddr;
 		launchkey_tx_cable_count = mount_cb_data->tx_cable_count;
+	} 
+	else 
+	
+	if (daw_itf_idx == 0xFF) {
+		daw_itf_idx = idx;
+		daw_dev_addr = = mount_cb_data->daddr;
 	}
 	
 	if (enable_mpc_sample) {
@@ -736,6 +744,11 @@ void process_midi_byte(uint8_t b) {
 				if (style_started) {
 					bool note_on = (cmd == 0x90) && (velocity > 0);
 					
+					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
+						style_section = note - 0x60;
+						style_change_requested = true;
+					}
+					
 					if (note_on) {
 						chord_note_on(note);
 					} else {
@@ -766,6 +779,28 @@ void process_midi_byte(uint8_t b) {
 				if (style_end_started) {
 					style_end_started = false;					
 					sampler_midi_note(0x94, END1, sample_drum_velocity);	
+				}
+				else		// use pad keys to load a new style from SD Card
+					
+				if ((note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro))
+				{
+					if (note >= 0x60 && note <= 0x67) {							// launchkey top roww
+						style_group = note - 0x60;
+					}
+					else
+						
+					if (note >= 0x70 && note <= 0x77) {							// launchkey bottom row
+						style_group = note - 0x70 + 8;								
+					}
+
+					if (enable_wav_trigger_pro) {
+						sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset
+					} 									
+					else
+
+					if (enable_nanobox_tangerine) {
+						midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+					}
 				}				
 			}
 		}
@@ -1878,7 +1913,7 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 	 * @param color_id  Velocity / value mapping to Novation's color palette lookup index (0-127)
 	 */	
 	
-	if (midi_itf_idx != 0xFF) {
+	if (daw_dev_addr != 0xFF) {
 		uint8_t status_byte = (msg_type & 0xF0) | (channel & 0x0F);
 		
 		uint8_t msg[3];	
@@ -1886,8 +1921,8 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 		msg[1] = index;
 		msg[2] = color_id;
 	
-		tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, 3);
-		tuh_midi_write_flush(midi_itf_idx);
+		tuh_midi_stream_write(daw_dev_addr, 0, msg, 3);
+		tuh_midi_write_flush(daw_dev_addr);
 	}	
 }
 
@@ -1934,8 +1969,8 @@ void launchkey_display_text(const char* text, bool is_temp) {
     // Send End of Exclusive byte (EOX)
     msg[8 + len] = 0xF7;
 
-	if (midi_itf_idx != 0xFF) {
-		tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
-		tuh_midi_write_flush(midi_itf_idx);
+	if (daw_dev_addr != 0xFF) {
+		tuh_midi_stream_write(daw_dev_addr, 0, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
+		tuh_midi_write_flush(daw_dev_addr);
 	}	
 }
