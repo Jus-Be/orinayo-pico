@@ -759,7 +759,7 @@ void process_midi_byte(uint8_t b) {
 						b = 0; // make note silent on midi synth
 						
 						if (note_on && note <= 0x63) {
-							but1 = 0; but0 = 0; but2 = 0; but3 = 0; dpad_down = 1; starpower = 0; green = 0; red = 0; blue = 0; yellow = 0; 
+							but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; dpad_down = 1; starpower = 0; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;
 							
 							if (note == 0x60) but1 = 1;
 							if (note == 0x61) but0 = 1;
@@ -843,6 +843,7 @@ void process_midi_byte(uint8_t b) {
 				midi_data_count  = 0; 			// ready for next running-status pair
 				
 				if (cc_cmd == 0x73 && cc_value == 0x7F && launchkey_daw_mode) {
+					but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;					
 					mbut0 = 1; logo = 0;										// start/stop
 					gamepad_bluetooth_handle_data();
 
@@ -853,19 +854,22 @@ void process_midi_byte(uint8_t b) {
 				else
 
 				if (cc_cmd == 0x75 && cc_value == 0x7F && launchkey_daw_mode) {
+					but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;					
 					joy_up = true; joystick_up = 0;								// fill
 					gamepad_bluetooth_handle_data();				
 				}	
 				else
 
 				if (cc_cmd == 0x6A && cc_value == 0x7F && launchkey_daw_mode) {
-					dpad_down = 1; starpower = 0;								// next style
+					but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;					
+					dpad_down = 1; starpower = 0;			// next style					
 					gamepad_bluetooth_handle_data();				
 				}
 				else
 
 				if (cc_cmd == 0x6B && cc_value == 0x7F && launchkey_daw_mode) {
-					dpad_down = 1; starpower = 0; orange = 0; but4 = 1;			// prev style
+					but1 = 0; but0 = 0; but2 = 0; but3 = 0;  but4 = 1; green = 0; red = 0; blue = 0; yellow = 0; orange = 0;										
+					dpad_down = 1; starpower = 0;			// prev style
 					gamepad_bluetooth_handle_data();				
 				}
 				else
