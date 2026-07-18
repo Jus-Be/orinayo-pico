@@ -749,7 +749,6 @@ void process_midi_byte(uint8_t b) {
 					if (note_on && (note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
 						style_section = note - 0x60;
 						style_change_requested = true;
-						trigger_loop();
 					}
 					else {
 						if (note_on) {
