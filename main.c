@@ -167,6 +167,7 @@ extern uint8_t dpad_down;
 extern uint8_t logo;
 extern uint8_t starpower;
 extern uint8_t orange;
+extern uint8_t yellow;
 extern bool joy_up; 
 extern uint8_t joystick_up;
 
