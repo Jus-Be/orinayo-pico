@@ -784,15 +784,20 @@ void process_midi_byte(uint8_t b) {
 							else
 								
 							if (note >= 0x60 && note <= 0x67) {
-								but6 = 1;
 								
-								if (note == 0x60) {but1 = 1; but3 = 1;}	// toggle mute drums
-								if (note == 0x61) {but0 = 1; but3 = 1;}	// toggle mute bass										
-								if (note == 0x62) {but1 = 1; but2 = 1;}	// toggle mute chords
-								if (note == 0x63) {mute_midi_controller	= !mute_midi_controller;}
-								if (note == 0x64) {but1 = 1; but4 = 1;}	// toggle mute worship pads
+								if (note == 0x63) {
+									mute_midi_controller = !mute_midi_controller;
 								
-								gamepad_bluetooth_handle_data();									
+								} else {																
+									but6 = 1;
+									
+									if (note == 0x60) {but1 = 1; but3 = 1;}	// toggle mute drums
+									if (note == 0x61) {but0 = 1; but3 = 1;}	// toggle mute bass										
+									if (note == 0x62) {but1 = 1; but2 = 1;}	// toggle mute chords
+									if (note == 0x64) {but1 = 1; but4 = 1;}	// toggle mute worship pads
+									
+									gamepad_bluetooth_handle_data();
+								}									
 							}																
 						}
 					}
@@ -875,8 +880,8 @@ void process_midi_byte(uint8_t b) {
 					gamepad_bluetooth_handle_data();
 
 					if (style_started) launchkey_set_led(0x90, 0, 36, 45);
-					//if (!style_started) launchkey_set_led(0x90, 2, 37, 5);
-					//launchkey_display_text("Jamin Controller", true); 				
+					if (!style_started) launchkey_set_led(0x90, 2, 37, 5);
+					launchkey_display_text("Jamin Controller", true); 				
 				}				
 				else
 
@@ -1978,7 +1983,7 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 	 * @param color_id  Velocity / value mapping to Novation's color palette lookup index (0-127)
 	 */	
 	
-	if (daw_dev_addr != 0xFF) {
+	if (daw_itf_idx != 0xFF) {
 		uint8_t status_byte = (msg_type & 0xF0) | (channel & 0x0F);
 		
 		uint8_t msg[3];	
@@ -1986,8 +1991,8 @@ void launchkey_set_led(uint8_t msg_type, uint8_t channel, uint8_t index, uint8_t
 		msg[1] = index;
 		msg[2] = color_id;
 	
-		tuh_midi_stream_write(daw_dev_addr, 0, msg, 3);
-		tuh_midi_write_flush(daw_dev_addr);
+		tuh_midi_stream_write(daw_itf_idx, 0, msg, 3);
+		tuh_midi_write_flush(daw_itf_idx);
 	}	
 }
 
@@ -2034,8 +2039,8 @@ void launchkey_display_text(const char* text, bool is_temp) {
     // Send End of Exclusive byte (EOX)
     msg[8 + len] = 0xF7;
 
-	if (daw_dev_addr != 0xFF) {
-		tuh_midi_stream_write(daw_dev_addr, 0, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
-		tuh_midi_write_flush(daw_dev_addr);
+	if (daw_itf_idx != 0xFF) {
+		tuh_midi_stream_write(daw_itf_idx, 0, msg, LAUNCHKEY_DISPLAY_SYSEX_OVERHEAD + len);
+		tuh_midi_write_flush(daw_itf_idx);
 	}	
 }
