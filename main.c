@@ -705,14 +705,7 @@ static void chord_detect(void) {
 
 void process_midi_byte(uint8_t b) {	
 	uint8_t buffer[1];
-	buffer[0] = b;
-	
-	tud_midi_n_stream_write(0, 0, buffer, 1);
-
-	if (!enable_mpx_looper) { 						// filter midi events from mpx pads	to midi synth			
-		uart_write_blocking(UART_ID, buffer, 1);
-		uart_tx_wait_blocking(UART_ID);			
-	}	
+	bool forward_midi_event = true;
 	
 	if (b & 0x80) {
 		// Status byte.
@@ -743,13 +736,14 @@ void process_midi_byte(uint8_t b) {
 				uint8_t note     = midi_data0;
 				uint8_t velocity = b;
 				midi_data_count  = 0;  // ready for next running-status pair				
-
+				bool note_on = (cmd == 0x90) && (velocity > 0);
+					
 				if (style_started) {
-					bool note_on = (cmd == 0x90) && (velocity > 0);
 					
 					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
 						style_section = note - 0x60;
 						style_change_requested = true;
+						forward_midi_event = false;
 					}
 					
 					if (note_on) {
@@ -762,49 +756,53 @@ void process_midi_byte(uint8_t b) {
 				}
 				else 
 					
-				if (style_end_requested) {
-					style_end_requested = false;
-					
-					if (enable_nanobox_tangerine) {
-						style_end_started = true;	
-						sampler_midi_note(0x94, END1, sample_drum_velocity);
-						nanobox_stop_loops();						
-					} 
-					else 
-					
-					if (enable_wav_trigger_pro) {
-						wav_trigger_pro_stop_loops();						
-						sampler_midi_note(0x94, END1, sample_drum_velocity); // not a loop								
-					}
-				}
-				else
-					
-				if (style_end_started) {
-					style_end_started = false;					
-					sampler_midi_note(0x94, END1, sample_drum_velocity);	
-				}
-				else		// use pad keys to load a new style from SD Card
-					
-				if ((note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro))
-				{
-					if (note >= 0x60 && note <= 0x67) {							// launchkey top roww
-						style_group = note - 0x60;
+				if (note_on) 
+				{					
+					if (style_end_requested) {
+						style_end_requested = false;
+						
+						if (enable_nanobox_tangerine) {
+							style_end_started = true;	
+							sampler_midi_note(0x94, END1, sample_drum_velocity);
+							nanobox_stop_loops();						
+						} 
+						else 
+						
+						if (enable_wav_trigger_pro) {
+							wav_trigger_pro_stop_loops();						
+							sampler_midi_note(0x94, END1, sample_drum_velocity); // not a loop								
+						}
 					}
 					else
 						
-					if (note >= 0x70 && note <= 0x77) {							// launchkey bottom row
-						style_group = note - 0x70 + 8;								
+					if (style_end_started) {
+						style_end_started = false;					
+						sampler_midi_note(0x94, END1, sample_drum_velocity);	
 					}
+					else		// use pad keys to load a new style from SD Card
+						
+					if ((note >= 0x60 && note <= 0x77) && (enable_nanobox_tangerine || enable_wav_trigger_pro)) {
+						forward_midi_event = false;
+						
+						if (note >= 0x60 && note <= 0x67) {							// launchkey top roww
+							style_group = note - 0x60;
+						}
+						else
+							
+						if (note >= 0x70 && note <= 0x77) {							// launchkey bottom row
+							style_group = note - 0x70 + 8;								
+						}
 
-					if (enable_wav_trigger_pro) {
-						sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset
-					} 									
-					else
+						if (enable_wav_trigger_pro) {
+							sampler_midi_note(0x9F, 36 + style_group, 127);	 // select and load preset
+						} 									
+						else
 
-					if (enable_nanobox_tangerine) {
-						midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+						if (enable_nanobox_tangerine) {
+							midi_send_program_change(0xCF, style_group + 2); // select preset on channel 16 and skip both 1010 pianos	
+						}
 					}
-				}				
+				}					
 			}
 		}
 		else
@@ -1039,6 +1037,14 @@ void process_midi_byte(uint8_t b) {
 			if (midi_data_count >= expected) midi_data_count = 0;
 		}
 	}
+
+	buffer[0] = b;	
+	tud_midi_n_stream_write(0, 0, buffer, 1);
+
+	if (forward_midi_event && !enable_mpx_looper) { 	// filter midi events from mpx pads	to midi synth			
+		uart_write_blocking(UART_ID, buffer, 1);
+		uart_tx_wait_blocking(UART_ID);			
+	}	
 	
 }
 
