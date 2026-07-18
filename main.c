@@ -769,14 +769,14 @@ void process_midi_byte(uint8_t b) {
 							if (note >= 0x70 && note <= 0x77) {	
 								dpad_down = 1; 							
 								
-								if (note == 0x70) {green = 1};
-								if (note == 0x71) {red = 1};
-								if (note == 0x72) {yellow = 1};
-								if (note == 0x73) {blue = 1};	
-								if (note == 0x74) {green = 1;  red = 1};
-								if (note == 0x75) {red = 1;    yellow = 1};
-								if (note == 0x76) {yellow = 1; blue = 1};
-								if (note == 0x77) {blue = 1;   orange = 1};								
+								if (note == 0x70) {green = 1;}
+								if (note == 0x71) {red = 1;}
+								if (note == 0x72) {yellow = 1;}
+								if (note == 0x73) {blue = 1;}	
+								if (note == 0x74) {green = 1;  red = 1;}
+								if (note == 0x75) {red = 1;    yellow = 1;}
+								if (note == 0x76) {yellow = 1; blue = 1;}
+								if (note == 0x77) {blue = 1;   orange = 1;}								
 								
 								gamepad_bluetooth_handle_data();							
 							}
@@ -785,10 +785,10 @@ void process_midi_byte(uint8_t b) {
 							if (note >= 0x60 && note <= 0x67) {
 								pitch = 1;
 								
-								if (note == 0x60) {green = 1; blue = 1};	// toggle mute drums
-								if (note == 0x61) {red = 1;   blue = 1};	// toggle mute bass										
-								if (note == 0x62) {green = 1; yellow = 1};	// toggle mute chords						
-								if (note == 0x64) {green = 1; orange = 1};	// toggle mute worship pads
+								if (note == 0x60) {green = 1; blue = 1;}	// toggle mute drums
+								if (note == 0x61) {red = 1;   blue = 1;}	// toggle mute bass										
+								if (note == 0x62) {green = 1; yellow = 1;}	// toggle mute chords						
+								if (note == 0x64) {green = 1; orange = 1;}	// toggle mute worship pads
 								
 								gamepad_bluetooth_handle_data();									
 							}																
