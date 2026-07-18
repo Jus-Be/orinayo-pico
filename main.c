@@ -160,14 +160,20 @@ extern bool style_end_requested;
 extern bool style_end_started;
 extern bool preferences_changed;
 
+extern uint8_t but0; 
+extern uint8_t but1;
 extern uint8_t but2; 
+extern uint8_t but3; 
 extern uint8_t but4; 
 extern uint8_t mbut0;
 extern uint8_t dpad_down;
 extern uint8_t logo;
 extern uint8_t starpower;
-extern uint8_t orange;
+extern uint8_t green;
+extern uint8_t red;
 extern uint8_t yellow;
+extern uint8_t orange;
+extern uint8_t blue;
 extern bool joy_up; 
 extern uint8_t joystick_up;
 
@@ -749,13 +755,15 @@ void process_midi_byte(uint8_t b) {
 					
 				if (style_started) 
 				{					
-					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro))
-					{
+					if ((note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro))	{
+						b = 0; // make note silent on midi synth
+						
 						if (note_on) {
-							//old_style = style_section;
-							//style_section = note - 0x60;
-							//style_change_requested = true;
-							dpad_down = 1; starpower = 0; yellow = 0; but2 = 1;	
+							if (note == 0x60) but1 = 1;
+							if (note == 0x61) but0 = 1;
+							if (note == 0x62) but2 = 1;
+							if (note == 0x63) but3 = 1;							
+							dpad_down = 1; starpower = 0; green = 0, red = 0, blue = 0, yellow = 0;
 							gamepad_bluetooth_handle_data();							
 						}
 					}
