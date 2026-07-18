@@ -160,6 +160,7 @@ extern bool style_end_requested;
 extern bool style_end_started;
 extern bool preferences_changed;
 
+extern uint8_t but2; 
 extern uint8_t but4; 
 extern uint8_t mbut0;
 extern uint8_t dpad_down;
@@ -709,7 +710,6 @@ void trigger_loop() {
 	}	
 }
 
-
 void process_midi_byte(uint8_t b) {	
 	uint8_t buffer[1];
 	//bool forward_midi_event = true;
@@ -728,6 +728,7 @@ void process_midi_byte(uint8_t b) {
 		}
 		// Channel message: update running status; reset data accumulator.
 		midi_running_status = b;
+		unsigned char channel_zero_indexed = midi_running_status & 0x0F;
 		midi_data_count = 0;
 	} else {
 		// Data byte — only process Note On / Note Off messages.
