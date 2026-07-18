@@ -238,6 +238,7 @@ void sampler_trigger_loop();
 void mpc_trigger_loop();
 void mpx_trigger_loop();
 void sp404_trigger_loop();
+void trigger_loop();
 void config_nanobox_tangerine();
 void config_mpx_looper();
 void process_midi_byte(uint8_t b);
@@ -681,27 +682,32 @@ static void chord_detect(void) {
         uint8_t root_1based = chord_root + 1;
         uint8_t bass_1based = (lowest % 12) + 1;
         advanced_chord = (root_1based * 256) + (bass_1based * 16) + type;
-
-		if (enable_mpx_looper) 	{					
-			mpx_trigger_loop();
-		}
-		else
-		
-        if (enable_mpc_sample) {
-            mpc_trigger_loop();
-        } 
-		else 
-		
-		if (enable_nanobox_tangerine || enable_wav_trigger_pro) {
-            sampler_trigger_loop();
-        }		
-		else 
-		
-		if (enable_sp404mk2) {
-            sp404_trigger_loop();
-        }
+		trigger_loop();
     }
 }
+
+void trigger_loop() {
+
+	if (enable_mpx_looper) 	{					
+		mpx_trigger_loop();
+	}
+	else
+	
+	if (enable_mpc_sample) {
+		mpc_trigger_loop();
+	} 
+	else 
+	
+	if (enable_nanobox_tangerine || enable_wav_trigger_pro) {
+		sampler_trigger_loop();
+	}		
+	else 
+	
+	if (enable_sp404mk2) {
+		sp404_trigger_loop();
+	}	
+}
+
 
 void process_midi_byte(uint8_t b) {	
 	uint8_t buffer[1];
@@ -738,21 +744,22 @@ void process_midi_byte(uint8_t b) {
 				midi_data_count  = 0;  // ready for next running-status pair				
 				bool note_on = (cmd == 0x90) && (velocity > 0);
 					
-				if (style_started) {
-					
+				if (style_started) 
+				{					
 					if (note_on && (note >= 0x60 && note <= 0x67) && (enable_nanobox_tangerine || enable_wav_trigger_pro)){
 						style_section = note - 0x60;
 						style_change_requested = true;
-						//forward_midi_event = false;
+						trigger_loop();
 					}
-					
-					if (note_on) {
-						chord_note_on(note);
-					} else {
-						chord_note_off(note);
+					else {
+						if (note_on) {
+							chord_note_on(note);
+						} else {
+							chord_note_off(note);
+						}
+						
+						chord_detect();						
 					}
-					
-					chord_detect();
 				}
 				else 
 					
@@ -822,8 +829,8 @@ void process_midi_byte(uint8_t b) {
 					gamepad_bluetooth_handle_data();
 
 					if (style_started) launchkey_set_led(0x90, 0, 36, 45);
-					if (!style_started) launchkey_set_led(0x90, 2, 37, 5);
-					launchkey_display_text("Jamin Controller", true); 				
+					//if (!style_started) launchkey_set_led(0x90, 2, 37, 5);
+					//launchkey_display_text("Jamin Controller", true); 				
 				}				
 				else
 
