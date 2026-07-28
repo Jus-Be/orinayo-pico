@@ -1441,7 +1441,7 @@ void sampler_midi_note(uint8_t command, uint8_t note, uint8_t velocity) {
 	msg[1] = note;
 	msg[2] = velocity;   
 
-	if (enable_wav_trigger_pro) {
+	if (enable_wav_trigger_pro && midi_keyboard_connected) {	// WAV trigger Pro cannot be on USB Host. Something else is
 		wav_trigger_pro_forward_midi_message(msg, 3);
 	} else {
 		midi_n_stream_write(0, 0, msg, 3);	// includes sampler connected by UART0 MIDI	
