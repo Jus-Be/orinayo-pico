@@ -68,6 +68,7 @@ bool style_change_requested = false;
 bool style_end_requested = false;
 bool style_end_started = false;
 bool preferences_changed = false;
+bool bluetooth_keys_reset_requested = false;
 
 uint8_t but0 = 0;
 uint8_t but1 = 0;
@@ -1698,7 +1699,7 @@ void gamepad_bluetooth_handle_data() {
 				}
 			} 			
 			else if (green && red && yellow) config_guitar(18);		// Reset Preferences
-			else if (red && yellow && blue) config_guitar(16);		// Used
+			else if (red && yellow && blue) config_guitar(16);		// Clear Bluetooth bonds
 			else if (green && red && blue) config_guitar(15);		// Used			
 			else if (yellow && blue && orange) config_guitar(17);	// Save Preferences
 			
@@ -2074,8 +2075,10 @@ void config_guitar(uint8_t mode) {
 	}
 	else
 		
-	if (mode == 16) {										// unused
-
+	if (mode == 16) {										// Clear Bluetooth bonds
+		PICO_INFO("[BT] Clearing stored Bluetooth bonding data\n");
+		uni_bt_del_keys_unsafe();
+		bluetooth_keys_reset_requested = true;
 	}
 	else
 		

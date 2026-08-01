@@ -159,6 +159,7 @@ extern bool enable_wav_trigger_pro;
 extern bool style_end_requested;
 extern bool style_end_started;
 extern bool preferences_changed;
+extern bool bluetooth_keys_reset_requested;
 
 extern uint8_t but0; 
 extern uint8_t but1;
@@ -407,6 +408,12 @@ int main() {
 			tuh_midi_stream_write(midi_itf_idx, launchkey_tx_cable_count >= 2 ? 1 : 0, msg, 3);
 			tuh_midi_write_flush(midi_itf_idx);
 		}		
+
+		if (bluetooth_keys_reset_requested) {
+			bluetooth_keys_reset_requested = false;
+			watchdog_enable(1, 1); 			// force reboot
+			while(1);
+		}
 
 		if (preferences_changed) {
 			preferences_changed = false;
