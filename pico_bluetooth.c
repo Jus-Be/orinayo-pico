@@ -7,6 +7,7 @@
 #include <bt/uni_bt.h>
 #include <btstack.h>
 #include <controller/uni_gamepad.h>
+#include <hid_usage.h>
 #include "pico/stdlib.h"
 #include <pico/cyw43_arch.h>
 #include <pico/time.h>
@@ -231,6 +232,102 @@ void sampler_trigger_break();
 void ble_midi_client_scan_end();
 void set_tempo(uint8_t tempo);
 
+static bool keyboard_usage_present(const uint8_t keys[UNI_KEYBOARD_PRESSED_KEYS_MAX], uint8_t usage) {
+	for (int i = 0; i < UNI_KEYBOARD_PRESSED_KEYS_MAX; i++) {
+		const uint8_t key = keys[i];
+		if (key == HID_USAGE_KB_NONE || key == HID_USAGE_KB_ERROR_ROLL_OVER) {
+			break;
+		}
+		if (key == usage) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static const char* keyboard_usage_to_string(uint8_t usage) {
+	switch (usage) {
+		case HID_USAGE_KB_ENTER: return "ENTER";
+		case HID_USAGE_KB_ESCAPE: return "ESC";
+		case HID_USAGE_KB_BACKSPACE: return "BACKSPACE";
+		case HID_USAGE_KB_TAB: return "TAB";
+		case HID_USAGE_KB_SPACEBAR: return "SPACE";
+		case HID_USAGE_KB_MINUS_UNDERSCORE: return "-";
+		case HID_USAGE_KB_EQUAL_PLUS: return "=";
+		case HID_USAGE_KB_OBRACKET_OBRACE: return "[";
+		case HID_USAGE_KB_CBRACKET_CBRACE: return "]";
+		case HID_USAGE_KB_BACKSLASH_VERTICAL_BAR: return "\\";
+		case HID_USAGE_KB_SEMICOLON_COLON: return ";";
+		case HID_USAGE_KB_SINGLE_DOUBLE_QUOTE: return "'";
+		case HID_USAGE_KB_COMMA_LESS: return ",";
+		case HID_USAGE_KB_DOT_GREATER: return ".";
+		case HID_USAGE_KB_SLASH_QUESTION: return "/";
+		case HID_USAGE_KB_CAPS_LOCK: return "CAPS_LOCK";
+		case HID_USAGE_KB_UP_ARROW: return "UP";
+		case HID_USAGE_KB_DOWN_ARROW: return "DOWN";
+		case HID_USAGE_KB_LEFT_ARROW: return "LEFT";
+		case HID_USAGE_KB_RIGHT_ARROW: return "RIGHT";
+		default:
+			if (usage >= HID_USAGE_KB_A && usage <= HID_USAGE_KB_Z) {
+				static char letter[2];
+				letter[0] = 'A' + (usage - HID_USAGE_KB_A);
+				letter[1] = '\0';
+				return letter;
+			}
+			if (usage >= HID_USAGE_KB_1_EXCLAMATION_MARK && usage <= HID_USAGE_KB_9_OPARENTHESIS) {
+				static char digit[2];
+				digit[0] = '1' + (usage - HID_USAGE_KB_1_EXCLAMATION_MARK);
+				digit[1] = '\0';
+				return digit;
+			}
+			if (usage == HID_USAGE_KB_0_CPARENTHESIS) {
+				return "0";
+			}
+			return "UNKNOWN";
+	}
+}
+
+static void keyboard_bluetooth_handle_data(uni_controller_t* ctl) {
+	static uni_keyboard_t prev_keyboard = {0};
+	const uni_keyboard_t* kb = &ctl->keyboard;
+	bool changed = false;
+
+	if (kb->modifiers != prev_keyboard.modifiers) {
+		changed = true;
+	}
+	for (int i = 0; i < UNI_KEYBOARD_PRESSED_KEYS_MAX; i++) {
+		if (kb->pressed_keys[i] != prev_keyboard.pressed_keys[i]) {
+			changed = true;
+			break;
+		}
+	}
+	if (!changed) {
+		return;
+	}
+
+	PICO_INFO("[BT Keyboard] report: modifiers=0x%02x\n", kb->modifiers);
+	for (int i = 0; i < UNI_KEYBOARD_PRESSED_KEYS_MAX; i++) {
+		const uint8_t usage = kb->pressed_keys[i];
+		if (usage == HID_USAGE_KB_NONE || usage == HID_USAGE_KB_ERROR_ROLL_OVER) {
+			break;
+		}
+		if (!keyboard_usage_present(prev_keyboard.pressed_keys, usage)) {
+			PICO_INFO("[BT Keyboard] key-down: %s (usage=0x%02x)\n", keyboard_usage_to_string(usage), usage);
+		}
+	}
+	for (int i = 0; i < UNI_KEYBOARD_PRESSED_KEYS_MAX; i++) {
+		const uint8_t usage = prev_keyboard.pressed_keys[i];
+		if (usage == HID_USAGE_KB_NONE || usage == HID_USAGE_KB_ERROR_ROLL_OVER) {
+			break;
+		}
+		if (!keyboard_usage_present(kb->pressed_keys, usage)) {
+			PICO_INFO("[BT Keyboard] key-up: %s (usage=0x%02x)\n", keyboard_usage_to_string(usage), usage);
+		}
+	}
+
+	prev_keyboard = *kb;
+}
+
 
 int chord_chart[12][3][6] = {
 	{{ 3,  3, 2, 0, 1, 0}, {-1,  3, 5, 5, 4, 3}, {-1, -1, 3, 0, 1, 3}},
@@ -375,10 +472,8 @@ static uni_error_t pico_bluetooth_on_device_discovered(bd_addr_t addr, const cha
 	 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, true);
   }
 
-  // As an example, if you want to filter out keyboards, do:
   if (((cod & UNI_BT_COD_MINOR_MASK) & UNI_BT_COD_MINOR_KEYBOARD) == UNI_BT_COD_MINOR_KEYBOARD) {
-    // PICO_DEBUG("[BT] Ignoring keyboard device\n");
-    return UNI_ERROR_IGNORE_DEVICE;
+    PICO_INFO("[BT] Keyboard discovered, allowing auto-pairing\n");
   }
 
   return UNI_ERROR_SUCCESS;
@@ -505,7 +600,7 @@ static void pico_bluetooth_on_controller_data(uni_hid_device_t* d, uni_controlle
 			// DO NOTHING
 			break;
 		case UNI_CONTROLLER_CLASS_KEYBOARD:
-			// DO NOTHING
+			keyboard_bluetooth_handle_data(ctl);
 			break;
 		default:
 			//loge("Unsupported controller class: %d\n", ctl->klass);
