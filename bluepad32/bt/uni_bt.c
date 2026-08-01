@@ -374,12 +374,16 @@ void uni_bt_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                         uni_bt_bredr_on_hci_pin_code_request(channel, packet, size);
                     break;
                 }
-                case HCI_EVENT_USER_CONFIRMATION_REQUEST:
-                    // inform about user confirmation request
-                    logi("SSP User Confirmation Request with numeric value '%" PRIu32 "'\n",
-                         little_endian_read_32(packet, 8));
+                case HCI_EVENT_USER_CONFIRMATION_REQUEST: {
+                    bd_addr_t event_addr;
+
+                    logi("SSP User Confirmation Request with numeric value '%06" PRIu32 "'\n",
+                         hci_event_user_confirmation_request_get_numeric_value(packet));
                     logi("SSP User Confirmation Auto accept\n");
+                    hci_event_user_confirmation_request_get_bd_addr(packet, event_addr);
+                    gap_ssp_confirmation_response(event_addr);
                     break;
+                }
                 case HCI_EVENT_HID_META: {
                     uint8_t code = hci_event_hid_meta_get_subevent_code(packet);
                     logi("HCI HID META SUBEVENT: 0x%02x\n", code);
