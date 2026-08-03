@@ -362,7 +362,7 @@ int main() {
 	sleep_ms(500);	
 	
 	wav_trigger_pro_connected = is_wav_trigger_connected();	
-	usb_serial_print("Orinayo Pico Ready)\r\n");
+	
 	
     while (true) {
 		tud_task(); // tinyusb device task		
@@ -418,13 +418,6 @@ int main() {
     }
 	
     //cancel_repeating_timer(&timer);	
-}
-
-void usb_serial_print(const char* str) {
-    if (tud_cdc_connected()) {
-        tud_cdc_write(str, strlen(str));
-        tud_cdc_write_flush();
-    }
 }
 
 //--------------------------------------------------------------------+
