@@ -95,6 +95,9 @@ extern "C" {
 #define CFG_TUD_MIDI_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_MIDI_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 
+#define CFG_TUD_CDC_RX_BUFSIZE   64
+#define CFG_TUD_CDC_TX_BUFSIZE   64
+
 //--------------------------------------------------------------------
 // HOST CONFIGURATION (USB MIDI host via PIO USB)
 //--------------------------------------------------------------------
